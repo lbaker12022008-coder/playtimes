@@ -1,0 +1,26 @@
+name: build site
+on:
+  schedule:
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build site from collected data
+        env:
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          git config --global user.name "builder"
+          git config --global user.email "builder@users.noreply.github.com"
+          git clone --branch data --single-branch "$REPO_URL" datarepo
+          python3 cloud/build_cloud.py datarepo
+          rm -rf datarepo data.db
+          git add docs
+          git commit -m "rebuild site" || exit 0
+          git push
