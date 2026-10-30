@@ -1,0 +1,27 @@
+name: collect
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: collect
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect player counts
+        env:
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          git config --global user.name "collector"
+          git config --global user.email "collector@users.noreply.github.com"
+          git clone --branch data --single-branch "$REPO_URL" datarepo 2>/dev/null || { mkdir datarepo && git -C datarepo init -q -b data && git -C datarepo remote add origin "$REPO_URL"; }
+          python3 cloud/collector_cloud.py datarepo
+          cd datarepo
+          git add -A
+          git commit -m "data $(date -u +%FT%TZ)" || exit 0
+          git push origin data
