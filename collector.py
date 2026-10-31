@@ -32,7 +32,7 @@ def main():
     for i in range(0, len(ids), 50):
         for g in fetch(ids[i:i + 50]):
             db.execute("INSERT OR REPLACE INTO games VALUES(?,?,?,?)",
-                       (g["id"], g.get("name"), g.get("genre"), g.get("rootPlaceId")))
+                       (g["id"], g.get("name"), g.get("genre_l1") or g.get("genre"), g.get("rootPlaceId")))
             db.execute("INSERT INTO samples VALUES(?,?,?)", (g["id"], now, g.get("playing", 0)))
         db.commit(); time.sleep(1.5)
 

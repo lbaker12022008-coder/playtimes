@@ -1,5 +1,5 @@
 """Reads data.db and writes a static site to docs/ (deploy on Cloudflare Pages / GitHub Pages)."""
-import sqlite3, json, re, os, html, urllib.request
+import sqlite3, json, re, os, html, time, urllib.request
 from datetime import datetime, timezone
 
 SITE = "PlayTime"          # change me (don't put 'Roblox' in your domain name)
@@ -7,6 +7,8 @@ MIN_SAMPLES = 2          # ~2 days at 15-min intervals
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = "docs"
+DOMAIN = ""                # your web address once you buy it, e.g. "https://playtime.gg" (makes full sitemap links)
+ROBUX_USD = 0.0125         # rough dollars per Robux (800 Robux costs $9.99)
 CONTACT = ""               # a contact email for the site (NOT your personal one), e.g. hello@yourdomain.com
 POLICY_DATE = "October 30, 2026"   # change this whenever you edit the Privacy Policy
 
@@ -59,7 +61,17 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
 .ghead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:16px 0}
 .ghead .thumb{width:150px;flex:none}.ghead>div{flex:1 1 260px}
-.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}"""
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
+.top nav{display:flex;gap:16px;font-weight:700}.top nav a{text-decoration:none}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
+.pills a:hover{border-color:var(--acc)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+.fav{font:inherit;font-weight:700;padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.fav[aria-pressed=true]{border-color:#e0a800;color:#b8860b}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}.tbl td,.tbl th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
+details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}"""
 
 ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
 
@@ -67,8 +79,8 @@ def page(title, body, desc="", wide=False):
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">{ROBOTS}<style>{CSS}</style>{ADS}</head><body><div class="w{' wide' if wide else ''}">
-<div class="top"><a class="logo" href="/">{html.escape(SITE)}</a></div>{body}
-<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<div class="top"><a class="logo" href="/">{html.escape(SITE)}</a><nav><a href="/trending.html">Trending</a></nav></div>{body}
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
 </div></body></html>"""
 
@@ -120,6 +132,8 @@ page first to explain what the ad provider collects and how to turn off personal
 anyone, including children under 13. If you think a child has sent us personal information, contact us and we will delete it.</p>
 <h2>Things that stay on your device</h2>
 <p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
+<p>If you tap <b>Save</b> on a game, the list of games you saved is kept in your browser's storage on your device.
+It is never sent to us. Clearing your browser data removes it.</p>
 <h2>Our hosting provider</h2>
 <p>The site is hosted by Cloudflare. Like any website host, Cloudflare automatically handles basic technical information
 (such as IP addresses and browser type) to deliver pages and protect the site from attacks. See
@@ -135,18 +149,65 @@ def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "game"
 
 ICON_API = "https://thumbnails.roblox.com/v1/games/icons?size=256x256&format=Webp&isCircular=false&universeIds="
 
+PASS_API = "https://apis.roblox.com/game-passes/v1/universes/{}/game-passes?passView=Full&pageSize=100"
+
+def get_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "playtime/1.0"})
+    with urllib.request.urlopen(req, timeout=20) as r: return json.load(r)
+
 def fetch_icons(ids):
     """Asks Roblox's public thumbnail service for each game's square icon. Returns {universe_id: url}."""
     out = {}
     for i in range(0, len(ids), 50):
         try:
-            req = urllib.request.Request(ICON_API + ",".join(map(str, ids[i:i + 50])), headers={"User-Agent": "playtime/1.0"})
-            with urllib.request.urlopen(req, timeout=20) as r:
-                for t in json.load(r).get("data", []):
-                    if t.get("state") == "Completed" and t.get("imageUrl"): out[t["targetId"]] = t["imageUrl"]
+            for t in get_json(ICON_API + ",".join(map(str, ids[i:i + 50]))).get("data", []):
+                if t.get("state") == "Completed" and t.get("imageUrl"): out[t["targetId"]] = t["imageUrl"]
         except Exception as e:
             print("Could not load icons (pages will show a letter instead):", e)
     return out
+
+def fetch_passes(uid):
+    """Game passes on sale as [(name, robux)], or None if Roblox didn't answer (the parent section is then hidden)."""
+    out, token = [], ""
+    try:
+        for _ in range(10):
+            d = get_json(PASS_API.format(uid) + (f"&pageToken={token}" if token else ""))
+            out += [(p.get("displayName") or p.get("name") or "Game pass", p["price"])
+                    for p in d.get("gamePasses", []) if p.get("isForSale") and p.get("price")]
+            token = d.get("nextPageToken")
+            if not token: break
+            time.sleep(0.3)
+        return out
+    except Exception as e:
+        print(f"Could not load game passes for {uid}:", e)
+        return None
+
+def parents_html(passes):
+    if passes is None: return ""
+    h = '<div class="card"><h2>For parents: what costs money</h2>'
+    if not passes:
+        h += "<p>This game sells <b>no game passes</b> right now.</p>"
+    else:
+        ps = sorted(passes, key=lambda p: p[1]); total = sum(p for _, p in ps)
+        n = len(ps)
+        h += (f"<p>This game sells <b>{n} game pass{'es' if n != 1 else ''}</b>, from <b>{ps[0][1]:,} to {ps[-1][1]:,} Robux</b>. "
+              f"Buying every one would cost <b>{total:,} Robux</b> (roughly ${total * ROBUX_USD:,.0f} USD).</p>")
+        rows = "".join(f"<tr><td>{html.escape(nm)}</td><td>{p:,}</td></tr>" for nm, p in reversed(ps))
+        h += (f'<details><summary>See every game pass</summary><div class="wrap"><table class="tbl">'
+              f'<tr><th>Game pass</th><th>Robux</th></tr>{rows}</table></div></details>')
+    h += ('<p class="mut small">Games can also sell one-time items inside the game, which are not listed here. '
+          'Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>')
+    return h
+
+def tile(c):
+    return (f'<li data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}"><a class="tile" href="/game/{c["slug"]}.html">'
+            f'{thumb(c["name"], c["icon"])}<span class="tname">{html.escape(c["name"])}</span>'
+            f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
+            f'{trend_short(c["trend"])}</span></a></li>')
+
+def grid(cards, gid=""):
+    idattr = f' id="{gid}"' if gid else ""
+    return f'<ul class="grid"{idattr}>{"".join(tile(c) for c in cards)}</ul>'
 
 def thumb(name, url, alt=""):
     if url: return f'<img class="thumb" src="{html.escape(url)}" alt="{html.escape(alt)}" width="256" height="256" loading="lazy">'
@@ -187,7 +248,8 @@ def trend_html(t):
     return '<span class="mut">Steady</span>'
 
 GAME = """<div class="ghead">__ICON__<div><h1>When is __NAME__ busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on __N__ player counts.</p>__PLAY__</div></div>
+<p class="mut">Times are shown in your timezone. Based on __N__ player counts.__CAT__</p>
+<div class="actions">__PLAY__<button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button></div></div></div>
 <div class="card ans"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
 <div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -197,8 +259,23 @@ GAME = """<div class="ghead">__ICON__<div><h1>When is __NAME__ busiest?</h1>
 <div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>__AVG__</b></div>
 <div><span class="mut small">Highest seen</span><b>__PEAK__</b></div>
 <div><span class="mut small">Compared to last week</span><b>__TREND__</b></div></div>
+__PARENTS__
 <p><a href="/">&larr; All games</a></p>
-<script>__JS__</script>"""
+<script>__JS__</script><script>__FAVJS__</script>"""
+
+# Saved games live only in this browser's localStorage (never sent anywhere).
+FAVJS = """function getFavs(){try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
+function setFavs(f){try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}}"""
+
+FAV_GAME = FAVJS + """
+(()=>{const b=document.getElementById('fav'),k=b.dataset.s;
+const draw=()=>{const on=getFavs().includes(k);b.setAttribute('aria-pressed',on);b.innerHTML=on?'&#9733; Saved':'&#9734; Save'};
+b.onclick=()=>{let f=getFavs();f=f.includes(k)?f.filter(x=>x!==k):f.concat(k);setFavs(f);draw()};draw()})();"""
+
+FAV_HOME = "<script>" + FAVJS + """
+(()=>{const fg=document.getElementById('favgrid');getFavs().forEach(s=>{
+const li=document.querySelector('#all li[data-s="'+CSS.escape(s)+'"]');if(li)fg.appendChild(li.cloneNode(true))});
+if(fg.children.length)document.getElementById('favs').hidden=false})();</script>"""
 
 JS = """const M=__DATA__,D=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const off=-new Date().getTimezoneOffset()/60,L=D.map(()=>Array(24).fill(null));
@@ -232,42 +309,75 @@ $('hm').innerHTML=g;show(nd);"""
 SEARCH = """<script>const s=document.getElementById('s');s.oninput=()=>{const t=s.value.toLowerCase();
 document.querySelectorAll('.grid li').forEach(li=>li.hidden=!li.dataset.n.includes(t))}</script>"""
 
+def write(path, text):
+    os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
+    open(f"{OUT}/{path}", "w", encoding="utf-8").write(text)
+
 def main():
     db = sqlite3.connect("data.db"); os.makedirs(OUT + "/game", exist_ok=True)
     cards = []
     games = db.execute("SELECT * FROM games").fetchall()
     icons = fetch_icons([g[0] for g in games])
+    # Categories with at least 2 games get their own page ("All" is Roblox's "no genre").
+    genre_count = {}
+    for g in games: genre_count[g[2]] = genre_count.get(g[2], 0) + 1
+    cats = {g for g, n in genre_count.items() if g and g != "All" and n >= 2}
     for uid, name, genre, place in games:
         rows = db.execute("SELECT ts,playing FROM samples WHERE universe_id=? ORDER BY ts", (uid,)).fetchall()
         if len(rows) < MIN_SAMPLES: continue
         m, trend, avg7, peak = analyze(rows)
         s = slug(name)
-        play = f'<p><a class="btn" href="https://www.roblox.com/games/{place}">Play {html.escape(name)}</a></p>' if place and place > 1 else ""
+        play = f'<a class="btn" href="https://www.roblox.com/games/{place}">Play {html.escape(name)}</a>' if place and place > 1 else ""
+        cat = f' Category: <a href="/category/{slug(genre)}.html">{html.escape(genre)}</a>.' if genre in cats else ""
+        passes = fetch_passes(uid); time.sleep(0.3)
         body = (GAME.replace("__ICON__", thumb(name, icons.get(uid), f"{name} icon"))
-                .replace("__NAME__", html.escape(name)).replace("__N__", f"{len(rows):,}")
-                .replace("__PLAY__", play).replace("__AVG__", f"{avg7:,}").replace("__PEAK__", f"{peak:,}")
-                .replace("__TREND__", trend_html(trend)).replace("__JS__", JS.replace("__DATA__", json.dumps(m))))
-        open(f"{OUT}/game/{s}.html", "w", encoding="utf-8").write(page(
+                .replace("__NAME__", html.escape(name)).replace("__N__", f"{len(rows):,}").replace("__CAT__", cat)
+                .replace("__PLAY__", play).replace("__SLUG__", s).replace("__AVG__", f"{avg7:,}").replace("__PEAK__", f"{peak:,}")
+                .replace("__TREND__", trend_html(trend)).replace("__PARENTS__", parents_html(passes))
+                .replace("__FAVJS__", FAV_GAME).replace("__JS__", JS.replace("__DATA__", json.dumps(m))))
+        write(f"game/{s}.html", page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? See the hours and days with the most and fewest players."))
-        cards.append((avg7, trend, name, s, icons.get(uid)))
-    cards.sort(key=lambda c: c[0], reverse=True)
-    li = "".join(f'<li data-n="{html.escape(n.lower())}"><a class="tile" href="/game/{s}.html">{thumb(n, ic)}'
-                 f'<span class="tname">{html.escape(n)}</span>'
-                 f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(a)}</span>{trend_short(t)}</span></a></li>'
-                 for a, t, n, s, ic in cards)
+        cards.append({"avg": avg7, "trend": trend, "name": name, "slug": s, "icon": icons.get(uid), "genre": genre})
+    cards.sort(key=lambda c: c["avg"], reverse=True)
+
+    cat_pages = []
+    for g in sorted(cats):
+        cg = [c for c in cards if c["genre"] == g]
+        if not cg: continue
+        cat_pages.append((g, f"/category/{slug(g)}.html"))
+        write(f"category/{slug(g)}.html", page(f"Best Times to Play {g} Games - {SITE}",
+            f'<h1>{html.escape(g)} games</h1><p class="mut">When are popular {html.escape(g.lower())} games busiest? '
+            f'Pick one to see its week.</p>{grid(cg)}<p><a href="/">&larr; All games</a></p>',
+            f"See when popular {g} games are busiest and quietest, hour by hour.", wide=True))
+    pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
+
     body = (f"<h1>When is your game busiest?</h1><p class=\"mut\">Find the quiet hours for less crowding, or the busy "
             f"hours for more players and events. Pick a game to see its week.</p>"
             f'<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
-            f'<h2 style="margin-top:24px">Popular games</h2><ul class="grid">{li}</ul>{SEARCH}')
-    open(f"{OUT}/index.html", "w", encoding="utf-8").write(page(f"{SITE}: Best Times to Play Popular Games", body,
+            f'<div class="pills"><a href="/trending.html"><b>Trending</b></a>{pills}</div>'
+            f'<section id="favs" hidden><h2 style="margin-top:24px">Your saved games</h2><ul class="grid" id="favgrid"></ul></section>'
+            f'<h2 style="margin-top:24px">Popular games</h2>{grid(cards, "all")}{SEARCH}{FAV_HOME}')
+    write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
         "See when popular games are busiest and quietest, hour by hour.", wide=True))
+
+    up = sorted([c for c in cards if c["trend"] is not None and c["trend"] >= 5], key=lambda c: -c["trend"])
+    down = sorted([c for c in cards if c["trend"] is not None and c["trend"] <= -5], key=lambda c: c["trend"])
+    none = '<p class="mut">None right now. We compare the last 7 days with the 7 days before, so games need two weeks of player counts first.</p>'
+    write("trending.html", page(f"Trending Games: Growing and Shrinking - {SITE}",
+        f'<h1>Which games are growing?</h1><p class="mut">Games whose typical player count changed by 5% or more '
+        f'compared with the week before.</p><h2 style="margin-top:24px">Growing</h2>{grid(up) if up else none}'
+        f'<h2 style="margin-top:24px">Shrinking</h2>{grid(down) if down else none}<p><a href="/">&larr; All games</a></p>',
+        "See which popular games are gaining players and which are losing them this week.", wide=True))
     open(f"{OUT}/about.html", "w", encoding="utf-8").write(page(f"About {SITE}", about_body(),
         f"What {SITE} is, how it measures when games are busy, and what it does not tell you."))
     open(f"{OUT}/privacy.html", "w", encoding="utf-8").write(page(f"Privacy Policy - {SITE}", privacy_body(),
         f"{SITE} does not collect personal information. No accounts, no sign-ups, no logins."))
-    open(f"{OUT}/sitemap.txt", "w").write("\n".join(["/about.html", "/privacy.html"] + [f"/game/{c[3]}.html" for c in cards]))
-    open(f"{OUT}/robots.txt", "w").write("User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n")
+    base = DOMAIN.rstrip("/")
+    urls = ["/", "/trending.html", "/about.html", "/privacy.html"] + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards]
+    write("sitemap.txt", "\n".join(base + u for u in urls) + "\n")
+    robots = "User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else "")
+    write("robots.txt", robots)
     print(f"Built {len(cards)} game pages in {OUT}/")
 
 if __name__ == "__main__": main()
