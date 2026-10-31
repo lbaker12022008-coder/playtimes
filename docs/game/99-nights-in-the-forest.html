@@ -28,6 +28,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
 .hdr .in{max-width:1120px;margin:0 auto;padding:6px 16px 0}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
+.acct form{margin:0}
+.acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
+.acct .signin:hover{border-color:var(--acc)}
+.acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
 .logo{font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo span{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
@@ -47,14 +54,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
-
-/* the "right now" row on the homepage */
-.strip{display:flex;gap:10px;overflow-x:auto;padding:4px 16px 14px;margin:0 -16px;scroll-snap-type:x mandatory}
-.nowc{flex:none;width:166px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--ink);box-shadow:var(--sh);transition:transform .12s}
-.nowc:hover{transform:translateY(-3px)}
-.nowc .thumb{border-radius:11px}
-.nowc b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9rem;line-height:1.25;margin-top:7px}
-.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;color:#15233f}
 
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
@@ -127,11 +126,34 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style></head><body>
-<header class="hdr"><div class="in"><a class="logo" href="/">Play<span>Time</span></a>
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script>var PT={name:null,available:false,favs:null,cbs:[]};
+function getFavs(){if(PT.favs)return PT.favs;
+try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
+function setFavs(f){PT.favs=f;try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
+if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
+body:JSON.stringify({favs:f})}).catch(function(){})}
+PT.ready=function(fn){PT.cbs.push(fn);fn()};
+function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
+return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ptPaint(){var el=document.getElementById('acct');
+if(el){el.innerHTML=!PT.available?'':PT.name
+?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
++'<button class="linkish" type="submit">Sign out</button></form>'
+:'<a class="signin" href="/auth/login">Sign in with Roblox</a>'}
+PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
+fetch('/api/me').then(function(r){return r.json()}).then(function(d){
+PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
+if(d.signedIn){var mine=getFavs(),all=(d.favs||[]).slice();
+mine.forEach(function(s){if(all.indexOf(s)<0)all.push(s)});
+PT.favs=all;try{localStorage.setItem('pt_favs',JSON.stringify(all))}catch(e){}
+if(all.length!==(d.favs||[]).length)setFavs(all)}
+ptPaint()}).catch(function(){});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);</script></head><body>
+<header class="hdr"><div class="in"><div class="hrow"><a class="logo" href="/">Play<span>Time</span></a>
+<div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header>
 <div class="w"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-6fea21af78ed824cf3e2e998f63b687c/256/256/Image/Webp/noFilter" alt="99 Nights in the Forest 🔦 icon" width="256" height="256" loading="lazy" decoding="async"><div><h1>When is 99 Nights in the Forest 🔦 busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on 24 player counts. Category: <a href="/category/survival.html">Survival</a>.</p>
+<p class="mut">Times are shown in your timezone. Based on 26 player counts. Category: <a href="/category/survival.html">Survival</a>.</p>
 <div class="actions"><a class="btn" href="https://www.roblox.com/games/79546208627805">Play 99 Nights in the Forest 🔦</a><button class="fav" id="fav" data-s="99-nights-in-the-forest" aria-pressed="false">&#9734; Save</button>
 <a class="fav" href="/compare.html?a=99-nights-in-the-forest">Compare</a></div></div></div>
 <div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
@@ -147,7 +169,7 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p></div>
-<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>158,568</b></div>
+<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>158,478</b></div>
 <div><span class="mut small">Highest seen</span><b>198,475</b></div>
 <div><span class="mut small">Compared to last week</span><b><span class="mut">Not enough history yet</span></b></div></div>
 <div class="card"><h2>Is 99 Nights in the Forest 🔦 dead?</h2><div class="verdict">
@@ -212,7 +234,7 @@ pick.len=len;return pick}
 function countdown(ms){if(ms<=0)return 'right now';
 var m=Math.round(ms/60000),h=Math.floor(m/60);m=m%60;
 if(h>=24){var d=Math.floor(h/24);return 'in '+d+' day'+(d>1?'s':'')+' '+(h%24)+'h'}
-if(h)return 'in '+h+'h '+m+'m';return 'in '+m+' min'}</script><script>var M=[[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,192612,175580,154310,141240,139888],[149137,159288,162172,158334,157033,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
+if(h)return 'in '+h+'h '+m+'m';return 'in '+m+' min'}</script><script>var M=[[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,192612,175580,154310,141240,139888],[149137,159288,162172,158334,157275,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
 var best=null,worst=null,dayq=null;
 for(var d=0;d<7;d++)for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
 if(!best||v<best[2])best=[d,h,v];if(!worst||v>worst[2])worst=[d,h,v];
@@ -265,16 +287,15 @@ for(var d=0;d<7;d++){g+='<div>'+DAY[d].slice(0,3)+'</div>';
 for(var h=0;h<24;h++){var v=L[d][h];
 g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+DAY[d]+' '+fmt(h)+': about '+
 (v||0).toLocaleString()+' players" style="background:'+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
-$('hm').innerHTML=g;show(nd);</script><script>function getFavs(){try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
-function setFavs(f){try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}}
+$('hm').innerHTML=g;show(nd);</script><script>
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
 function draw(){var on=getFavs().indexOf(k)>-1;b.setAttribute('aria-pressed',on);
 b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
 b.onclick=function(){var f=getFavs();f=f.indexOf(k)>-1?f.filter(function(x){return x!==k}):f.concat(k);
-setFavs(f);draw()};draw()})();</script>
+setFavs(f);draw()};PT.ready(draw)})();</script>
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}</script></body></html>
