@@ -1,17 +1,37 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Best Time to Play The Hollow: Busy and Quiet Hours</title>
 <meta name="description" content="When is The Hollow busiest and quietest? Hourly player counts, upcoming events, recent updates, and whether it is growing or dying."><meta name="theme-color" content="#2563eb"><meta name="robots" content="noindex,nofollow">
-<style>:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
---glass:rgba(243,246,252,.82);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');if(t)d.setAttribute('data-theme',t);d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}catch(e){document.documentElement.setAttribute('data-view','grid')}</script><style>:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
+--glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
 --l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
---soft:#eef3ff}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
---acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.82);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942}}
+--soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04)}
+/* Follow the device unless the visitor picked a theme themselves. */
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
+--acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)}}
+:root[data-theme=dark]{--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
+--acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
-.w{max-width:780px;margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:1120px}
+.w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:1400px}
+/* The page sits in the middle with a column either side kept for ads, the way most
+   game-value sites lay out. The side columns only appear on wide screens, and only
+   when there is something to put in them. */
+.shell{display:grid;grid-template-columns:minmax(0,1fr);justify-content:center}
+.rail{display:none}
+.railb{display:none}
+.shell.ads{gap:20px}
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,1fr) 168px}
+.shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+/* The strip along the bottom only exists at all when ads are switched on. */
+@media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
+background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+padding:6px;text-align:center;height:98px}}
+.adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
+display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
 a{color:var(--acc)}
 h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter-spacing:-.02em}
 h2{font-size:1.15rem;margin:0 0 6px}
@@ -27,16 +47,62 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:1120px;margin:0 auto;padding:6px 16px 0}
-.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 0}
+.hrow{display:flex;align-items:center;gap:10px}
+.hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
 .acct form{margin:0}
 .acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
 .acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
-.logo{font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
-.logo span{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{width:30px;height:30px;flex:none}
+.logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@media(max-width:560px){.logo .wordmark{display:none}}
+/* the game switcher, top left */
+.gpick{position:relative}
+.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;padding:5px 10px;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.9rem;font-weight:700}
+.gpick>button:hover{border-color:var(--acc)}
+.gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
+.gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
+.gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--card);
+border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;z-index:20}
+.gmenu[hidden]{display:none}
+.gmenu p{margin:7px 10px 4px;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.gmenu a{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:.92rem}
+.gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
+.gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
+.gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
+/* round icon button on the right of the header */
+.iconb{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
+.iconb:hover{border-color:var(--acc)}
+.iconb svg{width:18px;height:18px;fill:currentColor}
+.iconb .moon{display:none}
+:root[data-theme=dark] .iconb .moon{display:block}
+:root[data-theme=dark] .iconb .sun{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .iconb .moon{display:block}
+:root:not([data-theme=light]) .iconb .sun{display:none}}
+/* grid or list */
+.vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.vtog button{display:grid;place-items:center;width:34px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;padding:0}
+.vtog button svg{width:16px;height:16px;fill:currentColor}
+.vtog button[aria-pressed=true]{background:var(--acc);color:#fff}
+.rowhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+.rowhead h2{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-view=list] .grid{grid-template-columns:minmax(0,1fr);gap:8px}
+:root[data-view=list] .tile{display:flex;align-items:center;gap:14px;padding:8px 12px;background:var(--card);
+border:1px solid var(--line);border-radius:13px}
+:root[data-view=list] .tile:hover{border-color:var(--acc)}
+:root[data-view=list] .thumb{width:52px;height:52px;flex:none;border-radius:10px}
+:root[data-view=list] .tile:hover .thumb{transform:none;box-shadow:none}
+:root[data-view=list] .ph{font-size:1.4rem}
+:root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
+:root[data-view=list] .tmeta{margin:0;flex:none}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
 .tabs::-webkit-scrollbar{display:none}
 .tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
@@ -93,8 +159,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:#fff;padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.fav[aria-pressed=true]{border-color:#e0a800;color:#8a6500;background:#fff8e1}
-@media(prefers-color-scheme:dark){.fav[aria-pressed=true]{background:#2a2410;color:#f3c653}}
+.fav[aria-pressed=true]{border-color:#e0a800;color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#15233f}
 .tbl{width:100%;border-collapse:collapse;font-size:.95rem}
@@ -163,9 +228,13 @@ if(who)localStorage.setItem('pt_joined',who)}catch(e){}
 if(all.length!==server.length)setFavs(all)}}
 ptPaint()}).catch(function(){});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);</script></head><body>
-<header class="hdr"><div class="in"><div class="hrow"><a class="logo" href="/">Play<span>Time</span></a>
+<header class="hdr"><div class="in"><div class="hrow">
+<a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#fff"/></svg><span class="wordmark">Play<b>Time</b></span></a>
+<div class="gpick" id="gpick"></div><div class="gap"></div>
+<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg></button>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header>
+<div class="shell">
 <div class="w"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-c8b65636fafc702eb1c7e0499367d09a/256/256/Image/Webp/noFilter" alt="The Hollow icon" width="256" height="256" loading="lazy" decoding="async"><div><h1>When is The Hollow busiest?</h1>
 <p class="mut">Times are shown in your timezone. Based on 34 player counts.</p>
 <div class="actions"><a class="btn" href="https://www.roblox.com/games/116463962153167">Play The Hollow</a><button class="fav" id="fav" data-s="the-hollow" aria-pressed="false">&#9734; Save</button>
@@ -215,10 +284,11 @@ What you find there can help you inside.
 If you are still there on October 31, you will not be the only one trying&hellip;</p><details><summary>Read the rest</summary><p class="desc">to get out.
 And not everyone will.
 
-We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed.</p></details><p class="mut small">Made by roblox presents. first released 17 days ago. 156m total visits. up to 20 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div>
+We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed. We cannot keep it closed.</p></details><p class="mut small">Made by roblox presents. first released 17 days ago. 156.1m total visits. up to 20 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div>
 <div class="card"><h2>For parents: what costs money</h2><p>This game sells <b>no game passes</b> right now.</p><p class="mut small">Games can also sell one-time items inside the game, which are not listed here. Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>
 <div class="card"><h2>Similar games</h2><p class="mut small">Games with about as many players, so they feel similar to play.</p><ul class="grid"><li style="--i:0" data-n="[🎃] steal a pet and ride it!" data-s="steal-a-pet-and-ride-it"><a class="tile" href="/game/steal-a-pet-and-ride-it.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-718d7184486ba335a818a6762901a294/256/256/Image/Webp/noFilter" alt="[🎃] Steal A Pet And Ride It! icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃] Steal A Pet And Ride It!</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 48.2K</span></span></a></li><li style="--i:1" data-n="[💰x2] cameraman tower defense" data-s="x2-cameraman-tower-defense"><a class="tile" href="/game/x2-cameraman-tower-defense.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-6310045d94ff1c3588b28610f167a5bb/256/256/Image/Webp/noFilter" alt="[💰X2] Cameraman Tower Defense icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[💰X2] Cameraman Tower Defense</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 48.5K</span></span></a></li><li style="--i:2" data-n="sol&#x27;s rng [ halloween event 🎃]" data-s="sol-s-rng-halloween-event"><a class="tile" href="/game/sol-s-rng-halloween-event.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-580bad59f2be64d4c624f96ab2a5630e/256/256/Image/Webp/noFilter" alt="Sol&#x27;s RNG [ Halloween Event 🎃] icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">Sol&#x27;s RNG [ Halloween Event 🎃]</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 46.8K</span></span></a></li><li style="--i:3" data-n="driving empire [🎃halloween event🎃]" data-s="driving-empire-halloween-event"><a class="tile" href="/game/driving-empire-halloween-event.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-e0e576fbd79469e1134c8d071b8479a6/256/256/Image/Webp/noFilter" alt="Driving Empire [🎃HALLOWEEN EVENT🎃] icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">Driving Empire [🎃HALLOWEEN EVENT🎃]</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 45.9K</span></span></a></li><li style="--i:4" data-n="[upd] volleyball legends" data-s="upd-volleyball-legends"><a class="tile" href="/game/upd-volleyball-legends.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-3ae0a0c2e2bd0e7fc5372d08ce40a189/256/256/Image/Webp/noFilter" alt="[UPD] Volleyball Legends icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[UPD] Volleyball Legends</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 50.1K</span></span></a></li><li style="--i:5" data-n="[🎃duels] murderers vs sheriffs" data-s="duels-murderers-vs-sheriffs"><a class="tile" href="/game/duels-murderers-vs-sheriffs.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-a636f864b4188f520f6fccb79159fde6/256/256/Image/Webp/noFilter" alt="[🎃DUELS] Murderers VS Sheriffs icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃DUELS] Murderers VS Sheriffs</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 45.3K</span></span></a></li></ul></div>
 <p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=the-hollow">Plan a session</a></p>
+<script>window.PT_GAME={"s":"the-hollow","n":"The Hollow","i":"https://tr.rbxcdn.com/180DAY-c8b65636fafc702eb1c7e0499367d09a/256/256/Image/Webp/noFilter"};</script>
 <script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
@@ -348,4 +418,50 @@ setFavs(f);draw()};PT.ready(draw)})();</script>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
-</div><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
+</div></div>
+<script>(function(){
+var d=document.documentElement;
+
+/* Light and dark. Starts on whatever the device prefers; once the button is pressed
+   that choice is remembered and wins from then on. */
+function theme(){return d.getAttribute('data-theme')||
+(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}
+var tb=document.getElementById('themebtn');
+if(tb){tb.onclick=function(){var next=theme()==='dark'?'light':'dark';
+d.setAttribute('data-theme',next);try{localStorage.setItem('pt_theme',next)}catch(e){}
+tb.setAttribute('aria-label',next==='dark'?'Switch to light mode':'Switch to dark mode')}}
+
+/* Grid or list. One attribute on the page, so every list of games follows it. */
+window.ptView=function(v){d.setAttribute('data-view',v);
+try{localStorage.setItem('pt_view',v)}catch(e){}
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===v)})};
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===d.getAttribute('data-view'));
+b.onclick=function(){ptView(b.dataset.v)}});
+
+/* Games you looked at recently, so you can hop between them from any page. */
+function recent(){try{return JSON.parse(localStorage.getItem('pt_recent'))||[]}catch(e){return[]}}
+window.ptSeen=function(g){if(!g||!g.s)return;
+var list=recent().filter(function(x){return x&&x.s!==g.s});
+list.unshift(g);try{localStorage.setItem('pt_recent',JSON.stringify(list.slice(0,8)))}catch(e){}};
+
+var box=document.getElementById('gpick');if(!box)return;
+function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
+:'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
+var here=window.PT_GAME||null,list=recent();
+if(here){ptSeen(here);list=recent()}
+var others=list.filter(function(g){return !here||g.s!==here.s});
+var label=here?pic(here)+'<span class="nm">'+ptEsc(here.n)+'</span>':
+'<span class="nm">Pick a game</span>';
+box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspopup="true">'+
+label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
+var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
+menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
+return '<a href="/game/'+ptEsc(g.s)+'.html">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+'<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
+function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
+btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
+document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
