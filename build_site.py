@@ -32,25 +32,28 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 
 # The dark palette, written once and used twice below: once for people whose device
 # is set to dark, and once for people who pressed the theme button themselves.
-# Colours come from the palette the owner picked: #A0D2EB, #E5EAF5, #D0BDF4,
-# #8458B3, #494D5F. Two of them were adjusted to stay readable, and both were
-# checked rather than guessed:
-#   --acc is #8458B3 darkened to #724C9A, because the original only reached 4.32
-#   against the page background and body text needs 4.5.
-#   --l1..--l5 travel light blue -> lilac -> purple with the lightness falling in
-#   even steps, so the heatmap squares stay tellable apart. Using the palette
-#   colours as-is gave three nearly identical shades.
-DARK = """--bg:#2E313D;--card:rgba(58,62,77,.72);--solid:#3A3E4D;--ink:#E5EAF5;--mut:#A8AEC2;--line:#565B6E;
---acc:#D0BDF4;--acc2:#A0D2EB;--sky:#A0D2EB;--glass:rgba(46,49,61,.86);
---sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4);
---up:#8BD9A8;--down:#F49AA6;--soft:#3C3A52;--favbg:#413663;--favink:#D0BDF4;
---shade:rgba(255,255,255,.07);--bannerop:.3"""
+# Colours: a neutral black-and-grey base with bright pink and purple accents.
+# Light mode is near-black ink (#16161A) on light grey (#EFEFF2); dark mode is
+# near-white on near-black (#0E0E11). Nothing but the accents carries colour, so
+# the brightness of the pink and the purple is the whole of what the eye sees.
+# Every pair was measured against the surface it sits on, not guessed:
+#   --acc #7B2BD6 purple reaches 5.79 in light mode and --acc2 #CE1A77 pink 4.53,
+#   both past the 4.5 body text needs. Dark mode lifts them to #D98BFF and
+#   #FF73B3, which are far too bright for white text to sit on, so --btnink
+#   flips to near-black there and every filled button reads it instead of #fff.
+#   --l1..--l5 travel pale pink -> magenta -> purple with the lightness falling in
+#   even steps (L* 89, 79, 69, 60, 50), so the heatmap squares stay tellable apart.
+DARK = """--bg:#0E0E11;--card:rgba(30,30,37,.72);--solid:#1A1A20;--ink:#F2F2F6;--mut:#A3A3B0;--line:#33333D;
+--acc:#D98BFF;--acc2:#FF73B3;--sky:#FBD3E7;--glass:rgba(14,14,17,.86);--btnink:#15101A;
+--sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
+--up:#6EE7A0;--down:#FF8FA3;--soft:#2A1F33;--favbg:#33203A;--favink:#F0A8FF;
+--shade:rgba(255,255,255,.07);--bannerop:.32"""
 
-CSS = """:root{--bg:#E5EAF5;--card:rgba(255,255,255,.74);--solid:#fff;--ink:#494D5F;--mut:#6B7083;
---line:#CBD3E6;--acc:#724C9A;--acc2:#8458B3;--sky:#A0D2EB;
---glass:rgba(229,234,245,.86);--sh:0 1px 2px rgba(73,77,95,.06),0 10px 30px rgba(73,77,95,.1);
---l1:#C6E4F3;--l2:#B8C8F0;--l3:#B7A6D7;--l4:#9E80C5;--l5:#8458B3;--up:#2F7D4F;--down:#A8445A;
---soft:#EDE7FB;--favbg:#EFE7FB;--favink:#5A3B86;--shade:rgba(73,77,95,.05);--bannerop:.17}
+CSS = """:root{--bg:#EFEFF2;--card:rgba(255,255,255,.76);--solid:#fff;--ink:#16161A;--mut:#55555F;
+--line:#D6D6DD;--acc:#7B2BD6;--acc2:#CE1A77;--sky:#FBD3E7;--btnink:#fff;
+--glass:rgba(239,239,242,.86);--sh:0 1px 2px rgba(22,22,26,.07),0 10px 30px rgba(22,22,26,.11);
+--l1:#F9D7E8;--l2:#F3AFD6;--l3:#E888C8;--l4:#CF68CC;--l5:#B14CC6;--up:#1F7A43;--down:#B3203F;
+--soft:#F2E3F8;--favbg:#FBE4F2;--favink:#9A1A6B;--shade:rgba(22,22,26,.05);--bannerop:.14}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
@@ -170,12 +173,12 @@ background:var(--line);display:grid;place-items:center;font-weight:800;color:var
 .ptag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;
 margin:3px 4px 0 0;vertical-align:1px;background:var(--soft);color:var(--acc)}
 .ptag.sale{background:#2F7D4F;color:#fff}
-.ptag.cheap{background:var(--sky);color:#20303f}
+.ptag.cheap{background:var(--sky);color:#10131c}
 /* grid or list */
 .vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
 .vtog button{display:grid;place-items:center;width:34px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;padding:0}
 .vtog button svg{width:16px;height:16px;fill:currentColor}
-.vtog button[aria-pressed=true]{background:var(--acc);color:#fff}
+.vtog button[aria-pressed=true]{background:var(--acc);color:var(--btnink)}
 .rowhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
 .rowhead h2{margin:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -230,7 +233,7 @@ font-size:.9rem;font-weight:600}
 /* charts */
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
-.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
 .bars{margin-top:12px}
 /* The compare page still puts two games side by side as columns. */
 .bars.cols{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:170px}
@@ -257,7 +260,7 @@ font-size:.9rem;font-weight:600}
 .ghead .thumb{width:150px;flex:none}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
-.btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:#fff;padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
+.btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
@@ -448,7 +451,7 @@ def crumbs(trail):
 def logo_svg(cls="mark", ident="lg"):
     return (f'<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true">'
             f'<defs><linearGradient id="{ident}" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0" stop-color="#A0D2EB"/><stop offset="1" stop-color="#724C9A"/>'
+            f'<stop offset="0" stop-color="#FF4FA3"/><stop offset="1" stop-color="#7B2BD6"/>'
             f'</linearGradient></defs>'
             f'<circle cx="16" cy="16" r="15" fill="url(#{ident})"/>'
             f'<circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" '
@@ -608,7 +611,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
         social = '<meta name="twitter:card" content="summary">'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#724C9A">
+<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#7B2BD6">
 {robots_meta(noindex)}<link rel="canonical" href="{html.escape(url)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{html.escape(SITE)}">
 <meta property="og:title" content="{html.escape(title)}">
