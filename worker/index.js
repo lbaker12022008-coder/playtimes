@@ -203,8 +203,26 @@ async function adminData(request, env) {
       time: time.results?.[0] || { seconds: 0, reads: 0, week_seconds: 0, week_reads: 0 }
     },
     todos: todos.results || [],
-    stats: STATS
+    stats: STATS,
+    live: await liveCounts()
   });
+}
+
+// The collector writes this every ~30 minutes, so these numbers are current even
+// when the site has not rebuilt. If it cannot be read, the dashboard quietly
+// falls back to the figures baked in at the last build.
+const SUMMARY_URL = "https://raw.githubusercontent.com/lbaker12022008-coder/playtimes/data/summary.json";
+
+async function liveCounts() {
+  try {
+    const res = await fetch(SUMMARY_URL, { cf: { cacheTtl: 120, cacheEverything: true } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data?.games)) return null;
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 /* ------------------------------------------------------------------ pages */
@@ -283,12 +301,20 @@ const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>
 const ago = (iso) => { if(!iso) return 'never'; const h=(Date.now()-new Date(iso))/3.6e6;
   return h<1 ? Math.round(h*60)+' min ago' : h<48 ? Math.round(h)+' hours ago' : Math.round(h/24)+' days ago'; };
 const mins = (s) => { s = Math.round(s || 0); return s < 60 ? s + 's' : Math.floor(s/60) + 'm ' + (s%60) + 's'; };
+const agoSecs = (unix) => { if(!unix) return 'unknown'; const m=(Date.now()/1000-unix)/60;
+  return m<2 ? 'just now' : m<90 ? Math.round(m)+' min ago' : Math.round(m/60)+' hours ago'; };
+// The collector saves about 144 player counts per game per day.
+const hoursLeft = (needed) => { const h = needed / 6;
+  return h < 1 ? 'under an hour' : h < 48 ? Math.round(h) + ' hours' : Math.round(h/24) + ' days'; };
 
 fetch('/admin/data').then(r => r.json()).then(render).catch(e => { $('#app').textContent = 'Could not load data: ' + e.message; });
 
 function render(d) {
   const v = d.views, s = d.stats || {}, t = s.totals || {}, site = s.site || {};
-  $('#built').textContent = 'Site last built ' + ago(s.built_at) + (s.built_at ? ' (' + s.built_at.replace('T',' ').slice(0,16) + ' UTC)' : '');
+  const builtHours = s.built_at ? (Date.now() - new Date(s.built_at)) / 3.6e6 : 999;
+  $('#built').innerHTML = 'Site last built ' + ago(s.built_at) +
+    (s.built_at ? ' (' + s.built_at.replace('T', ' ').slice(0, 16) + ' UTC)' : '') +
+    (builtHours > 26 ? ' <b class="bad">&mdash; that is overdue; a build may be failing.</b>' : '');
 
   // Visitors -------------------------------------------------------------
   const days = [];
@@ -314,15 +340,36 @@ function render(d) {
   }).join('') || '<p class="mut small">No page views recorded yet.</p>';
 
   // Games ----------------------------------------------------------------
-  const games = (s.games || []).slice().sort((a, b) => b.avg7 - a.avg7);
-  const gameRows = games.map(g => '<tr><td>' + esc(g.name) + '</td><td>' + esc(g.genre || '') + '</td>' +
-    '<td class="num">' + num(g.samples) + '</td><td class="num">' + g.days + '</td>' +
-    '<td class="num">' + num(g.avg7) + '</td><td class="num">' +
-    (g.trend === null ? '<span class="mut">-</span>' : (g.trend >= 0 ? '<span class="ok">+' : '<span class="bad">') + g.trend + '%</span>') +
-    '</td></tr>').join('');
+  // Counts come from the collector (fresh). Everything needing a full rebuild to
+  // work out - typical players, trend, verdict - comes from the last build.
+  const live = d.live;
+  const byId = {}, byName = {};
+  (live?.games || []).forEach(g => { byId[String(g.id)] = g; if (g.name) byName[g.name] = g; });
+  const fresh = g => byId[String(g.id)] || byName[g.name] || null;
+  const spanDays = g => (g.first && g.last) ? Math.round((g.last - g.first) / 864) / 100 : null;
 
-  const waiting = (s.waiting || []).map(w => '<tr><td>' + esc(w.name) + '</td><td class="num">' +
-    num(w.samples) + '</td><td class="num">' + num(site.min_samples) + '</td></tr>').join('');
+  const games = (s.games || []).slice().sort((a, b) => b.avg7 - a.avg7);
+  const gameRows = games.map(g => {
+    const f = fresh(g);
+    const samples = f ? f.samples : g.samples;
+    const days = (f && spanDays(f) !== null) ? spanDays(f) : g.days;
+    return '<tr><td>' + esc(g.name) + '</td><td>' + esc(g.genre || '') + '</td>' +
+      '<td class="num">' + num(samples) + '</td><td class="num">' + days + '</td>' +
+      '<td class="num">' + num(g.avg7) + '</td><td class="num">' +
+      (g.trend === null ? '<span class="mut">-</span>' : (g.trend >= 0 ? '<span class="ok">+' : '<span class="bad">') + g.trend + '%</span>') +
+      '</td></tr>';
+  }).join('');
+
+  // Who is still short of MIN_SAMPLES, worked out from the live counts.
+  const min = site.min_samples || 0;
+  const waitingList = live
+    ? live.games.filter(g => g.samples < min)
+        .sort((a, b) => b.samples - a.samples)
+        .map(g => ({ name: g.name || g.id, samples: g.samples }))
+    : (s.waiting || []);
+  const waiting = waitingList.map(w => '<tr><td>' + esc(w.name) + '</td><td class="num">' +
+    num(w.samples) + '</td><td class="num">' + num(min) + '</td>' +
+    '<td class="num">' + (w.samples >= min ? 'ready' : hoursLeft(min - w.samples)) + '</td></tr>').join('');
 
   const missing = (s.missing_ids || []).map(id => '<li>' + esc(id) + '</li>').join('');
 
@@ -351,9 +398,15 @@ function render(d) {
     '<div class="card"><b>Most visited pages</b> <span class="mut small">last 30 days</span>',
     '<div class="rows">', topRows, '</div></div>',
 
-    '<h2>Data</h2><div class="tiles">',
-    tile('Games tracked', t.games_tracked), tile('Pages built', t.pages_built),
-    tile('Player counts saved', t.samples), tile('Ready for trends', t.trend_ready),
+    '<h2>Data</h2>',
+    '<p class="mut small">' + (live
+      ? 'Counts updated ' + agoSecs(live.updated) + ', straight from the collector.'
+      : 'Live counts unavailable, so these are from the last site build.') + '</p>',
+    '<div class="tiles">',
+    tile('Games tracked', live ? live.games.length : t.games_tracked),
+    tile('Pages built', t.pages_built),
+    tile('Player counts saved', live ? live.total_samples : t.samples),
+    tile('Ready for trends', t.trend_ready),
     tile('Games with events', t.with_events), tile('Events coming up', t.upcoming_events),
     '</div>',
     '<div class="card"><b>Every game</b><div class="wrap"><table>',
@@ -362,9 +415,12 @@ function render(d) {
     gameRows || '<tr><td colspan="6" class="mut">No games yet.</td></tr>',
     '</table></div></div>',
     waiting ? '<div class="card"><b>Waiting for enough data</b>' +
-      '<p class="mut small">These are being collected but do not have a page yet.</p>' +
+      '<p class="mut small">Still short of MIN_SAMPLES, so they have no page yet. ' +
+      (live ? 'Counts are live; the page appears at the next build after a game is ready.'
+            : 'From the last build.') + '</p>' +
       '<div class="wrap"><table><tr><th>Game</th><th class="num">Counts so far</th>' +
-      '<th class="num">Needed</th></tr>' + waiting + '</table></div></div>' : '',
+      '<th class="num">Needed</th><th class="num">Time left</th></tr>' +
+      waiting + '</table></div></div>' : '',
     missing ? '<div class="card"><b>IDs Roblox did not return</b>' +
       '<p class="mut small">In games.txt but Roblox sent nothing back. Usually a wrong ID or a removed game.</p>' +
       '<ul>' + missing + '</ul></div>' : '',

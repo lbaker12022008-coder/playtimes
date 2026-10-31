@@ -1219,7 +1219,9 @@ def write_stats(db, games, cards, waiting):
                    "trend_ready": sum(1 for c in cards if c["days"] >= 14),
                    "with_events": sum(1 for c in cards if c["events"]),
                    "upcoming_events": sum(c["upcoming"] for c in cards)},
-        "games": [{"name": c["name"], "genre": c["genre"], "samples": c["samples"], "days": c["days"],
+        # "id" lets the dashboard match these against the collector's live counts.
+        "games": [{"id": str(c["uid"]), "name": c["name"], "genre": c["genre"],
+                   "samples": c["samples"], "days": c["days"],
                    "avg7": c["avg"], "trend": c["trend"], "verdict": c["verdict"],
                    "events": c["events"], "upcoming": c["upcoming"]} for c in cards],
         "waiting": waiting,
@@ -1266,7 +1268,7 @@ def main():
         rows = db.execute("SELECT ts,playing FROM samples WHERE universe_id=? ORDER BY ts",
                           (uid,)).fetchall()
         if len(rows) < MIN_SAMPLES:
-            waiting.append({"name": name, "samples": len(rows)})
+            waiting.append({"id": str(uid), "name": name, "samples": len(rows)})
             continue
         a = analyze(rows)
         cards.append({"name": name, "slug": slug(name), "icon": icons.get(uid), "genre": genre,
