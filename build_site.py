@@ -7,6 +7,8 @@ MIN_SAMPLES = 2          # ~2 days at 15-min intervals
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = "docs"
+CONTACT = ""               # a contact email for the site (NOT your personal one), e.g. hello@yourdomain.com
+POLICY_DATE = "October 30, 2026"   # change this whenever you edit the Privacy Policy
 
 CSS = """:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mut:#5b6478;--line:#e1e6ef;--acc:#2563eb;--l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482}
 @media(prefers-color-scheme:dark){:root{--bg:#0f1724;--card:#182235;--ink:#eef2fb;--mut:#a3aec4;--line:#2a3750;--acc:#7aa7ff}}
@@ -42,7 +44,10 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 .list a:hover{border-color:var(--acc)}
 .up{color:#15803d}.down{color:#b91c1c}
 @media(prefers-color-scheme:dark){.up{color:#4ade80}.down{color:#f87171}}
-.wrap{overflow-x:auto}"""
+.wrap{overflow-x:auto}
+.foot{border-top:1px solid var(--line);margin-top:32px;padding-top:12px}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
+.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}"""
 
 ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
 
@@ -51,8 +56,68 @@ def page(title, body, desc=""):
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">{ROBOTS}<style>{CSS}</style>{ADS}</head><body><div class="w">
 <div class="top"><a class="logo" href="/">{html.escape(SITE)}</a></div>{body}
-<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p>
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
 </div></body></html>"""
+
+def contact_html():
+    if not CONTACT: return ""
+    e = html.escape(CONTACT)
+    return f'<h2>Contact</h2><p>Questions or problems? Email <a href="mailto:{e}">{e}</a>.</p>'
+
+def about_body():
+    return f"""<div class="doc"><h1>About {html.escape(SITE)}</h1>
+<p>{html.escape(SITE)} shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
+<h2>How it works</h2>
+<p>About every 30 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
+Over days and weeks, those counts add up to a picture of each game's week: which hours are packed and which are quiet.
+Times are shown in your own timezone.</p>
+<h2>Why use it?</h2>
+<ul><li><b>Quiet hours</b> are good for shorter queues, less lag, and learning a game without a crowd.</li>
+<li><b>Busy hours</b> are good for full servers, trading, and events.</li></ul>
+<h2>What it does not tell you</h2>
+<p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children.
+Parents should still check a game themselves and use Roblox's parental controls.</p>
+<h2>The fine print</h2>
+<p>{html.escape(SITE)} is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
+Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
+<p>We never ask for a Roblox login, and there are no accounts or sign-ups here. See our <a href="/privacy.html">Privacy Policy</a>.</p>
+{contact_html()}</div>"""
+
+def privacy_body():
+    if ADS:
+        ads = """<h2>Ads</h2>
+<p>This site shows ads from Google AdSense to pay for running it. Google and its partners may use cookies or similar
+technology to show ads and to measure them. You can learn how Google uses this information at
+<a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>
+and turn off personalized ads at <a href="https://adssettings.google.com">adssettings.google.com</a>.
+We do not control these cookies, and we never pass Google any personal information about you.</p>"""
+    else:
+        ads = """<h2>Ads</h2>
+<p>This site does not show ads right now. If we add ads later (for example from Google AdSense), we will update this
+page first to explain what the ad provider collects and how to turn off personalized ads.</p>"""
+    return f"""<div class="doc"><h1>Privacy Policy</h1>
+<p class="mut">Last updated: {POLICY_DATE}</p>
+<p>The short version: {html.escape(SITE)} does not ask for, collect, or store personal information about you.</p>
+<h2>What we do not collect</h2>
+<ul><li>No accounts, sign-ups, or logins. We will never ask for your Roblox username or password.</li>
+<li>No forms, comments, or chat.</li>
+<li>No names, emails, ages, or locations from visitors.</li></ul>
+<h2>Children</h2>
+<p>Many visitors are kids, so we keep it that way on purpose. We do not knowingly collect personal information from
+anyone, including children under 13. If you think a child has sent us personal information, contact us and we will delete it.</p>
+<h2>Things that stay on your device</h2>
+<p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
+<h2>Our hosting provider</h2>
+<p>The site is hosted by Cloudflare. Like any website host, Cloudflare automatically handles basic technical information
+(such as IP addresses and browser type) to deliver pages and protect the site from attacks. See
+<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.</p>
+{ads}
+<h2>Game data</h2>
+<p>The player counts on this site are public numbers about games, not about people. We do not track individual players.</p>
+<h2>Changes</h2>
+<p>If this policy changes, we will update this page and the date at the top.</p>
+{contact_html()}</div>"""
 
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "game"
 
@@ -148,7 +213,11 @@ def main():
             f'<ul class="list">{li}</ul>{SEARCH}')
     open(f"{OUT}/index.html", "w", encoding="utf-8").write(page(f"{SITE}: Best Times to Play Popular Games", body,
         "See when popular games are busiest and quietest, hour by hour."))
-    open(f"{OUT}/sitemap.txt", "w").write("\n".join(f"/game/{s}.html" for *_, s in cards))
+    open(f"{OUT}/about.html", "w", encoding="utf-8").write(page(f"About {SITE}", about_body(),
+        f"What {SITE} is, how it measures when games are busy, and what it does not tell you."))
+    open(f"{OUT}/privacy.html", "w", encoding="utf-8").write(page(f"Privacy Policy - {SITE}", privacy_body(),
+        f"{SITE} does not collect personal information. No accounts, no sign-ups, no logins."))
+    open(f"{OUT}/sitemap.txt", "w").write("\n".join(["/about.html", "/privacy.html"] + [f"/game/{s}.html" for *_, s in cards]))
     open(f"{OUT}/robots.txt", "w").write("User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n")
     print(f"Built {len(cards)} game pages in {OUT}/")
 
