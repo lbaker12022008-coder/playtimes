@@ -3,7 +3,7 @@ import sqlite3, json, re, os, html
 from datetime import datetime, timezone
 
 SITE = "PlayTime"          # change me (don't put 'Roblox' in your domain name)
-MIN_SAMPLES = 20          # ~2 days at 15-min intervals
+MIN_SAMPLES = 2          # ~2 days at 15-min intervals
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = "docs"
