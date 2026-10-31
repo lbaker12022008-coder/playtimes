@@ -436,9 +436,34 @@ def view_toggle():
             '<span class="sr">List</span></button></div>')
 
 
+def ask_html(lede="Showing the most popular games first."):
+    """The busy / quiet / just-browsing chooser. Used on the homepage and on every
+    category page, where it narrows that category only."""
+    return ('<h2 style="margin-top:22px">What are you looking for?</h2>'
+            '<div class="ask" id="ask">'
+            '<button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b>'
+            '<i>Trading, full servers, live events</i></button>'
+            '<button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b>'
+            '<i>Claim events, no queues, less lag</i></button>'
+            '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
+            '<i>Show the most popular games</i></button></div>'
+            f'<p id="asktxt" class="mut small">{lede}</p>')
+
+
+def ask_js(cards, grid_id="all"):
+    """The script behind ask_html(), pointed at one grid of games."""
+    data = [{"s": c["slug"], "n": c["name"], "i": c["icon"] or "", "a": c["avg"], "l": c["levels"]}
+            for c in cards]
+    return (f'<script>{SHARED_JS}</script><script>'
+            + HOME_JS.replace("__GAMES__", jsdata(data)).replace("__GRID__", grid_id)
+            + '</script>')
+
+
 def row_head(title, extra=""):
-    """A heading with the grid/list switch on the right."""
-    return (f'<div class="rowhead"><h2>{title}</h2>'
+    """The bar that sits above every grid of games: a heading on the left, the
+    count and the grid/list switch on the right. Pass an empty title on pages
+    whose <h1> already names the list, so it is not said twice."""
+    return (f'<div class="rowhead">{f"<h2>{title}</h2>" if title else "<span></span>"}'
             f'<div class="actions" style="margin:0">{extra}{view_toggle()}</div></div>')
 
 
@@ -780,8 +805,10 @@ def similar_html(card, cards):
     note = (f'Other {html.escape(card["genre"].lower())} games with about as many players.'
             if same >= len(picks) - 1 else
             "Games with about as many players, so they feel similar to play.")
-    return (f'<div class="card"><h2>Similar games</h2><p class="mut small">{note}</p>'
-            f'{grid(picks)}</div>')
+    # Deliberately not inside a card: a padded box would make these tiles smaller
+    # than the same tiles everywhere else on the site.
+    return (row_head("Similar games") +
+            f'<p class="mut small" style="margin-top:-4px">{note}</p>{grid(picks)}')
 
 
 def parents_html(passes):
@@ -1046,7 +1073,7 @@ G.forEach(function(g){g.lv=+g.l.charAt(cell)});
    for that game. Games mostly get busy at the same times of day, though, so at
    8pm nothing is quiet and at 5am nothing is busy. When nothing matches we show
    the whole list in order instead of an empty page, and say why. */
-var all=$('all'),original=Array.prototype.slice.call(all.children);
+var all=$('__GRID__'),original=Array.prototype.slice.call(all.children);
 var by={};G.forEach(function(g){by[g.s]=g});
 var want='',term='';
 function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
@@ -1056,13 +1083,9 @@ function refresh(){
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.w===want)});
 
-/* Best first. Games we have no reading for at this hour go last. */
-var order=original.slice();
-if(want)order.sort(function(x,y){var a=lv(x),b2=lv(y);
-if((a>0)!==(b2>0))return a>0?-1:1;
-if(a!==b2)return want==='quiet'?a-b2:b2-a;
-return (by[y.dataset.s]||{a:0}).a-(by[x.dataset.s]||{a:0}).a});
-order.forEach(function(li,i){li.style.setProperty('--i',Math.min(i,14));all.appendChild(li)});
+/* Order never changes: biggest player counts first, filtered or not. The grid is
+   built in that order, so we only refresh the fade-in stagger. */
+original.forEach(function(li,i){li.style.setProperty('--i',Math.min(i,14))});
 
 var fitting=0;
 original.forEach(function(li){if(fits(lv(li)))fitting++});
@@ -1079,11 +1102,9 @@ li.querySelector('.tmeta').appendChild(s)}});
 
 var word=want==='quiet'?'quiet':'busy';
 $('asktxt').textContent=!want?'Showing the most popular games first.':
-loose?('Nothing we track is '+word+' right now, so here is everything with the '+
-(want==='quiet'?'quietest':'busiest')+' first.'):
+loose?('Nothing we track is '+word+' right now, so here is everything, most popular first.'):
 term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
-(fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, '+
-(want==='quiet'?'quietest':'busiest')+' first. '+
+(fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, most popular first. '+
 (want==='quiet'?'Good for claiming event items and avoiding queues.':
 'Good for trading, full servers and events.'));
 favs()}
@@ -1093,7 +1114,7 @@ b.onclick=function(){want=(want===b.dataset.w?'':b.dataset.w);refresh()}});
 
 /* Search. Goes through refresh() so searching and filtering cannot fight over
    which games are hidden. */
-var s=$('s');s.oninput=function(){term=s.value.toLowerCase();refresh()};
+var s=$('s');if(s)s.oninput=function(){term=s.value.toLowerCase();refresh()};
 
 /* Saved games, pinned to the top. Copies of the tiles, so they must not inherit
    being hidden by a filter. */
@@ -1432,8 +1453,8 @@ def write_stats(db, games, cards, waiting):
 def list_page(key, title, h1, lede, cards, desc, extra=""):
     """One of the "across the top" pages: a heading and a grid of games."""
     body = (f'<div class="hero"><h1>{h1}</h1><p class="lede">{lede}</p></div>{extra}'
-            + (f'<div class="rowhead" style="margin-top:8px"><span class="mut small">'
-               f'{len(cards)} game{"s" if len(cards) != 1 else ""}</span>{view_toggle()}</div>'
+            + (row_head("", f'<span class="mut small">{len(cards)} '
+                            f'game{"s" if len(cards) != 1 else ""}</span>')
                + grid(cards) if cards else
                '<p class="none">Nothing here yet. We need about two weeks of player counts for each game '
                'before this page fills in.</p>')
@@ -1547,39 +1568,32 @@ def main():
         if not cg:
             continue
         cat_pages.append((g, f"/category/{slug(g)}.html"))
+        count = f'{len(cg)} game{"s" if len(cg) != 1 else ""}'
         write(f"category/{slug(g)}.html", page(
             f"Best Times to Play {g} Games - {SITE}",
             f'<div class="hero"><h1>{html.escape(g)} games</h1><p class="lede">When are popular '
             f'{html.escape(g.lower())} games busiest? Pick one to see its week, its events and its updates.</p></div>'
-            + f'<div class="rowhead" style="margin-top:8px"><span class="mut small">'
-            f'{len(cg)} game{"s" if len(cg) != 1 else ""}</span>{view_toggle()}</div>'
-            + grid(cg) + '<p><a href="/">&larr; All games</a></p>',
+            + ask_html(f'Showing all {count}, most popular first.')
+            + row_head("", f'<span class="mut small">{count}</span>')
+            + grid(cg, "all")
+            + '<p><a href="/">&larr; All games</a></p>'
+            + ask_js(cg),
             f"See when popular {g} games are busiest and quietest, hour by hour.", wide=True))
     pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
     # ---- homepage
-    home_games = [{"s": c["slug"], "n": c["name"], "i": c["icon"] or "", "a": c["avg"], "l": c["levels"]}
-                  for c in cards]
     body = (
         '<div class="hero rise"><h1>When is your game <em>busiest</em>?</h1>'
         '<p class="lede">Hour-by-hour player counts for popular Roblox games, in your own timezone. '
         'Find the quiet hours for easy claims and no queues, or the busy hours for trading and events.</p></div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
-        '<h2 style="margin-top:22px">What are you looking for?</h2>'
-        '<div class="ask" id="ask">'
-        '<button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b>'
-        '<i>Trading, full servers, live events</i></button>'
-        '<button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b>'
-        '<i>Claim events, no queues, less lag</i></button>'
-        '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
-        '<i>Show the most popular games</i></button></div>'
-        '<p id="asktxt" class="mut small">Showing the most popular games first.</p>'
-        f'<div class="pills">{pills}</div>'
-        '<section id="favs" hidden><h2 style="margin-top:24px">Your saved games</h2>'
+        + ask_html()
+        + f'<div class="pills">{pills}</div>'
+        '<section id="favs" hidden>' + row_head("Your saved games") +
         '<ul class="grid" id="favgrid"></ul></section>'
-        + row_head("All games") + grid(cards, "all")
-        + f'<script>{SHARED_JS}</script>'
-        f'<script>{HOME_JS.replace("__GAMES__", jsdata(home_games))}</script>')
+        + row_head("All games", f'<span class="mut small">{len(cards)} games</span>')
+        + grid(cards, "all")
+        + ask_js(cards))
     write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
                              "See when popular games are busiest and quietest, hour by hour, in your timezone.",
                              wide=True, nav="home"))
