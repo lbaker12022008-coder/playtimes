@@ -5,12 +5,15 @@
  * code runs. This worker only answers two things:
  *   POST /api/hit  - counts one page view (no cookies, no IP stored)
  *   /admin...      - the owner's dashboard, behind an admin code
+ *   /auth, /api/me, /api/favs - Sign in with Roblox (see auth.js)
  *
  * Secrets (set with `wrangler secret put`, never in this repo):
  *   ADMIN_CODE      the code you type to get in
  *   SESSION_SECRET  random string used to sign the "you are logged in" cookie
+ *   ROBLOX_CLIENT_ID, ROBLOX_CLIENT_SECRET  for Sign in with Roblox
  */
 import STATS from "./stats.js";
+import { handleAuth } from "./auth.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -28,6 +31,8 @@ export default {
       if (path === "/admin/login" && request.method === "POST") return await login(request, env);
       if (path === "/admin/logout" && request.method === "POST") return await logout(env);
       if (path === "/admin/data") return await adminData(request, env);
+      const signIn = await handleAuth(request, env, path);
+      if (signIn) return signIn;
     } catch (err) {
       return text("Something went wrong: " + err.message, 500);
     }

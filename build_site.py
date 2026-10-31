@@ -55,6 +55,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
 .hdr .in{max-width:1120px;margin:0 auto;padding:6px 16px 0}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
+.acct form{margin:0}
+.acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
+.acct .signin:hover{border-color:var(--acc)}
+.acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
 .logo{font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo span{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
@@ -74,14 +81,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
-
-/* the "right now" row on the homepage */
-.strip{display:flex;gap:10px;overflow-x:auto;padding:4px 16px 14px;margin:0 -16px;scroll-snap-type:x mandatory}
-.nowc{flex:none;width:166px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--ink);box-shadow:var(--sh);transition:transform .12s}
-.nowc:hover{transform:translateY(-3px)}
-.nowc .thumb{border-radius:11px}
-.nowc b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9rem;line-height:1.25;margin-top:7px}
-.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;color:#15233f}
 
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
@@ -182,13 +181,14 @@ def page(title, body, desc="", wide=False, nav="", tail=""):
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#2563eb">{ROBOTS}
-<style>{CSS}</style>{ADS}</head><body>
-<header class="hdr"><div class="in"><a class="logo" href="/">Play<span>Time</span></a>
+<style>{CSS}</style><script>{FAVJS}</script>{ADS}</head><body>
+<header class="hdr"><div class="in"><div class="hrow"><a class="logo" href="/">Play<span>Time</span></a>
+<div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections">{tabs}</nav></div></header>
 <div class="w{' wide' if wide else ''}">{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div>{tail}{HIT}</body></html>"""
@@ -582,15 +582,38 @@ def parents_html(passes):
 # ---------------------------------------------------------------- browser code
 
 # Saved games live only in this browser's localStorage and are never sent anywhere.
-FAVJS = """function getFavs(){try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
-function setFavs(f){try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}}"""
+# Saved games. Signed out, the list lives only in this browser. Signed in with
+# Roblox, it also follows the person to their other devices.
+FAVJS = """var PT={name:null,available:false,favs:null,cbs:[]};
+function getFavs(){if(PT.favs)return PT.favs;
+try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
+function setFavs(f){PT.favs=f;try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
+if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
+body:JSON.stringify({favs:f})}).catch(function(){})}
+PT.ready=function(fn){PT.cbs.push(fn);fn()};
+function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
+return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ptPaint(){var el=document.getElementById('acct');
+if(el){el.innerHTML=!PT.available?'':PT.name
+?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
++'<button class="linkish" type="submit">Sign out</button></form>'
+:'<a class="signin" href="/auth/login">Sign in with Roblox</a>'}
+PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
+fetch('/api/me').then(function(r){return r.json()}).then(function(d){
+PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
+if(d.signedIn){var mine=getFavs(),all=(d.favs||[]).slice();
+mine.forEach(function(s){if(all.indexOf(s)<0)all.push(s)});
+PT.favs=all;try{localStorage.setItem('pt_favs',JSON.stringify(all))}catch(e){}
+if(all.length!==(d.favs||[]).length)setFavs(all)}
+ptPaint()}).catch(function(){});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);"""
 
-FAV_GAME = FAVJS + """
+FAV_GAME = """
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
 function draw(){var on=getFavs().indexOf(k)>-1;b.setAttribute('aria-pressed',on);
 b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
 b.onclick=function(){var f=getFavs();f=f.indexOf(k)>-1?f.filter(function(x){return x!==k}):f.concat(k);
-setFavs(f);draw()};draw()})();"""
+setFavs(f);draw()};PT.ready(draw)})();"""
 
 # Shared by every page that draws a week of player counts.
 SHARED_JS = """var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -699,23 +722,6 @@ var ut=nh-off,ud=nd;
 while(ut<0){ut+=24;ud=(ud+6)%7}while(ut>=24){ut-=24;ud=(ud+1)%7}
 var cell=ud*24+ut;
 G.forEach(function(g){g.lv=+g.l.charAt(cell)});
-var TAG=['','#86e3d0','#b9e8a8','#f6e27a','#f7b267','#f28482'];
-var W=['no data','very quiet','quiet','average','busy','very busy'];
-
-function card(g){return '<a class="nowc" href="/game/'+esc(g.s)+'.html">'+
-(g.i?'<img class="thumb" src="'+esc(g.i)+'" alt="" width="256" height="256" loading="lazy">':
-'<div class="thumb ph" aria-hidden="true">'+esc(g.n.charAt(0).toUpperCase())+'</div>')+
-'<b>'+esc(g.n)+'</b><span class="tag" style="background:'+TAG[g.lv]+'">'+W[g.lv]+'</span></a>'}
-
-var known=G.filter(function(g){return g.lv>0});
-if(known.length>3){
-var q=known.slice().sort(function(a,b){return a.lv-b.lv||b.a-a.a}).slice(0,8);
-var b=known.slice().sort(function(a,b){return b.lv-a.lv||b.a-a.a}).slice(0,8);
-$('quietnow').innerHTML=q.map(card).join('');
-$('busynow').innerHTML=b.map(card).join('');
-$('nowstrip').hidden=false;
-$('nowtime').textContent='Your time: '+((nh%12)||12)+(nh<12?' AM':' PM')+' '+
-['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][nd]+'.'}
 
 /* "What are you looking for?" sorts the list and labels every game. */
 var all=$('all'),original=Array.prototype.slice.call(all.children),want='';
@@ -747,11 +753,12 @@ var s=$('s');s.oninput=function(){var t=s.value.toLowerCase();
 Array.prototype.forEach.call(document.querySelectorAll('.grid li'),function(li){
 li.hidden=li.dataset.n.indexOf(t)<0})};
 
-/* Saved games */
-(function(){var fg=$('favgrid');getFavs().forEach(function(k){
+/* Saved games, pinned to the top. Redrawn if signing in brings more in. */
+PT.ready(function(){var fg=$('favgrid');if(!fg)return;fg.innerHTML='';
+getFavs().forEach(function(k){
 var li=null;Array.prototype.forEach.call(all.children,function(x){if(x.dataset.s===k)li=x});
 if(li)fg.appendChild(li.cloneNode(true))});
-if(fg.children.length)$('favs').hidden=false})();"""
+$('favs').hidden=!fg.children.length});"""
 
 COMPARE_JS = """var A=null,B=null,day=nowDay(),DATA=null;
 function opts(sel,pick){DATA.games.forEach(function(g){var o=document.createElement('option');
@@ -884,7 +891,8 @@ Parents should still check a game themselves and use Roblox's parental controls.
 <h2>The fine print</h2>
 <p>{html.escape(SITE)} is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
 Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
-<p>We never ask for a Roblox login, and there are no accounts or sign-ups here. See our <a href="/privacy.html">Privacy Policy</a>.</p>
+<p>We never ask for your Roblox password. You can sign in with Roblox if you want your saved games on more than
+one device, but everything works without it. See our <a href="/privacy.html">Privacy Policy</a>.</p>
 {contact_html()}</div>"""
 
 
@@ -902,14 +910,23 @@ We do not control these cookies, and we never pass Google any personal informati
 page first to explain what the ad provider collects and how to turn off personalized ads.</p>"""
     return f"""<div class="doc"><h1>Privacy Policy</h1>
 <p class="mut">Last updated: {POLICY_DATE}</p>
-<p>The short version: {html.escape(SITE)} does not ask for, collect, or store personal information about you.</p>
-<h2>What we do not collect</h2>
-<ul><li>No accounts, sign-ups, or logins. We will never ask for your Roblox username or password.</li>
+<p>The short version: you can use all of {html.escape(SITE)} without telling us anything about yourself.
+Signing in is optional and only saves which games you picked.</p>
+<h2>What we never collect</h2>
+<ul><li>We never ask for your Roblox password. Signing in happens on Roblox's own website, and we never see it.</li>
 <li>No forms, comments, or chat.</li>
-<li>No names, emails, ages, or locations from visitors.</li></ul>
+<li>No emails, home addresses, or locations.</li></ul>
+<h2>If you sign in with Roblox</h2>
+<p>Signing in is optional. The whole site works without it. If you choose to sign in, Roblox tells us two things:
+your Roblox user ID and your display name. We store those, plus the list of games you saved, so your saved games
+appear on your phone as well as your computer. That is everything we keep.</p>
+<p>We do not receive or store your password, your email, your age, your friends, or anything about what you play
+on Roblox. You can press <b>Delete my data</b> on this page at any time and everything we hold about you is erased
+straight away. Signing out just ends the session and leaves your saved games in place.</p>
 <h2>Children</h2>
-<p>Many visitors are kids, so we keep it that way on purpose. We do not knowingly collect personal information from
-anyone, including children under 13. If you think a child has sent us personal information, contact us and we will delete it.</p>
+<p>Many visitors are kids, so the site is built to work without accounts. Roblox does not allow accounts under 13
+to sign in to outside sites like this one, so everyone who signs in here is 13 or older. We do not knowingly
+collect personal information from children under 13. If you believe a child has, contact us and we will delete it.</p>
 <h2>Things that stay on your device</h2>
 <p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
 <p>If you tap <b>Save</b> on a game, the list of games you saved is kept in your browser's storage on your device.
@@ -927,6 +944,47 @@ your device. We cannot tell one visitor from another.</p>
 <p>The player counts on this site are public numbers about games, not about people. We do not track individual players.</p>
 <h2>Changes</h2>
 <p>If this policy changes, we will update this page and the date at the top.</p>
+<h2>Delete my data</h2>
+<p>If you signed in with Roblox, this erases your saved games and your record on this site. It cannot be undone,
+and it does not affect your Roblox account in any way.</p>
+<p><button class="fav" id="delme">Delete my data</button> <span id="delmsg" class="mut small"></span></p>
+<script>(function(){{var b=document.getElementById('delme'),m=document.getElementById('delmsg'),armed=false;
+b.onclick=function(){{
+if(!PT.name){{m.textContent='You are not signed in, so we hold nothing to delete.';return}}
+if(!armed){{armed=true;b.textContent='Tap again to confirm';m.textContent='This cannot be undone.';return}}
+b.disabled=true;fetch('/api/delete-me',{{method:'POST'}}).then(function(r){{
+if(!r.ok)throw 0;try{{localStorage.removeItem('pt_favs')}}catch(e){{}}
+b.textContent='Deleted';m.textContent='Everything we held about you has been erased.'}})
+.catch(function(){{b.disabled=false;armed=false;b.textContent='Delete my data';
+m.textContent='That did not work. Please try again.'}})}}}})();</script>
+{contact_html()}</div>"""
+
+
+def terms_body():
+    return f"""<div class="doc"><h1>Terms of Service</h1>
+<p class="mut">Last updated: {POLICY_DATE}</p>
+<p>These are the rules for using {html.escape(SITE)}. They are meant to be read, so we have kept them short.</p>
+<h2>What this site is</h2>
+<p>{html.escape(SITE)} shows when Roblox games are usually busy or quiet, worked out from player counts that
+Roblox publishes. It is a free, independent fan site. It is not affiliated with, endorsed by, or sponsored by
+Roblox Corporation, and game names and pictures belong to their creators.</p>
+<h2>Using the site</h2>
+<p>You may use {html.escape(SITE)} for your own personal use, for free. Please do not try to break the site,
+copy it wholesale, or use automated tools to hammer it with requests. We may change or remove any part of the
+site at any time, including stopping it altogether.</p>
+<h2>Signing in</h2>
+<p>Signing in with Roblox is optional. You must be 13 or over, which Roblox enforces. Keep your Roblox account
+secure, and remember we never ask for your Roblox password. You can sign out or delete your data whenever you
+like from our <a href="/privacy.html">Privacy Policy</a> page. We may end access for anyone misusing the site.</p>
+<h2>The numbers are estimates</h2>
+<p>Everything here is an average worked out from samples, so it can be wrong, out of date, or missing. Busy and
+quiet times change. Player counts say nothing about whether a game is good, fair, or suitable for a child.
+Please treat the site as a helpful guess, not a promise.</p>
+<h2>No warranty, and limits</h2>
+<p>{html.escape(SITE)} is provided "as is", without warranties of any kind. We are not liable for any loss
+arising from using the site or relying on its numbers.</p>
+<h2>Changes to these terms</h2>
+<p>If these terms change, we will update this page and the date at the top.</p>
 {contact_html()}</div>"""
 
 
@@ -1089,14 +1147,11 @@ def main():
         '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
         '<i>Show the most popular games</i></button></div>'
         '<p id="asktxt" class="mut small">Showing the most popular games first.</p>'
-        '<section id="nowstrip" hidden><h2 style="margin-top:26px">Quietest right now</h2>'
-        '<p class="mut small" id="nowtime"></p><div class="strip" id="quietnow"></div>'
-        '<h2>Busiest right now</h2><div class="strip" id="busynow"></div></section>'
         f'<div class="pills">{pills}</div>'
         '<section id="favs" hidden><h2 style="margin-top:24px">Your saved games</h2>'
         '<ul class="grid" id="favgrid"></ul></section>'
         f'<h2 style="margin-top:24px">All games</h2>{grid(cards, "all")}'
-        f'<script>{SHARED_JS}</script><script>{FAVJS}</script>'
+        f'<script>{SHARED_JS}</script>'
         f'<script>{HOME_JS.replace("__GAMES__", jsdata(home_games))}</script>')
     write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
                              "See when popular games are busiest and quietest, hour by hour, in your timezone.",
@@ -1208,12 +1263,14 @@ def main():
     write("about.html", page(f"About {SITE}", about_body(),
                              f"What {SITE} is, how it measures when games are busy, and what it does not tell you."))
     write("privacy.html", page(f"Privacy Policy - {SITE}", privacy_body(),
-                               f"{SITE} does not collect personal information. No accounts, no sign-ups, no logins."))
+                               f"What {SITE} stores, what it never asks for, and how to delete your data."))
+    write("terms.html", page(f"Terms of Service - {SITE}", terms_body(),
+                             f"The rules for using {SITE}, in plain language."))
 
     # ---- sitemap and robots
     base = DOMAIN.rstrip("/")
     urls = (["/"] + [u for _, _, u in TABS if u != "/"] + ["/about.html", "/privacy.html"]
-            + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards])
+            + ["/terms.html"] + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards])
     write("sitemap.txt", "\n".join(base + u for u in urls) + "\n")
     write("robots.txt", "User-agent: *\nDisallow: /\n" if NOINDEX else
           "User-agent: *\nDisallow: /admin\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else ""))
