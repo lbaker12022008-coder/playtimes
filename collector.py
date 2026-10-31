@@ -1,40 +1,28 @@
-"""Records live player counts for games listed in games.txt (one universe ID per line).
-Run every 10 min via cron:  */10 * * * * cd /path/rbx-timing && python3 collector.py
-"""
-import json, sqlite3, time, urllib.request, urllib.error
-
-DB = "data.db"
-API = "https://games.roblox.com/v1/games?universeIds="
-
-def init(db):
-    db.executescript("""
-    CREATE TABLE IF NOT EXISTS games(universe_id INTEGER PRIMARY KEY, name TEXT, genre TEXT, place_id INTEGER);
-    CREATE TABLE IF NOT EXISTS samples(universe_id INTEGER, ts INTEGER, playing INTEGER);
-    CREATE INDEX IF NOT EXISTS idx ON samples(universe_id, ts);""")
-
-def fetch(ids):
-    req = urllib.request.Request(API + ",".join(map(str, ids)),
-                                 headers={"User-Agent": "rbx-timing/1.0"})
-    for attempt in range(3):
-        try:
-            with urllib.request.urlopen(req, timeout=20) as r:
-                return json.load(r).get("data", [])
-        except urllib.error.HTTPError as e:
-            time.sleep(5 * (attempt + 1) if e.code == 429 else 2)
-        except Exception:
-            time.sleep(2)
-    return []
-
-def main():
-    ids = [int(x) for x in open("games.txt").read().split() if x.strip().isdigit()]
-    db = sqlite3.connect(DB); init(db)
-    now = int(time.time())
-    for i in range(0, len(ids), 50):
-        for g in fetch(ids[i:i + 50]):
-            db.execute("INSERT OR REPLACE INTO games VALUES(?,?,?,?)",
-                       (g["id"], g.get("name"), g.get("genre"), g.get("rootPlaceId")))
-            db.execute("INSERT INTO samples VALUES(?,?,?)", (g["id"], now, g.get("playing", 0)))
-        db.commit(); time.sleep(1.5)
-
-if __name__ == "__main__":
-    main()
+name: collect
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: collect
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect player counts (3 samples, 10 minutes apart)
+        env:
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          git config --global user.name "collector"
+          git config --global user.email "collector@users.noreply.github.com"
+          git clone --branch data --single-branch "$REPO_URL" datarepo 2>/dev/null || { mkdir datarepo && git -C datarepo init -q -b data && git -C datarepo remote add origin "$REPO_URL"; }
+          for i in 1 2 3; do
+            python3 cloud/collector_cloud.py datarepo
+            (cd datarepo && git add -A && git commit -m "data $(date -u +%FT%TZ)" && git push origin data) || true
+            if [ "$i" -lt 3 ]; then sleep 600; fi
+          done
