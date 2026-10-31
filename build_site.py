@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 import roblox_api
 
 SITE = "PlayTime"          # the site's name (don't put "Roblox" in your domain name)
-MIN_SAMPLES = 2            # how many player counts a game needs before it gets a page
+MIN_SAMPLES = 200          # how many player counts a game needs before it gets a page
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site into
@@ -1012,10 +1012,41 @@ arising from using the site or relying on its numbers.</p>
 
 # ---------------------------------------------------------------- writing files
 
+WRITTEN = set()            # every file this build wrote, so stale ones can be cleared at the end
+
+
 def write(path, text):
     os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
     with open(f"{OUT}/{path}", "w", encoding="utf-8") as f:
         f.write(text)
+    WRITTEN.add(path.replace("\\", "/"))
+
+
+def prune(folders=("game", "category")):
+    """Deletes pages from an earlier build that this build did not write.
+
+    Pages in these folders are named after the game or category, so without this a
+    renamed game, an ID removed from games.txt, or a game dropping below MIN_SAMPLES
+    would leave its old page on the live site for ever: unlinked and never updated,
+    but still there if you knew the address.
+
+    Deliberately runs last and only in these two generated folders, so a build that
+    stops half way never deletes anything, and files you added by hand at the top
+    level (ads.txt, a favicon, CNAME) are never touched.
+    """
+    gone = []
+    for folder in folders:
+        d = f"{OUT}/{folder}"
+        if not os.path.isdir(d):
+            continue
+        for name in sorted(os.listdir(d)):
+            if name.endswith(".html") and f"{folder}/{name}" not in WRITTEN:
+                os.remove(f"{d}/{name}")
+                gone.append(f"{folder}/{name}")
+    if gone:
+        print(f"Removed {len(gone)} page(s) left over from an earlier build: "
+              + ", ".join(gone[:4]) + (" ..." if len(gone) > 4 else ""))
+    return gone
 
 
 def write_stats(db, games, cards, waiting):
@@ -1298,6 +1329,7 @@ def main():
           "User-agent: *\nDisallow: /admin\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else ""))
 
     write_stats(db, games, cards, waiting)
+    prune()                        # last, so a build that fails never deletes anything
     db.close()
     print(f"Wrote {len(urls)} pages into {OUT}/ in {time.time() - started:.0f} seconds.")
     if waiting:

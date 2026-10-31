@@ -24,6 +24,6 @@ jobs:
           git clone --branch data --single-branch "$REPO_URL" datarepo
           python3 cloud/build_cloud.py datarepo
           rm -rf datarepo data.db
-          git add docs worker/stats.js
+          git add -A docs worker/stats.js   # -A so pages build_site.py pruned are staged as deletions
           git commit -m "rebuild site" || exit 0
           git push

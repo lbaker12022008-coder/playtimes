@@ -42,6 +42,7 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - `collector.py`, `cloud/collector_cloud.py`, `cloud/build_cloud.py`: data pipeline. They import each other, so change them together.
 - `seed_demo.py`: invents player counts for local previews, using the real IDs in `games.txt` so names, pictures, descriptions and events are real. It refuses to run if `SITE_OUT=docs`.
 - `games.txt`: one universe ID per line (not place IDs).
+- `build_site.py` ends by pruning `docs/game/` and `docs/category/`: any page this build did not write is deleted, so a renamed game, an ID removed from `games.txt`, or a game dropping below `MIN_SAMPLES` cannot leave an orphan page live for ever. It runs last, so a build that fails part way deletes nothing, and it never touches top-level files you add by hand (`ads.txt`, a favicon, `CNAME`). The build job uses `git add -A docs` so those deletions are committed.
 - Browser code lives in `build_site.py` as `SHARED_JS` (timezone shifting, busy-ness bands, "next good block", escaping) plus one block per page. Anything that puts a game name into HTML in the browser must pass it through `esc()`: names come from Roblox and can contain quotes and angle brackets.
 
 ## Rules
