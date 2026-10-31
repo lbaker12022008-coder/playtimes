@@ -30,17 +30,38 @@ POLICY_DATE = "October 30, 2026"   # change this whenever you edit the Privacy P
 
 SPIKE = 1.5                # a day this much busier than normal is "likely an update or event"
 
+# The dark palette, written once and used twice below: once for people whose device
+# is set to dark, and once for people who pressed the theme button themselves.
+DARK = """--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
+--acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)"""
+
 CSS = """:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
---glass:rgba(243,246,252,.82);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
+--glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
 --l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
---soft:#eef3ff}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
---acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.82);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942}}
+--soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04)}
+/* Follow the device unless the visitor picked a theme themselves. */
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
+:root[data-theme=dark]{__DARK__}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
-.w{max-width:780px;margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:1120px}
+.w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:1400px}
+/* The page sits in the middle with a column either side kept for ads, the way most
+   game-value sites lay out. The side columns only appear on wide screens, and only
+   when there is something to put in them. */
+.shell{display:grid;grid-template-columns:minmax(0,1fr);justify-content:center}
+.rail{display:none}
+.railb{display:none}
+.shell.ads{gap:20px}
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,1fr) 168px}
+.shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+/* The strip along the bottom only exists at all when ads are switched on. */
+@media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
+background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+padding:6px;text-align:center;height:98px}}
+.adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
+display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
 a{color:var(--acc)}
 h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter-spacing:-.02em}
 h2{font-size:1.15rem;margin:0 0 6px}
@@ -56,16 +77,62 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:1120px;margin:0 auto;padding:6px 16px 0}
-.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 0}
+.hrow{display:flex;align-items:center;gap:10px}
+.hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
 .acct form{margin:0}
 .acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
 .acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
-.logo{font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
-.logo span{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{width:30px;height:30px;flex:none}
+.logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@media(max-width:560px){.logo .wordmark{display:none}}
+/* the game switcher, top left */
+.gpick{position:relative}
+.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;padding:5px 10px;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.9rem;font-weight:700}
+.gpick>button:hover{border-color:var(--acc)}
+.gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
+.gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
+.gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--card);
+border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;z-index:20}
+.gmenu[hidden]{display:none}
+.gmenu p{margin:7px 10px 4px;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.gmenu a{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:.92rem}
+.gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
+.gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
+.gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
+/* round icon button on the right of the header */
+.iconb{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
+.iconb:hover{border-color:var(--acc)}
+.iconb svg{width:18px;height:18px;fill:currentColor}
+.iconb .moon{display:none}
+:root[data-theme=dark] .iconb .moon{display:block}
+:root[data-theme=dark] .iconb .sun{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .iconb .moon{display:block}
+:root:not([data-theme=light]) .iconb .sun{display:none}}
+/* grid or list */
+.vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.vtog button{display:grid;place-items:center;width:34px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;padding:0}
+.vtog button svg{width:16px;height:16px;fill:currentColor}
+.vtog button[aria-pressed=true]{background:var(--acc);color:#fff}
+.rowhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+.rowhead h2{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-view=list] .grid{grid-template-columns:minmax(0,1fr);gap:8px}
+:root[data-view=list] .tile{display:flex;align-items:center;gap:14px;padding:8px 12px;background:var(--card);
+border:1px solid var(--line);border-radius:13px}
+:root[data-view=list] .tile:hover{border-color:var(--acc)}
+:root[data-view=list] .thumb{width:52px;height:52px;flex:none;border-radius:10px}
+:root[data-view=list] .tile:hover .thumb{transform:none;box-shadow:none}
+:root[data-view=list] .ph{font-size:1.4rem}
+:root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
+:root[data-view=list] .tmeta{margin:0;flex:none}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
 .tabs::-webkit-scrollbar{display:none}
 .tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
@@ -122,8 +189,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:#fff;padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.fav[aria-pressed=true]{border-color:#e0a800;color:#8a6500;background:#fff8e1}
-@media(prefers-color-scheme:dark){.fav[aria-pressed=true]{background:#2a2410;color:#f3c653}}
+.fav[aria-pressed=true]{border-color:#e0a800;color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#15233f}
 .tbl{width:100%;border-collapse:collapse;font-size:.95rem}
@@ -157,7 +223,45 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .card{animation:fade .7s both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"""
 
+CSS = CSS.replace("__DARK__", DARK)
+
 ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
+
+# The logo: a timer ring with a play button inside. Drawn in the page rather than
+# loaded as a picture, so it is sharp at any size and needs no extra request.
+# favicon.svg is the same drawing on its own.
+def logo_svg(cls="mark", ident="lg"):
+    return (f'<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true">'
+            f'<defs><linearGradient id="{ident}" x1="0" y1="0" x2="1" y2="1">'
+            f'<stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/>'
+            f'</linearGradient></defs>'
+            f'<circle cx="16" cy="16" r="15" fill="url(#{ident})"/>'
+            f'<circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" '
+            f'stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" '
+            f'transform="rotate(-90 16 16)"/>'
+            f'<path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#fff"/></svg>')
+
+
+FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+           + logo_svg(cls="", ident="f").split(">", 1)[1])
+
+SUN = ('<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/>'
+       '<path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1'
+       'M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" '
+       'stroke-linecap="round" fill="none"/></svg>')
+MOON = ('<svg class="moon" viewBox="0 0 24 24" aria-hidden="true">'
+        '<path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg>')
+ICON_GRID = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/>'
+             '<rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/>'
+             '<rect x="9" y="9" width="6" height="6" rx="1.6"/></svg>')
+ICON_LIST = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/>'
+             '<rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg>')
+
+# Runs before anything is drawn, so the page never flashes the wrong theme or view.
+BOOT = ("<script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');"
+        "if(t)d.setAttribute('data-theme',t);"
+        "d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}"
+        "catch(e){document.documentElement.setAttribute('data-view','grid')}</script>")
 
 # Counts one page view. No cookies, no login, nothing about the visitor is stored.
 HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},'
@@ -189,23 +293,47 @@ TABS = [("home", "All games", "/"),
 WORDS = ["no data", "very quiet", "quiet", "average", "busy", "very busy"]
 
 
+# Where ads go once AdSense is approved. The side columns and the strip along the
+# bottom only exist when ADS is filled in, so the live site is not covered in empty
+# boxes while we wait. A preview build shows them outlined, so the shape is visible.
+SHOW_RAILS = bool(ADS) or OUT != "docs"
+
+
+def ad_rail(where):
+    """An empty, correctly sized box for an ad. The AdSense loader goes in the page head
+    once (the ADS setting); these are only the places an ad may appear, so the script is
+    never repeated here. Until ADS is filled in, previews outline them and the live site
+    leaves them out entirely."""
+    if not SHOW_RAILS:
+        return ""
+    cls = "railb" if where == "bottom" else "rail"
+    inner = "" if ADS else f'<div class="adbox">Ad space<br>({where})</div>'
+    return f'<aside class="{cls}" id="ad-{where}" aria-hidden="true">{inner}</aside>'
+
+
 def page(title, body, desc="", wide=False, nav="", tail=""):
     tabs = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                    for k, t, u in TABS)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#2563eb">{ROBOTS}
-<style>{CSS}</style><script>{FAVJS}</script>{ADS}</head><body>
-<header class="hdr"><div class="in"><div class="hrow"><a class="logo" href="/">Play<span>Time</span></a>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+{BOOT}<style>{CSS}</style><script>{FAVJS}</script>{ADS}</head><body>
+<header class="hdr"><div class="in"><div class="hrow">
+<a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
+<div class="gpick" id="gpick"></div><div class="gap"></div>
+<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections">{tabs}</nav></div></header>
+<div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
-</div>{tail}{HIT}</body></html>"""
+</div>{ad_rail('right')}</div>{ad_rail('bottom')}
+{tail}<script>{CHROME_JS}</script>{HIT}</body></html>"""
 
 
 # ---------------------------------------------------------------- small helpers
@@ -295,6 +423,23 @@ def tile(c, i=0):
 def grid(cards, gid=""):
     idattr = f' id="{gid}"' if gid else ""
     return f'<ul class="grid"{idattr}>{"".join(tile(c, i) for i, c in enumerate(cards))}</ul>'
+
+
+def view_toggle():
+    """The grid/list switch. Grid is the default; the choice is remembered per browser
+    and applies to every list of games on the site, because it only sets an attribute
+    on the page that the stylesheet reads."""
+    return ('<div class="vtog" role="group" aria-label="How to show the games">'
+            f'<button type="button" data-v="grid" aria-pressed="true" title="Grid">{ICON_GRID}'
+            '<span class="sr">Grid</span></button>'
+            f'<button type="button" data-v="list" aria-pressed="false" title="List">{ICON_LIST}'
+            '<span class="sr">List</span></button></div>')
+
+
+def row_head(title, extra=""):
+    """A heading with the grid/list switch on the right."""
+    return (f'<div class="rowhead"><h2>{title}</h2>'
+            f'<div class="actions" style="margin:0">{extra}{view_toggle()}</div></div>')
 
 
 def jsdata(obj):
@@ -711,6 +856,55 @@ b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
 b.onclick=function(){var f=getFavs();f=f.indexOf(k)>-1?f.filter(function(x){return x!==k}):f.concat(k);
 setFavs(f);draw()};PT.ready(draw)})();"""
 
+# The header controls: theme, grid/list, and the game switcher. On every page.
+# Everything it remembers lives only in this browser and is never sent anywhere.
+CHROME_JS = """(function(){
+var d=document.documentElement;
+
+/* Light and dark. Starts on whatever the device prefers; once the button is pressed
+   that choice is remembered and wins from then on. */
+function theme(){return d.getAttribute('data-theme')||
+(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}
+var tb=document.getElementById('themebtn');
+if(tb){tb.onclick=function(){var next=theme()==='dark'?'light':'dark';
+d.setAttribute('data-theme',next);try{localStorage.setItem('pt_theme',next)}catch(e){}
+tb.setAttribute('aria-label',next==='dark'?'Switch to light mode':'Switch to dark mode')}}
+
+/* Grid or list. One attribute on the page, so every list of games follows it. */
+window.ptView=function(v){d.setAttribute('data-view',v);
+try{localStorage.setItem('pt_view',v)}catch(e){}
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===v)})};
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===d.getAttribute('data-view'));
+b.onclick=function(){ptView(b.dataset.v)}});
+
+/* Games you looked at recently, so you can hop between them from any page. */
+function recent(){try{return JSON.parse(localStorage.getItem('pt_recent'))||[]}catch(e){return[]}}
+window.ptSeen=function(g){if(!g||!g.s)return;
+var list=recent().filter(function(x){return x&&x.s!==g.s});
+list.unshift(g);try{localStorage.setItem('pt_recent',JSON.stringify(list.slice(0,8)))}catch(e){}};
+
+var box=document.getElementById('gpick');if(!box)return;
+function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
+:'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
+var here=window.PT_GAME||null,list=recent();
+if(here){ptSeen(here);list=recent()}
+var others=list.filter(function(g){return !here||g.s!==here.s});
+var label=here?pic(here)+'<span class="nm">'+ptEsc(here.n)+'</span>':
+'<span class="nm">Pick a game</span>';
+box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspopup="true">'+
+label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
+var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
+menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
+return '<a href="/game/'+ptEsc(g.s)+'.html">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+'<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
+function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
+btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
+document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();"""
+
 # Shared by every page that draws a week of player counts.
 SHARED_JS = """var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
@@ -1031,6 +1225,7 @@ __ABOUT__
 __PARENTS__
 __SIMILAR__
 <p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a></p>
+<script>window.PT_GAME=__GAMEINFO__;</script>
 <script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>"""
 
 
@@ -1221,6 +1416,7 @@ def write_stats(db, games, cards, waiting):
                    "upcoming_events": sum(c["upcoming"] for c in cards)},
         # "id" lets the dashboard match these against the collector's live counts.
         "games": [{"id": str(c["uid"]), "name": c["name"], "genre": c["genre"],
+                   "slug": c["slug"],          # so the dashboard can match page addresses
                    "samples": c["samples"], "days": c["days"],
                    "avg7": c["avg"], "trend": c["trend"], "verdict": c["verdict"],
                    "events": c["events"], "upcoming": c["upcoming"]} for c in cards],
@@ -1236,7 +1432,9 @@ def write_stats(db, games, cards, waiting):
 def list_page(key, title, h1, lede, cards, desc, extra=""):
     """One of the "across the top" pages: a heading and a grid of games."""
     body = (f'<div class="hero"><h1>{h1}</h1><p class="lede">{lede}</p></div>{extra}'
-            + (grid(cards) if cards else
+            + (f'<div class="rowhead" style="margin-top:8px"><span class="mut small">'
+               f'{len(cards)} game{"s" if len(cards) != 1 else ""}</span>{view_toggle()}</div>'
+               + grid(cards) if cards else
                '<p class="none">Nothing here yet. We need about two weeks of player counts for each game '
                'before this page fills in.</p>')
             + '<p><a href="/">&larr; All games</a></p>')
@@ -1322,6 +1520,7 @@ def main():
                 .replace("__ABOUT__", about_game_html(name, meta))
                 .replace("__PARENTS__", parents_html(passes))
                 .replace("__SIMILAR__", similar_html(c, cards))
+                .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
                 .replace("__FAVJS__", FAV_GAME)
                 .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"]))
@@ -1352,7 +1551,9 @@ def main():
             f"Best Times to Play {g} Games - {SITE}",
             f'<div class="hero"><h1>{html.escape(g)} games</h1><p class="lede">When are popular '
             f'{html.escape(g.lower())} games busiest? Pick one to see its week, its events and its updates.</p></div>'
-            f'{grid(cg)}<p><a href="/">&larr; All games</a></p>',
+            + f'<div class="rowhead" style="margin-top:8px"><span class="mut small">'
+            f'{len(cg)} game{"s" if len(cg) != 1 else ""}</span>{view_toggle()}</div>'
+            + grid(cg) + '<p><a href="/">&larr; All games</a></p>',
             f"See when popular {g} games are busiest and quietest, hour by hour.", wide=True))
     pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
@@ -1376,8 +1577,8 @@ def main():
         f'<div class="pills">{pills}</div>'
         '<section id="favs" hidden><h2 style="margin-top:24px">Your saved games</h2>'
         '<ul class="grid" id="favgrid"></ul></section>'
-        f'<h2 style="margin-top:24px">All games</h2>{grid(cards, "all")}'
-        f'<script>{SHARED_JS}</script>'
+        + row_head("All games") + grid(cards, "all")
+        + f'<script>{SHARED_JS}</script>'
         f'<script>{HOME_JS.replace("__GAMES__", jsdata(home_games))}</script>')
     write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
                              "See when popular games are busiest and quietest, hour by hour, in your timezone.",
@@ -1411,8 +1612,8 @@ def main():
         '<div class="hero"><h1>Biggest gainers and losers this week</h1>'
         '<p class="lede">Every night we compare the last 7 days of player counts with the 7 days before. '
         'These are the games that moved the most.</p></div>'
-        f'<h2 style="margin-top:24px">Biggest gainers</h2>{grid(up[:12]) if up else none}'
-        f'<h2 style="margin-top:28px">Biggest losers</h2>{grid(down[:12]) if down else none}'
+        + row_head("Biggest gainers") + (grid(up[:12]) if up else none) +
+        row_head("Biggest losers") + (grid(down[:12]) if down else none)
         + (f'<h2 style="margin-top:28px">The numbers</h2><div class="wrap"><table class="tbl">'
            f'<tr><th>Game</th><th>Typical players</th><th>vs last week</th></tr>{rows}</table></div>'
            if rows else "")
@@ -1498,6 +1699,7 @@ def main():
     urls = (["/"] + [u for _, _, u in TABS if u != "/"] + ["/about.html", "/privacy.html"]
             + ["/terms.html"] + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards])
     write("sitemap.txt", "\n".join(base + u for u in urls) + "\n")
+    write("favicon.svg", FAVICON)
     write("robots.txt", "User-agent: *\nDisallow: /\n" if NOINDEX else
           "User-agent: *\nDisallow: /admin\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else ""))
 

@@ -37,6 +37,15 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 4. `npx wrangler deploy`.
 5. Submit the Roblox app for review. Until it passes, Roblox caps the app at 10 signed-in users, so sign-in works for testing but not for the public. Needs a demo video under a minute.
 
+## Look and layout
+- **Logo**: `logo_svg()` draws a timer ring with a play button inside, inline in the page so it stays sharp and costs no request. `FAVICON` is the same drawing written out as `favicon.svg`.
+- **Light/dark**: the dark palette is written once as `DARK` and dropped into the stylesheet twice, for `@media(prefers-color-scheme:dark)` on `:root:not([data-theme=light])` and for `:root[data-theme=dark]`. The site follows the device until the visitor presses the button, after which their choice is kept in `pt_theme` and wins. **Any new dark-mode rule must use a variable, not its own `prefers-color-scheme` block**, or the manual toggle will not reach it.
+- **Grid or list**: the toggle only sets `data-view` on `<html>` (kept in `pt_view`), and the stylesheet does the rest, so one button anywhere changes every list of games on the site. Grid is the default. `view_toggle()` / `row_head()` place it.
+- `BOOT` runs in the head before anything is drawn, so neither the theme nor the view flashes the wrong way round.
+- **Game switcher** (top left, `CHROME_JS`): the last 8 games viewed, kept in `pt_recent`. Each game page sets `window.PT_GAME` near the end of its body, which must stay *before* the `CHROME_JS` tag at the end of the page. `CHROME_JS` is on every page, so it may only use helpers from `FAVJS` (which is in the head) such as `ptEsc` - not `esc` from `SHARED_JS`, which only chart pages load.
+- **Ads**: `ad_rail()` gives a left rail, a right rail and a sticky bottom strip, sized but empty, with ids `ad-left`, `ad-right`, `ad-bottom`. The AdSense loader belongs in `ADS` and goes in the page head **once**; the rails must never repeat it. `SHOW_RAILS` means the slots show dashed outlines in previews and are left out of the live site until `ADS` is filled in, so visitors never see empty grey boxes. Rails need 1480px of screen, the bottom strip 900px, so phones stay clean.
+- Content is 1400px wide (`.w.wide`), 820px for reading pages.
+
 ## Files
 - `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT` (reads `SITE_OUT`), `DOMAIN`, `CONTACT`, `SPIKE`.
 - `roblox_api.py`: every Roblox call made while building (icons, descriptions, game passes, events). Answers are cached in `.cache/` (gitignored) so a rebuild is instant; a cold build takes about 40 seconds for 51 games. If an endpoint dies, the function returns `None` and the page quietly leaves that section out.
