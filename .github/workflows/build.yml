@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [build_site.py, cloud/build_cloud.py, collector.py]
+    paths: [build_site.py, cloud/build_cloud.py, collector.py, games.txt]
 permissions:
   contents: write
 concurrency:
@@ -24,6 +24,6 @@ jobs:
           git clone --branch data --single-branch "$REPO_URL" datarepo
           python3 cloud/build_cloud.py datarepo
           rm -rf datarepo data.db
-          git add docs
+          git add docs worker/stats.js
           git commit -m "rebuild site" || exit 0
           git push

@@ -7,11 +7,19 @@ Beginner with almost no coding knowledge. Explain every step in plain language, 
 A website called **PlayTime** that shows when popular Roblox games are busiest and quietest (hourly heatmaps from public player counts). Goal: grow search traffic, then earn money from ads. Not affiliated with Roblox: keep the disclaimer in the footer and never use "Roblox" in the domain name. Many visitors may be kids, so do not collect personal data or add accounts or sign-ups (COPPA).
 
 ## How it works
-1. `cloud/collector_cloud.py` (uses `collector.py`) reads universe IDs from `games.txt`, calls Roblox public APIs, and appends rows to `games.csv` and `samples.csv` on the **`data` branch**. It also saves each game's icon URL.
+1. `cloud/collector_cloud.py` (uses `collector.py`) reads universe IDs from `games.txt`, calls Roblox public APIs, and appends rows to `games.csv` and `samples.csv` on the **`data` branch**. (Icons are not stored: `build_site.py` fetches them fresh from `thumbnails.roblox.com` at build time.)
 2. `.github/workflows/collect.yml` runs it every ~30 minutes, 3 samples 10 minutes apart per run.
 3. `cloud/build_cloud.py` turns the CSVs into `data.db`, then `build_site.py` writes the static site to `docs/` on **`main`**.
-4. `.github/workflows/build.yml` runs nightly (and by hand) and commits `docs/`.
-5. Cloudflare Workers (project `playtimes`) serves `docs/` from `main` via `npx wrangler deploy --assets ./docs --name playtimes --compatibility-date 2025-09-09`.
+4. `.github/workflows/build.yml` runs nightly, by hand, and automatically on any push to `main` that changes `build_site.py`, `cloud/build_cloud.py` or `collector.py`. It commits `docs/`.
+5. Cloudflare Workers (project `playtimes`) auto-deploys from `main` within seconds of each push. Its deploy command must be plain `npx wrangler deploy`; settings now come from `wrangler.jsonc`.
+
+## Admin dashboard (owner only)
+- `worker/index.js` is a Cloudflare Worker deployed alongside the static site. It serves `/admin` (behind an admin code) and `POST /api/hit` (counts page views). Everything else is still plain files from `docs/`.
+- Secrets live in Cloudflare, never in the repo: `ADMIN_CODE` and `SESSION_SECRET` (set with `npx wrangler secret put NAME`).
+- Analytics are stored in the D1 database `playtime-admin` (`worker/schema.sql`). Page views only: path + date, no cookies, no IPs. Login attempts store a salted one-way hash for rate limiting and are deleted after 24h.
+- `build_site.py` writes `worker/stats.js` on every `docs` build; the dashboard reads it. Preview builds skip it.
+- Deploy with `npx wrangler deploy` (no `--assets` flag: `wrangler.jsonc` sets it, and passing both is an error).
+- Never commit `.dev.vars` or `.wrangler/`.
 
 ## Files
 - `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT`.
@@ -28,13 +36,11 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - Past mistake to avoid: pasting one file's contents into another (for example workflow text into `collector.py`). Check the first line of each file after any edit.
 
 ## Current status
-- Collecting data (22 games). Site live on a `workers.dev` address with `NOINDEX = True` (hidden from Google while designing).
+- Collecting data (51 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live on a `workers.dev` address with `NOINDEX = True` (hidden from Google while designing).
 - `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
+- Done: About + Privacy pages, game thumbnails, parent section (game passes, fetched at build time from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes`; the old `games.roblox.com` one is dead), Trending page, Save/favorites (browser localStorage only), category pages (from Roblox `genre_l1`, saved in the `genre` column; categories need 2+ games).
+- Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
 
 ## To do
-1. Privacy Policy and About pages (needed before AdSense).
-2. Sitemap with full URLs once the domain exists (`sitemap.txt` currently has relative paths).
-3. Parent safety section (gamepass counts and prices from `games.roblox.com/v1/games/{universeId}/game-passes`).
-4. Trending / dying games page, favorites saved on the device (no accounts), category pages.
-5. Raise the game list to 50+ with real data; check `games.csv` for missing IDs.
-6. Launch: domain, Google Search Console, then AdSense once 20+ pages have real data.
+1. Launch: buy domain, set `DOMAIN` and `CONTACT`, `MIN_SAMPLES = 200`, `NOINDEX = False`; add to Google Search Console; AdSense once 20+ pages have real data (mark site as child-directed).
+2. Trending page fills in after ~2 weeks of data for each game.

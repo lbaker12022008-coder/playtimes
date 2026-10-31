@@ -3,3 +3,8 @@ __pycache__/
 preview/
 datarepo/
 *.pyc
+
+# Never commit these: they hold secrets / local test state
+.dev.vars
+.wrangler/
+node_modules/

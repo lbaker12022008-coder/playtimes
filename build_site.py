@@ -82,7 +82,11 @@ def page(title, body, desc="", wide=False):
 <div class="top"><a class="logo" href="/">{html.escape(SITE)}</a><nav><a href="/trending.html">Trending</a></nav></div>{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
-</div></body></html>"""
+</div>{HIT}</body></html>"""
+
+# Counts one page view. No cookies, no login, nothing about the visitor is stored.
+HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},'
+       'body:location.pathname,keepalive:true})}catch(e){}</script>')
 
 def contact_html():
     if not CONTACT: return ""
@@ -134,6 +138,10 @@ anyone, including children under 13. If you think a child has sent us personal i
 <p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
 <p>If you tap <b>Save</b> on a game, the list of games you saved is kept in your browser's storage on your device.
 It is never sent to us. Clearing your browser data removes it.</p>
+<h2>Counting visits</h2>
+<p>We count how many times each page is opened, so we know which pages people find useful. We count the page
+address and the date, and nothing else: no cookies, no names, no accounts, and nothing that identifies you or
+your device. We cannot tell one visitor from another.</p>
 <h2>Our hosting provider</h2>
 <p>The site is hosted by Cloudflare. Like any website host, Cloudflare automatically handles basic technical information
 (such as IP addresses and browser type) to deliver pages and protect the site from attacks. See
@@ -313,6 +321,31 @@ def write(path, text):
     os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
     open(f"{OUT}/{path}", "w", encoding="utf-8").write(text)
 
+def write_stats(db, games, cards, waiting):
+    """Saves the numbers the admin dashboard shows. Baked into the worker, so it is not a public file."""
+    if OUT != "docs": return          # previews must not touch the real worker
+    try:
+        wanted = [x for x in open("games.txt").read().split() if x.strip().isdigit()]
+    except OSError:
+        wanted = []
+    have = {str(g[0]) for g in games}
+    total_samples = db.execute("SELECT COUNT(*) FROM samples").fetchone()[0]
+    stats = {
+        "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "site": {"noindex": NOINDEX, "min_samples": MIN_SAMPLES, "domain": DOMAIN,
+                 "contact": CONTACT, "ads": bool(ADS)},
+        "totals": {"games_tracked": len(games), "pages_built": len(cards), "samples": total_samples,
+                   "trend_ready": sum(1 for c in cards if c["days"] >= 14)},
+        "games": [{"name": c["name"], "genre": c["genre"], "samples": c["samples"], "days": c["days"],
+                   "avg7": c["avg"], "trend": c["trend"]} for c in cards],
+        "waiting": waiting,
+        "missing_ids": [i for i in wanted if i not in have],
+    }
+    os.makedirs("worker", exist_ok=True)
+    open("worker/stats.js", "w", encoding="utf-8").write(
+        "// Written by build_site.py on every build. Do not edit by hand.\n"
+        "export default " + json.dumps(stats, indent=1) + ";\n")
+
 def main():
     db = sqlite3.connect("data.db"); os.makedirs(OUT + "/game", exist_ok=True)
     cards = []
@@ -322,10 +355,14 @@ def main():
     genre_count = {}
     for g in games: genre_count[g[2]] = genre_count.get(g[2], 0) + 1
     cats = {g for g, n in genre_count.items() if g and g != "All" and n >= 2}
+    waiting = []
     for uid, name, genre, place in games:
         rows = db.execute("SELECT ts,playing FROM samples WHERE universe_id=? ORDER BY ts", (uid,)).fetchall()
-        if len(rows) < MIN_SAMPLES: continue
+        if len(rows) < MIN_SAMPLES:
+            waiting.append({"name": name, "samples": len(rows)})
+            continue
         m, trend, avg7, peak = analyze(rows)
+        days = round((rows[-1][0] - rows[0][0]) / 86400, 1)
         s = slug(name)
         play = f'<a class="btn" href="https://www.roblox.com/games/{place}">Play {html.escape(name)}</a>' if place and place > 1 else ""
         cat = f' Category: <a href="/category/{slug(genre)}.html">{html.escape(genre)}</a>.' if genre in cats else ""
@@ -338,7 +375,8 @@ def main():
         write(f"game/{s}.html", page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? See the hours and days with the most and fewest players."))
-        cards.append({"avg": avg7, "trend": trend, "name": name, "slug": s, "icon": icons.get(uid), "genre": genre})
+        cards.append({"avg": avg7, "trend": trend, "name": name, "slug": s, "icon": icons.get(uid),
+                      "genre": genre, "samples": len(rows), "days": days})
     cards.sort(key=lambda c: c["avg"], reverse=True)
 
     cat_pages = []
@@ -376,8 +414,10 @@ def main():
     base = DOMAIN.rstrip("/")
     urls = ["/", "/trending.html", "/about.html", "/privacy.html"] + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards]
     write("sitemap.txt", "\n".join(base + u for u in urls) + "\n")
-    robots = "User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else "")
+    robots = ("User-agent: *\nDisallow: /\n" if NOINDEX else
+              "User-agent: *\nDisallow: /admin\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else ""))
     write("robots.txt", robots)
+    write_stats(db, games, cards, waiting)
     print(f"Built {len(cards)} game pages in {OUT}/")
 
 if __name__ == "__main__": main()

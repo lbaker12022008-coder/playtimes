@@ -1,0 +1,18 @@
+{
+  // Cloudflare settings for the PlayTime worker.
+  // Pages in docs/ are served as plain files; this worker only handles /admin
+  // and /api/*. Deploy with `npx wrangler deploy` (no --assets flag: passing it
+  // as well as setting "assets" here is an error).
+  "name": "playtimes",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-09",
+  "assets": { "directory": "./docs" },
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "playtime-admin",
+      "database_id": "ad2dc711-2358-43af-b9b2-3a8335e8d1bc"
+    }
+  ]
+}
