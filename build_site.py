@@ -1,5 +1,5 @@
 """Reads data.db and writes a static site to docs/ (deploy on Cloudflare Pages / GitHub Pages)."""
-import sqlite3, json, re, os, html
+import sqlite3, json, re, os, html, urllib.request
 from datetime import datetime, timezone
 
 SITE = "PlayTime"          # change me (don't put 'Roblox' in your domain name)
@@ -47,14 +47,26 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 .wrap{overflow-x:auto}
 .foot{border-top:1px solid var(--line);margin-top:32px;padding-top:12px}
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
-.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}"""
+.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}
+.w.wide{max-width:1100px}
+.grid{list-style:none;padding:0;margin:16px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 14px}
+.tile{display:block;text-decoration:none;color:var(--ink)}
+.thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s}
+.ph{display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:var(--mut)}
+.tile:hover .thumb{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:.95rem;line-height:1.3;margin-top:8px}
+.tmeta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--mut);margin-top:3px}
+.tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
+.ghead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.ghead .thumb{width:150px;flex:none}.ghead>div{flex:1 1 260px}
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}"""
 
 ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
 
-def page(title, body, desc=""):
+def page(title, body, desc="", wide=False):
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}">{ROBOTS}<style>{CSS}</style>{ADS}</head><body><div class="w">
+<meta name="description" content="{html.escape(desc)}">{ROBOTS}<style>{CSS}</style>{ADS}</head><body><div class="w{' wide' if wide else ''}">
 <div class="top"><a class="logo" href="/">{html.escape(SITE)}</a></div>{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
@@ -121,6 +133,39 @@ anyone, including children under 13. If you think a child has sent us personal i
 
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "game"
 
+ICON_API = "https://thumbnails.roblox.com/v1/games/icons?size=256x256&format=Webp&isCircular=false&universeIds="
+
+def fetch_icons(ids):
+    """Asks Roblox's public thumbnail service for each game's square icon. Returns {universe_id: url}."""
+    out = {}
+    for i in range(0, len(ids), 50):
+        try:
+            req = urllib.request.Request(ICON_API + ",".join(map(str, ids[i:i + 50])), headers={"User-Agent": "playtime/1.0"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                for t in json.load(r).get("data", []):
+                    if t.get("state") == "Completed" and t.get("imageUrl"): out[t["targetId"]] = t["imageUrl"]
+        except Exception as e:
+            print("Could not load icons (pages will show a letter instead):", e)
+    return out
+
+def thumb(name, url, alt=""):
+    if url: return f'<img class="thumb" src="{html.escape(url)}" alt="{html.escape(alt)}" width="256" height="256" loading="lazy">'
+    letter = next((c for c in name if c.isalnum()), "?").upper()
+    return f'<div class="thumb ph" aria-hidden="true">{html.escape(letter)}</div>'
+
+def short(n):
+    for div, unit in ((1e6, "M"), (1e3, "K")):
+        if n >= div: return f"{n / div:.1f}".rstrip("0").rstrip(".") + unit
+    return str(n)
+
+PERSON = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>'
+
+def trend_short(t):
+    if t is None: return ""
+    if t >= 5: return f'<span class="up">&#9650; {t:.0f}%</span>'
+    if t <= -5: return f'<span class="down">&#9660; {-t:.0f}%</span>'
+    return ""
+
 def analyze(rows):
     sums = [[0] * 24 for _ in range(7)]; cnt = [[0] * 24 for _ in range(7)]
     now = rows[-1][0]; recent = []; prior = []
@@ -141,9 +186,9 @@ def trend_html(t):
     if t <= -5: return f'<span class="down">Shrinking ({t:+.0f}%)</span>'
     return '<span class="mut">Steady</span>'
 
-GAME = """<h1>When is __NAME__ busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on __N__ player counts.</p>
-<div class="card ans"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p>__PLAY__</div>
+GAME = """<div class="ghead">__ICON__<div><h1>When is __NAME__ busiest?</h1>
+<p class="mut">Times are shown in your timezone. Based on __N__ player counts.</p>__PLAY__</div></div>
+<div class="card ans"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
 <div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
 <div class="card"><h2>The whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
@@ -185,39 +230,43 @@ g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+D[d]+' '+fmt(h)+': about
 $('hm').innerHTML=g;show(nd);"""
 
 SEARCH = """<script>const s=document.getElementById('s');s.oninput=()=>{const t=s.value.toLowerCase();
-document.querySelectorAll('.list li').forEach(li=>li.hidden=!li.dataset.n.includes(t))}</script>"""
+document.querySelectorAll('.grid li').forEach(li=>li.hidden=!li.dataset.n.includes(t))}</script>"""
 
 def main():
     db = sqlite3.connect("data.db"); os.makedirs(OUT + "/game", exist_ok=True)
     cards = []
-    for uid, name, genre, place in db.execute("SELECT * FROM games"):
+    games = db.execute("SELECT * FROM games").fetchall()
+    icons = fetch_icons([g[0] for g in games])
+    for uid, name, genre, place in games:
         rows = db.execute("SELECT ts,playing FROM samples WHERE universe_id=? ORDER BY ts", (uid,)).fetchall()
         if len(rows) < MIN_SAMPLES: continue
         m, trend, avg7, peak = analyze(rows)
         s = slug(name)
         play = f'<p><a class="btn" href="https://www.roblox.com/games/{place}">Play {html.escape(name)}</a></p>' if place and place > 1 else ""
-        body = (GAME.replace("__NAME__", html.escape(name)).replace("__N__", f"{len(rows):,}")
+        body = (GAME.replace("__ICON__", thumb(name, icons.get(uid), f"{name} icon"))
+                .replace("__NAME__", html.escape(name)).replace("__N__", f"{len(rows):,}")
                 .replace("__PLAY__", play).replace("__AVG__", f"{avg7:,}").replace("__PEAK__", f"{peak:,}")
                 .replace("__TREND__", trend_html(trend)).replace("__JS__", JS.replace("__DATA__", json.dumps(m))))
         open(f"{OUT}/game/{s}.html", "w", encoding="utf-8").write(page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? See the hours and days with the most and fewest players."))
-        cards.append((avg7, trend, name, s))
-    cards.sort(reverse=True)
-    li = "".join(f'<li data-n="{html.escape(n.lower())}"><a href="/game/{s}.html"><span><b>{html.escape(n)}</b><br>'
-                 f'<span class="mut small">About {a:,} players</span></span><span class="small">{trend_html(t)}</span></a></li>'
-                 for a, t, n, s in cards)
+        cards.append((avg7, trend, name, s, icons.get(uid)))
+    cards.sort(key=lambda c: c[0], reverse=True)
+    li = "".join(f'<li data-n="{html.escape(n.lower())}"><a class="tile" href="/game/{s}.html">{thumb(n, ic)}'
+                 f'<span class="tname">{html.escape(n)}</span>'
+                 f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(a)}</span>{trend_short(t)}</span></a></li>'
+                 for a, t, n, s, ic in cards)
     body = (f"<h1>When is your game busiest?</h1><p class=\"mut\">Find the quiet hours for less crowding, or the busy "
             f"hours for more players and events. Pick a game to see its week.</p>"
             f'<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
-            f'<ul class="list">{li}</ul>{SEARCH}')
+            f'<h2 style="margin-top:24px">Popular games</h2><ul class="grid">{li}</ul>{SEARCH}')
     open(f"{OUT}/index.html", "w", encoding="utf-8").write(page(f"{SITE}: Best Times to Play Popular Games", body,
-        "See when popular games are busiest and quietest, hour by hour."))
+        "See when popular games are busiest and quietest, hour by hour.", wide=True))
     open(f"{OUT}/about.html", "w", encoding="utf-8").write(page(f"About {SITE}", about_body(),
         f"What {SITE} is, how it measures when games are busy, and what it does not tell you."))
     open(f"{OUT}/privacy.html", "w", encoding="utf-8").write(page(f"Privacy Policy - {SITE}", privacy_body(),
         f"{SITE} does not collect personal information. No accounts, no sign-ups, no logins."))
-    open(f"{OUT}/sitemap.txt", "w").write("\n".join(["/about.html", "/privacy.html"] + [f"/game/{s}.html" for *_, s in cards]))
+    open(f"{OUT}/sitemap.txt", "w").write("\n".join(["/about.html", "/privacy.html"] + [f"/game/{c[3]}.html" for c in cards]))
     open(f"{OUT}/robots.txt", "w").write("User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n")
     print(f"Built {len(cards)} game pages in {OUT}/")
 
