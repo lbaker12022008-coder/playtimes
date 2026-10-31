@@ -5,16 +5,27 @@
 <script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');if(t)d.setAttribute('data-theme',t);d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}catch(e){document.documentElement.setAttribute('data-view','grid')}</script><style>:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
 --glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
 --l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
---soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04)}
+--soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04);--bannerop:.17}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
 --acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)}}
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06);
+--bannerop:.3}}
 :root[data-theme=dark]{--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
 --acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)}
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06);
+--bannerop:.3}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+/* The game's own artwork, faded out behind the top of the page. Decorative only:
+   it sits under everything and fades into the page colour, so text stays readable
+   in both themes. The sticky header is see-through, so it picks the colour up too. */
+.banner{position:absolute;top:0;left:0;right:0;height:360px;z-index:0;overflow:hidden;pointer-events:none}
+.banner img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
+filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
+.banner::after{content:"";position:absolute;inset:0;
+background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
+.shell{position:relative;z-index:1}   /* keep the page content above the artwork */
 .w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
 .w.wide{max-width:1400px}
 /* The page sits in the middle with a column either side kept for ads, the way most
@@ -228,7 +239,7 @@ if(who)localStorage.setItem('pt_joined',who)}catch(e){}
 if(all.length!==server.length)setFavs(all)}}
 ptPaint()}).catch(function(){});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);</script></head><body>
-<header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-23710e6c4c48caac1a79d4a25615bd2c/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#fff"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg></button>
@@ -259,7 +270,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div class="card"><h2>Is Berry Avenue 🏠 RP dead?</h2><div class="verdict">
 <span class="vbadge" style="background:var(--l3)">Too new to say</span><p style="margin:0;flex:1 1 240px">We have not been watching this game long enough to say which way it is going. Check back in a week or two.</p></div>
 </div>
-<div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>8 days ago</b> (Thu 22 Oct).</p><ul class="evt"><li class=""><b>Law &amp; Order Update</b><span class="d">Police Station &amp; Prison!</span><span class="d">Sat 13 Jun &middot; 4 months ago</span><p>Come and explore our revamped Police Station and brand new prison!</p></li><li class=""><b>Hospital Revamp</b><span class="d">Map Update!</span><span class="d">Sat 16 May &middot; 5 months ago</span></li><li class=""><b>LE SSERAFIM LIVE!</b><span class="d">LE SSERAFIM LIVE IN SEOUL</span><span class="d">Thu 7 May &middot; 5 months ago</span><p>FEARNOT, celebrate with LE SSERAFIM in Berry Ave 🎂
+<div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>9 days ago</b> (Thu 22 Oct).</p><ul class="evt"><li class=""><b>Law &amp; Order Update</b><span class="d">Police Station &amp; Prison!</span><span class="d">Sat 13 Jun &middot; 4 months ago</span><p>Come and explore our revamped Police Station and brand new prison!</p></li><li class=""><b>Hospital Revamp</b><span class="d">Map Update!</span><span class="d">Sat 16 May &middot; 5 months ago</span></li><li class=""><b>LE SSERAFIM LIVE!</b><span class="d">LE SSERAFIM LIVE IN SEOUL</span><span class="d">Thu 7 May &middot; 5 months ago</span><p>FEARNOT, celebrate with LE SSERAFIM in Berry Ave 🎂
 MEET &amp; GREET on May 7th at 9:30 PM Korea time</p></li><li class=""><b>LE SSERAFIM TAKEOVER!</b><span class="d">Time to celebrate!</span><span class="d">Sat 25 Apr &middot; 6 months ago</span><p>It’s time to celebrate! K-pop group LE SSERAFIM are coming to Berry Ave and taking over our Seoul map! Get ready to perform their new single “CELEBRATION” by practicing your moves in the dance studio, fueling up on Korean BBQ, and more!</p></li><li class=""><b>New Mansion and More!</b><span class="d">Lots of new content!</span><span class="d">Sat 14 Mar &middot; 7 months ago</span><p>Discover a new mansion, new houses and new rooms to roleplay with in the High School.</p></li><li class=""><b>High School Revamp</b><span class="d">Map Update!</span><span class="d">Sun 1 Feb &middot; 8 months ago</span><p>Join us soon for a fully revamped section of the map, with many new and exciting roleplay options!</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>Location Update</td><td>Sun 27 Jul 2025</td></tr><tr><td>Christmas Update</td><td>Fri 20 Dec 2024</td></tr><tr><td>Christmas Update</td><td>Fri 6 Dec 2024</td></tr><tr><td>Halloween 🎃</td><td>Sun 20 Oct 2024</td></tr></table></div></details></div>
 <div class="card"><h2>Event calendar</h2><p class="none">Berry Avenue 🏠 RP has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div>
 <div class="card"><h2>What is Berry Avenue 🏠 RP?</h2><p class="desc">⭐ Welcome to Berry Avenue! A place to roleplay, hang out and explore!
