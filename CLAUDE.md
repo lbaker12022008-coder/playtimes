@@ -70,5 +70,14 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - Timezones: `tzOff()` in `SHARED_JS` rounds the visitor's offset to whole hours. Every page must use it. The homepage and the game pages convert between local and UTC in opposite directions, and they disagreed by an hour for half-hour timezones (India) until this was shared.
 
 ## To do
-1. Launch: buy domain, set `DOMAIN` and `CONTACT`, `MIN_SAMPLES = 200`, `NOINDEX = False`; add to Google Search Console; AdSense once 20+ pages have real data (mark site as child-directed).
-2. These fill in with more real data: Trending / Growing / Shrinking need ~2 weeks per game, the "Is X dead?" verdict needs 10 days, and "Days the player count jumped" needs about 2 weeks.
+Launch checklist, in order:
+1. **Buy the domain**, then set `DOMAIN` and `CONTACT` at the top of `build_site.py`. `CONTACT` must not be a personal address. Setting `DOMAIN` is what turns the sitemap into full web addresses.
+2. **`MIN_SAMPLES = 200`** - done (31 Oct 2026). A game needs about a day and a half of collecting to reach it.
+3. **Switch on Sign in with Roblox** when ready: the four `wrangler` steps under "Sign in with Roblox" above. Do them in that order; setting the secrets without creating the D1 tables makes the button appear and then fail.
+4. **`NOINDEX = False`**, then add the site to Google Search Console and submit `sitemap.txt`. Do this only once the pages have real data in them, so Google's first look is a good one.
+5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
+6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.
+
+Waiting on data, nothing to do:
+- Trending / Growing / Shrinking need ~2 weeks per game, the "Is X dead?" verdict needs 10 days, and "Days the player count jumped" needs about 2 weeks.
+- As of 31 Oct 2026 collection had only just started (~600 player counts), so no game met `MIN_SAMPLES = 200` yet and the site showed only its section pages. This is expected and clears itself.

@@ -737,42 +737,75 @@ while(ut<0){ut+=24;ud=(ud+6)%7}while(ut>=24){ut-=24;ud=(ud+1)%7}
 var cell=ud*24+ut;
 G.forEach(function(g){g.lv=+g.l.charAt(cell)});
 
-/* "What are you looking for?" sorts the list and labels every game. */
-var all=$('all'),original=Array.prototype.slice.call(all.children),want='';
-function apply(w){
-want=(want===w?'':w);
+/* "What are you looking for?" really does narrow the list: it hides the games that
+   are not quiet (or not busy) at this moment in the visitor's timezone, puts the
+   best ones first, and tags each with how busy it is now.
+
+   Every game's five levels are worked out from its own week, so "busy" means busy
+   for that game. Games mostly get busy at the same times of day, though, so at
+   8pm nothing is quiet and at 5am nothing is busy. When nothing matches we show
+   the whole list in order instead of an empty page, and say why. */
+var all=$('all'),original=Array.prototype.slice.call(all.children);
+var by={};G.forEach(function(g){by[g.s]=g});
+var want='',term='';
+function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
+function fits(l){if(!want)return true;return want==='quiet'?(l>0&&l<=2):(l>=4)}
+
+function refresh(){
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.w===want)});
+
+/* Best first. Games we have no reading for at this hour go last. */
 var order=original.slice();
-if(want){var by={};G.forEach(function(g){by[g.s]=g});
-order.sort(function(x,y){var a=by[x.dataset.s],b=by[y.dataset.s];
-if(!a||!b||!a.lv||!b.lv)return (b&&b.lv?1:0)-(a&&a.lv?1:0);
-return want==='quiet'?a.lv-b.lv||b.a-a.a:b.lv-a.lv||b.a-a.a})}
+if(want)order.sort(function(x,y){var a=lv(x),b2=lv(y);
+if((a>0)!==(b2>0))return a>0?-1:1;
+if(a!==b2)return want==='quiet'?a-b2:b2-a;
+return (by[y.dataset.s]||{a:0}).a-(by[x.dataset.s]||{a:0}).a});
 order.forEach(function(li,i){li.style.setProperty('--i',Math.min(i,14));all.appendChild(li)});
-Array.prototype.forEach.call(all.children,function(li){
-var g=null;G.forEach(function(x){if(x.s===li.dataset.s)g=x});
+
+var fitting=0;
+original.forEach(function(li){if(fits(lv(li)))fitting++});
+var loose=want&&!fitting;        /* nothing is quiet/busy right now: show them all */
+
+var shown=0;
+original.forEach(function(li){
+var l=lv(li),ok=(!want||loose||fits(l))&&li.dataset.n.indexOf(term)>-1;
+li.hidden=!ok;if(ok)shown++;
 var old=li.querySelector('.rnow');if(old)old.remove();
-if(want&&g&&g.lv){var s=document.createElement('span');s.className='rnow';
-s.style.cssText='font-weight:700;color:var(--ink)';s.textContent=W[g.lv]+' now';
+if(want&&l&&ok){var s=document.createElement('span');s.className='rnow';
+s.style.cssText='font-weight:700;color:var(--ink)';s.textContent=W[l]+' now';
 li.querySelector('.tmeta').appendChild(s)}});
-$('asktxt').textContent=want==='quiet'?
-'Quietest first, for right now in your timezone. Good for claiming event items and avoiding queues.':
-want==='busy'?'Busiest first, for right now in your timezone. Good for trading, full servers and events.':
-'Showing the most popular games first.'}
+
+var word=want==='quiet'?'quiet':'busy';
+$('asktxt').textContent=!want?'Showing the most popular games first.':
+loose?('Nothing we track is '+word+' right now, so here is everything with the '+
+(want==='quiet'?'quietest':'busiest')+' first.'):
+term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
+(fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, '+
+(want==='quiet'?'quietest':'busiest')+' first. '+
+(want==='quiet'?'Good for claiming event items and avoiding queues.':
+'Good for trading, full servers and events.'));
+favs()}
+
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
-b.onclick=function(){apply(b.dataset.w)}});
+b.onclick=function(){want=(want===b.dataset.w?'':b.dataset.w);refresh()}});
 
-/* Search */
-var s=$('s');s.oninput=function(){var t=s.value.toLowerCase();
-Array.prototype.forEach.call(document.querySelectorAll('.grid li'),function(li){
-li.hidden=li.dataset.n.indexOf(t)<0})};
+/* Search. Goes through refresh() so searching and filtering cannot fight over
+   which games are hidden. */
+var s=$('s');s.oninput=function(){term=s.value.toLowerCase();refresh()};
 
-/* Saved games, pinned to the top. Redrawn if signing in brings more in. */
-PT.ready(function(){var fg=$('favgrid');if(!fg)return;fg.innerHTML='';
+/* Saved games, pinned to the top. Copies of the tiles, so they must not inherit
+   being hidden by a filter. */
+function favs(){var fg=$('favgrid');if(!fg)return;fg.innerHTML='';
 getFavs().forEach(function(k){
-var li=null;Array.prototype.forEach.call(all.children,function(x){if(x.dataset.s===k)li=x});
-if(li)fg.appendChild(li.cloneNode(true))});
-$('favs').hidden=!fg.children.length});"""
+var li=null;original.forEach(function(x){if(x.dataset.s===k)li=x});
+if(!li)return;
+var c=li.cloneNode(true);c.hidden=c.dataset.n.indexOf(term)<0;
+c.style.setProperty('--i',Math.min(fg.children.length,14));fg.appendChild(c)});
+var any=false;Array.prototype.forEach.call(fg.children,function(c){if(!c.hidden)any=true});
+$('favs').hidden=!any}
+PT.ready(favs);
+refresh();"""
 
 COMPARE_JS = """var A=null,B=null,day=nowDay(),DATA=null;
 function opts(sel,pick){DATA.games.forEach(function(g){var o=document.createElement('option');
