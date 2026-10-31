@@ -2,9 +2,10 @@
 import sqlite3, json, re, os, html
 from datetime import datetime, timezone
 
-SITE = "PlayTimes"          # change me (don't put 'Roblox' in your domain name)
-MIN_SAMPLES = 200          # ~2 days at 15-min intervals
+SITE = "Rushhour"          # change me (don't put 'Roblox' in your domain name)
+MIN_SAMPLES = 20          # ~2 days at 15-min intervals
 ADS = ""                   # paste your AdSense <script> here
+NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = "docs"
 
 CSS = """:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mut:#5b6478;--line:#e1e6ef;--acc:#2563eb;--l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482}
@@ -43,10 +44,12 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 @media(prefers-color-scheme:dark){.up{color:#4ade80}.down{color:#f87171}}
 .wrap{overflow-x:auto}"""
 
+ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
+
 def page(title, body, desc=""):
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}"><style>{CSS}</style>{ADS}</head><body><div class="w">
+<meta name="description" content="{html.escape(desc)}">{ROBOTS}<style>{CSS}</style>{ADS}</head><body><div class="w">
 <div class="top"><a class="logo" href="/">{html.escape(SITE)}</a></div>{body}
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p>
 </div></body></html>"""
@@ -146,6 +149,7 @@ def main():
     open(f"{OUT}/index.html", "w", encoding="utf-8").write(page(f"{SITE}: Best Times to Play Popular Games", body,
         "See when popular games are busiest and quietest, hour by hour."))
     open(f"{OUT}/sitemap.txt", "w").write("\n".join(f"/game/{s}.html" for *_, s in cards))
+    open(f"{OUT}/robots.txt", "w").write("User-agent: *\nDisallow: /\n" if NOINDEX else "User-agent: *\nAllow: /\n")
     print(f"Built {len(cards)} game pages in {OUT}/")
 
 if __name__ == "__main__": main()
