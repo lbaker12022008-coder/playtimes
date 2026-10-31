@@ -209,7 +209,13 @@ export async function handleAuth(request, env, path) {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ signedIn: false, available: true });
     const row = await env.DB.prepare("SELECT name FROM users WHERE rbx_id = ?1").bind(userId).first();
-    return json({ signedIn: true, available: true, name: row?.name || "Roblox user", favs: await readFavourites(env, userId) });
+    // id lets the page tell "this device has already handed its saved games to this
+    // account" from "a different account just signed in here". Without it, removing a
+    // game on one device gets undone by another device's older list.
+    return json({
+      signedIn: true, available: true, id: userId,
+      name: row?.name || "Roblox user", favs: await readFavourites(env, userId)
+    });
   }
 
   if (!configured(env)) {

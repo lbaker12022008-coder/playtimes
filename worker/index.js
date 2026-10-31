@@ -34,7 +34,10 @@ export default {
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
     } catch (err) {
-      return text("Something went wrong: " + err.message, 500);
+      // Log the detail for us (Cloudflare observability), but never show visitors the
+      // internals: these errors now cover sign-in and the database too.
+      console.error("request failed", path, err && err.stack || err);
+      return text("Something went wrong. Please try again.", 500);
     }
     return text("Not found", 404);
   }
