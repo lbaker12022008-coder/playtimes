@@ -32,15 +32,25 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 
 # The dark palette, written once and used twice below: once for people whose device
 # is set to dark, and once for people who pressed the theme button themselves.
-DARK = """--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
---acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06);
---bannerop:.3"""
+# Colours come from the palette the owner picked: #A0D2EB, #E5EAF5, #D0BDF4,
+# #8458B3, #494D5F. Two of them were adjusted to stay readable, and both were
+# checked rather than guessed:
+#   --acc is #8458B3 darkened to #724C9A, because the original only reached 4.32
+#   against the page background and body text needs 4.5.
+#   --l1..--l5 travel light blue -> lilac -> purple with the lightness falling in
+#   even steps, so the heatmap squares stay tellable apart. Using the palette
+#   colours as-is gave three nearly identical shades.
+DARK = """--bg:#2E313D;--card:rgba(58,62,77,.72);--solid:#3A3E4D;--ink:#E5EAF5;--mut:#A8AEC2;--line:#565B6E;
+--acc:#D0BDF4;--acc2:#A0D2EB;--sky:#A0D2EB;--glass:rgba(46,49,61,.86);
+--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4);
+--up:#8BD9A8;--down:#F49AA6;--soft:#3C3A52;--favbg:#413663;--favink:#D0BDF4;
+--shade:rgba(255,255,255,.07);--bannerop:.3"""
 
-CSS = """:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
---glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
---l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
---soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04);--bannerop:.17}
+CSS = """:root{--bg:#E5EAF5;--card:rgba(255,255,255,.74);--solid:#fff;--ink:#494D5F;--mut:#6B7083;
+--line:#CBD3E6;--acc:#724C9A;--acc2:#8458B3;--sky:#A0D2EB;
+--glass:rgba(229,234,245,.86);--sh:0 1px 2px rgba(73,77,95,.06),0 10px 30px rgba(73,77,95,.1);
+--l1:#C6E4F3;--l2:#B8C8F0;--l3:#B7A6D7;--l4:#9E80C5;--l5:#8458B3;--up:#2F7D4F;--down:#A8445A;
+--soft:#EDE7FB;--favbg:#EFE7FB;--favink:#5A3B86;--shade:rgba(73,77,95,.05);--bannerop:.17}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
@@ -77,7 +87,7 @@ h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter
 h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+.card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -87,7 +97,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 0}
+.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 7px}
 .hrow{display:flex;align-items:center;gap:10px}
 .hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
@@ -108,7 +118,7 @@ border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:poin
 .gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
 .gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
-.gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--card);
+.gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--solid);
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;z-index:20}
 .gmenu[hidden]{display:none}
 .gmenu p{margin:7px 10px 4px;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
@@ -126,6 +136,41 @@ border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:poin
 :root[data-theme=dark] .iconb .sun{display:none}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .iconb .moon{display:block}
 :root:not([data-theme=light]) .iconb .sun{display:none}}
+/* the side drawer and the search sheet, used on the pages about one game */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
+background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
+padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
+.drawer[hidden]{display:none}
+.drawer nav{display:flex;flex-direction:column;gap:2px}
+.drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
+.drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
+.scrim{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
+.scrim[hidden]{display:none}
+@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
+.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
+.sheet[hidden]{display:none}
+.sheetbox{width:min(560px,100%);background:var(--solid);border:1px solid var(--line);
+border-radius:16px;box-shadow:var(--sh);padding:12px}
+.qout{max-height:50vh;overflow-y:auto;margin-top:8px}
+.qout a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+text-decoration:none;color:var(--ink)}
+.qout a:hover,.qout a:focus-visible{background:var(--shade)}
+.qout img,.qout .ph{width:30px;height:30px;border-radius:8px;flex:none;object-fit:cover;background:var(--line)}
+.qout p{margin:8px 10px;color:var(--mut);font-size:.9rem}
+/* game passes: picture, what it contains, what it costs */
+.passes{list-style:none;padding:0;margin:14px 0 6px;display:grid;gap:10px;
+grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.pass{display:flex;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--shade)}
+.pass img,.pass .ph{width:64px;height:64px;flex:none;border-radius:12px;object-fit:cover;
+background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--mut);font-size:.95rem}
+.pass>div{min-width:0}
+.pass b{display:block;line-height:1.25}
+.pass p{margin:.3em 0;font-size:.9rem;color:var(--mut);line-height:1.4}
+.pass .price{font-weight:700;font-size:.92rem}
+.ptag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;
+margin:3px 4px 0 0;vertical-align:1px;background:var(--soft);color:var(--acc)}
+.ptag.sale{background:#2F7D4F;color:#fff}
+.ptag.cheap{background:var(--sky);color:#20303f}
 /* grid or list */
 .vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
 .vtog button{display:grid;place-items:center;width:34px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;padding:0}
@@ -143,11 +188,15 @@ border:1px solid var(--line);border-radius:13px}
 :root[data-view=list] .ph{font-size:1.4rem}
 :root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
 :root[data-view=list] .tmeta{margin:0;flex:none}
-.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
+.tabs{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
 .tabs::-webkit-scrollbar{display:none}
 .tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
 .tabs a:hover{border-color:var(--acc);transform:translateY(-1px)}
 .tabs a[aria-current=page]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+/* Only one of the two ways into the sections is ever on screen: the row when it fits,
+   the menu button when it does not. 900px is where all eight pills stop needing a drag. */
+@media(min-width:900px){.tabs{display:flex}#menubtn{display:none}.hdr .in{padding-bottom:0}}
+.drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
 .pills a:hover{border-color:var(--acc)}
@@ -182,7 +231,13 @@ font-size:.9rem;font-weight:600}
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
-.bars{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:160px;margin-top:12px}
+.bars{margin-top:12px}
+/* The compare page still puts two games side by side as columns. */
+.bars.cols{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:170px}
+.graph{width:100%;height:auto;display:block;overflow:visible}
+.graph{touch-action:pan-y;cursor:crosshair}
+.graph .cursor{transition:opacity .12s}
+.readout{min-height:1.6em;margin:.2em 0 0;font-size:1.05rem}
 .bar{border-radius:5px 5px 0 0;min-height:4px;transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*11ms)}
 .bar.b2{opacity:.72}
 .axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
@@ -205,9 +260,9 @@ font-size:.9rem;font-weight:600}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:#fff;padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.fav[aria-pressed=true]{border-color:#e0a800;color:var(--favink);background:var(--favbg)}
+.fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#15233f}
+.vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#10131c}
 .tbl{width:100%;border-collapse:collapse;font-size:.95rem}
 .tbl td,.tbl th{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
@@ -228,6 +283,80 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
 .doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}
 .none{color:var(--mut)}
+/* The breadcrumb trail. Small and muted, so it tells search engines (and anyone
+   who landed from Google) where the page sits without shouting. */
+.topnav{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 2px}
+.topnav .back{margin:0}
+.crumbs{font-size:.84rem;color:var(--mut);margin:0;display:flex;flex-wrap:wrap;gap:4px 7px;align-items:center;min-width:0}
+.crumbs a{color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line)}
+.crumbs a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+.crumbs span[aria-current]{color:var(--ink);font-weight:600}
+/* The facts list under each game's heading. Written into the page by the builder,
+   not by the browser, so a search engine reads the numbers without running any code. */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px 18px;margin:10px 0 0}
+.facts div{min-width:0}
+.facts dt{font-size:.85rem;color:var(--mut)}
+.facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
+/* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
+   Collapsed text is still read by search engines, and it works with no JavaScript. */
+.hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
+.hourtbl th,.hourtbl td{padding:3px 5px;border:1px solid var(--line);text-align:right;white-space:nowrap}
+.hourtbl th:first-child,.hourtbl td:first-child{text-align:left;font-weight:700}
+.hourtbl thead th{color:var(--mut);font-weight:600}
+.faq h3{margin:1.1em 0 .1em;font-size:1.02rem}
+.faq p{margin:.2em 0 .7em}
+
+/* ---- phones ---------------------------------------------------------------
+   Everything above is written as though there is room. A phone has about a
+   quarter of the width, so anything that sat side by side stacks up and the page
+   becomes a long column of half-empty boxes, which is what made it feel
+   cluttered. These rules do not hide anything: they tighten the padding and put
+   the rows of buttons back into single rows, so more of the screen is the answer
+   the visitor came for. Add new phone rules here rather than in a new block, so
+   there is one place to look. */
+@media(max-width:620px){
+body{font-size:17px}
+.w{padding:6px 14px 48px}
+.card{padding:14px 15px;margin:12px 0;border-radius:15px}
+h2{font-size:1.06rem}
+.lede{font-size:1rem}
+.rowhead{margin-top:18px}
+/* the top bar has to hold five things, so everything in it gives up a little */
+.iconb{width:36px;height:36px}
+.hrow{gap:8px}
+.gpick>button{max-width:118px}
+/* two games across even on the narrowest phone, with less air between them */
+.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));margin:12px 0}
+/* busy / quiet / browsing becomes one row of three. The line under each one goes:
+   there is no room for it, and the heading above already asks the question. */
+.ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.chip{padding:9px 7px;text-align:center;border-radius:12px;box-shadow:none}
+.chip i{display:none}
+.chip b{font-size:.84rem;line-height:1.25}
+/* the categories become one sideways row instead of five stacked ones */
+.pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
+.pills::-webkit-scrollbar{display:none}
+.pills a{flex:none}
+/* all seven days fit across, so the chart below does not jump when you change day */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
+.days button{padding:6px 2px;font-size:.88rem}
+/* the week grid: 24 columns on a phone, so the squares have to be small */
+.hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
+.hm .c{height:17px;border-radius:3px}
+.axis{font-size:.72rem}
+/* a game's icon beside its name, instead of a 150px square pushing the name down */
+.ghead{gap:13px;margin:10px 0}
+.ghead .thumb{width:72px;border-radius:12px}
+.ghead>div{flex:1 1 170px}
+.actions{gap:7px}
+.btn{padding:10px 16px}
+.fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
+.stats{gap:9px}
+.stats b{font-size:1.3rem}
+.foot nav{gap:4px 14px}
+/* the trail wraps onto three lines at this width, and Back already covers leaving */
+.crumbs{display:none}
+}
 
 /* the gentle opening effects */
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -241,7 +370,77 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 
 CSS = CSS.replace("__DARK__", DARK)
 
-ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
+# ---------------------------------------------------------------- search engines
+#
+# Three separate things decide whether a page can show up in Google:
+#   NOINDEX          a master switch for the whole site while we are still designing
+#   noindex=True     set per page, for pages that do not yet have enough real data
+#   sitemap.xml      the list of pages we actually want Google to look at
+# A page left out of the sitemap is still on the site and still works; we are only
+# saying it is not worth a search engine's time yet.
+
+def robots_meta(noindex=False):
+    """The <meta robots> tag for one page.
+
+    "max-image-preview:large" asks Google to use the game's artwork in search results;
+    "max-snippet:-1" lets it quote as much of the page as it likes. Neither has any
+    effect while the whole site is on noindex.
+    """
+    if NOINDEX or noindex:
+        return '<meta name="robots" content="noindex,nofollow">'
+    return ('<meta name="robots" content="index,follow,max-image-preview:large,'
+            'max-snippet:-1,max-video-preview:-1">')
+
+
+def abs_url(path="/"):
+    """A full web address for a page, e.g. "/game/doors.html" -> "https://.../game/doors.html".
+
+    Until DOMAIN is filled in we have no way to know the site's real address, so the
+    canonical tag falls back to the path on its own. That is allowed, just weaker.
+    """
+    if not path.startswith("/"):
+        path = "/" + path
+    return DOMAIN.rstrip("/") + path if DOMAIN else path
+
+
+def jsonld(*blocks):
+    """Structured data: the same facts the page shows, written out for machines.
+
+    Google reads this to understand what a page is about and can show richer results
+    from it. Every number in here must already be on the page: never invent anything,
+    and never claim a rating or a review, because we do not have any.
+    """
+    items = [b for b in blocks if b]
+    if not items:
+        return ""
+    data = items[0] if len(items) == 1 else {"@context": "https://schema.org", "@graph": items}
+    if len(items) > 1:
+        for b in items:
+            b.pop("@context", None)
+    return ('<script type="application/ld+json">'
+            + json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
+            + "</script>")
+
+
+def crumbs(trail):
+    """The small "All games > Simulation > Doors" line, plus the same trail for Google.
+
+    trail is [(label, address)] ending with the page you are on, whose address is
+    only used by the structured data. Returns (html, json-ld dictionary).
+    """
+    if not trail:
+        return "", None
+    bits, items = [], []
+    for i, (label, href) in enumerate(trail):
+        last = i == len(trail) - 1
+        if i:
+            bits.append('<span aria-hidden="true">&rsaquo;</span>')
+        bits.append(f'<span aria-current="page">{html.escape(label)}</span>' if last
+                    else f'<a href="{href}">{html.escape(label)}</a>')
+        items.append({"@type": "ListItem", "position": i + 1, "name": label,
+                      "item": abs_url(href)})
+    return (f'<nav class="crumbs" aria-label="Breadcrumb">{"".join(bits)}</nav>',
+            {"@type": "BreadcrumbList", "itemListElement": items})
 
 # The logo: a timer ring with a play button inside. Drawn in the page rather than
 # loaded as a picture, so it is sharp at any size and needs no extra request.
@@ -249,7 +448,7 @@ ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
 def logo_svg(cls="mark", ident="lg"):
     return (f'<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true">'
             f'<defs><linearGradient id="{ident}" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/>'
+            f'<stop offset="0" stop-color="#A0D2EB"/><stop offset="1" stop-color="#724C9A"/>'
             f'</linearGradient></defs>'
             f'<circle cx="16" cy="16" r="15" fill="url(#{ident})"/>'
             f'<circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" '
@@ -267,6 +466,10 @@ SUN = ('<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" 
        'stroke-linecap="round" fill="none"/></svg>')
 MOON = ('<svg class="moon" viewBox="0 0 24 24" aria-hidden="true">'
         '<path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg>')
+ICON_MENU = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/>'
+             '<rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg>')
+ICON_SEARCH = ('<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 '
+               '3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg>')
 ICON_GRID = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/>'
              '<rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/>'
              '<rect x="9" y="9" width="6" height="6" rx="1.6"/></svg>')
@@ -348,23 +551,84 @@ def back_link(href="/", label="All games"):
     return f'<a class="back" href="{href}" data-back aria-label="{where}" title="{where}">&larr; Back</a>'
 
 
-def page(title, body, desc="", wide=False, nav="", tail="", banner="", back=("/", "All games")):
+def page(title, body, desc="", wide=False, nav="", tail="", banner="",
+         back=("/", "All games"), canon="", image="", trail=None,
+         schema=None, noindex=False, modified=""):
+    """Every page gets the same top bar, and the stylesheet decides how much of it fits.
+
+    The row of sections is eight pills. On a phone they do not fit, and a row you have
+    to drag sideways was the most cluttered thing on the page, so there the stylesheet
+    hides the row and the menu button holds the same links instead. On a screen wide
+    enough for the row it hides the menu button instead. Either way the links are on
+    the page exactly once, and every page works the same way, which is the point.
+
+    The search-engine arguments:
+      canon     this page's one true address, e.g. "/game/doors.html". Cloudflare also
+                serves every page without the ".html", so without this Google would see
+                two addresses showing the same thing and have to pick one itself.
+      image     a picture for when the page is shared on Discord, WhatsApp or X.
+      trail     the breadcrumb trail, [(label, address)], ending with this page.
+      schema    extra structured data dictionaries for jsonld().
+      noindex   keep this one page out of Google even when the rest of the site is in.
+      modified  the date the page's facts last changed, as YYYY-MM-DD.
+    """
     tabs = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                    for k, t, u in TABS)
+    # The menu marks the page you are on, the same as the row does, so it is clear
+    # where you already are without having to read every link.
+    drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
+                     for k, t, u in TABS)
+    buttons = (f'<button class="iconb" id="searchbtn" type="button" aria-label="Search for a game">'
+               f'{ICON_SEARCH}</button>'
+               f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
+               f'aria-controls="drawer" aria-label="Sections">{ICON_MENU}</button>')
+    nav_row = f'<nav class="tabs" aria-label="Sections">{tabs}</nav>'
+    extras = (f'<div class="drawer" id="drawer" hidden><nav aria-label="Sections">{drawer}'
+              f'<a href="/busiest-hours.html">When is Roblox busiest?</a>'
+              f'<a href="/about.html">About</a></nav></div>'
+              f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
+              f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
+              f'<div id="qout" class="qout"></div></div></div>')
+    crumb_html, crumb_data = crumbs(trail or [])
+    # Back and the trail are both "where am I and how do I leave", so they share one
+    # line instead of taking a line each. The trail is the one that goes on a phone:
+    # it wraps onto three lines there, and the copy Google reads is the structured
+    # data below, not this, so hiding it costs nothing.
+    topnav = ((f'<div class="topnav">{back_link(*back) if back else ""}{crumb_html}</div>')
+              if (back or crumb_html) else "")
+    blocks = jsonld(*([crumb_data] + list(schema or [])))
+    # Where the page lives. Internal links all end in ".html", so that is the address
+    # we tell Google to use; Cloudflare happily serves the same page without it.
+    url = abs_url(canon or "/")
+    social = ""
+    if image:
+        social = (f'<meta property="og:image" content="{html.escape(image)}">'
+                  f'<meta name="twitter:card" content="summary_large_image">')
+    else:
+        social = '<meta name="twitter:card" content="summary">'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#2563eb">{ROBOTS}
+<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#724C9A">
+{robots_meta(noindex)}<link rel="canonical" href="{html.escape(url)}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="{html.escape(SITE)}">
+<meta property="og:title" content="{html.escape(title)}">
+<meta property="og:description" content="{html.escape(desc)}">
+<meta property="og:url" content="{html.escape(url)}">{social}
+{f'<meta property="article:modified_time" content="{modified}">' if modified else ''}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-{BOOT}<style>{CSS}</style><script>{FAVJS}</script>{ADS}</head><body>
+<link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
+{BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
 {banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
+{buttons}<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
 <div class="acct" id="acct"></div></div>
-<nav class="tabs" aria-label="Sections">{tabs}</nav></div></header>
+{nav_row}</div>{extras}</header>
 <div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
-<div class="w{' wide' if wide else ''}">{back_link(*back) if back else ''}{body}
-<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
+<div class="w{' wide' if wide else ''}">{topnav}{body}
+<footer class="foot"><nav class="small"><a href="/">All games</a>
+<a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
+<a href="/busiest-hours.html">When is Roblox busiest?</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
@@ -377,6 +641,57 @@ shows when people play, not whether a game is good or safe.</p></footer>
 
 def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "game"
+
+
+# Pictures and symbols that creators sprinkle through a game's name.
+EMOJI = re.compile("[\U0001F000-\U0001FAFF\U0001F1E6-\U0001F1FF"
+                   "\u2190-\u21FF\u2300-\u27BF\u2B00-\u2BFF\uFE0F\u20E3]+")
+# Anything in square brackets. On Roblox that is nearly always an advert:
+# [UPD], [ALPHA], [HALLOWEEN PT 3], [X3 LUCK].
+BRACKET = re.compile(r"\[[^\]]*\]")
+
+
+def clean_name(name):
+    """The core of a Roblox game's name, with the seasonal advertising taken off.
+
+    "[HALLOWEEN PT 3] Grand Piece Online" -> "Grand Piece Online"
+    "DOORS 🍬🍭"                           -> "DOORS"
+    "3008 [2.75]"                         -> "3008"
+
+    This is what goes in the heading, the page title and the address, because it is
+    what people actually type into Google and because it does not change when the
+    creators swap one event banner for the next. The full name is still shown on the
+    game's own page.
+
+    Deliberately cautious: only square brackets and symbols go. Round brackets are
+    left alone, because for a lot of games they are part of the real name
+    ("Clone Baby Care (Anomaly)").
+    """
+    out = EMOJI.sub(" ", BRACKET.sub(" ", name))
+    out = re.sub(r"\s+", " ", out).strip(" -\u2013\u2014|,:;!.")
+    if out:
+        return out
+    # The whole name was brackets or symbols; keep whatever letters there were.
+    out = re.sub(r"\s+", " ", EMOJI.sub(" ", name)).strip(" -|,:;!.")
+    return out or name
+
+
+def name_slugs(games):
+    """{universe_id: (display name, address)} for every game, with no two the same.
+
+    Two games can tidy down to the same name, and two pages cannot share an address.
+    Ties are settled by universe id, which never changes, so a given game keeps the
+    same address build after build however the list is sorted.
+    """
+    out, taken = {}, {}
+    for uid, name in sorted((g[0], g[1]) for g in games):
+        nice = clean_name(name)
+        key = slug(nice)
+        if key in taken:
+            key = f"{key}-{uid}"
+        taken[key] = uid
+        out[uid] = (nice, key)
+    return out
 
 
 def short(n):
@@ -417,10 +732,71 @@ def when(ts):
     return s
 
 
-def thumb(name, url, alt="", cls="thumb"):
+def index_ok(c):
+    """Is there enough real data on this game's page to be worth a place in Google?
+
+    A page that only says "too new to say" is a thin page: it helps nobody who
+    searched for it, and a site full of them makes Google trust the rest of the site
+    less. These games still get a page, still appear in every list and still work; we
+    simply leave them out of the sitemap and ask Google not to list them until the
+    numbers arrive. The test is about how much we have *seen*, not how popular the
+    game is:
+
+      days  >= 3    enough history for the week to mean anything
+      hours >= 48   we have really seen the game in a third of the week's 168 hours
+    """
+    a = c["a"]
+    return a["days"] >= 3 and a["hours"] >= 48
+
+
+def seo_title(*headlines):
+    """A page title for Google, trimmed to a length it will actually show.
+
+    Google cuts a title off at roughly 60 characters, and a title cut off mid-word
+    looks broken in the results. Pass the fullest wording first and shorter fallbacks
+    after it; the first one that fits wins, with the site name added if there is still
+    room for it. Some Roblox game names are 40 characters on their own, which is why
+    the shortest fallback matters.
+    """
+    for h in headlines:
+        if len(f"{h} | {SITE}") <= 62:
+            return f"{h} | {SITE}"
+    for h in headlines:
+        if len(h) <= 66:
+            return h
+    return headlines[-1]
+
+
+def clip(text, limit=158):
+    """Trims a meta description to the length Google will actually show."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(",.;:") + "..."
+
+
+def icon_alt(name):
+    """Alt text for a game's picture. Describes it, and says what kind of thing it is."""
+    return f"{name} Roblox game icon"
+
+
+def iso_day(ts):
+    """A point in time -> '2026-10-31'. The form sitemaps and structured data want."""
+    return datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
+
+
+def thumb(name, url, alt="", cls="thumb", eager=False):
+    """A game's square picture.
+
+    eager=True is for the big picture at the top of a game page: it is the first thing
+    a visitor sees, so letting the browser put it off (the default everywhere else)
+    would only make the page feel slower to load.
+    """
     if url:
+        load = ('loading="eager" fetchpriority="high"' if eager
+                else 'loading="lazy" fetchpriority="low"')
         return (f'<img class="{cls}" src="{html.escape(url)}" alt="{html.escape(alt)}" '
-                f'width="256" height="256" loading="lazy" decoding="async">')
+                f'width="256" height="256" {load} decoding="async">')
     letter = next((c for c in name if c.isalnum()), "?").upper()
     return f'<div class="{cls} ph" aria-hidden="true">{html.escape(letter)}</div>'
 
@@ -451,7 +827,7 @@ def trend_html(t):
 
 def tile(c, i=0):
     return (f'<li style="--i:{min(i, 14)}" data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}">'
-            f'<a class="tile" href="/game/{c["slug"]}.html">{thumb(c["name"], c["icon"], c["name"] + " icon")}'
+            f'<a class="tile" href="/game/{c["slug"]}.html">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
             f'<span class="tname">{html.escape(c["name"])}</span>'
             f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
             f'{trend_short(c["trend"])}</span></a></li>')
@@ -530,6 +906,10 @@ def analyze(rows):
       avg7    typical players over the last 7 days
       peak    the most players we have ever seen
       spikes  days that were much busier than usual
+      peaks   [(midnight, typical players, highest seen that day)] oldest first
+      first   the time of our oldest player count for this game
+      last    the time of our newest player count
+      hours   how many of the week's 168 hours we have ever seen this game in
     """
     sums = [[0] * 24 for _ in range(7)]
     cnt = [[0] * 24 for _ in range(7)]
@@ -548,6 +928,10 @@ def analyze(rows):
 
     week = [[round(sums[d][h] / cnt[d][h]) if cnt[d][h] else None for h in range(24)] for d in range(7)]
     daily = [(day * 86400, round(sum(v) / len(v))) for day, v in sorted(by_day.items())]
+    # The same days again, with the highest count we actually saw on each one. The
+    # average is our estimate of a typical moment; the maximum is a real observation,
+    # and the pages are careful to say which is which.
+    peaks = [(day * 86400, round(sum(v) / len(v)), max(v)) for day, v in sorted(by_day.items())]
 
     def mean(vals):
         return sum(vals) / len(vals) if vals else None
@@ -559,11 +943,13 @@ def analyze(rows):
         b = mean([p for age, p in pts if span < age <= span * 2])
         return round((a - b) / b * 100, 1) if a and b else None
 
-    return {"week": week, "daily": daily,
+    return {"week": week, "daily": daily, "peaks": peaks,
             "trend": change(7), "month": change(14),
             "avg7": round(mean([p for age, p in buckets[7]]) or 0),
             "peak": max(p for _, p in rows),
             "spikes": find_spikes(daily),
+            "first": rows[0][0], "last": rows[-1][0],
+            "hours": sum(1 for row in week for v in row if v is not None),
             "days": round((rows[-1][0] - rows[0][0]) / 86400, 1)}
 
 
@@ -664,6 +1050,234 @@ def levels_string(week):
 
 
 # ---------------------------------------------------------------- page sections
+#
+# Everything from here to clean_desc() writes a game's numbers straight into the
+# page as plain HTML. The charts and the countdown are still drawn by the browser in
+# the visitor's own timezone, but a search engine (or anyone with JavaScript switched
+# off) now reads the same facts without running a single line of code.
+# Times in this section are always UTC and always labelled as such, because the
+# builder cannot know where the reader is.
+
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+
+def hour12(h):
+    """17 -> '5 PM'."""
+    return f"{h % 12 or 12} {'AM' if h < 12 else 'PM'}"
+
+
+def band_of(week):
+    """The five busy-ness thresholds for one game: the same split the browser uses."""
+    vals = sorted(v for row in week for v in row if v is not None)
+    if not vals:
+        return lambda v: 0
+    q = [vals[int(p * (len(vals) - 1))] for p in (.2, .4, .6, .8)]
+    return lambda v: 0 if v is None else 1 + sum(1 for t in q if v > t)
+
+
+def week_facts(week):
+    """The headline facts about a game's week, worked out here instead of in the browser.
+
+    Returns None when we have not seen enough of the week to say anything, and
+    otherwise the busiest and quietest hour, the quietest hour that is still in the
+    daytime, and the busiest and quietest whole day. All in UTC.
+    """
+    cells = [(d, h, v) for d in range(7) for h, v in enumerate(week[d]) if v is not None]
+    if len(cells) < 12:
+        return None
+    busy = max(cells, key=lambda c: c[2])
+    quiet = min(cells, key=lambda c: c[2])
+    day_cells = [c for c in cells if 8 <= c[1] <= 21]
+    by_day = {}
+    for d, _, v in cells:
+        by_day.setdefault(d, []).append(v)
+    means = {d: sum(v) / len(v) for d, v in by_day.items() if len(v) >= 6}
+    return {"busy": busy, "quiet": quiet,
+            "day_quiet": min(day_cells, key=lambda c: c[2]) if day_cells else None,
+            "busy_day": max(means, key=means.get) if means else None,
+            "quiet_day": min(means, key=means.get) if means else None,
+            "covered": len(cells)}
+
+
+def short_answer(name, f):
+    """The two sentences at the top of a game page, written by the builder.
+
+    The browser rewrites them in the visitor's own timezone a moment later. Writing
+    them here first means the page is never blank, never jumps about as it loads, and
+    says something real to a search engine that does not run scripts.
+    """
+    if not f:
+        return ('<span class="mut">We have not seen enough of '
+                f'{html.escape(name)}&rsquo;s week yet to name its busiest and '
+                'quietest hours. Check back in a day or two.</span>', "")
+    bd, bh, bv = f["busy"]
+    qd, qh, qv = f["quiet"]
+    return (f'Busiest: <b>{DAYS[bd]} around {hour12(bh)}</b> '
+            f'<span class="mut">UTC</span> &ndash; about {bv:,} players.',
+            f'Quietest: <b>{DAYS[qd]} around {hour12(qh)}</b> '
+            f'<span class="mut">UTC</span> &ndash; about {qv:,} players.')
+
+
+def facts_html(c, a, f):
+    """The key numbers as a list, so they are in the page itself and not only in a chart."""
+    rows = [("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
+            ("Highest player count seen", f'{a["peak"]:,}', "the most we have ever recorded"),
+            ("Compared to last week", trend_html(a["trend"]), "last 7 days against the 7 before")]
+    if f:
+        bd, bh, _ = f["busy"]
+        qd, qh, _ = f["quiet"]
+        rows.append(("Busiest hour", f"{DAYS[bd]}, {hour12(bh)} UTC", "in a typical week"))
+        rows.append(("Quietest hour", f"{DAYS[qd]}, {hour12(qh)} UTC", "in a typical week"))
+    # A game we only started watching this morning has "0 days" of history, which
+    # reads like a mistake, so say when we started instead of for how long.
+    span = (f'over {a["days"]:.0f} days, since {when(a["first"])}' if a["days"] >= 1
+            else f'since {when(a["first"])}')
+    rows.append(("Player counts collected", f'{c["samples"]:,}', span))
+    return ('<dl class="facts">'
+            + "".join(f'<div><dt>{k}</dt><dd>{v}</dd>'
+                      f'<dd class="mut small" style="font-weight:400">{note}</dd></div>'
+                      for k, v, note in rows)
+            + "</dl>")
+
+
+def hours_table_html(name, week):
+    """Every hour of the week as a real table, folded away inside a <details>.
+
+    The coloured grid above it is drawn by the browser and means nothing to a search
+    engine. This is the same information as text, so the numbers are in the page. It
+    is collapsed because 168 numbers would bury everything else, and collapsed text
+    is still read by search engines and by screen readers.
+    """
+    level = band_of(week)
+    head = "".join(f"<th>{hour12(h)}</th>" for h in range(24))
+    body = ""
+    for d in range(7):
+        cells = "".join(
+            f'<td title="{WORDS[level(v)]}">{"&ndash;" if v is None else format(v, ",")}</td>'
+            for v in week[d])
+        body += f"<tr><th>{DAYS[d]}</th>{cells}</tr>"
+    return (f'<details><summary>All 168 hours as numbers</summary>'
+            f'<p class="mut small">Players in {html.escape(name)} at a typical moment, '
+            f'hour by hour, in UTC. A dash means we have not collected a player count '
+            f'in that hour yet.</p><div class="wrap"><table class="hourtbl">'
+            f'<thead><tr><th>Day (UTC)</th>{head}</tr></thead><tbody>{body}</tbody>'
+            f'</table></div></details>')
+
+
+def history_html(name, a, days=21):
+    """The last few weeks day by day: the heart of "player count history".
+
+    Two columns that must not be muddled. The typical count is an average of the
+    samples we took that day, so it is an estimate. The highest is a single number we
+    really saw, so it is an observation.
+    """
+    pts = a["peaks"][-days:]
+    if len(pts) < 3:
+        return ""
+    rows = "".join(f'<tr><td>{when(day)}</td><td>{avg:,}</td><td>{hi:,}</td></tr>'
+                   for day, avg, hi in reversed(pts))
+    return (f'<div class="card"><h2>{html.escape(name)} player count history</h2>'
+            f'<p class="mut small">Every day we have been watching, newest first: '
+            f'{when(pts[0][0])} to {when(pts[-1][0])}. &ldquo;Typical&rdquo; is the '
+            f'average of the player counts we took that day. &ldquo;Highest&rdquo; is '
+            f'the largest single count we recorded, so it is something we observed '
+            f'rather than an estimate.</p>'
+            f'<div class="wrap"><table class="tbl"><thead><tr><th>Day</th>'
+            f'<th>Typical players</th><th>Highest seen</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div></div>')
+
+
+def faq_html(c, a, f, meta, pattern):
+    """The questions people type into Google, answered with our own numbers.
+
+    Returns (html, [(question, plain answer)]) so the same answers can go into the
+    page's structured data without being written out twice.
+    """
+    name = c["name"]
+    qa = [(f"How many people play {name}?",
+           f"About {a['avg7']:,} people are in {name} at a typical moment, averaged over "
+           f"the last 7 days. The most we have ever recorded at once is {a['peak']:,}. "
+           f"These are our own readings of Roblox's public player count, taken roughly "
+           f"every ten minutes.")]
+    if f:
+        bd, bh, bv = f["busy"]
+        qd, qh, qv = f["quiet"]
+        qa.append((f"What is the best time to play {name}?",
+                   f"For quiet servers, aim for {DAYS[qd]} around {hour12(qh)} UTC, when "
+                   f"there are usually about {qv:,} players. For full servers and trading, "
+                   f"{DAYS[bd]} around {hour12(bh)} UTC is the busiest hour we see, at "
+                   f"roughly {bv:,} players. The charts on this page show those times on "
+                   f"your own clock."))
+        extra = (f" {DAYS[f['busy_day']]} is its busiest day overall."
+                 if f["busy_day"] is not None else "")
+        qa.append((f"When is {name} busiest?",
+                   f"{DAYS[bd]} around {hour12(bh)} UTC is its busiest hour in a typical "
+                   f"week, with about {bv:,} players.{extra}"))
+    qa.append((f"Is {name} dying?", re.sub(r"</?b>", "", verdict(a)[2])))
+    if pattern:
+        every = f", roughly every {pattern['every']} days" if pattern.get("every") else ""
+        hour = f" at about {hour12(pattern['hour'])} UTC" if pattern.get("hour") is not None else ""
+        qa.append((f"When does {name} update?",
+                   f"Updates and events usually land on a {DAYS[pattern['wd']]}{hour}{every}. "
+                   f"That comes from the last {pattern['n']} updates the creators announced "
+                   f"on Roblox plus the days we saw the player count jump."))
+    if meta and meta.get("visits"):
+        qa.append((f"How many visits does {name} have?",
+                   f"Roblox reports {meta['visits']:,} total visits for {name} so far"
+                   + (f", and it was first released {ago(meta['created'])}."
+                      if meta.get("created") else ".")))
+    body = "".join(f"<h3>{html.escape(q)}</h3><p>{html.escape(ans)}</p>" for q, ans in qa)
+    return (f'<div class="card faq"><h2>{html.escape(name)}: common questions</h2>{body}'
+            f'<p class="mut small">Answers come from our own player counts, which are '
+            f'estimates built from samples, not official Roblox figures.</p></div>'), qa
+
+
+def game_schema(c, a, meta, qa):
+    """Structured data for one game page: what the game is, and what our data covers.
+
+    Only facts already written on the page go in here. There is deliberately no rating
+    and no review: we do not collect either, and inventing them would be lying to
+    Google as well as to visitors.
+    """
+    url = abs_url(f'/game/{c["slug"]}.html')
+    game = {"@type": "VideoGame", "name": c["name"], "url": url, "gamePlatform": "Roblox",
+            "playMode": "MultiPlayer", "applicationCategory": "Game"}
+    if c["icon"]:
+        game["image"] = c["icon"]
+    if c["genre"] and c["genre"] != "All":
+        game["genre"] = c["genre"]
+    if meta:
+        if meta.get("creator"):
+            game["author"] = {"@type": "Organization", "name": meta["creator"]}
+        if meta.get("description"):
+            game["description"] = clean_desc(meta["description"])[:400]
+        if meta.get("created"):
+            game["datePublished"] = iso_day(meta["created"])
+        if meta.get("visits"):
+            game["interactionStatistic"] = {
+                "@type": "InteractionCounter",
+                "interactionType": "https://schema.org/PlayAction",
+                "userInteractionCount": meta["visits"]}
+    # Our own measurements, described as a dataset. This is the part of the site that
+    # is genuinely ours: a record of how many people were in the game, hour by hour.
+    data = {"@type": "Dataset",
+            "name": f'{c["name"]} player count history',
+            "description": (f'Concurrent player counts for the Roblox game {c["name"]}, '
+                            f'sampled from the public Roblox player count every few '
+                            f'minutes. {c["samples"]:,} readings so far.'),
+            "url": url,
+            "temporalCoverage": f'{iso_day(a["first"])}/{iso_day(a["last"])}',
+            "measurementTechnique": "Repeated sampling of the public Roblox player count",
+            "variableMeasured": "Concurrent players",
+            "isAccessibleForFree": True,
+            "creator": {"@type": "Organization", "name": SITE}}
+    out = [game, data]
+    if qa:
+        out.append({"@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": ans}} for q, ans in qa]})
+    return out
+
 
 def clean_desc(text):
     """Tidies a game's Roblox description: drops link-only lines and huge gaps."""
@@ -693,7 +1307,13 @@ def about_game_html(name, meta):
         bits.append(f"up to {meta['max_players']} players per server")
     if not desc and not bits:
         return ""
-    line = f'<p class="mut small">{". ".join(bits).capitalize()}.</p>' if bits else ""
+    # Joined with commas, not full stops. ".".join(...).capitalize() used to turn
+    # "Made by LSPLASH. 8B total visits" into "Made by lsplash. 8b total visits",
+    # because capitalize() lower-cases everything after the first letter: it was
+    # rewriting the creator's own name and our own numbers.
+    if bits:
+        bits[0] = bits[0][0].upper() + bits[0][1:]
+    line = f'<p class="mut small">{", ".join(bits)}.</p>' if bits else ""
     if len(desc) > 600:
         head, rest = desc[:600].rsplit(" ", 1)[0], desc[len(desc[:600].rsplit(" ", 1)[0]):]
         body = (f'<p class="desc">{html.escape(head)}&hellip;</p>'
@@ -849,23 +1469,68 @@ def similar_html(card, cards):
             f'<p class="mut small" style="margin-top:-4px">{note}</p>{grid(picks)}')
 
 
-def parents_html(passes):
-    """What the game sells, for parents. Hidden if Roblox did not answer."""
+def pass_tags(p, cheapest, newest):
+    """The honest labels we can put on a game pass.
+
+    Roblox publishes no sales figures, ratings or reviews for game passes, so there is
+    no way to know which one people actually rate. Rather than invent a "recommended"
+    badge, these say only what the data really supports: the price, whether Roblox has
+    it discounted, and whether it is new.
+    """
+    tags = []
+    if p.get("discounted"):
+        tags.append(("On sale now", "sale"))
+    if p["price"] == cheapest:
+        tags.append(("Cheapest", "cheap"))
+    if newest and p.get("created") and p["created"] >= newest:
+        tags.append(("Newest", "new"))
+    return "".join(f'<span class="ptag {k}">{t}</span>' for t, k in tags)
+
+
+def pass_card(p, icon, cheapest, newest):
+    desc = clean_desc(p.get("description") or "")
+    if len(desc) > 260:
+        desc = desc[:260].rsplit(" ", 1)[0] + "…"
+    pic = (f'<img src="{html.escape(icon)}" alt="" width="64" height="64" loading="lazy">'
+           if icon else '<span class="ph" aria-hidden="true">R$</span>')
+    return (f'<li class="pass">{pic}<div><b>{html.escape(p["name"])}</b>{pass_tags(p, cheapest, newest)}'
+            + (f'<p>{html.escape(desc)}</p>' if desc else
+               '<p class="mut">The creators did not say what this one contains.</p>')
+            + f'<span class="price">{p["price"]:,} Robux '
+              f'<span class="mut">&middot; about ${p["price"] * ROBUX_USD:,.2f}</span></span></div></li>')
+
+
+def parents_html(passes, icons):
+    """What the game sells: pictures, what each pass contains, and what it costs.
+    Hidden entirely if Roblox did not answer."""
     if passes is None:
         return ""
-    h = '<div class="card"><h2>For parents: what costs money</h2>'
+    h = '<div class="card"><h2>What costs money</h2>'
     if not passes:
         h += "<p>This game sells <b>no game passes</b> right now.</p>"
     else:
-        ps = sorted(passes, key=lambda p: p[1])
-        total = sum(p for _, p in ps)
+        ps = sorted(passes, key=lambda p: p["price"])
+        total = sum(p["price"] for p in ps)
         n = len(ps)
+        cheapest = ps[0]["price"]
+        made = [p["created"] for p in ps if p.get("created")]
+        # "Newest" only means something when one pass is clearly more recent.
+        newest = max(made) if len(made) > 1 and max(made) > sorted(made)[-2] else None
         h += (f"<p>This game sells <b>{n} game pass{'es' if n != 1 else ''}</b>, from "
-              f"<b>{ps[0][1]:,} to {ps[-1][1]:,} Robux</b>. Buying every one would cost "
-              f"<b>{total:,} Robux</b> (roughly ${total * ROBUX_USD:,.0f} USD).</p>")
-        rows = "".join(f"<tr><td>{html.escape(nm)}</td><td>{p:,}</td></tr>" for nm, p in reversed(ps))
-        h += (f'<details><summary>See every game pass</summary><div class="wrap"><table class="tbl">'
-              f'<tr><th>Game pass</th><th>Robux</th></tr>{rows}</table></div></details>')
+              f"<b>{cheapest:,} to {ps[-1]['price']:,} Robux</b>. Buying every one would cost "
+              f"<b>{total:,} Robux</b> (roughly ${total * ROBUX_USD:,.0f} USD).</p>"
+              f'<ul class="passes">'
+              + "".join(pass_card(p, icons.get(p.get("icon_id")), cheapest, newest) for p in ps[:6])
+              + "</ul>")
+        if n > 6:
+            rows = "".join(f'<tr><td>{html.escape(p["name"])}</td><td>{p["price"]:,}</td></tr>'
+                           for p in ps[6:])
+            h += (f'<details><summary>The other {n - 6} game passes</summary><div class="wrap">'
+                  f'<table class="tbl"><tr><th>Game pass</th><th>Robux</th></tr>{rows}'
+                  f'</table></div></details>')
+        h += ('<p class="mut small">Cheapest and newest come from Roblox\'s own numbers. We do not say '
+              'which pass is best: Roblox does not publish how many people buy each one, so anyone '
+              'ranking them is guessing.</p>')
     h += ('<p class="mut small">Games can also sell one-time items inside the game, which are not listed here. '
           'Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>')
     return h
@@ -956,6 +1621,44 @@ window.ptSeen=function(g){if(!g||!g.s)return;
 var list=recent().filter(function(x){return x&&x.s!==g.s});
 list.unshift(g);try{localStorage.setItem('pt_recent',JSON.stringify(list.slice(0,8)))}catch(e){}};
 
+/* The side drawer and the search sheet. Both only exist on the pages about one
+   game, where the row of sections is hidden to keep the page about the game. */
+var scrim=null;
+function shade(on){
+if(on&&!scrim){scrim=document.createElement('div');scrim.className='scrim';
+scrim.onclick=function(){shut()};document.body.appendChild(scrim)}
+if(scrim)scrim.hidden=!on}
+function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
+mb=document.getElementById('menubtn');
+if(dr)dr.hidden=true;if(sh)sh.hidden=true;
+if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
+var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
+if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
+dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
+if(show){var a=dr.querySelector('a');if(a)a.focus()}};
+
+/* Search. The list of games is only fetched the first time it is opened. */
+var sb=document.getElementById('searchbtn'),sheet=document.getElementById('sheet'),GAMES=null;
+if(sb&&sheet){
+var q=document.getElementById('q'),qout=document.getElementById('qout');
+function draw(){
+var t=q.value.trim().toLowerCase();
+if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
+var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+qout.innerHTML=hits.length?hits.map(function(g){
+return '<a href="/game/'+ptEsc(g.s)+'.html">'+(g.i?'<img src="'+ptEsc(g.i)+
+'" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
+ptEsc(g.n.charAt(0).toUpperCase())+'</span>')+'<span>'+ptEsc(g.n)+'</span></a>'}).join(''):
+'<p>No game matches that.</p>'}
+sb.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
+if(!show)return;
+sheet.hidden=false;shade(true);q.value='';draw();q.focus();
+if(!GAMES)fetch('/games.json').then(function(r){return r.json()}).then(function(d){
+GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})};
+q.oninput=draw;
+sheet.onclick=function(e){if(e.target===sheet)shut()}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
+
 var box=document.getElementById('gpick');if(!box)return;
 function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
 :'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
@@ -1003,6 +1706,77 @@ var q=[.2,.4,.6,.8].map(function(p){return v[Math.floor(p*(v.length-1))]});
 return {max:v[v.length-1]||1,level:function(x){if(x==null)return 0;var n=1;
 for(var i=0;i<4;i++)if(x>q[i])n++;return n}}}
 function nowDay(){return (new Date().getDay()+6)%7}
+/* Draws one day as a line with a see-through wash underneath, so the shape of the
+   day reads as a trend instead of 24 separate bars. Gaps in the data break the line
+   rather than being drawn as zero, which would invent a quiet hour that we never saw. */
+function dayGraph(vals,max,label,hue){
+var W=720,H=250,P=14,top=16,bot=H-26,span=bot-top;
+var x=function(i){return P+i*(W-P*2)/23},y=function(v){return bot-(v/(max||1))*span};
+var runs=[],cur=[];
+for(var i=0;i<24;i++){if(vals[i]==null){if(cur.length)runs.push(cur);cur=[]}else cur.push(i)}
+if(cur.length)runs.push(cur);
+var line='',wash='',dots='',hits='';
+runs.forEach(function(r){
+var d=r.map(function(i,n){return (n?'L':'M')+x(i).toFixed(1)+' '+y(vals[i]).toFixed(1)}).join(' ');
+line+=d+' ';
+if(r.length>1)wash+=d+' L'+x(r[r.length-1]).toFixed(1)+' '+bot+' L'+x(r[0]).toFixed(1)+' '+bot+' Z ';
+r.forEach(function(i){dots+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(vals[i]).toFixed(1)+
+'" r="3.5" fill="var(--'+hue+')"/>'})});
+return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+label+'" '+
+'tabindex="0" data-max="'+(max||1)+'">'+
+'<defs><linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">'+
+'<stop offset="0" stop-color="var(--'+hue+')" stop-opacity=".42"/>'+
+'<stop offset="1" stop-color="var(--'+hue+')" stop-opacity=".02"/></linearGradient></defs>'+
+'<line x1="'+P+'" y1="'+bot+'" x2="'+(W-P)+'" y2="'+bot+'" stroke="var(--line)" stroke-width="1.5"/>'+
+'<path d="'+wash+'" fill="url(#wash)"/>'+
+'<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="3" '+
+'stroke-linejoin="round" stroke-linecap="round"/>'+dots+
+'<g class="cursor" opacity="0"><line y1="'+top+'" y2="'+bot+'" stroke="var(--ink)" '+
+'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6" fill="var(--'+hue+')" '+
+'stroke="var(--solid)" stroke-width="2.5"/></g></svg>'}
+
+/* Lets people drag or click along a graph to read off any hour. Works with a mouse,
+   a finger, and the arrow keys, and falls back to doing nothing if the browser
+   cannot measure the svg. The readout element is optional. */
+function graphCursor(svg,out,vals,max){
+if(!svg)return;
+var W=720,H=250,P=14,top=16,bot=H-26,span=bot-top;
+var g=svg.querySelector('.cursor'),line=g.querySelector('line'),dot=g.querySelector('circle');
+var at=-1;
+function show(i){
+if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;
+if(out)out.textContent='';return}
+at=i;
+var x=P+i*(W-P*2)/23,y=bot-(vals[i]/(max||1))*span;
+line.setAttribute('x1',x);line.setAttribute('x2',x);
+dot.setAttribute('cx',x);dot.setAttribute('cy',y);
+g.setAttribute('opacity','1');
+if(out)out.innerHTML='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players'}
+function fromX(clientX){
+var r=svg.getBoundingClientRect();
+if(!r.width)return -1;
+var vx=(clientX-r.left)/r.width*W;
+return Math.max(0,Math.min(23,Math.round((vx-P)/((W-P*2)/23))))}
+function move(e){
+var t=e.touches&&e.touches[0];
+var cx=t?t.clientX:e.clientX;
+if(cx==null)return;
+if(t)e.preventDefault();          /* stop the page scrolling while dragging the graph */
+show(fromX(cx))}
+var down=false;
+svg.addEventListener('mousedown',function(e){down=true;move(e)});
+svg.addEventListener('mousemove',function(e){if(down||e.buttons===0)move(e)});
+window.addEventListener('mouseup',function(){down=false});
+svg.addEventListener('mouseleave',function(){if(!down)show(-1)});
+svg.addEventListener('touchstart',move,{passive:false});
+svg.addEventListener('touchmove',move,{passive:false});
+svg.addEventListener('keydown',function(e){
+if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
+var i=at<0?0:at+(e.key==='ArrowRight'?1:-1);
+while(i>=0&&i<=23&&vals[i]==null)i+=(e.key==='ArrowRight'?1:-1);
+if(i>=0&&i<=23)show(i)}
+else if(e.key==='Escape')show(-1)});
+}
 /* The next good time to play: looks at the next 48 hours in the visitor's own timezone. */
 function nextBlock(L,mode){var now=new Date(),list=[];
 for(var i=0;i<48;i++){var t=new Date(now.getTime()+(i+1)*3600000);
@@ -1023,6 +1797,17 @@ var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
 return ss+'s'}"""
+
+# Writes the "updates usually arrive on a Friday around 2 PM" line. The page that
+# uses it defines P first, so the same code serves any game.
+PATTERN_JS = """if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
+', about every '+P.every+' day'+(P.every>1?'s':''):'';
+if(ph!=null){var pt=ph+tzOff();
+while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
+$('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
+'</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
+else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
+'. Worked out from the last '+P.n+' updates and busy days.'}"""
 
 GAME_JS = """var M=__DATA__,L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
 var best=null,worst=null,dayq=null;
@@ -1062,29 +1847,15 @@ Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),funct
 b.onclick=function(){mode=b.dataset.m;plan()}});
 plan();setInterval(tick,1000);setInterval(plan,300000);
 
-/* When this game's updates usually land, worked out from the creators' own event
-   dates. Written here rather than on the server so it reads in the visitor's timezone. */
-var P=__PATTERN__;
-if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
-', about every '+P.every+' day'+(P.every>1?'s':''):'';
-if(ph!=null){var pt=ph+tzOff();
-while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
-$('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
-'</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
-else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
-'. Worked out from the last '+P.n+' updates and busy days.'}
-
 /* One day at a time */
 function show(d){
 Array.prototype.forEach.call($('days').querySelectorAll('button'),function(b,i){
 b.setAttribute('aria-pressed',i==d)});
-var lo=null,hi=null,out='';
+var lo=null,hi=null;
 for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
 if(!lo||v<lo[1])lo=[h,v];if(!hi||v>hi[1])hi=[h,v]}
-for(var h=0;h<24;h++){var v=L[d][h];
-out+='<div class="bar" style="--i:'+h+';height:'+Math.max(3,(v||0)/B.max*100)+
-'%;background:var(--l'+(B.level(v)||1)+')" title="'+fmt(h)+': about '+(v||0).toLocaleString()+' players"></div>'}
-$('bars').innerHTML=out;
+$('bars').innerHTML=dayGraph(L[d],B.max,DAY[d]+': players through the day','acc');
+graphCursor($('bars').querySelector('.graph'),$('readout'),L[d],B.max);
 $('dtxt').textContent=lo?'On '+DAY[d]+' it is quietest around '+fmt(lo[0])+' and busiest around '+fmt(hi[0])+
 '. Hover or tap a bar for numbers.':'No player counts for this day yet.'}
 DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
@@ -1294,36 +2065,51 @@ setInterval(tick,1000);setInterval(draw,300000)})
 
 # ---------------------------------------------------------------- page bodies
 
-GAME = """<div class="ghead rise">__ICON__<div><h1>When is __NAME__ busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on __N__ player counts.__CAT__</p>
-<div class="actions">__PLAY__<button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
+# The page about one game.
+#
+# Two kinds of content are mixed together here on purpose:
+#   __LEAD__, __FACTS__, __BEST__, __QUIET__, __HOURS__, __HISTORY__, __FAQ__
+#     are written by the builder, so the facts are in the HTML that Google downloads.
+#   #now, #bars, #hm and the countdown are filled in by the browser, because only
+#     the browser knows what timezone the visitor is in and what the time is now.
+# The browser's version replaces the builder's where they overlap (#best, #quiet),
+# which is why those two carry UTC times and say so: nothing is hidden, the same
+# fact is simply shown on the reader's own clock once a script can run.
+GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
+<p class="mut">__LEAD__</p>
+<div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__.html">&#128221; Game updates</a>
+<button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 <a class="fav" href="/compare.html?a=__SLUG__">Compare</a></div></div></div>
-<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
+<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
+<p id="quiet">__QUIET__</p>
+<p class="mut small">The times above are in UTC until the page loads, then they switch to your
+own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <div class="card rise3"><h2>Plan my session</h2>
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p></div>
-<div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
+<div class="card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
-<div class="card"><h2>The whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
+<div class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
-<p class="mut small">The outlined square is right now.</p></div>
-<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>__AVG__</b></div>
-<div><span class="mut small">Highest seen</span><b>__PEAK__</b></div>
-<div><span class="mut small">Compared to last week</span><b>__TREND__</b></div></div>
+<p class="mut small">The outlined square is right now.</p>
+__HOURS__</div>
+<div class="card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div class="card"><h2>Is __NAME__ dead?</h2><div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div>
-__UPDATES__
+__HISTORY__
 __CALENDAR__
+__FAQ__
 __ABOUT__
 __PARENTS__
 __SIMILAR__
-<p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a></p>
+<p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a>
+&middot; <a href="/busiest-hours.html">When is Roblox busiest?</a></p>
 <script>window.PT_GAME=__GAMEINFO__;</script>
 <script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>"""
 
@@ -1343,6 +2129,17 @@ Times are shown in your own timezone.</p>
 <li><b>Descriptions, pictures and game passes</b> are the public ones Roblox shows on each game's page.</li>
 <li><b>"Days the player count jumped"</b> is worked out by us: any day at least {SPIKE:g} times busier than the
 week before it usually means an update, a seasonal event, or a popular video about the game.</li></ul>
+<h2>Estimates and observations</h2>
+<p>These are two different things and we try never to muddle them. A <b>typical</b> or <b>average</b> player
+count is an estimate: we add up the readings we took in that hour and divide. The <b>highest seen</b> figures are
+not estimates at all &mdash; each one is a single reading we really recorded. An estimate built from a handful of
+readings can be well out, which is why every game page says how many readings it is based on and how long we have
+been watching.</p>
+<h2>Game names</h2>
+<p>Creators rename their games for every holiday and update, so the same game might be called
+&ldquo;Grand Piece Online&rdquo; one week and &ldquo;[&#127875;HALLOWEEN PT 3] Grand Piece Online&rdquo; the next.
+We use the game's core name for headings and web addresses so links keep working, and each game page says what
+Roblox is calling it today.</p>
 <h2>What it does not tell you</h2>
 <p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children.
 Parents should still check a game themselves and use Roblox's parental controls.</p>
@@ -1468,7 +2265,7 @@ def write(path, text):
     WRITTEN.add(path.replace("\\", "/"))
 
 
-def prune(folders=("game", "category")):
+def prune(folders=("game", "category", "updates")):
     """Deletes pages from an earlier build that this build did not write.
 
     Pages in these folders are named after the game or category, so without this a
@@ -1528,7 +2325,176 @@ def write_stats(db, games, cards, waiting):
                 "export default " + json.dumps(stats, indent=1) + ";\n")
 
 
-def list_page(key, title, h1, lede, cards, desc, extra=""):
+def item_list(cards, name):
+    """The games on a list page, written out for search engines in the order shown.
+
+    An honest description of a ranked list: Google can see what the page ranks and
+    in what order, which is the whole point of a "most played games" page.
+    """
+    return {"@type": "ItemList", "name": name, "numberOfItems": len(cards),
+            "itemListOrder": "https://schema.org/ItemListOrderDescending",
+            "itemListElement": [
+                {"@type": "ListItem", "position": i + 1, "name": c["name"],
+                 "url": abs_url(f'/game/{c["slug"]}.html')}
+                for i, c in enumerate(cards[:50])]}
+
+
+def busy_page(cards, now):
+    """"When is Roblox busiest?" for every game we watch, added together.
+
+    This page exists because it is the one question the whole database can answer and
+    a single game page cannot. Each game is first turned into a share of its own peak,
+    so a game with two million players does not simply drown out forty smaller ones:
+    what we are measuring is when games are busy *relative to themselves*, which is
+    what someone asking "when is Roblox busiest" actually wants to know.
+
+    Everything is in UTC, written by the builder. The little script at the end puts it
+    on the reader's own clock, using the same helpers as every other page.
+    """
+    # share[d][h] = the average of every game's player count that hour as a fraction
+    # of that game's own busiest hour. 1.0 would mean every game peaks at once.
+    totals = [[0.0] * 24 for _ in range(7)]
+    counts = [[0] * 24 for _ in range(7)]
+    for c in cards:
+        week = c["a"]["week"]
+        peak = max((v for row in week for v in row if v is not None), default=0)
+        if not peak:
+            continue
+        for d in range(7):
+            for h in range(24):
+                if week[d][h] is not None:
+                    totals[d][h] += week[d][h] / peak
+                    counts[d][h] += 1
+    share = [[round(totals[d][h] / counts[d][h] * 100) if counts[d][h] else None
+              for h in range(24)] for d in range(7)]
+    cells = [(d, h, v) for d in range(7) for h, v in enumerate(share[d]) if v is not None]
+    if len(cells) < 24:
+        return page(seo_title("When Is Roblox Busiest?"),
+                    '<div class="hero"><h1>When is Roblox busiest?</h1>'
+                    '<p class="lede">We need a full week of player counts across the games we '
+                    'track before this page can say anything. Check back in a few days.</p></div>'
+                    '<p><a href="/">&larr; All Roblox player counts</a></p>',
+                    "The busiest and quietest hours across the Roblox games we track.",
+                    wide=True, canon="/busiest-hours.html", noindex=True,
+                    trail=[("All games", "/"), ("Busiest hours", "/busiest-hours.html")])
+
+    busy = max(cells, key=lambda c: c[2])
+    quiet = min(cells, key=lambda c: c[2])
+    by_day, by_hour = {}, {}
+    for d, h, v in cells:
+        by_day.setdefault(d, []).append(v)
+        by_hour.setdefault(h, []).append(v)
+    day_mean = {d: sum(v) / len(v) for d, v in by_day.items() if len(v) >= 12}
+    hour_mean = {h: sum(v) / len(v) for h, v in by_hour.items() if len(v) >= 4}
+    busy_day = max(day_mean, key=day_mean.get) if day_mean else None
+    quiet_day = min(day_mean, key=day_mean.get) if day_mean else None
+
+    # The same five bands the rest of the site uses, so the colours mean the same thing.
+    vals = sorted(v for _, _, v in cells)
+    q = [vals[int(p * (len(vals) - 1))] for p in (.2, .4, .6, .8)]
+    level = lambda v: 0 if v is None else 1 + sum(1 for t in q if v > t)
+
+    grid_html = '<div class="hm" id="hm"><div></div>'
+    for t in ("12 AM", "6 AM", "12 PM", "6 PM"):
+        grid_html += f'<span style="grid-column:span 6">{t}</span>'
+    for d in range(7):
+        grid_html += f"<div>{DAYS[d][:3]}</div>"
+        for h in range(24):
+            v = share[d][h]
+            bg = "transparent" if v is None else f"var(--l{level(v)})"
+            grid_html += (f'<div class="c" title="{DAYS[d]} {hour12(h)} UTC: '
+                          f'{"no data" if v is None else f"{v}% of peak"}" '
+                          f'style="background:{bg}"></div>')
+    grid_html += "</div>"
+
+    hours_rows = "".join(
+        f"<tr><td>{hour12(h)}</td><td>{round(hour_mean[h])}%</td>"
+        f"<td>{WORDS[level(hour_mean[h])]}</td></tr>"
+        for h in sorted(hour_mean))
+    days_rows = "".join(
+        f"<tr><td>{DAYS[d]}</td><td>{round(day_mean[d])}%</td>"
+        f"<td>{WORDS[level(day_mean[d])]}</td></tr>"
+        for d in sorted(day_mean, key=lambda d: -day_mean[d]))
+
+    body = (
+        f'<div class="hero"><h1>When is Roblox busiest?</h1>'
+        f'<p class="lede">Across the {len(cards)} games we track, the busiest hour of the '
+        f'week is <b>{DAYS[busy[0]]} around {hour12(busy[1])} UTC</b> and the quietest is '
+        f'<b>{DAYS[quiet[0]]} around {hour12(quiet[1])} UTC</b>. '
+        + (f'{DAYS[busy_day]} is the busiest day overall and {DAYS[quiet_day]} the '
+           f'quietest. ' if busy_day is not None else "")
+        + 'Each game is counted as a share of its own busiest hour, so the big games '
+          'do not drown out the small ones.</p></div>'
+        f'<div class="card"><h2>The whole week, every game at once</h2>'
+        f'<p class="mut small">Darker means busier. Each square is the average player '
+        f'count that hour as a percentage of each game\'s own peak hour.</p>'
+        f'<div class="wrap">{grid_html}</div>'
+        f'<div class="legend">Quiet <i style="background:var(--l1)"></i>'
+        f'<i style="background:var(--l2)"></i><i style="background:var(--l3)"></i>'
+        f'<i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>'
+        f'<p class="mut small" id="tzn"></p></div>'
+        f'<div class="card"><h2>Roblox busiest hours, hour by hour</h2>'
+        f'<p class="mut small">Averaged over the whole week, in UTC.</p><div class="wrap">'
+        f'<table class="tbl"><thead><tr><th>Hour (UTC)</th><th>Share of peak</th>'
+        f'<th>How busy</th></tr></thead><tbody>{hours_rows}</tbody></table></div></div>'
+        f'<div class="card"><h2>Busiest days of the week on Roblox</h2><div class="wrap">'
+        f'<table class="tbl"><thead><tr><th>Day</th><th>Share of peak</th>'
+        f'<th>How busy</th></tr></thead><tbody>{days_rows}</tbody></table></div></div>'
+        f'<div class="card faq"><h2>Common questions</h2>'
+        f'<h3>What time is Roblox busiest?</h3>'
+        f'<p>{DAYS[busy[0]]} around {hour12(busy[1])} UTC is the busiest hour we see across '
+        f'the games we track. Converted to local time that is the late afternoon and '
+        f'evening in most of Europe and the Americas, which is when most players are out '
+        f'of school.</p>'
+        f'<h3>When is the best time to play Roblox games quietly?</h3>'
+        f'<p>{DAYS[quiet[0]]} around {hour12(quiet[1])} UTC is the quietest hour overall. '
+        f'Quiet hours mean shorter queues, less lag and a better chance at timed or '
+        f'limited in-game events. Individual games differ, so check the game\'s own page '
+        f'for its quietest hour.</p>'
+        f'<h3>Is this the same for every game?</h3>'
+        f'<p>No. Most games follow this rhythm because most players share a daily routine, '
+        f'but a game with players mainly in one part of the world can be hours out of step. '
+        f'Every game we track has its own hour-by-hour page.</p>'
+        f'<p class="mut small">Worked out from '
+        f'{sum(c["samples"] for c in cards):,} player counts we took ourselves. These are '
+        f'averages of samples, so treat them as a good guess rather than an official '
+        f'figure.</p></div>'
+        + row_head("Busiest games right now",
+                   f'<span class="mut small">{len(cards)} games</span>')
+        + grid(cards[:12])
+        + '<p><a href="/popular.html">Most played Roblox games</a> &middot; '
+          '<a href="/plan.html">Plan a session</a> &middot; '
+          '<a href="/">All Roblox player counts</a></p>'
+        # Puts the two headline hours on the reader's own clock. Everything above stays
+        # exactly as written, so nothing depends on this running.
+        + f'<script>{SHARED_JS}</script><script>'
+          f'var BZ={jsdata([busy[0], busy[1], quiet[0], quiet[1]])};'
+          '(function(){var o=tzOff();function loc(d,h){var t=h+o;'
+          'while(t<0){t+=24;d=(d+6)%7}while(t>=24){t-=24;d=(d+1)%7}return DAY[d]+" around "+fmt(t)}'
+          'var n=$("tzn");if(n)n.innerHTML="In your timezone that is busiest on <b>"+'
+          'loc(BZ[0],BZ[1])+"</b> and quietest on <b>"+loc(BZ[2],BZ[3])+"</b>."})();</script>')
+
+    return page(
+        seo_title("When Is Roblox Busiest? Busiest Hours by Day"), body,
+        clip(f"The busiest hour on Roblox is {DAYS[busy[0]]} around {hour12(busy[1])} UTC and "
+             f"the quietest is {DAYS[quiet[0]]} around {hour12(quiet[1])} UTC, across "
+             f"{len(cards)} games we track hour by hour."),
+        wide=True, canon="/busiest-hours.html",
+        trail=[("All games", "/"), ("Busiest hours", "/busiest-hours.html")],
+        modified=iso_day(now),
+        schema=[{"@type": "Dataset",
+                 "name": "Roblox player activity by hour of the week",
+                 "description": ("The share of each game's peak player count reached in "
+                                 "every hour of the week, averaged across the Roblox games "
+                                 f"{SITE} tracks."),
+                 "url": abs_url("/busiest-hours.html"),
+                 "measurementTechnique": "Repeated sampling of public Roblox player counts",
+                 "variableMeasured": "Concurrent players as a share of each game's peak",
+                 "isAccessibleForFree": True,
+                 "creator": {"@type": "Organization", "name": SITE}}])
+
+
+def list_page(key, title, h1, lede, cards, desc, extra="", listname=""):
     """One of the "across the top" pages: a heading and a grid of games."""
     body = (f'<div class="hero"><h1>{h1}</h1><p class="lede">{lede}</p></div>{extra}'
             + (row_head("", f'<span class="mut small">{len(cards)} '
@@ -1536,8 +2502,41 @@ def list_page(key, title, h1, lede, cards, desc, extra=""):
                + grid(cards) if cards else
                '<p class="none">Nothing here yet. We need about two weeks of player counts for each game '
                'before this page fills in.</p>')
-            + '<p><a href="/">&larr; All games</a></p>')
-    write(f"{key}.html", page(title, body, desc, wide=True, nav=key))
+            + table_of(cards)
+            + '<p><a href="/">&larr; All Roblox player counts</a></p>')
+    write(f"{key}.html", page(
+        title, body, desc, wide=True, nav=key, canon=f"/{key}.html",
+        trail=[("All games", "/"), (h1, f"/{key}.html")],
+        schema=[item_list(cards, listname or h1)] if cards else None,
+        # A list page with nothing on it yet says so honestly, but there is no reason
+        # for Google to hold on to an empty page.
+        noindex=not cards))
+
+
+def table_of(cards, limit=60):
+    """A plain table of the games on a list page.
+
+    The tiles above it are links with a picture and a number inside them, which reads
+    well but gives a search engine very little. The same games as a table put the
+    player counts into the page as text, and give anyone comparing them one place to
+    look instead of 50 tiles.
+    """
+    if len(cards) < 3:
+        return ""
+    rows = "".join(
+        f'<tr><td>{i + 1}</td><td><a href="/game/{c["slug"]}.html">{html.escape(c["name"])}</a></td>'
+        f'<td>{c["avg"]:,}</td><td>{c["a"]["peak"]:,}</td>'
+        f'<td>{trend_short(c["trend"]) or "<span class=mut>steady</span>"}</td></tr>'
+        for i, c in enumerate(cards[:limit]))
+    more = (f'<p class="mut small">Showing the first {limit} of {len(cards)} games.</p>'
+            if len(cards) > limit else "")
+    return (f'<h2 style="margin-top:28px">The player counts</h2>'
+            f'<p class="mut small">&ldquo;Typical&rdquo; is the average number of players we '
+            f'saw over the last 7 days. &ldquo;Highest seen&rdquo; is the largest single '
+            f'player count we have ever recorded for that game.</p><div class="wrap">'
+            f'<table class="tbl"><thead><tr><th>#</th><th>Game</th><th>Typical players</th>'
+            f'<th>Highest seen</th><th>vs last week</th></tr></thead><tbody>{rows}</tbody>'
+            f'</table></div>{more}')
 
 
 def main():
@@ -1547,6 +2546,9 @@ def main():
     os.makedirs(OUT + "/game", exist_ok=True)
 
     games = db.execute("SELECT universe_id,name,genre,place_id FROM games").fetchall()
+    # Worked out once for all games, because an address has to be unique across the
+    # whole site and because it must not depend on the order the pages are built in.
+    naming = name_slugs(games)
     print(f"Looking up pictures and details for {len(games)} games...")
     ids = [g[0] for g in games]
     icons = roblox_api.fetch_icons(ids)
@@ -1569,7 +2571,9 @@ def main():
             waiting.append({"id": str(uid), "name": name, "samples": len(rows)})
             continue
         a = analyze(rows)
-        cards.append({"name": name, "slug": slug(name), "icon": icons.get(uid), "genre": genre,
+        nice, key = naming[uid]
+        cards.append({"name": nice, "full": name, "slug": key,
+                      "icon": icons.get(uid), "genre": genre,
                       "avg": a["avg7"], "trend": a["trend"], "month": a["month"],
                       "samples": len(rows), "days": a["days"], "week": a["week"],
                       "levels": levels_string(a["week"]), "verdict": verdict(a)[0],
@@ -1591,50 +2595,137 @@ def main():
     all_events = []
     for c in cards:
         uid, name, s, a = c["uid"], c["name"], c["slug"], c["a"]
+        full = c["full"]
         meta = metas.get(uid)
         events = roblox_api.fetch_events(uid)
         passes = roblox_api.fetch_passes(uid)
+        # Pictures for the passes, fetched in one go per game. All of them, not
+        # just the first few: the card list shows the cheapest passes, which are
+        # not the ones Roblox happens to return first.
+        pass_icons = roblox_api.fetch_asset_icons(
+            [p.get("icon_id") for p in (passes or [])])
         upcoming = [e for e in (events or []) if (e["end"] or e["start"] + 86400) >= now]
         for e in upcoming:
             all_events.append(dict(e, game=name, slug=s, icon=c["icon"]))
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
+        pattern = update_pattern(events, a["spikes"], now)
+        facts = week_facts(a["week"])
+        c["facts"] = facts
+        best_txt, quiet_txt = short_answer(name, facts)
 
         play = (f'<a class="btn" href="https://www.roblox.com/games/{c["place"]}">'
                 f'Play {html.escape(name)}</a>' if c["place"] and c["place"] > 1 else "")
+        in_cat = c["genre"] in cats
         cat = (f' Category: <a href="/category/{slug(c["genre"])}.html">{html.escape(c["genre"])}</a>.'
-               if c["genre"] in cats else "")
-        body = (GAME.replace("__ICON__", thumb(name, c["icon"], f"{name} icon"))
-                .replace("__NAME__", html.escape(name))
+               if in_cat else "")
+
+        # The opening paragraph. Every number in it comes from our own samples, and the
+        # wording keeps "about"/"typical" on the averages and "seen"/"recorded" on the
+        # things we really observed, so an estimate is never dressed up as a fact.
+        lead = (f'{html.escape(name)} has about <b>{a["avg7"]:,} players</b> at a typical '
+                f'moment, and we have seen as many as <b>{a["peak"]:,}</b> at once. ')
+        if facts:
+            bd, bh, _ = facts["busy"]
+            qd, qh, _ = facts["quiet"]
+            lead += (f'Its busiest hour is usually <b>{DAYS[bd]} around {hour12(bh)}</b> and '
+                     f'its quietest <b>{DAYS[qd]} around {hour12(qh)}</b> (UTC). ')
+        lead += (f'Worked out from {c["samples"]:,} player counts taken since '
+                 f'{when(a["first"])}.')
+        # Creators rename their games for every holiday. We use the core name so the
+        # address and the heading stay put, and say what Roblox is calling it today.
+        if full != name:
+            lead += (f'<br><span class="small">Listed on Roblox right now as '
+                     f'&ldquo;{html.escape(full)}&rdquo;.</span>')
+
+        faq, qa = faq_html(c, a, facts, meta, pattern)
+        body = (GAME.replace("__ICON__", thumb(name, c["icon"], icon_alt(name), eager=True))
+                .replace("__LEAD__", lead)
+                .replace("__BEST__", best_txt)
+                .replace("__QUIET__", quiet_txt)
+                .replace("__FACTS__", facts_html(c, a, facts))
+                .replace("__HOURS__", hours_table_html(name, a["week"]))
+                .replace("__HISTORY__", history_html(name, a))
+                .replace("__FAQ__", faq)
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
                 .replace("__SLUG__", s)
-                .replace("__AVG__", f"{a['avg7']:,}")
-                .replace("__PEAK__", f"{a['peak']:,}")
-                .replace("__TREND__", trend_html(a["trend"]))
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__UPDATES__", updates_html(name, events, meta, a["spikes"], now))
                 .replace("__CALENDAR__", calendar_html(name, events, now))
                 .replace("__ABOUT__", about_game_html(name, meta))
-                .replace("__PARENTS__", parents_html(passes))
+                .replace("__PARENTS__", parents_html(passes, pass_icons))
                 .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
                 .replace("__FAVJS__", FAV_GAME)
-                .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"]))
-                         .replace("__PATTERN__", jsdata(update_pattern(events, a["spikes"], now)))))
+                .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"])))
+                # __NAME__ last: it appears inside several of the blocks above.
+                .replace("__NAME__", html.escape(name)))
         # Back goes to this game's category when it has one, so the button lands
         # somewhere useful even for a visitor who arrived straight from Google.
         where = ((f'/category/{slug(c["genre"])}.html', f'{c["genre"]} games')
-                 if c["genre"] in cats else ("/", "All games"))
+                 if in_cat else ("/", "All games"))
+        trail = [("All games", "/")]
+        if in_cat:
+            trail.append((f'{c["genre"]} games', f'/category/{slug(c["genre"])}.html'))
+        thin = not index_ok(c)
+
+        # Everything about this game's updates gets its own page, reached from the
+        # "Game updates" button at the top of the game page.
+        upd = updates_html(name, events, meta, a["spikes"], now)
+        # The sitemap only asks Google to look at an updates page that has
+        # something on it; an empty one is not worth a visit.
+        c["has_updates"] = bool(upd)
+        write(f"updates/{s}.html", page(
+            seo_title(f"{name} Update History and Patch Notes",
+                      f"{name} Update History"),
+            f'<div class="ghead rise">{thumb(name, c["icon"], icon_alt(name), eager=True)}<div>'
+            f'<h1>{html.escape(name)} update history</h1>'
+            f'<p class="mut">Every update and event the creators have announced, when they '
+            f'landed, and the days {html.escape(name)}&rsquo;s player count jumped.</p>'
+            f'<div class="actions"><a class="fav" href="/game/{s}.html">&larr; '
+            f'{html.escape(name)} player count</a>{play}</div></div></div>'
+            + (upd or '<div class="card"><p class="none">The creators have not announced any '
+                      'updates on Roblox for this game yet, and we have not been watching long '
+                      'enough to spot a jump in players. Check back soon.</p></div>')
+            + calendar_html(name, events, now)
+            + f'<p><a href="/game/{s}.html">&larr; Back to {html.escape(name)}</a></p>'
+            + f'<script>{SHARED_JS}</script>'
+            + f'<script>var P={jsdata(pattern)};'
+            + PATTERN_JS + '</script>'
+            + f'<script>window.PT_GAME={jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>',
+            clip(f"When does {name} update? Past updates and events, how often new ones "
+                 f"arrive, and the days its player count jumped."),
+            wide=True, banner=c["banner"],
+            canon=f"/updates/{s}.html", image=c["banner"] or c["icon"] or "",
+            trail=trail + [(f"{name} player count", f"/game/{s}.html"),
+                           ("Update history", f"/updates/{s}.html")],
+            # An update page with nothing on it is a thin page, so we keep it on the
+            # site (the button still works) but ask Google not to list it.
+            noindex=thin or not upd, modified=iso_day(a["last"])))
+
         write(f"game/{s}.html", page(
-            f"Best Time to Play {name}: Busy and Quiet Hours", body,
-            f"When is {name} busiest and quietest? Hourly player counts, upcoming events, "
-            f"recent updates, and whether it is growing or dying.", banner=c["banner"], back=where))
+            seo_title(f"{name} Player Count & Best Times to Play",
+                      f"{name} Player Count and Best Times",
+                      f"{name} Player Count"), body,
+            clip(f"{name} has about {a['avg7']:,} players at a typical moment, and we have "
+                 f"seen {a['peak']:,} at once. Its player count history, busiest and quietest "
+                 f"hours, and the best time to play."),
+            banner=c["banner"], back=where, canon=f"/game/{s}.html",
+            image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}.html")],
+            schema=game_schema(c, a, meta, qa), noindex=thin, modified=iso_day(a["last"])))
 
     print(f"Built {len(cards)} game pages.")
+
+    # ---- the short list of games the search button loads. Kept separate from
+    # data.json, which also carries a week of player counts per game and is far too
+    # big to fetch just to search by name.
+    write("games.json", json.dumps(
+        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or ""}
+         for c in sorted(cards, key=lambda c: c["name"].lower())],
+        separators=(",", ":")))
 
     # ---- the data file the Compare and Plan pages load
     write("data.json", json.dumps({
@@ -1652,35 +2743,89 @@ def main():
             continue
         cat_pages.append((g, f"/category/{slug(g)}.html"))
         count = f'{len(cg)} game{"s" if len(cg) != 1 else ""}'
+        biggest = cg[0]
         write(f"category/{slug(g)}.html", page(
-            f"Best Times to Play {g} Games - {SITE}",
-            f'<div class="hero"><h1>{html.escape(g)} games</h1><p class="lede">When are popular '
-            f'{html.escape(g.lower())} games busiest? Pick one to see its week, its events and its updates.</p></div>'
+            seo_title(f"{g} Roblox Games: Player Counts & Best Times",
+                      f"{g} Roblox Games by Player Count"),
+            f'<div class="hero"><h1>{html.escape(g)} Roblox games: player counts and '
+            f'best times to play</h1><p class="lede">Live-tracked player counts for '
+            f'{count} popular {html.escape(g.lower())} games on Roblox. '
+            f'{html.escape(biggest["name"])} is the busiest, with about '
+            f'{biggest["avg"]:,} players at a typical moment. '
+            f'Pick a game to see its week, its events and its updates.</p></div>'
             + ask_html(f'Showing all {count}, most popular first.')
             + row_head("", f'<span class="mut small">{count}</span>')
             + grid(cg, "all")
-            + '<p><a href="/">&larr; All games</a></p>'
+            + table_of(cg)
+            + '<p><a href="/">&larr; All Roblox player counts</a></p>'
             + ask_js(cg),
-            f"See when popular {g} games are busiest and quietest, hour by hour.",
-            wide=True, banner=cg[0]["banner"]))
+            clip(f"Player counts for {len(cg)} {g.lower()} games on Roblox, and when each one "
+                 f"is busiest and quietest. Updated every night."),
+            wide=True, banner=biggest["banner"], canon=f"/category/{slug(g)}.html",
+            image=biggest["banner"] or biggest["icon"] or "",
+            trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}.html")],
+            schema=[item_list(cg, f"{g} Roblox games by player count")]))
     pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
     # ---- homepage
+    # Two numbers worth saying out loud, because they are the reason to trust the rest
+    # of the site: how many games we watch and how many readings we have taken.
+    total_samples = sum(c["samples"] for c in cards)
+    top = cards[0] if cards else None
     body = (
-        '<div class="hero rise"><h1>When is your game <em>busiest</em>?</h1>'
-        '<p class="lede">Hour-by-hour player counts for popular Roblox games, in your own timezone. '
-        'Find the quiet hours for easy claims and no queues, or the busy hours for trading and events.</p></div>'
+        '<div class="hero rise"><h1>Roblox player counts and the <em>best times</em> to play</h1>'
+        f'<p class="lede">We track the player count of {len(cards)} popular Roblox games every '
+        f'few minutes &ndash; {total_samples:,} readings so far &ndash; and turn them into an '
+        'hour-by-hour picture of each game\'s week, in your own timezone. Pick a quiet hour for '
+        'easy claims and no queues, or a busy one for trading and events.</p></div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
         + ask_html()
-        + f'<div class="pills">{pills}</div>'
+        # The categories used to be a bare row of pills under the chooser, with nothing
+        # saying what they were. On a phone they wrapped onto five lines, which read as
+        # clutter rather than as a list you could use.
+        + f'<h2 style="margin-top:22px">Browse by category</h2><div class="pills">{pills}</div>'
         '<section id="favs" hidden>' + row_head("Your saved games") +
         '<ul class="grid" id="favgrid"></ul></section>'
         + row_head("All games", f'<span class="mut small">{len(cards)} games</span>')
         + grid(cards, "all")
+        + ('<h2 style="margin-top:30px">What you can do here</h2>'
+           '<div class="card"><ul>'
+           '<li><a href="/popular.html">Most played Roblox games</a> &ndash; every game we '
+           'track, ranked by how many people are in it at a typical moment.</li>'
+           '<li><a href="/trending.html">Trending games</a> &ndash; the biggest gainers and '
+           'losers this week, from two weeks of player counts.</li>'
+           '<li><a href="/busiest-hours.html">When is Roblox busiest?</a> &ndash; the busiest '
+           'and quietest hours across every game we watch.</li>'
+           '<li><a href="/compare.html">Compare two games</a> &ndash; put their weeks side by '
+           'side and see which is less crowded.</li>'
+           '<li><a href="/plan.html">Plan a session</a> &ndash; a countdown to the next quiet '
+           'or busy stretch for any game.</li>'
+           '<li><a href="/events.html">Event calendar</a> &ndash; what the creators have '
+           'announced, so you know which hours will be packed.</li>'
+           '</ul></div>'
+           '<h2>Where the numbers come from</h2>'
+           '<div class="card"><p>Roblox publishes how many people are in each game right now. '
+           'We read that figure for every game on our list every few minutes and keep it, which '
+           'is something Roblox itself does not show you: it tells you about now, not about last '
+           'Tuesday. Averaging those readings by hour and weekday gives each game\'s rhythm, and '
+           'comparing one week with the next shows whether it is growing or shrinking.</p>'
+           '<p class="mut small">Averages are estimates built from samples, so treat them as a '
+           'good guess rather than an official figure. The highest player counts we quote are '
+           'different: those are single readings we really recorded. Nothing here says whether '
+           'a game is good, fair or suitable for a child.</p></div>')
         + ask_js(cards))
-    write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
-                             "See when popular games are busiest and quietest, hour by hour, in your timezone.",
-                             wide=True, nav="home", back=None))   # nowhere to go back to
+    write("index.html", page(
+        f"Roblox Player Counts & Best Times to Play Games | {SITE}", body,
+        "Track Roblox game player counts, discover the busiest and quietest times to play, "
+        "explore trending games, and compare player activity throughout the day.",
+        wide=True, nav="home", back=None, canon="/",
+        image=top["icon"] if top else "",
+        schema=[{"@type": "WebSite", "name": SITE, "url": abs_url("/"),
+                 "description": ("Player counts and best times to play for popular Roblox "
+                                 "games, updated every night."),
+                 "inLanguage": "en",
+                 "publisher": {"@type": "Organization", "name": SITE, "url": abs_url("/")}}],
+        modified=iso_day(now)))   # nowhere to go back to
 
     # ---- the pages across the top
     up = sorted([c for c in cards if c["trend"] is not None and c["trend"] >= 5],
@@ -1690,34 +2835,53 @@ def main():
     none = ('<p class="none">None right now. We compare the last 7 days with the 7 days before, so games '
             'need two weeks of player counts first.</p>')
 
-    list_page("popular", f"Most Popular Games Right Now - {SITE}", "Most popular games",
-              "Ordered by how many people are in the game at a typical moment over the last 7 days.",
-              cards, "The most played games on Roblox by typical player count, updated nightly.")
-    list_page("growing", f"Games That Are Growing - {SITE}", "Games that are growing",
-              "These games have more players than they did a week ago. Updated every night.",
-              up, "Which Roblox games are gaining players this week.")
-    list_page("shrinking", f"Games That Are Shrinking - {SITE}", "Games that are shrinking",
-              "These games have fewer players than they did a week ago. Updated every night. "
-              "Losing players does not mean a game is bad, and most of them are still busy at peak times.",
-              down, "Which Roblox games are losing players this week.")
+    list_page("popular", seo_title("Most Played Roblox Games by Player Count"),
+              "Most played Roblox games right now",
+              f"All {len(cards)} games we track, ranked by how many people are in the game at a "
+              f"typical moment over the last 7 days. Rebuilt every night.",
+              cards,
+              "Roblox game rankings by live player count: the most played games we track, "
+              "with typical and peak players for each. Updated every night.",
+              listname="Most played Roblox games by typical player count")
+    list_page("growing", seo_title("Roblox Games Growing Fastest This Week"),
+              "Roblox games that are growing",
+              "These games have more players than they did a week ago. We compare the last "
+              "7 days of player counts with the 7 days before, every night.",
+              up,
+              "Which Roblox games are gaining players this week, measured from our own "
+              "player count history.",
+              listname="Roblox games gaining players this week")
+    list_page("shrinking", seo_title("Roblox Games Losing Players This Week"),
+              "Roblox games that are shrinking",
+              "These games have fewer players than they did a week ago. Losing players does "
+              "not mean a game is bad, and most of them are still busy at peak times.",
+              down,
+              "Which Roblox games are losing players this week, measured from our own "
+              "player count history.",
+              listname="Roblox games losing players this week")
 
     rows = "".join(
         f'<tr><td><a href="/game/{c["slug"]}.html">{html.escape(c["name"])}</a></td>'
         f'<td>{c["avg"]:,}</td><td>{trend_short(c["trend"]) or "<span class=mut>steady</span>"}</td></tr>'
         for c in up[:10] + down[:10])
     write("trending.html", page(
-        f"Trending Games: Biggest Gainers and Losers This Week - {SITE}",
-        '<div class="hero"><h1>Biggest gainers and losers this week</h1>'
+        seo_title("Trending Roblox Games: Gainers and Losers"),
+        '<div class="hero"><h1>Trending Roblox games this week</h1>'
         '<p class="lede">Every night we compare the last 7 days of player counts with the 7 days before. '
         'These are the games that moved the most.</p></div>'
         + row_head("Biggest gainers") + (grid(up[:12]) if up else none) +
         row_head("Biggest losers") + (grid(down[:12]) if down else none)
         + (f'<h2 style="margin-top:28px">The numbers</h2><div class="wrap"><table class="tbl">'
-           f'<tr><th>Game</th><th>Typical players</th><th>vs last week</th></tr>{rows}</table></div>'
+           f'<thead><tr><th>Game</th><th>Typical players</th><th>vs last week</th></tr></thead>'
+           f'<tbody>{rows}</tbody></table></div>'
            if rows else "")
-        + '<p><a href="/">&larr; All games</a></p>',
-        "Which Roblox games gained and lost the most players this week, updated every night.",
-        wide=True, nav="trending"))
+        + '<p><a href="/">&larr; All Roblox player counts</a></p>',
+        "Which Roblox games gained and lost the most players this week, worked out from our "
+        "own player count history and updated every night.",
+        wide=True, nav="trending", canon="/trending.html",
+        trail=[("All games", "/"), ("Trending", "/trending.html")],
+        schema=[item_list(up[:12], "Roblox games trending up this week")] if up else None,
+        noindex=not (up or down), modified=iso_day(now)))
 
     # ---- site-wide event calendar
     all_events.sort(key=lambda e: e["start"])
@@ -1738,40 +2902,47 @@ def main():
         return f'<ul class="evt">{"".join(out)}</ul>' if out else ""
 
     write("events.html", page(
-        f"Roblox Game Events Calendar: What Is On Now and Next - {SITE}",
-        '<div class="hero"><h1>Event calendar</h1><p class="lede">Events and updates the game creators '
+        seo_title("Roblox Game Events Calendar: On Now and Next"),
+        '<div class="hero"><h1>Roblox game events calendar</h1><p class="lede">Events and updates the game creators '
         'themselves have put on the Roblox calendar, for every game we track. Expect these hours to be busy.</p></div>'
         + (f'<h2 style="margin-top:22px">Happening now</h2>{ev_list(live)}' if live else "")
         + (f'<h2 style="margin-top:26px">Coming up</h2>{ev_list(soon)}' if soon else "")
         + ("" if live or soon else '<p class="none">No events are listed right now. Creators usually '
                                    'announce them a few days ahead, so check back soon.</p>')
-        + '<p><a href="/">&larr; All games</a></p>',
-        "Every upcoming Roblox game event and update we know about, with the dates they run.",
-        nav="events"))
+        + '<p><a href="/">&larr; All Roblox player counts</a></p>',
+        "Every upcoming Roblox game event and update we know about, with the dates they run "
+        "and the games they belong to.",
+        nav="events", canon="/events.html",
+        trail=[("All games", "/"), ("Events", "/events.html")],
+        noindex=not (live or soon), modified=iso_day(now)))
 
     # ---- compare two games
     write("compare.html", page(
-        f"Compare Two Games: Which Is Less Crowded? - {SITE}",
-        '<div class="hero"><h1>Compare two games</h1><p class="lede">Put two games side by side, hour by hour, '
+        seo_title("Roblox Game Comparison: Compare Player Counts"),
+        '<div class="hero"><h1>Compare two Roblox games</h1><p class="lede">Put two games side by side, hour by hour, '
         'to answer things like &ldquo;which one is less crowded on Saturday?&rdquo;</p></div>'
         '<div class="card" id="cmp" hidden><div class="two">'
         '<label>First game<br><select class="sel" id="ga"></select></label>'
         '<label>Second game<br><select class="sel" id="gb"></select></label></div>'
-        '<div class="days" id="days"></div><div class="bars" id="bars"></div>'
+        '<div class="days" id="days"></div><div class="bars cols" id="bars"></div>'
         '<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>'
         '<div class="legend"><i style="background:var(--acc)"></i><span id="alab"></span>'
         '<i style="background:var(--acc2);margin-left:10px"></i><span id="blab"></span></div>'
         '<p id="verdict" style="margin-top:14px"></p>'
         '<div class="stats" id="nums"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
-        '<p><a href="/">&larr; All games</a></p>',
-        "Compare two Roblox games hour by hour and see which is quieter on any day of the week.",
-        nav="compare", tail=f"<script>{SHARED_JS}</script><script>{COMPARE_JS}</script>"))
+        + table_of(cards[:20])
+        + '<p><a href="/">&larr; All Roblox player counts</a></p>',
+        "Compare two Roblox games hour by hour and see which has more players, and which is "
+        "quieter, on any day of the week.",
+        nav="compare", canon="/compare.html",
+        trail=[("All games", "/"), ("Compare", "/compare.html")],
+        tail=f"<script>{SHARED_JS}</script><script>{COMPARE_JS}</script>"))
 
     # ---- plan a session
     write("plan.html", page(
-        f"Plan a Session: The Next Quiet or Busy Hours - {SITE}",
-        '<div class="hero"><h1>Plan my session</h1><p class="lede">Pick a game, say whether you want it quiet '
+        seo_title("Best Time to Play: Next Quiet or Busy Hours"),
+        '<div class="hero"><h1>Plan my Roblox session</h1><p class="lede">Pick a game, say whether you want it quiet '
         'or busy, and we will count down to the next good block of time in your timezone.</p></div>'
         '<div class="card" id="plan" hidden>'
         '<label>Game<br><select class="sel" id="g"></select></label>'
@@ -1780,31 +2951,107 @@ def main():
         '<button data-m="busy" aria-pressed="false">Busy</button></div>'
         '<div id="out"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
-        '<p><a href="/">&larr; All games</a></p>',
-        "Find the next quiet or busy hours for any Roblox game, as a countdown in your own timezone.",
-        nav="plan", tail=f"<script>{SHARED_JS}</script><script>{PLAN_JS}</script>"))
+        '<p><a href="/busiest-hours.html">When is Roblox busiest overall?</a></p>'
+        '<p><a href="/">&larr; All Roblox player counts</a></p>',
+        "Find the next quiet or busy hours for any Roblox game, counted down in your own "
+        "timezone from our hour-by-hour player count history.",
+        nav="plan", canon="/plan.html",
+        trail=[("All games", "/"), ("Plan a session", "/plan.html")],
+        tail=f"<script>{SHARED_JS}</script><script>{PLAN_JS}</script>"))
+
+    # ---- when is Roblox busiest, across everything we watch
+    write("busiest-hours.html", busy_page(cards, now))
 
     # ---- the plain pages
-    write("about.html", page(f"About {SITE}", about_body(),
-                             f"What {SITE} is, how it measures when games are busy, and what it does not tell you."))
-    write("privacy.html", page(f"Privacy Policy - {SITE}", privacy_body(),
-                               f"What {SITE} stores, what it never asks for, and how to delete your data."))
-    write("terms.html", page(f"Terms of Service - {SITE}", terms_body(),
-                             f"The rules for using {SITE}, in plain language."))
+    write("about.html", page(
+        seo_title(f"About {SITE}: How We Measure Player Counts"), about_body(),
+        f"What {SITE} is, how it measures when Roblox games are busy, and what it does not "
+        f"tell you.", canon="/about.html",
+        trail=[("All games", "/"), ("About", "/about.html")]))
+    write("privacy.html", page(
+        seo_title(f"Privacy Policy - {SITE}"), privacy_body(),
+        f"What {SITE} stores, what it never asks for, and how to delete your data.",
+        canon="/privacy.html", trail=[("All games", "/"), ("Privacy Policy", "/privacy.html")]))
+    write("terms.html", page(
+        seo_title(f"Terms of Service - {SITE}"), terms_body(),
+        f"The rules for using {SITE}, written in plain language: what the site is, what the "
+        f"numbers mean, and why they are estimates rather than official Roblox figures.",
+        canon="/terms.html", trail=[("All games", "/"), ("Terms", "/terms.html")]))
+
+    # A page for addresses that do not exist. The worker hands this back with a 404
+    # status, so a search engine knows the page is really gone instead of guessing.
+    write("404.html", page(
+        f"Page not found - {SITE}",
+        '<div class="hero"><h1>We could not find that page</h1>'
+        '<p class="lede">The address may be old, or a game may have dropped off our list. '
+        'Everything we track is one tap away.</p></div>'
+        '<p><a class="btn" href="/">See every Roblox player count</a></p>'
+        + row_head("Most popular right now") + grid(cards[:12]),
+        "That page does not exist. Browse every Roblox game player count we track instead.",
+        wide=True, back=None, canon="/404.html", noindex=True))
 
     # ---- sitemap and robots
+    #
+    # The sitemap is the list of pages we are asking Google to look at, so it holds
+    # only pages that are worth looking at: a game still waiting for data is left out
+    # until index_ok() says it has enough, and so is an empty list page. Addresses in
+    # a sitemap have to be absolute, which is why DOMAIN has to be filled in before
+    # this is any use at all.
     base = DOMAIN.rstrip("/")
-    urls = (["/"] + [u for _, _, u in TABS if u != "/"] + ["/about.html", "/privacy.html"]
-            + ["/terms.html"] + [u for _, u in cat_pages] + [f"/game/{c['slug']}.html" for c in cards])
-    write("sitemap.txt", "\n".join(base + u for u in urls) + "\n")
+    today = iso_day(now)
+    pages = [("/", "1.0", today), ("/popular.html", "0.9", today)]
+    for u in [u for _, _, u in TABS if u not in ("/", "/popular.html")]:
+        pages.append((u, "0.7", today))
+    pages.append(("/busiest-hours.html", "0.8", today))
+    pages += [(u, "0.7", today) for _, u in cat_pages]
+    for c in cards:
+        if not index_ok(c):
+            continue
+        last = iso_day(c["a"]["last"])
+        pages.append((f'/game/{c["slug"]}.html', "0.9", last))
+        if c.get("has_updates"):
+            pages.append((f'/updates/{c["slug"]}.html', "0.5", last))
+    pages += [("/about.html", "0.3", today),
+              ("/privacy.html", "0.2", today), ("/terms.html", "0.2", today)]
+
+    def entry(u, pri, mod):
+        return (f"<url><loc>{html.escape(base + u)}</loc><lastmod>{mod}</lastmod>"
+                f"<changefreq>daily</changefreq><priority>{pri}</priority></url>")
+
+    write("sitemap.xml",
+          '<?xml version="1.0" encoding="UTF-8"?>\n'
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+          + "\n".join(entry(*p) for p in pages) + "\n</urlset>\n")
+    # The old plain-text sitemap, kept so an address already given to Google still works.
+    write("sitemap.txt", "\n".join(base + u for u, _, _ in pages) + "\n")
+    if not base:
+        print("  ! DOMAIN is empty in build_site.py, so sitemap.xml has no web addresses in it.\n"
+              "    Google will reject it. Set DOMAIN once you have bought the domain.")
+    skipped = [c["name"] for c in cards if not index_ok(c)]
+    if skipped:
+        print(f"  {len(skipped)} game page(s) kept out of the sitemap until they have more "
+              f"data: " + ", ".join(skipped[:4]) + (" ..." if len(skipped) > 4 else ""))
+
+    # Just enough for the search box. data.json carries every game's whole week
+    # and is far too big to fetch just to answer "what is this game called".
+    write("games.json", json.dumps(
+        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or ""}
+         for c in sorted(cards, key=lambda c: c["name"].lower())],
+        separators=(",", ":")))
     write("favicon.svg", FAVICON)
+    # data.json and games.json are left crawlable on purpose: the Compare and Plan
+    # pages fetch them, and a search engine that cannot read them sees those two
+    # pages as empty. /admin is the only thing shut out.
     write("robots.txt", "User-agent: *\nDisallow: /\n" if NOINDEX else
-          "User-agent: *\nDisallow: /admin\nAllow: /\n" + (f"Sitemap: {base}/sitemap.txt\n" if base else ""))
+          "User-agent: *\nDisallow: /admin\nDisallow: /api/\nAllow: /\n\n"
+          + (f"Sitemap: {base}/sitemap.xml\n" if base else
+             "# Sitemap: set DOMAIN in build_site.py and this line appears\n"))
 
     write_stats(db, games, cards, waiting)
     prune()                        # last, so a build that fails never deletes anything
     db.close()
-    print(f"Wrote {len(urls)} pages into {OUT}/ in {time.time() - started:.0f} seconds.")
+    print(f"Wrote {len(pages)} addresses into {OUT}/sitemap.xml in "
+          f"{time.time() - started:.0f} seconds.")
     if waiting:
         print(f"{len(waiting)} games are still collecting data and have no page yet.")
 

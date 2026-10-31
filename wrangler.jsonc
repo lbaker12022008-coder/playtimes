@@ -6,7 +6,12 @@
   "name": "playtimes",
   "main": "worker/index.js",
   "compatibility_date": "2025-09-09",
-  "assets": { "directory": "./docs" },
+  // "binding" lets worker code read the files in docs/, which it needs so that an
+  // address that does not exist can be answered with the site's own 404.html page
+  // and a real 404 status. "not_found_handling" is deliberately left alone: setting
+  // it to "404-page" would make Cloudflare answer every unmatched address itself and
+  // the worker would never run, which would break /admin, /api/* and sign-in.
+  "assets": { "directory": "./docs", "binding": "ASSETS" },
   "observability": { "enabled": true },
   "d1_databases": [
     {

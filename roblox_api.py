@@ -23,6 +23,8 @@ ICON_API = ("https://thumbnails.roblox.com/v1/games/icons"
 BANNER_API = ("https://thumbnails.roblox.com/v1/games/multiget/thumbnails"
               "?countPerUniverse=1&defaults=true&size=768x432&format=Webp&isCircular=false"
               "&universeIds=")
+ASSET_API = ("https://thumbnails.roblox.com/v1/assets"
+             "?size=150x150&format=Png&isCircular=false&assetIds=")
 PASS_API = "https://apis.roblox.com/game-passes/v1/universes/{}/game-passes?passView=Full&pageSize=100"
 EVENT_API = "https://apis.roblox.com/virtual-events/v1/universes/{}/virtual-events"
 
@@ -145,14 +147,28 @@ def fetch_meta(ids):
 
 
 def fetch_passes(uid):
-    """Game passes on sale as [[name, robux]], or None if Roblox did not answer."""
+    """Game passes on sale, newest Roblox details first.
+
+    Each one is {name, price, description, icon_id, created, discounted}, or None if
+    Roblox did not answer. The description is what the creators say the pass contains.
+    """
     def pull():
         out, token = [], ""
         try:
             for _ in range(10):
                 d = get_json(PASS_API.format(uid) + (f"&pageToken={token}" if token else ""))
-                out += [[p.get("displayName") or p.get("name") or "Game pass", p["price"]]
-                        for p in d.get("gamePasses", []) if p.get("isForSale") and p.get("price")]
+                for p in d.get("gamePasses", []):
+                    if not (p.get("isForSale") and p.get("price")):
+                        continue
+                    out.append({
+                        "name": p.get("displayName") or p.get("name") or "Game pass",
+                        "price": p["price"],
+                        "description": (p.get("displayDescription") or "").strip(),
+                        "icon_id": p.get("displayIconImageAssetId") or 0,
+                        "created": _iso(p.get("created")),
+                        # Roblox lists a discount here when a pass is on offer.
+                        "discounted": bool(p.get("priceDiscountDetails")),
+                    })
                 token = d.get("nextPageToken")
                 if not token:
                     break
@@ -162,8 +178,27 @@ def fetch_passes(uid):
             print(f"  ! could not load game passes for {uid}:", e)
             return None
 
-    return cached(f"passes:{uid}", DAY, pull)
+    return cached(f"passes2:{uid}", DAY, pull)
 
+
+def fetch_asset_icons(asset_ids):
+    """{asset id: picture url} for game pass icons."""
+    ids = [int(a) for a in asset_ids if a]
+    def pull(batch):
+        out = {}
+        try:
+            for t in get_json(ASSET_API + ",".join(map(str, batch))).get("data", []):
+                if t.get("state") == "Completed" and t.get("imageUrl"):
+                    out[str(t["targetId"])] = t["imageUrl"]
+        except Exception as e:
+            print("  ! could not load game pass pictures:", e)
+        return out
+
+    out = {}
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i + 50]
+        out.update(cached("assets:" + ",".join(map(str, batch)), 7 * DAY, lambda b=batch: pull(b)))
+    return {int(k): v for k, v in out.items()}
 
 def fetch_events(uid):
     """Roblox events for one game, oldest first.

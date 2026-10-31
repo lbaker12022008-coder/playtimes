@@ -41,9 +41,35 @@ export default {
       console.error("request failed", path, err && err.stack || err);
       return text("Something went wrong. Please try again.", 500);
     }
-    return text("Not found", 404);
+    return await notFound(request, env);
   }
 };
+
+/**
+ * Anything that is not a file in docs/ and not one of our own addresses.
+ *
+ * Cloudflare serves the real pages before this code runs, so getting here means the
+ * address does not exist. We hand back the site's own 404 page with a 404 status, so
+ * a visitor gets somewhere useful and a search engine is told plainly that the page
+ * is gone rather than being shown a page that looks fine. ASSETS is the binding set
+ * in wrangler.jsonc; if it is ever missing we fall back to plain text rather than
+ * failing the request.
+ */
+async function notFound(request, env) {
+  try {
+    const url = new URL(request.url);
+    const res = await env.ASSETS.fetch(new URL("/404.html", url.origin));
+    if (res.ok) {
+      return new Response(res.body, {
+        status: 404,
+        headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" }
+      });
+    }
+  } catch (err) {
+    console.error("could not load /404.html", err && err.message);
+  }
+  return text("Not found", 404);
+}
 
 /* ---------------------------------------------------------------- counting */
 
