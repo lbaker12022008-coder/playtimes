@@ -337,10 +337,15 @@ def banner_html(url, name=""):
 
 
 def back_link(href="/", label="All games"):
-    """A back button at the top of a page. The href is a real link, so it works
-    without JavaScript; if the visitor arrived from our own site, a small script
-    turns it into a true Back instead, returning them to their place in the list."""
-    return f'<a class="back" href="{href}" data-back>&larr; {html.escape(label)}</a>'
+    """A back button at the top of a page. It just says "Back"; the label only
+    describes where it lands, for screen readers and the hover tooltip.
+
+    The href is a real link, so it works without JavaScript and gives someone
+    arriving from Google somewhere to go; if the visitor came from elsewhere on
+    the site, a small script turns it into a true Back instead, returning them
+    to their place in the list."""
+    where = f"Back to {html.escape(label.lower())}"
+    return f'<a class="back" href="{href}" data-back aria-label="{where}" title="{where}">&larr; Back</a>'
 
 
 def page(title, body, desc="", wide=False, nav="", tail="", banner="", back=("/", "All games")):
