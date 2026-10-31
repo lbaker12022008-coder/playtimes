@@ -158,6 +158,12 @@ border:1px solid var(--line);border-radius:13px}
 .chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
 .chip:hover{transform:translateY(-2px);border-color:var(--acc)}
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.note{border:1px solid var(--acc);border-radius:14px;padding:12px 15px;margin:12px 0;
+background:var(--card);font-size:.95rem;line-height:1.5;box-shadow:var(--sh)}
+.back{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px;padding:7px 13px;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;
+font-size:.9rem;font-weight:600}
+.back:hover{border-color:var(--acc)}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
@@ -330,7 +336,14 @@ def banner_html(url, name=""):
             f'decoding="async" fetchpriority="low"></div>')
 
 
-def page(title, body, desc="", wide=False, nav="", tail="", banner=""):
+def back_link(href="/", label="All games"):
+    """A back button at the top of a page. The href is a real link, so it works
+    without JavaScript; if the visitor arrived from our own site, a small script
+    turns it into a true Back instead, returning them to their place in the list."""
+    return f'<a class="back" href="{href}" data-back>&larr; {html.escape(label)}</a>'
+
+
+def page(title, body, desc="", wide=False, nav="", tail="", banner="", back=("/", "All games")):
     tabs = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                    for k, t, u in TABS)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -345,7 +358,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner=""):
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections">{tabs}</nav></div></header>
 <div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
-<div class="w{' wide' if wide else ''}">{body}
+<div class="w{' wide' if wide else ''}">{back_link(*back) if back else ''}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
@@ -466,6 +479,7 @@ def ask_html(lede="Showing the most popular games first."):
             '<i>Claim events, no queues, less lag</i></button>'
             '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
             '<i>Show the most popular games</i></button></div>'
+            '<div id="asknote" class="note" hidden></div>'
             f'<p id="asktxt" class="mut small">{lede}</p>')
 
 
@@ -893,7 +907,13 @@ try{localStorage.setItem('pt_favs',JSON.stringify(all));
 if(who)localStorage.setItem('pt_joined',who)}catch(e){}
 if(all.length!==server.length)setFavs(all)}}
 ptPaint()}).catch(function(){});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);"""
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);
+/* Back buttons: a real link, but if the visitor came from one of our own pages,
+   go back properly so they land where they were in the list. */
+document.addEventListener('click',function(e){
+var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
+if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
+e.preventDefault();history.back()}});"""
 
 FAV_GAME = """
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
@@ -1098,6 +1118,23 @@ var want='',term='';
 function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
 function fits(l){if(!want)return true;return want==='quiet'?(l>0&&l<=2):(l>=4)}
 
+/* The next hour in the next day when a few games would match, in the visitor's
+   own clock. cell is an hour of the week in UTC, so +1 is simply the next hour. */
+function nextGood(){
+var best=null;
+for(var k=1;k<=24;k++){
+var c=(cell+k)%168,n=0;
+G.forEach(function(g){var l=+g.l.charAt(c);if(l&&fits(l))n++});
+/* Three is a decent spread; one is still worth saying while most of the week
+   has no readings yet, so take the first of either. */
+if(n>=3||(n>=1&&!best)){
+var t=new Date(now.getTime()+k*3600000);
+var hit={n:n,when:(k<=1?'in about an hour':'around '+fmt(t.getHours())+
+(t.getDate()!==now.getDate()?' tomorrow':''))};
+if(n>=3)return hit;
+best=hit}}
+return best}
+
 function refresh(){
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.w===want)});
@@ -1120,8 +1157,25 @@ s.style.cssText='font-weight:700;color:var(--ink)';s.textContent=W[l]+' now';
 li.querySelector('.tmeta').appendChild(s)}});
 
 var word=want==='quiet'?'quiet':'busy';
+
+/* Nothing matching is a real answer, not a broken page, so say so clearly and
+   say when it changes. Games get busy at roughly the same times, so at 8pm
+   nothing is quiet and at 5am nothing is busy. */
+var note=$('asknote');
+if(note){
+if(loose){
+var nx=nextGood();
+note.innerHTML='<b>Nothing is '+word+' right now.</b> '+
+(nx?('Try again <b>'+nx.when+'</b>, when about '+nx.n+' game'+(nx.n===1?'':'s')+
+' should be '+word+'. Meanwhile here is '):
+('At this hour nearly every game is '+(want==='quiet'?'busy':'quiet')+
+'. Here is '))+
+'every game we track, most popular first.';
+note.hidden=false}
+else note.hidden=true}
+
 $('asktxt').textContent=!want?'Showing the most popular games first.':
-loose?('Nothing we track is '+word+' right now, so here is everything, most popular first.'):
+loose?'':
 term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
 (fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, most popular first. '+
 (want==='quiet'?'Good for claiming event items and avoiding queues.':
@@ -1566,10 +1620,14 @@ def main():
                 .replace("__FAVJS__", FAV_GAME)
                 .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"]))
                          .replace("__PATTERN__", jsdata(update_pattern(events, a["spikes"], now)))))
+        # Back goes to this game's category when it has one, so the button lands
+        # somewhere useful even for a visitor who arrived straight from Google.
+        where = ((f'/category/{slug(c["genre"])}.html', f'{c["genre"]} games')
+                 if c["genre"] in cats else ("/", "All games"))
         write(f"game/{s}.html", page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? Hourly player counts, upcoming events, "
-            f"recent updates, and whether it is growing or dying.", banner=c["banner"]))
+            f"recent updates, and whether it is growing or dying.", banner=c["banner"], back=where))
 
     print(f"Built {len(cards)} game pages.")
 
@@ -1617,7 +1675,7 @@ def main():
         + ask_js(cards))
     write("index.html", page(f"{SITE}: Best Times to Play Popular Games", body,
                              "See when popular games are busiest and quietest, hour by hour, in your timezone.",
-                             wide=True, nav="home"))
+                             wide=True, nav="home", back=None))   # nowhere to go back to
 
     # ---- the pages across the top
     up = sorted([c for c in cards if c["trend"] is not None and c["trend"] >= 5],
