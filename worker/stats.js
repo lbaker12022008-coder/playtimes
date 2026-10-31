@@ -1,6 +1,6 @@
 // Written by build_site.py on every build. Do not edit by hand.
 export default {
- "built_at": "2026-10-31T15:07:06Z",
+ "built_at": "2026-10-31T15:15:04Z",
  "site": {
   "noindex": true,
   "min_samples": 2,
@@ -18,6 +18,7 @@ export default {
  },
  "games": [
   {
+   "id": "10563114921",
    "name": "Steal An Egg",
    "genre": "Simulation",
    "samples": 57,
@@ -29,6 +30,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "1686885941",
    "name": "Brookhaven \ud83c\udfe1RP",
    "genre": "Roleplay & Avatar Sim",
    "samples": 57,
@@ -40,6 +42,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "7709344486",
    "name": "[\ud83d\udc80] Steal a Brainrot",
    "genre": "Simulation",
    "samples": 34,
@@ -51,6 +54,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "6035872082",
    "name": "[\ud83c\udf83] RIVALS",
    "genre": "Shooter",
    "samples": 49,
@@ -62,6 +66,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "383310974",
    "name": "[2H\ud83c\udf89] Adopt Me!",
    "genre": "Roleplay & Avatar Sim",
    "samples": 57,
@@ -73,6 +78,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "994732206",
    "name": "[\ud83c\udf83] Blox Fruits",
    "genre": "RPG",
    "samples": 57,
@@ -84,6 +90,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "7326934954",
    "name": "99 Nights in the Forest \ud83d\udd26",
    "genre": "Survival",
    "samples": 57,
@@ -95,6 +102,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "3508322461",
    "name": "[\ud83c\udf83] Jujutsu Shenanigans",
    "genre": "Action",
    "samples": 56,
@@ -106,6 +114,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "10766972131",
    "name": "[\ud83c\udf83] Throw Food For Animals",
    "genre": "Simulation",
    "samples": 57,
@@ -117,6 +126,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "5569032992",
    "name": "\ud83c\udf83 Dandy's World [ALPHA]",
    "genre": "Survival",
    "samples": 57,
@@ -128,6 +138,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "10771421858",
    "name": "DONT SPLASH",
    "genre": "Obby & Platformer",
    "samples": 34,
@@ -139,6 +150,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "10765288803",
    "name": "Break and Steal an Egg",
    "genre": "Simulation",
    "samples": 56,
@@ -150,6 +162,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "3808081382",
    "name": "The Strongest Battlegrounds",
    "genre": "Action",
    "samples": 56,
@@ -161,6 +174,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "5750914919",
    "name": "Fisch \ud83c\udf83 [SOON]",
    "genre": "Simulation",
    "samples": 56,
@@ -172,6 +186,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "5203828273",
    "name": "[\ud83c\udf83 NEW QUEST] Dress To Impress",
    "genre": "Roleplay & Avatar Sim",
    "samples": 57,
@@ -183,6 +198,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "3317771874",
    "name": "\ud83c\udf89 [PSX] Pet Simulator 99! \ud83d\udc3e",
    "genre": "Simulation",
    "samples": 57,
@@ -194,6 +210,7 @@ export default {
    "upcoming": 4
   },
   {
+   "id": "6701277882",
    "name": "[12 HRS] Fish It! \ud83d\udc1f",
    "genre": "Simulation",
    "samples": 57,
@@ -205,6 +222,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "6739698191",
    "name": "[WEEK 2 \ud83c\udf83 x BUTCHER] Violence District",
    "genre": "Survival",
    "samples": 56,
@@ -216,6 +234,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "3647333358",
    "name": "[SOON \ud83c\udf83HLWN] Evade ",
    "genre": "Survival",
    "samples": 34,
@@ -227,6 +246,7 @@ export default {
    "upcoming": 4
   },
   {
+   "id": "10708913337",
    "name": "[\ud83c\udf83] Anime Dice",
    "genre": "Simulation",
    "samples": 57,
@@ -238,6 +258,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "2711375305",
    "name": "Catalog Avatar Creator",
    "genre": "Shopping",
    "samples": 34,
@@ -249,6 +270,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "3183403065",
    "name": "[\ud83e\udd39APRIL FOOL'S\ud83e\udd21] Anime Adventures",
    "genre": "Strategy",
    "samples": 34,
@@ -260,6 +282,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "6931042565",
    "name": "[UPD] Volleyball Legends",
    "genre": "Sports & Racing",
    "samples": 34,
@@ -271,6 +294,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "10762636904",
    "name": "[\ud83d\udcb0X2] Cameraman Tower Defense",
    "genre": "Strategy",
    "samples": 34,
@@ -282,6 +306,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "10769315427",
    "name": "[\ud83c\udf83] Steal A Pet And Ride It!",
    "genre": "Simulation",
    "samples": 34,
@@ -293,6 +318,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "10770728771",
    "name": "The Hollow",
    "genre": "Entertainment",
    "samples": 34,
@@ -304,6 +330,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "5361032378",
    "name": "Sol's RNG [ Halloween Event \ud83c\udf83]",
    "genre": "Simulation",
    "samples": 34,
@@ -315,6 +342,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "1202096104",
    "name": "Driving Empire [\ud83c\udf83HALLOWEEN EVENT\ud83c\udf83]",
    "genre": "Simulation",
    "samples": 34,
@@ -326,6 +354,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "7219654364",
    "name": "[\ud83c\udf83DUELS] Murderers VS Sheriffs",
    "genre": "Action",
    "samples": 57,
@@ -337,6 +366,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "2440500124",
    "name": "DOORS \ud83c\udf6c\ud83c\udf6d",
    "genre": "Survival",
    "samples": 34,
@@ -348,6 +378,7 @@ export default {
    "upcoming": 4
   },
   {
+   "id": "6331902150",
    "name": "Forsaken",
    "genre": "Survival",
    "samples": 34,
@@ -359,6 +390,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "2668101271",
    "name": "Fling Things and People",
    "genre": "Simulation",
    "samples": 34,
@@ -370,6 +402,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "10629695169",
    "name": "[\ud83d\udc7b] Tap Simulator REBORN",
    "genre": "Simulation",
    "samples": 47,
@@ -381,6 +414,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "10771997908",
    "name": "+1 Spider Arm\ud83d\udd77\ufe0f",
    "genre": "Simulation",
    "samples": 56,
@@ -392,6 +426,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "1176784616",
    "name": "[\ud83c\udf19 NIGHT 4] Tower Defense Simulator",
    "genre": "Strategy",
    "samples": 34,
@@ -403,6 +438,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "7529591378",
    "name": "[ALPHA] Practical Basketball",
    "genre": "Sports & Racing",
    "samples": 34,
@@ -414,6 +450,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "3240075297",
    "name": "Berry Avenue \ud83c\udfe0 RP",
    "genre": "Roleplay & Avatar Sim",
    "samples": 56,
@@ -425,6 +462,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "601130232",
    "name": "Bee Swarm Simulator",
    "genre": "Simulation",
    "samples": 34,
@@ -436,6 +474,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "4839802560",
    "name": "LifeTogether \ud83c\udfe0 RP [FAMILIES]",
    "genre": "Roleplay & Avatar Sim",
    "samples": 34,
@@ -447,6 +486,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "5995470825",
    "name": "[\ud83d\udd25UPD] Hypershot",
    "genre": "Shooter",
    "samples": 34,
@@ -458,6 +498,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "2619619496",
    "name": "[\ud83d\udc7bRereleases] BedWars",
    "genre": "Action",
    "samples": 34,
@@ -469,6 +510,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "1831550657",
    "name": "\ud83c\udf83 Creatures of Sonaria \ud83c\udf6c Survive Kaiju Animals",
    "genre": "Roleplay & Avatar Sim",
    "samples": 34,
@@ -480,6 +522,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "7436755782",
    "name": "[\ud83c\udf83] Grow a Garden \ud83c\udf36\ufe0f",
    "genre": "Simulation",
    "samples": 34,
@@ -491,6 +534,7 @@ export default {
    "upcoming": 4
   },
   {
+   "id": "10770699460",
    "name": "Raise The Biggest Family",
    "genre": "Roleplay & Avatar Sim",
    "samples": 34,
@@ -502,6 +546,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "1516533665",
    "name": "Piggy [THE HOLLOW]",
    "genre": "Survival",
    "samples": 34,
@@ -513,6 +558,7 @@ export default {
    "upcoming": 3
   },
   {
+   "id": "372226183",
    "name": "Flee the Facility",
    "genre": "Survival",
    "samples": 34,
@@ -524,6 +570,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "7554119808",
    "name": "\ud83d\udecd\ufe0f My Avatar!",
    "genre": "Shopping",
    "samples": 34,
@@ -535,6 +582,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "2294168059",
    "name": "[\ud83c\udf83] The Mimic",
    "genre": "Survival",
    "samples": 34,
@@ -546,6 +594,7 @@ export default {
    "upcoming": 2
   },
   {
+   "id": "9561553764",
    "name": "[\ud83c\udf83] Murder Duels",
    "genre": "Shooter",
    "samples": 49,
@@ -557,6 +606,7 @@ export default {
    "upcoming": 1
   },
   {
+   "id": "1489026993",
    "name": "\ud83d\udd2aSurvive the Killer!",
    "genre": "Survival",
    "samples": 34,
@@ -568,6 +618,7 @@ export default {
    "upcoming": 0
   },
   {
+   "id": "4931927012",
    "name": "[\ud83c\udf83]\ud83c\udfc0Basketball Legends\ud83c\udfc0",
    "genre": "Sports & Racing",
    "samples": 34,
