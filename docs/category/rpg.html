@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Best Time to Play Fisch 🎃 [SOON]: Busy and Quiet Hours</title>
-<meta name="description" content="When is Fisch 🎃 [SOON] busiest and quietest? Hourly player counts, upcoming events, recent updates, and whether it is growing or dying."><meta name="theme-color" content="#2563eb"><meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Best Times to Play RPG Games - PlayTime</title>
+<meta name="description" content="See when popular RPG games are busiest and quietest, hour by hour."><meta name="theme-color" content="#2563eb"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');if(t)d.setAttribute('data-theme',t);d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}catch(e){document.documentElement.setAttribute('data-view','grid')}</script><style>:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
 --glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
@@ -251,69 +251,14 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
-<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-a2846a75df26a929cc2f526aecdfaef9/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-77b3430ced16006f6da18d6a77b95ea0/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#fff"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg></button>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header>
 <div class="shell">
-<div class="w"><a class="back" href="/category/simulation.html" data-back>&larr; Simulation games</a><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-192fa8a4a66e9414826af62e968a8129/256/256/Image/Webp/noFilter" alt="Fisch 🎃 [SOON] icon" width="256" height="256" loading="lazy" decoding="async"><div><h1>When is Fisch 🎃 [SOON] busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on 56 player counts. Category: <a href="/category/simulation.html">Simulation</a>.</p>
-<div class="actions"><a class="btn" href="https://www.roblox.com/games/16732694052">Play Fisch 🎃 [SOON]</a><button class="fav" id="fav" data-s="fisch-soon" aria-pressed="false">&#9734; Save</button>
-<a class="fav" href="/compare.html?a=fisch-soon">Compare</a></div></div></div>
-<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
-<div class="card rise3"><h2>Plan my session</h2>
-<p class="mut small">What do you want?</p>
-<div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
-<button data-m="busy" aria-pressed="false">Busy</button></div>
-<div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
-<p id="plantxt"></p></div>
-<div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
-<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
-<div class="card"><h2>The whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
-<div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
-<i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
-<p class="mut small">The outlined square is right now.</p></div>
-<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>74,656</b></div>
-<div><span class="mut small">Highest seen</span><b>289,640</b></div>
-<div><span class="mut small">Compared to last week</span><b><span class="mut">Not enough history yet</span></b></div></div>
-<div class="card"><h2>Is Fisch 🎃 [SOON] dead?</h2><div class="verdict">
-<span class="vbadge" style="background:var(--l3)">Too new to say</span><p style="margin:0;flex:1 1 240px">We have not been watching this game long enough to say which way it is going. Check back in a week or two.</p></div>
-</div>
-<div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sat 31 Oct).</p><ul class="evt"><li class=""><b>Fisch&#x27;s 2nd Anniversary</b><span class="d">Limited Time Event</span><span class="d">Sat 3 Oct &middot; 27 days ago</span><p>Celebrate Fisch&#x27;s 2nd year on Roblox!
-
-Catch everything from a new limited bestiary, and unlock all of the limited time rewards before they&#x27;re gone!</p></li><li class=""><b>Mariana&#x27;s Awakening</b><span class="d">The Obsidian Trench</span><span class="d">Sat 19 Sep &middot; 1 month ago</span><p>...</p></li><li class=""><b>Skycrest</b><span class="d">The Floating Island</span><span class="d">Sat 5 Sep &middot; 1 month ago</span><p>It seems an island resting below Fischfest is rising!
-
-Swim up to Skycrest Island and discover everything there is to find!</p></li><li class=""><b>Astral Observatory</b><span class="d">The Fishing Anomalies...</span><span class="d">Sat 22 Aug &middot; 2 months ago</span><p>...</p></li><li class=""><b>The Deep</b><span class="d">Underwater Expansion</span><span class="d">Sat 8 Aug &middot; 2 months ago</span><p>Discover and explore what roams below the sea, to an unmatched depth with our major update; The Deep.
-
-Unlike other notable areas, this one will be quite the open space; perfect for exploration and uncovering the beauty!
-
-Find new rods, spears, harpoon guns; and catch an entirely new bestiary that is FULLY based on real-life fish!</p></li><li class=""><b>Harpoon Guns</b><span class="d">Fishing from a distance!</span><span class="d">Sat 1 Aug &middot; 2 months ago</span><p>Try out a new method of fishing; harpoon guns!
-
-Each harpoon gun will have it&#x27;s own unique stats, passive, and overall feel!
-
-They&#x27;ll pair beautifully with the introduction of roaming fish, and will allow for unique playstyles!
-
-Try to discover, and collect them all with this introductory update!</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>Roaming Fish</td><td>Sat 18 Jul</td></tr><tr><td>Drylands</td><td>Sat 4 Jul</td></tr><tr><td>Fischfest</td><td>Sat 20 Jun</td></tr><tr><td>Aquarium Customization</td><td>Sat 13 Jun</td></tr><tr><td>Crews</td><td>Sat 6 Jun</td></tr><tr><td>The Shady Bazaar</td><td>Sat 23 May</td></tr><tr><td>???</td><td>Sat 9 May</td></tr><tr><td>Venue Takeover</td><td>Sat 2 May</td></tr><tr><td>Companions</td><td>Sat 25 Apr</td></tr><tr><td>Wrath of Olympus</td><td>Sat 11 Apr</td></tr><tr><td>Easter Egg Hunt</td><td>Sat 4 Apr</td></tr><tr><td>Everturn Forest</td><td>Sat 28 Mar</td></tr><tr><td>St. Patrick&#x27;s Event</td><td>Sat 14 Mar</td></tr><tr><td>Lost Jungle: Expansion</td><td>Sat 7 Mar</td></tr><tr><td>Scoria Reach</td><td>Sat 14 Feb</td></tr><tr><td>Valentine&#x27;s Event</td><td>Sat 7 Feb</td></tr><tr><td>Tidefall</td><td>Sat 17 Jan</td></tr><tr><td>Trade Plaza Revamp</td><td>Sat 10 Jan</td></tr><tr><td>New Years Countdown</td><td>Wed 31 Dec 2025</td></tr><tr><td>Fischmas</td><td>Sat 13 Dec 2025</td></tr><tr><td>Fischgiving</td><td>Wed 26 Nov 2025</td></tr><tr><td>Cultist Lair</td><td>Sat 8 Nov 2025</td></tr><tr><td>Luminescent Cavern</td><td>Sat 20 Sep 2025</td></tr><tr><td>Continental Drift</td><td>Sat 30 Aug 2025</td></tr></table></div></details></div>
-<div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>FischFright 3</b><span class="d">Limited Halloween Event</span><span class="d">Happening now &middot; ends Mon 9 Nov</span><p>Fisch&#x27;s annual limited Halloween event is coming back for its third time, and it&#x27;s going to be bigger and spookier than ever...
-
-Don&#x27;t miss out before it&#x27;s gone!</p></li><li class="soon"><b>Venue Encore</b><span class="d">Underground Music Venue</span><span class="d">Starts Sat 31 Oct</span><p>...</p></li><li class="soon"><b>Companion Hats</b><span class="d">Style your Pets!</span><span class="d">Starts Sat 14 Nov</span><p>Dress up your Companions in new hats!</p></li></ul></div>
-<div class="card"><h2>What is Fisch 🎃 [SOON]?</h2><p class="desc">🦈 Welcome to Fisch 🦈
-
-Dive into Fisch, the ultimate fishing adventure where exploration and progression are yours to control. Cast your line to catch rare and unique fish, each with 400,000+ possible variations. Explore a growing world with your trusty rod, and maybe even reel in some new friends along the way!
-
-[How To Fish]
-• Hold down to cast your bobber
-• Await a bite. You can &quot;shake&quot; your rod to attract fish faster
-• When you have a bite, hold down or click to pull the white bar. Follow the blue line to the best of your ability; it&#x27;s okay to mess up a few times!
-• When the progress bar&hellip;</p><details><summary>Read the rest</summary><p class="desc">on the bottom is full, you&#x27;ll reel in your catch!</p></details><p class="mut small">Made by fisching. first released 3 years ago. 5.1b total visits. up to 20 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div>
-<div class="card"><h2>For parents: what costs money</h2><p>This game sells <b>9 game passes</b>, from <b>99 to 499 Robux</b>. Buying every one would cost <b>2,341 Robux</b> (roughly $29 USD).</p><details><summary>See every game pass</summary><div class="wrap"><table class="tbl"><tr><th>Game pass</th><th>Robux</th></tr><tr><td>Appraise Anywhere</td><td>499</td></tr><tr><td>Sell Anywhere</td><td>399</td></tr><tr><td>Appraisers Luck</td><td>299</td></tr><tr><td>Spawn Boat Anywhere</td><td>299</td></tr><tr><td>Double XP</td><td>239</td></tr><tr><td>Enchant Anywhere</td><td>239</td></tr><tr><td>Supporter</td><td>169</td></tr><tr><td>Bobber Pack</td><td>99</td></tr><tr><td>Emote Pack</td><td>99</td></tr></table></div></details><p class="mut small">Games can also sell one-time items inside the game, which are not listed here. Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>
-<div class="rowhead"><h2>Similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other simulation games with about as many players.</p><ul class="grid"><li style="--i:0" data-n="🎉 [psx] pet simulator 99! 🐾" data-s="psx-pet-simulator-99"><a class="tile" href="/game/psx-pet-simulator-99.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-626b1d326fa5d6c1da7fd9ab037380bd/256/256/Image/Webp/noFilter" alt="🎉 [PSX] Pet Simulator 99! 🐾 icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">🎉 [PSX] Pet Simulator 99! 🐾</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 67.9K</span></span></a></li><li style="--i:1" data-n="[12 hrs] fish it! 🐟" data-s="12-hrs-fish-it"><a class="tile" href="/game/12-hrs-fish-it.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-4b6efff8d4f33b23cfcc9814f62abaaa/256/256/Image/Webp/noFilter" alt="[12 HRS] Fish It! 🐟 icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[12 HRS] Fish It! 🐟</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 64.6K</span></span></a></li><li style="--i:2" data-n="break and steal an egg" data-s="break-and-steal-an-egg"><a class="tile" href="/game/break-and-steal-an-egg.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-edbc7d8a482a8630b63670a450bee6a3/256/256/Image/Webp/noFilter" alt="Break and Steal an Egg icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">Break and Steal an Egg</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 89.1K</span></span></a></li><li style="--i:3" data-n="[🎃] anime dice" data-s="anime-dice"><a class="tile" href="/game/anime-dice.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-6eadd1cbe12feeb513bb90ce46070a07/256/256/Image/Webp/noFilter" alt="[🎃] Anime Dice icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃] Anime Dice</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 61.5K</span></span></a></li><li style="--i:4" data-n="[🎃] throw food for animals" data-s="throw-food-for-animals"><a class="tile" href="/game/throw-food-for-animals.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-f8e0e2e97354ae31f4ac2c6537b936cf/256/256/Image/Webp/noFilter" alt="[🎃] Throw Food For Animals icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃] Throw Food For Animals</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 111.9K</span></span></a></li><li style="--i:5" data-n="[🎃] steal a pet and ride it!" data-s="steal-a-pet-and-ride-it"><a class="tile" href="/game/steal-a-pet-and-ride-it.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-718d7184486ba335a818a6762901a294/256/256/Image/Webp/noFilter" alt="[🎃] Steal A Pet And Ride It! icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃] Steal A Pet And Ride It!</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 48.2K</span></span></a></li></ul>
-<p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=fisch-soon">Plan a session</a></p>
-<script>window.PT_GAME={"s":"fisch-soon","n":"Fisch \ud83c\udf83 [SOON]","i":"https://tr.rbxcdn.com/180DAY-192fa8a4a66e9414826af62e968a8129/256/256/Image/Webp/noFilter"};</script>
-<script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><div class="hero"><h1>RPG games</h1><p class="lede">When are popular rpg games busiest? Pick one to see its week, its events and its updates.</p></div><h2 style="margin-top:22px">What are you looking for?</h2><div class="ask" id="ask"><button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b><i>Trading, full servers, live events</i></button><button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b><i>Claim events, no queues, less lag</i></button><button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b><i>Show the most popular games</i></button></div><div id="asknote" class="note" hidden></div><p id="asktxt" class="mut small">Showing all 1 game, most popular first.</p><div class="rowhead"><span></span><div class="actions" style="margin:0"><span class="mut small">1 game</span><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><ul class="grid" id="all"><li style="--i:0" data-n="[🎃] blox fruits" data-s="blox-fruits"><a class="tile" href="/game/blox-fruits.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-8c9483d381a2da30608e6b1bce490bef/256/256/Image/Webp/noFilter" alt="[🎃] Blox Fruits icon" width="256" height="256" loading="lazy" decoding="async"><span class="tname">[🎃] Blox Fruits</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 222K</span></span></a></li></ul><p><a href="/">&larr; All games</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -358,85 +303,113 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var M=[[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,63309,64004,63804,63104,64474],[66353,68889,69314,67507,63574,61665,60013,60674,62247,65321,68565,71489,79496,97234,120440,289640,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
-var best=null,worst=null,dayq=null;
-for(var d=0;d<7;d++)for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
-if(!best||v<best[2])best=[d,h,v];if(!worst||v>worst[2])worst=[d,h,v];
-if(h>=8&&h<=21&&(!dayq||v<dayq[2]))dayq=[d,h,v]}
-var nl=B.level(L[nd][nh]);
-$('now').innerHTML=nl?'Right now it is usually <b>'+W[nl]+'</b>.':'';
-$('best').innerHTML='Busiest: <b>'+DAY[worst[0]]+' around '+fmt(worst[1])+'</b>.';
-$('quiet').innerHTML='Quietest: <b>'+DAY[best[0]]+' around '+fmt(best[1])+'</b>'+
-(dayq&&(dayq[0]+':'+dayq[1])!=(best[0]+':'+best[1])?' (or <b>'+DAY[dayq[0]]+' around '+fmt(dayq[1])+
-'</b> if you play during the day).':'.');
+return ss+'s'}</script><script>var G=[{"s":"blox-fruits","n":"[\ud83c\udf83] Blox Fruits","i":"https://tr.rbxcdn.com/180DAY-8c9483d381a2da30608e6b1bce490bef/256/256/Image/Webp/noFilter","a":222011,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000032111233211234444555550000000000000000000000000000000"}];
+/* Each game carries 168 digits: one busy-ness level per hour of the week, in UTC.
+   Work out which of those digits is "now" by going from local time back to UTC. */
+var off=tzOff();
+var now=new Date(),nd=(now.getDay()+6)%7,nh=now.getHours();
+var ut=nh-off,ud=nd;
+while(ut<0){ut+=24;ud=(ud+6)%7}while(ut>=24){ut-=24;ud=(ud+1)%7}
+var cell=ud*24+ut;
+G.forEach(function(g){g.lv=+g.l.charAt(cell)});
 
-/* Plan my session: a live countdown to the next quiet or busy stretch.
-   plan() works out which hour we are aiming at; tick() only rewrites the clock, so the
-   digits can move every second without redoing the maths. */
-var mode='quiet',aim=null;
-function plan(){
-Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
-b.setAttribute('aria-pressed',b.dataset.m===mode)});
-var p=nextBlock(L,mode);
-if(!p){aim=null;$('cdw').hidden=true;
-$('plantxt').textContent='Not enough player counts yet to work out the next '+
-(mode==='quiet'?'quiet':'busy')+' stretch.';return}
-aim=new Date(p.t);aim.setMinutes(0,0,0);
-$('cdlab').textContent=(mode==='quiet'?'Quietest':'Busiest')+' window starts in';
-$('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getHours())+
-'</b> your time, when it is usually <b>'+W[B.level(p.v)]+'</b> with about '+
-p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
-' hour'+(p.len>1?'s':'')+'</b>.';
-$('cdw').hidden=false;tick()}
-function tick(){if(!aim)return;
-var ms=aim-new Date();
-if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
-$('cd').textContent=ticker(ms)}
-Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
-b.onclick=function(){mode=b.dataset.m;plan()}});
-plan();setInterval(tick,1000);setInterval(plan,300000);
+/* "What are you looking for?" really does narrow the list: it hides the games that
+   are not quiet (or not busy) at this moment in the visitor's timezone, puts the
+   best ones first, and tags each with how busy it is now.
 
-/* When this game's updates usually land, worked out from the creators' own event
-   dates. Written here rather than on the server so it reads in the visitor's timezone. */
-var P={"wd":5,"hour":16,"every":14,"n":46};
-if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
-', about every '+P.every+' day'+(P.every>1?'s':''):'';
-if(ph!=null){var pt=ph+tzOff();
-while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
-$('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
-'</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
-else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
-'. Worked out from the last '+P.n+' updates and busy days.'}
+   Every game's five levels are worked out from its own week, so "busy" means busy
+   for that game. Games mostly get busy at the same times of day, though, so at
+   8pm nothing is quiet and at 5am nothing is busy. When nothing matches we show
+   the whole list in order instead of an empty page, and say why. */
+var all=$('all'),original=Array.prototype.slice.call(all.children);
+var by={};G.forEach(function(g){by[g.s]=g});
+var want='',term='';
+function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
+function fits(l){if(!want)return true;return want==='quiet'?(l>0&&l<=2):(l>=4)}
 
-/* One day at a time */
-function show(d){
-Array.prototype.forEach.call($('days').querySelectorAll('button'),function(b,i){
-b.setAttribute('aria-pressed',i==d)});
-var lo=null,hi=null,out='';
-for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
-if(!lo||v<lo[1])lo=[h,v];if(!hi||v>hi[1])hi=[h,v]}
-for(var h=0;h<24;h++){var v=L[d][h];
-out+='<div class="bar" style="--i:'+h+';height:'+Math.max(3,(v||0)/B.max*100)+
-'%;background:var(--l'+(B.level(v)||1)+')" title="'+fmt(h)+': about '+(v||0).toLocaleString()+' players"></div>'}
-$('bars').innerHTML=out;
-$('dtxt').textContent=lo?'On '+DAY[d]+' it is quietest around '+fmt(lo[0])+' and busiest around '+fmt(hi[0])+
-'. Hover or tap a bar for numbers.':'No player counts for this day yet.'}
-DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
-b.setAttribute('aria-label',n);b.onclick=function(){show(i)};$('days').appendChild(b)});
+/* The next hour in the next day when a few games would match, in the visitor's
+   own clock. cell is an hour of the week in UTC, so +1 is simply the next hour. */
+function nextGood(){
+var best=null;
+for(var k=1;k<=24;k++){
+var c=(cell+k)%168,n=0;
+G.forEach(function(g){var l=+g.l.charAt(c);if(l&&fits(l))n++});
+/* Three is a decent spread; one is still worth saying while most of the week
+   has no readings yet, so take the first of either. */
+if(n>=3||(n>=1&&!best)){
+var t=new Date(now.getTime()+k*3600000);
+var hit={n:n,when:(k<=1?'in about an hour':'around '+fmt(t.getHours())+
+(t.getDate()!==now.getDate()?' tomorrow':''))};
+if(n>=3)return hit;
+best=hit}}
+return best}
 
-/* The whole week */
-var g='<div></div>';['12 AM','6 AM','12 PM','6 PM'].forEach(function(t){
-g+='<span style="grid-column:span 6">'+t+'</span>'});
-for(var d=0;d<7;d++){g+='<div>'+DAY[d].slice(0,3)+'</div>';
-for(var h=0;h<24;h++){var v=L[d][h];
-g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+DAY[d]+' '+fmt(h)+': about '+
-(v||0).toLocaleString()+' players" style="background:'+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
-$('hm').innerHTML=g;show(nd);</script><script>
-(function(){var b=document.getElementById('fav'),k=b.dataset.s;
-function draw(){var on=getFavs().indexOf(k)>-1;b.setAttribute('aria-pressed',on);
-b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
-b.onclick=function(){var f=getFavs();f=f.indexOf(k)>-1?f.filter(function(x){return x!==k}):f.concat(k);
-setFavs(f);draw()};PT.ready(draw)})();</script>
+function refresh(){
+Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.w===want)});
+
+/* Order never changes: biggest player counts first, filtered or not. The grid is
+   built in that order, so we only refresh the fade-in stagger. */
+original.forEach(function(li,i){li.style.setProperty('--i',Math.min(i,14))});
+
+var fitting=0;
+original.forEach(function(li){if(fits(lv(li)))fitting++});
+var loose=want&&!fitting;        /* nothing is quiet/busy right now: show them all */
+
+var shown=0;
+original.forEach(function(li){
+var l=lv(li),ok=(!want||loose||fits(l))&&li.dataset.n.indexOf(term)>-1;
+li.hidden=!ok;if(ok)shown++;
+var old=li.querySelector('.rnow');if(old)old.remove();
+if(want&&l&&ok){var s=document.createElement('span');s.className='rnow';
+s.style.cssText='font-weight:700;color:var(--ink)';s.textContent=W[l]+' now';
+li.querySelector('.tmeta').appendChild(s)}});
+
+var word=want==='quiet'?'quiet':'busy';
+
+/* Nothing matching is a real answer, not a broken page, so say so clearly and
+   say when it changes. Games get busy at roughly the same times, so at 8pm
+   nothing is quiet and at 5am nothing is busy. */
+var note=$('asknote');
+if(note){
+if(loose){
+var nx=nextGood();
+note.innerHTML='<b>Nothing is '+word+' right now.</b> '+
+(nx?('Try again <b>'+nx.when+'</b>, when about '+nx.n+' game'+(nx.n===1?'':'s')+
+' should be '+word+'. Meanwhile here is '):
+('At this hour nearly every game is '+(want==='quiet'?'busy':'quiet')+
+'. Here is '))+
+'every game we track, most popular first.';
+note.hidden=false}
+else note.hidden=true}
+
+$('asktxt').textContent=!want?'Showing the most popular games first.':
+loose?'':
+term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
+(fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, most popular first. '+
+(want==='quiet'?'Good for claiming event items and avoiding queues.':
+'Good for trading, full servers and events.'));
+favs()}
+
+Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
+b.onclick=function(){want=(want===b.dataset.w?'':b.dataset.w);refresh()}});
+
+/* Search. Goes through refresh() so searching and filtering cannot fight over
+   which games are hidden. */
+var s=$('s');if(s)s.oninput=function(){term=s.value.toLowerCase();refresh()};
+
+/* Saved games, pinned to the top. Copies of the tiles, so they must not inherit
+   being hidden by a filter. */
+function favs(){var fg=$('favgrid');if(!fg)return;fg.innerHTML='';
+getFavs().forEach(function(k){
+var li=null;original.forEach(function(x){if(x.dataset.s===k)li=x});
+if(!li)return;
+var c=li.cloneNode(true);c.hidden=c.dataset.n.indexOf(term)<0;
+c.style.setProperty('--i',Math.min(fg.children.length,14));fg.appendChild(c)});
+var any=false;Array.prototype.forEach.call(fg.children,function(c){if(!c.hidden)any=true});
+$('favs').hidden=!any}
+PT.ready(favs);
+refresh();</script>
 <footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
