@@ -177,7 +177,7 @@ async function adminData(request, env) {
   const today = new Date().toISOString().slice(0, 10);
   const dayBefore = n => new Date(Date.now() - n * 86400e3).toISOString().slice(0, 10);
 
-  const [daily, pages, totals, time, todos] = await Promise.all([
+  const [daily, pages, totals, time, todos, gameTime, gameViews] = await Promise.all([
     env.DB.prepare("SELECT day, SUM(n) AS n FROM views WHERE day >= ?1 GROUP BY day ORDER BY day").bind(dayBefore(29)).all(),
     // Views and reading time per page, side by side.
     env.DB.prepare(
@@ -192,7 +192,12 @@ async function adminData(request, env) {
     env.DB.prepare("SELECT SUM(seconds) AS seconds, SUM(hits) AS reads, " +
                    "SUM(CASE WHEN day >= ?1 THEN seconds ELSE 0 END) AS week_seconds, " +
                    "SUM(CASE WHEN day >= ?1 THEN hits ELSE 0 END) AS week_reads FROM dwell").bind(dayBefore(6)).all(),
-    env.DB.prepare("SELECT key, label, note, done FROM todos ORDER BY sort").all()
+    env.DB.prepare("SELECT key, label, note, done FROM todos ORDER BY sort").all(),
+    // Reading time for every game page, so we can rank games inside each category.
+    env.DB.prepare("SELECT path, SUM(seconds) AS seconds, SUM(hits) AS reads FROM dwell " +
+                   "WHERE day >= ?1 AND path LIKE '/game/%' GROUP BY path").bind(dayBefore(29)).all(),
+    env.DB.prepare("SELECT path, SUM(n) AS n FROM views " +
+                   "WHERE day >= ?1 AND path LIKE '/game/%' GROUP BY path").bind(dayBefore(29)).all()
   ]);
 
   return json({
@@ -203,6 +208,8 @@ async function adminData(request, env) {
       time: time.results?.[0] || { seconds: 0, reads: 0, week_seconds: 0, week_reads: 0 }
     },
     todos: todos.results || [],
+    gameTime: gameTime.results || [],
+    gameViews: gameViews.results || [],
     stats: STATS,
     live: await liveCounts()
   });
@@ -262,6 +269,16 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .wrap{overflow-x:auto}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin-top:10px}
+.catbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.catbox>b{display:block;margin-bottom:4px}
+.catbox table{font-size:.85rem;width:100%;table-layout:fixed}
+.catbox th,.catbox td{padding:5px 4px}
+.catbox td:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+.catbox th:nth-child(3),.catbox td:nth-child(3){width:72px}
+.catbox th:nth-child(4),.catbox td:nth-child(4){width:46px}
+.catbox th:first-child,.catbox td:first-child{width:22px}
+.catbox .rank{color:var(--mut)}
 .todo{display:flex;gap:11px;align-items:flex-start;padding:10px 2px;border-top:1px solid var(--line);cursor:pointer}
 .todo:first-of-type{border-top:0}
 .todo input{margin:3px 0 0;width:19px;height:19px;flex:none;accent-color:var(--acc);cursor:pointer}
@@ -339,6 +356,37 @@ function render(d) {
       '<div class="val">' + num(p.n) + '</div></div>';
   }).join('') || '<p class="mut small">No page views recorded yet.</p>';
 
+  // Which games hold attention, best three in each category ----------------
+  const timeByPath = {}, viewsByPath = {};
+  (d.gameTime || []).forEach(r => { timeByPath[r.path] = r; });
+  (d.gameViews || []).forEach(r => { viewsByPath[r.path] = r.n; });
+
+  const byCategory = {};
+  (s.games || []).forEach(g => {
+    if (!g.slug) return;                       // older builds did not record it
+    const row = timeByPath['/game/' + g.slug + '.html'];
+    if (!row || !row.reads) return;            // nobody has read it yet
+    const cat = g.genre || 'Uncategorised';
+    (byCategory[cat] = byCategory[cat] || []).push({
+      name: g.name,
+      avg: row.seconds / row.reads,
+      reads: row.reads,
+      views: viewsByPath['/game/' + g.slug + '.html'] || 0
+    });
+  });
+
+  const catNames = Object.keys(byCategory).sort();
+  const catBlocks = catNames.map(cat => {
+    const top = byCategory[cat].sort((a, b) => b.avg - a.avg).slice(0, 3);
+    const rows = top.map((g, i) =>
+      '<tr><td class="rank">' + (i + 1) + '</td><td title="' + esc(g.name) + '">' + esc(g.name) + '</td>' +
+      '<td class="num">' + mins(g.avg) + '</td>' +
+      '<td class="num mut">' + num(g.views) + '</td></tr>').join('');
+    return '<div class="catbox"><b>' + esc(cat) + '</b><table class="tbl">' +
+      '<tr><th></th><th>Game</th><th class="num">Avg time</th><th class="num">Views</th></tr>' +
+      rows + '</table></div>';
+  }).join('');
+
   // Games ----------------------------------------------------------------
   // Counts come from the collector (fresh). Everything needing a full rebuild to
   // work out - typical players, trend, verdict - comes from the last build.
@@ -397,6 +445,16 @@ function render(d) {
     'opening five pages counts as five.</p></div>',
     '<div class="card"><b>Most visited pages</b> <span class="mut small">last 30 days</span>',
     '<div class="rows">', topRows, '</div></div>',
+
+    '<div class="card"><b>Games that hold attention</b> ',
+    '<span class="mut small">top 3 in each category, last 30 days</span>',
+    catBlocks
+      ? '<div class="cats">' + catBlocks + '</div>' +
+        '<p class="mut small">Ranked by how long the page stays open on average. ' +
+        'A game read by only a handful of people can top its category on luck, so check the views column.</p>'
+      : '<p class="mut small">No reading time recorded on game pages yet. This fills in once ' +
+        'visitors arrive, and each game needs at least one visit lasting a second or more.</p>',
+    '</div>',
 
     '<h2>Data</h2>',
     '<p class="mut small">' + (live
