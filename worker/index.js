@@ -27,6 +27,8 @@ export default {
     const path = url.pathname.replace(/\/+$/, "") || "/";
     try {
       if (path === "/api/hit" && request.method === "POST") return await recordHit(request, env);
+      if (path === "/api/time" && request.method === "POST") return await recordTime(request, env);
+      if (path === "/admin/todo" && request.method === "POST") return await setTodo(request, env);
       if (path === "/admin") return await adminPage(request, env);
       if (path === "/admin/login" && request.method === "POST") return await login(request, env);
       if (path === "/admin/logout" && request.method === "POST") return await logout(env);
@@ -54,6 +56,42 @@ async function recordHit(request, env) {
     "ON CONFLICT (day, path) DO UPDATE SET n = n + 1"
   ).bind(day, p).run();
   return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+}
+
+/**
+ * Records how long a page was open and being looked at, sent as "path|seconds"
+ * when the visitor leaves. No cookies and nothing identifying: we only ever add
+ * to a running total, so one visit cannot be told apart from another.
+ */
+async function recordTime(request, env) {
+  const [rawPath, rawSeconds] = (await request.text()).split("|");
+  const p = (rawPath || "").trim().split(/[?#]/)[0];
+  const seconds = Math.round(Number(rawSeconds));
+  // Ignore instant bounces and anything silly (a tab left open all day).
+  if (!p || p.length > 120 || !SAFE_PATH.test(p)) return noContent();
+  if (!Number.isFinite(seconds) || seconds < 1 || seconds > 3600) return noContent();
+  const day = new Date().toISOString().slice(0, 10);
+  await env.DB.prepare(
+    "INSERT INTO dwell (day, path, seconds, hits) VALUES (?1, ?2, ?3, 1) " +
+    "ON CONFLICT (day, path) DO UPDATE SET seconds = seconds + ?3, hits = hits + 1"
+  ).bind(day, p, seconds).run();
+  return noContent();
+}
+
+const noContent = () => new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+
+/* --------------------------------------------------------------- checklist */
+
+async function setTodo(request, env) {
+  if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  const origin = request.headers.get("origin");
+  if (origin && new URL(origin).host !== new URL(request.url).host) return json({ error: "Blocked" }, 403);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Bad request" }, 400); }
+  const key = String(body?.key || "");
+  if (!/^[a-z0-9_]{1,40}$/.test(key)) return json({ error: "Bad request" }, 400);
+  await env.DB.prepare("UPDATE todos SET done = ?2 WHERE key = ?1").bind(key, body.done ? 1 : 0).run();
+  return json({ ok: true });
 }
 
 /* ------------------------------------------------------------------ login */
@@ -139,21 +177,32 @@ async function adminData(request, env) {
   const today = new Date().toISOString().slice(0, 10);
   const dayBefore = n => new Date(Date.now() - n * 86400e3).toISOString().slice(0, 10);
 
-  const [daily, pages, totals] = await Promise.all([
+  const [daily, pages, totals, time, todos] = await Promise.all([
     env.DB.prepare("SELECT day, SUM(n) AS n FROM views WHERE day >= ?1 GROUP BY day ORDER BY day").bind(dayBefore(29)).all(),
-    env.DB.prepare("SELECT path, SUM(n) AS n FROM views WHERE day >= ?1 GROUP BY path ORDER BY n DESC LIMIT 15").bind(dayBefore(29)).all(),
+    // Views and reading time per page, side by side.
+    env.DB.prepare(
+      "SELECT v.path AS path, SUM(v.n) AS n, " +
+      "COALESCE((SELECT SUM(d.seconds) FROM dwell d WHERE d.path = v.path AND d.day >= ?1), 0) AS seconds, " +
+      "COALESCE((SELECT SUM(d.hits) FROM dwell d WHERE d.path = v.path AND d.day >= ?1), 0) AS reads " +
+      "FROM views v WHERE v.day >= ?1 GROUP BY v.path ORDER BY n DESC LIMIT 15").bind(dayBefore(29)).all(),
     env.DB.prepare("SELECT SUM(n) AS all_time, SUM(CASE WHEN day = ?1 THEN n ELSE 0 END) AS today, " +
                    "SUM(CASE WHEN day >= ?2 THEN n ELSE 0 END) AS week, " +
                    "SUM(CASE WHEN day >= ?3 THEN n ELSE 0 END) AS month FROM views")
-      .bind(today, dayBefore(6), dayBefore(29)).all()
+      .bind(today, dayBefore(6), dayBefore(29)).all(),
+    env.DB.prepare("SELECT SUM(seconds) AS seconds, SUM(hits) AS reads, " +
+                   "SUM(CASE WHEN day >= ?1 THEN seconds ELSE 0 END) AS week_seconds, " +
+                   "SUM(CASE WHEN day >= ?1 THEN hits ELSE 0 END) AS week_reads FROM dwell").bind(dayBefore(6)).all(),
+    env.DB.prepare("SELECT key, label, note, done FROM todos ORDER BY sort").all()
   ]);
 
   return json({
     views: {
       daily: daily.results || [],
       pages: pages.results || [],
-      totals: totals.results?.[0] || { all_time: 0, today: 0, week: 0, month: 0 }
+      totals: totals.results?.[0] || { all_time: 0, today: 0, week: 0, month: 0 },
+      time: time.results?.[0] || { seconds: 0, reads: 0, week_seconds: 0, week_reads: 0 }
     },
+    todos: todos.results || [],
     stats: STATS
   });
 }
@@ -195,6 +244,11 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .wrap{overflow-x:auto}
+.todo{display:flex;gap:11px;align-items:flex-start;padding:10px 2px;border-top:1px solid var(--line);cursor:pointer}
+.todo:first-of-type{border-top:0}
+.todo input{margin:3px 0 0;width:19px;height:19px;flex:none;accent-color:var(--acc);cursor:pointer}
+.todo i{display:block;font-style:normal;margin-top:2px}
+.todo.done b{text-decoration:line-through;color:var(--mut);font-weight:600}
 input,button{font:inherit}
 input[type=password]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
 button{background:var(--acc);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-weight:700;cursor:pointer}
@@ -228,6 +282,7 @@ const num = (n) => (n || 0).toLocaleString();
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ago = (iso) => { if(!iso) return 'never'; const h=(Date.now()-new Date(iso))/3.6e6;
   return h<1 ? Math.round(h*60)+' min ago' : h<48 ? Math.round(h)+' hours ago' : Math.round(h/24)+' days ago'; };
+const mins = (s) => { s = Math.round(s || 0); return s < 60 ? s + 's' : Math.floor(s/60) + 'm ' + (s%60) + 's'; };
 
 fetch('/admin/data').then(r => r.json()).then(render).catch(e => { $('#app').textContent = 'Could not load data: ' + e.message; });
 
@@ -248,12 +303,15 @@ function render(d) {
   const ticks = days.map((x, i) => '<span>' + (i % 2 === 0 ? x.day.slice(8) + '/' + x.day.slice(5, 7) : '') + '</span>').join('');
 
   const topMax = Math.max(1, ...(v.pages || []).map(p => p.n));
-  const topRows = (v.pages || []).map(p => '<div class="row">' +
-    '<div class="lbl" style="grid-column:1/-1">' + esc(p.path) + '</div>' +
-    '<div class="barwrap"><div class="bar" style="width:' + (p.n / topMax * 100) + '%" title="' +
-    esc(p.path) + ': ' + num(p.n) + ' page views"></div></div>' +
-    '<div class="val">' + num(p.n) + '</div></div>').join('')
-    || '<p class="mut small">No page views recorded yet.</p>';
+  const topRows = (v.pages || []).map(p => {
+    const avg = p.reads ? mins(p.seconds / p.reads) : '-';
+    return '<div class="row">' +
+      '<div class="lbl" style="grid-column:1/-1">' + esc(p.path) +
+      ' <span class="mut">&middot; ' + avg + ' average</span></div>' +
+      '<div class="barwrap"><div class="bar" style="width:' + (p.n / topMax * 100) + '%" title="' +
+      esc(p.path) + ': ' + num(p.n) + ' page views, ' + avg + ' average time"></div></div>' +
+      '<div class="val">' + num(p.n) + '</div></div>';
+  }).join('') || '<p class="mut small">No page views recorded yet.</p>';
 
   // Games ----------------------------------------------------------------
   const games = (s.games || []).slice().sort((a, b) => b.avg7 - a.avg7);
@@ -277,6 +335,14 @@ function render(d) {
     '<h2>Visitors</h2><div class="tiles">',
     tile('Today', v.totals.today), tile('Last 7 days', v.totals.week),
     tile('Last 30 days', v.totals.month), tile('All time', v.totals.all_time),
+    '</div>',
+    '<div class="tiles" style="margin-top:12px">',
+    '<div class="tile"><span class="mut small">Time on a page (7 days)</span><b>' +
+      ((v.time && v.time.week_reads) ? mins(v.time.week_seconds / v.time.week_reads) : '-') + '</b></div>',
+    '<div class="tile"><span class="mut small">Time on a page (all time)</span><b>' +
+      ((v.time && v.time.reads) ? mins(v.time.seconds / v.time.reads) : '-') + '</b></div>',
+    '<div class="tile"><span class="mut small">Total time read</span><b>' +
+      (v.time ? Math.round((v.time.seconds || 0) / 60).toLocaleString() + ' min' : '-') + '</b></div>',
     '</div>',
     '<div class="card"><b>Page views per day</b> <span class="mut small">last 14 days</span>',
     '<div class="chart">', bars, '</div><div class="xaxis">', ticks, '</div>',
@@ -303,7 +369,17 @@ function render(d) {
       '<p class="mut small">In games.txt but Roblox sent nothing back. Usually a wrong ID or a removed game.</p>' +
       '<ul>' + missing + '</ul></div>' : '',
 
-    '<h2>Before launch</h2><div class="card"><table>',
+    '<h2>To do</h2>',
+    '<div class="card"><p class="mut small">Tick these off as you go. Saved here, so it is the same on any device.</p>',
+    (d.todos || []).map(function (t) {
+      return '<label class="todo' + (t.done ? ' done' : '') + '">' +
+        '<input type="checkbox" data-key="' + esc(t.key) + '"' + (t.done ? ' checked' : '') + '>' +
+        '<span><b>' + esc(t.label) + '</b>' +
+        (t.note ? '<i class="mut small">' + esc(t.note) + '</i>' : '') + '</span></label>';
+    }).join('') || '<p class="mut small">Nothing on the list.</p>',
+    '</div>',
+
+    '<h2>Settings the site checks itself</h2><div class="card"><table>',
     check(!site.noindex, 'Let Google list the site (NOINDEX = False)'),
     check(site.min_samples >= 200, 'MIN_SAMPLES back to 200 (now ' + num(site.min_samples) + ')'),
     check(!!site.domain, 'Domain set in build_site.py' + (site.domain ? ': ' + esc(site.domain) : '')),
@@ -313,6 +389,22 @@ function render(d) {
     '</table></div>'
   ];
   $('#app').innerHTML = out.join('');
+
+  // Ticking a box saves straight away; it puts itself back if the save fails.
+  Array.prototype.forEach.call(document.querySelectorAll('.todo input'), function (box) {
+    box.onchange = function () {
+      const row = box.closest('.todo');
+      row.classList.toggle('done', box.checked);
+      fetch('/admin/todo', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key: box.dataset.key, done: box.checked })
+      }).then(function (r) { if (!r.ok) throw 0; }).catch(function () {
+        box.checked = !box.checked;
+        row.classList.toggle('done', box.checked);
+        alert('Could not save that. Check your connection and try again.');
+      });
+    };
+  });
 }
 </script></div></body></html>`;
 }
