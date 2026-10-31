@@ -1,66 +1,139 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Trending Games: Growing and Shrinking - PlayTime</title>
-<meta name="description" content="See which popular games are gaining players and which are losing them this week."><meta name="robots" content="noindex,nofollow"><style>:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mut:#5b6478;--line:#e1e6ef;--acc:#2563eb;--l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1724;--card:#182235;--ink:#eef2fb;--mut:#a3aec4;--line:#2a3750;--acc:#7aa7ff}}
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Trending Games: Biggest Gainers and Losers This Week - PlayTime</title>
+<meta name="description" content="Which Roblox games gained and lost the most players this week, updated every night."><meta name="theme-color" content="#2563eb"><meta name="robots" content="noindex,nofollow">
+<style>:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
+--glass:rgba(243,246,252,.82);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
+--l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
+--soft:#eef3ff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
+--acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.82);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--up:#4ade80;--down:#f87171;--soft:#1d2942}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
-.w{max-width:760px;margin:0 auto;padding:16px 16px 48px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
-.logo{font-weight:800;font-size:1.3rem;color:var(--ink);text-decoration:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+.w{max-width:780px;margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:1120px}
 a{color:var(--acc)}
-h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.5em 0 .3em}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter-spacing:-.02em}
 h2{font-size:1.15rem;margin:0 0 6px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:16px 0}
+h3{font-size:1rem;margin:1.3em 0 .2em}
+.lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
 .mut{color:var(--mut)}.small{font-size:.9rem}
-.ans p{margin:.35em 0;font-size:1.1rem}
-.days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.days button{font:inherit;font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
-.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.bars{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:150px;margin-top:12px}
-.bar{border-radius:5px 5px 0 0;min-height:4px}
-.axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
-.axis span{grid-column:span 6}
-.hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
-.hm .c{height:26px;border-radius:4px}.hm .now{outline:3px solid var(--ink);outline-offset:-1px}
-.legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px}
-.legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.stats b{display:block;font-size:1.5rem}
-.btn{display:inline-block;background:var(--acc);color:#fff;padding:10px 18px;border-radius:12px;text-decoration:none;font-weight:700}
-input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-.list{list-style:none;padding:0;margin:0}
-.list a{display:flex;justify-content:space-between;gap:12px;padding:14px 18px;margin:8px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}
-.list a:hover{border-color:var(--acc)}
-.up{color:#15803d}.down{color:#b91c1c}
-@media(prefers-color-scheme:dark){.up{color:#4ade80}.down{color:#f87171}}
+.up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
-.foot{border-top:1px solid var(--line);margin-top:32px;padding-top:12px}
-.foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
-.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}
-.w.wide{max-width:1100px}
-.grid{list-style:none;padding:0;margin:16px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 14px}
-.tile{display:block;text-decoration:none;color:var(--ink)}
-.thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s}
-.ph{display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:var(--mut)}
-.tile:hover .thumb{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
-.tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:.95rem;line-height:1.3;margin-top:8px}
-.tmeta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--mut);margin-top:3px}
-.tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
-.ghead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:16px 0}
-.ghead .thumb{width:150px;flex:none}.ghead>div{flex:1 1 260px}
-.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
-.top nav{display:flex;gap:16px;font-weight:700}.top nav a{text-decoration:none}
+button,.btn,.chip,select{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ans p{margin:.35em 0;font-size:1.1rem}
+
+/* top bar, with the sections across the top */
+.hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
+.hdr .in{max-width:1120px;margin:0 auto;padding:6px 16px 0}
+.logo{font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo span{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
+.tabs a:hover{border-color:var(--acc);transform:translateY(-1px)}
+.tabs a[aria-current=page]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
 .pills a:hover{border-color:var(--acc)}
-.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
-.fav{font:inherit;font-weight:700;padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.fav[aria-pressed=true]{border-color:#e0a800;color:#b8860b}
-.tbl{width:100%;border-collapse:collapse;font-size:.95rem}.tbl td,.tbl th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* "what are you looking for?" */
+.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin:14px 0}
+.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
+.chip:hover{transform:translateY(-2px);border-color:var(--acc)}
+.chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.chip b{display:block;font-size:1rem}
+.chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
+
+/* the "right now" row on the homepage */
+.strip{display:flex;gap:10px;overflow-x:auto;padding:4px 16px 14px;margin:0 -16px;scroll-snap-type:x mandatory}
+.nowc{flex:none;width:166px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--ink);box-shadow:var(--sh);transition:transform .12s}
+.nowc:hover{transform:translateY(-3px)}
+.nowc .thumb{border-radius:11px}
+.nowc b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9rem;line-height:1.25;margin-top:7px}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;color:#15233f}
+
+/* game tiles */
+.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
+.grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
+.tile{display:block;text-decoration:none;color:var(--ink)}
+.thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
+.ph{display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:var(--mut)}
+.tile:hover .thumb{transform:translateY(-4px) scale(1.015);box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:.95rem;line-height:1.3;margin-top:8px}
+.tmeta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--mut);margin-top:3px}
+.tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
+
+/* charts */
+.days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.bars{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:160px;margin-top:12px}
+.bar{border-radius:5px 5px 0 0;min-height:4px;transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*11ms)}
+.bar.b2{opacity:.72}
+.axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
+.axis span{grid-column:span 6}
+.hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
+.hm .c{height:26px;border-radius:4px}
+.hm .now{outline:3px solid var(--ink);outline-offset:-1px}
+.legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
+.legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
+.spark{width:100%;height:80px;display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.stats b{display:block;font-size:1.5rem}
+.key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+
+/* game page */
+.ghead{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin:14px 0}
+.ghead .thumb{width:150px;flex:none}
+.ghead>div{flex:1 1 280px}
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
+.btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:#fff;padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.fav[aria-pressed=true]{border-color:#e0a800;color:#8a6500;background:#fff8e1}
+@media(prefers-color-scheme:dark){.fav[aria-pressed=true]{background:#2a2410;color:#f3c653}}
+.verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#15233f}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}
+.tbl td,.tbl th{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
-details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}</style></head><body><div class="w wide">
-<div class="top"><a class="logo" href="/">PlayTime</a><nav><a href="/trending.html">Trending</a></nav></div><h1>Which games are growing?</h1><p class="mut">Games whose typical player count changed by 5% or more compared with the week before.</p><h2 style="margin-top:24px">Growing</h2><p class="mut">None right now. We compare the last 7 days with the 7 days before, so games need two weeks of player counts first.</p><h2 style="margin-top:24px">Shrinking</h2><p class="mut">None right now. We compare the last 7 days with the 7 days before, so games need two weeks of player counts first.</p><p><a href="/">&larr; All games</a></p>
-<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
-<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
+details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
+.desc{white-space:pre-line;margin:.3em 0}
+.evt{list-style:none;padding:0;margin:8px 0}
+.evt li{border-left:3px solid var(--line);padding:2px 0 2px 14px;margin:16px 0}
+.evt li.soon{border-left-color:var(--acc2);background:var(--soft);border-radius:0 10px 10px 0;padding:8px 12px 8px 14px}
+.evt li.live{border-left-color:var(--up)}
+.evt b{display:block}
+.evt .d{font-size:.85rem;color:var(--mut)}
+.evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
+.sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:var(--sh);font:inherit}
+.foot{border-top:1px solid var(--line);margin-top:36px;padding-top:12px}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
+.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}
+.none{color:var(--mut)}
+
+/* the gentle opening effects */
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.rise{animation:up .5s cubic-bezier(.2,.75,.3,1) both}
+.rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
+.rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
+.card{animation:fade .7s both}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style></head><body>
+<header class="hdr"><div class="in"><a class="logo" href="/">Play<span>Time</span></a>
+<nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html" aria-current=page>Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header>
+<div class="w wide"><div class="hero"><h1>Biggest gainers and losers this week</h1><p class="lede">Every night we compare the last 7 days of player counts with the 7 days before. These are the games that moved the most.</p></div><h2 style="margin-top:24px">Biggest gainers</h2><p class="none">None right now. We compare the last 7 days with the 7 days before, so games need two weeks of player counts first.</p><h2 style="margin-top:28px">Biggest losers</h2><p class="none">None right now. We compare the last 7 days with the 7 days before, so games need two weeks of player counts first.</p><p><a href="/">&larr; All games</a></p>
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a>
+<a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
+shows when people play, not whether a game is good or safe.</p></footer>
 </div><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}</script></body></html>
