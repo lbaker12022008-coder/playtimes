@@ -1,0 +1,60 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>About PlayTime</title>
+<meta name="description" content="What PlayTime is, how it measures when games are busy, and what it does not tell you."><meta name="robots" content="noindex,nofollow"><style>:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mut:#5b6478;--line:#e1e6ef;--acc:#2563eb;--l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1724;--card:#182235;--ink:#eef2fb;--mut:#a3aec4;--line:#2a3750;--acc:#7aa7ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:760px;margin:0 auto;padding:16px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.logo{font-weight:800;font-size:1.3rem;color:var(--ink);text-decoration:none}
+a{color:var(--acc)}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.5em 0 .3em}
+h2{font-size:1.15rem;margin:0 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:16px 0}
+.mut{color:var(--mut)}.small{font-size:.9rem}
+.ans p{margin:.35em 0;font-size:1.1rem}
+.days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.days button{font:inherit;font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.bars{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:150px;margin-top:12px}
+.bar{border-radius:5px 5px 0 0;min-height:4px}
+.axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
+.axis span{grid-column:span 6}
+.hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
+.hm .c{height:26px;border-radius:4px}.hm .now{outline:3px solid var(--ink);outline-offset:-1px}
+.legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px}
+.legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stats b{display:block;font-size:1.5rem}
+.btn{display:inline-block;background:var(--acc);color:#fff;padding:10px 18px;border-radius:12px;text-decoration:none;font-weight:700}
+input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.list{list-style:none;padding:0;margin:0}
+.list a{display:flex;justify-content:space-between;gap:12px;padding:14px 18px;margin:8px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}
+.list a:hover{border-color:var(--acc)}
+.up{color:#15803d}.down{color:#b91c1c}
+@media(prefers-color-scheme:dark){.up{color:#4ade80}.down{color:#f87171}}
+.wrap{overflow-x:auto}
+.foot{border-top:1px solid var(--line);margin-top:32px;padding-top:12px}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
+.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}</style></head><body><div class="w">
+<div class="top"><a class="logo" href="/">PlayTime</a></div><div class="doc"><h1>About PlayTime</h1>
+<p>PlayTime shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
+<h2>How it works</h2>
+<p>About every 30 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
+Over days and weeks, those counts add up to a picture of each game's week: which hours are packed and which are quiet.
+Times are shown in your own timezone.</p>
+<h2>Why use it?</h2>
+<ul><li><b>Quiet hours</b> are good for shorter queues, less lag, and learning a game without a crowd.</li>
+<li><b>Busy hours</b> are good for full servers, trading, and events.</li></ul>
+<h2>What it does not tell you</h2>
+<p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children.
+Parents should still check a game themselves and use Roblox's parental controls.</p>
+<h2>The fine print</h2>
+<p>PlayTime is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
+Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
+<p>We never ask for a Roblox login, and there are no accounts or sign-ups here. See our <a href="/privacy.html">Privacy Policy</a>.</p>
+</div>
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
+</div></body></html>
