@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>/</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+<url><loc>/popular.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+<url><loc>/trending.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/growing.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/shrinking.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/events.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/compare.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/plan.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/busiest-hours.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+<url><loc>/category/action.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/adventure.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/obby-platformer.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/party-casual.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/rpg.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/roleplay-avatar-sim.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/shooter.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/shopping.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/simulation.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/sports-racing.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/strategy.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/category/survival.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>/about.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.3</priority></url>
+<url><loc>/privacy.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.2</priority></url>
+<url><loc>/terms.html</loc><lastmod>2026-10-31</lastmod><changefreq>daily</changefreq><priority>0.2</priority></url>
+</urlset>
