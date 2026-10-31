@@ -18,6 +18,11 @@ HEADERS = {"User-Agent": "playtime/1.0 (+static site builder)"}
 GAMES_API = "https://games.roblox.com/v1/games?universeIds="
 ICON_API = ("https://thumbnails.roblox.com/v1/games/icons"
             "?size=256x256&format=Webp&isCircular=false&universeIds=")
+# The wide picture Roblox shows on a game's own page. We use it faded out behind the
+# heading, so a game page feels like that game.
+BANNER_API = ("https://thumbnails.roblox.com/v1/games/multiget/thumbnails"
+              "?countPerUniverse=1&defaults=true&size=768x432&format=Webp&isCircular=false"
+              "&universeIds=")
 PASS_API = "https://apis.roblox.com/game-passes/v1/universes/{}/game-passes?passView=Full&pageSize=100"
 EVENT_API = "https://apis.roblox.com/virtual-events/v1/universes/{}/virtual-events"
 
@@ -89,6 +94,27 @@ def fetch_icons(ids):
     for i in range(0, len(ids), 50):
         batch = ids[i:i + 50]
         out.update(cached("icons:" + ",".join(map(str, batch)), 7 * DAY, lambda b=batch: pull(b)))
+    return {int(k): v for k, v in out.items()}
+
+
+def fetch_banners(ids):
+    """{universe_id: wide picture url} for the art behind each game's heading."""
+    def pull(batch):
+        out = {}
+        try:
+            for g in get_json(BANNER_API + ",".join(map(str, batch))).get("data", []):
+                for t in g.get("thumbnails") or []:
+                    if t.get("state") == "Completed" and t.get("imageUrl"):
+                        out[str(g["universeId"])] = t["imageUrl"]
+                        break
+        except Exception as e:
+            print("  ! could not load game artwork (those pages get a plain heading):", e)
+        return out
+
+    out = {}
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i + 50]
+        out.update(cached("banners:" + ",".join(map(str, batch)), 7 * DAY, lambda b=batch: pull(b)))
     return {int(k): v for k, v in out.items()}
 
 

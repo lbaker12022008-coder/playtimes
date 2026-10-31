@@ -34,17 +34,27 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 # is set to dark, and once for people who pressed the theme button themselves.
 DARK = """--bg:#0d1420;--card:#172033;--ink:#eef2fb;--mut:#a3aec4;--line:#283550;
 --acc:#7aa7ff;--acc2:#b48cff;--glass:rgba(13,20,32,.86);--sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
---up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06)"""
+--up:#4ade80;--down:#f87171;--soft:#1d2942;--favbg:#2a2410;--favink:#f3c653;--shade:rgba(255,255,255,.06);
+--bannerop:.3"""
 
 CSS = """:root{--bg:#f3f6fc;--card:#fff;--ink:#101a33;--mut:#5b6478;--line:#e3e8f1;--acc:#2563eb;--acc2:#7c3aed;
 --glass:rgba(243,246,252,.86);--sh:0 1px 2px rgba(16,26,51,.05),0 10px 30px rgba(16,26,51,.07);
 --l1:#86e3d0;--l2:#b9e8a8;--l3:#f6e27a;--l4:#f7b267;--l5:#f28482;--up:#15803d;--down:#b91c1c;
---soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04)}
+--soft:#eef3ff;--favbg:#fff8e1;--favink:#8a6500;--shade:rgba(16,26,51,.04);--bannerop:.17}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+/* The game's own artwork, faded out behind the top of the page. Decorative only:
+   it sits under everything and fades into the page colour, so text stays readable
+   in both themes. The sticky header is see-through, so it picks the colour up too. */
+.banner{position:absolute;top:0;left:0;right:0;height:360px;z-index:0;overflow:hidden;pointer-events:none}
+.banner img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
+filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
+.banner::after{content:"";position:absolute;inset:0;
+background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
+.shell{position:relative;z-index:1}   /* keep the page content above the artwork */
 .w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
 .w.wide{max-width:1400px}
 /* The page sits in the middle with a column either side kept for ads, the way most
@@ -311,7 +321,16 @@ def ad_rail(where):
     return f'<aside class="{cls}" id="ad-{where}" aria-hidden="true">{inner}</aside>'
 
 
-def page(title, body, desc="", wide=False, nav="", tail=""):
+def banner_html(url, name=""):
+    """The game's wide artwork, faded out behind the top of the page. Decorative, so it
+    is hidden from screen readers and left out entirely when Roblox has no picture."""
+    if not url:
+        return ""
+    return (f'<div class="banner" aria-hidden="true"><img src="{html.escape(url)}" alt="" '
+            f'decoding="async" fetchpriority="low"></div>')
+
+
+def page(title, body, desc="", wide=False, nav="", tail="", banner=""):
     tabs = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                    for k, t, u in TABS)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -319,7 +338,7 @@ def page(title, body, desc="", wide=False, nav="", tail=""):
 <meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#2563eb">{ROBOTS}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 {BOOT}<style>{CSS}</style><script>{FAVJS}</script>{ADS}</head><body>
-<header class="hdr"><div class="in"><div class="hrow">
+{banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
@@ -1472,6 +1491,7 @@ def main():
     print(f"Looking up pictures and details for {len(games)} games...")
     ids = [g[0] for g in games]
     icons = roblox_api.fetch_icons(ids)
+    banners = roblox_api.fetch_banners(ids)
     metas = roblox_api.fetch_meta(ids)
 
     # Categories need at least 2 games to be worth a page ("All" is Roblox's "no genre").
@@ -1494,7 +1514,7 @@ def main():
                       "avg": a["avg7"], "trend": a["trend"], "month": a["month"],
                       "samples": len(rows), "days": a["days"], "week": a["week"],
                       "levels": levels_string(a["week"]), "verdict": verdict(a)[0],
-                      "uid": uid, "place": place, "a": a})
+                      "uid": uid, "place": place, "a": a, "banner": banners.get(uid)})
 
     cards.sort(key=lambda c: c["avg"], reverse=True)
 
@@ -1549,7 +1569,7 @@ def main():
         write(f"game/{s}.html", page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? Hourly player counts, upcoming events, "
-            f"recent updates, and whether it is growing or dying."))
+            f"recent updates, and whether it is growing or dying.", banner=c["banner"]))
 
     print(f"Built {len(cards)} game pages.")
 
@@ -1578,7 +1598,8 @@ def main():
             + grid(cg, "all")
             + '<p><a href="/">&larr; All games</a></p>'
             + ask_js(cg),
-            f"See when popular {g} games are busiest and quietest, hour by hour.", wide=True))
+            f"See when popular {g} games are busiest and quietest, hour by hour.",
+            wide=True, banner=cg[0]["banner"]))
     pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
     # ---- homepage
