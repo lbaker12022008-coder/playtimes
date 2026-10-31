@@ -127,9 +127,11 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script>var PT={name:null,available:false,favs:null,cbs:[]};
+var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
-function setFavs(f){PT.favs=f;try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
+function setFavs(f){f=f.slice(0,MAXFAVS);PT.favs=f;
+try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
 if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
 body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
@@ -143,10 +145,22 @@ if(el){el.innerHTML=!PT.available?'':PT.name
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
-if(d.signedIn){var mine=getFavs(),all=(d.favs||[]).slice();
-mine.forEach(function(s){if(all.indexOf(s)<0)all.push(s)});
-PT.favs=all;try{localStorage.setItem('pt_favs',JSON.stringify(all))}catch(e){}
-if(all.length!==(d.favs||[]).length)setFavs(all)}
+if(d.signedIn){var server=(d.favs||[]).slice(),joined=null;
+/* who is null if an older worker is still answering, which just means we merge again. */
+var who=d.id?String(d.id):null;
+try{joined=localStorage.getItem('pt_joined')}catch(e){}
+if(who&&joined===who){
+/* This device has already given its list to this account, so the account wins.
+   Otherwise un-saving a game here would come back from an older list elsewhere. */
+PT.favs=server;try{localStorage.setItem('pt_favs',JSON.stringify(server))}catch(e){}}
+else{
+/* First sign-in on this device: keep anything saved before signing in. */
+var all=server.slice();
+getFavs().forEach(function(s){if(all.indexOf(s)<0)all.push(s)});
+all=all.slice(0,MAXFAVS);PT.favs=all;
+try{localStorage.setItem('pt_favs',JSON.stringify(all));
+if(who)localStorage.setItem('pt_joined',who)}catch(e){}
+if(all.length!==server.length)setFavs(all)}}
 ptPaint()}).catch(function(){});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);</script></head><body>
 <header class="hdr"><div class="in"><div class="hrow"><a class="logo" href="/">Play<span>Time</span></a>
@@ -183,7 +197,7 @@ and more....</p></li><li class=""><b>QoL Improvements</b><span class="d">Improve
 
 Leave a like 👍 and favorite ⭐ for more Basketball Legends content!
 
-Join InfinitySports for 1.5X coins: https://www.roblox.com/groups/32333865/InfinitySports#!/about</p><p class="mut small">Made by infinitysports. first released 3 years ago. 779.3m total visits. up to 10 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div>
+Join InfinitySports for 1.5X coins: https://www.roblox.com/groups/32333865/InfinitySports#!/about</p><p class="mut small">Made by infinitysports. first released 3 years ago. 779.4m total visits. up to 10 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div>
 <div class="card"><h2>For parents: what costs money</h2><p>This game sells <b>13 game passes</b>, from <b>99 to 3,399 Robux</b>. Buying every one would cost <b>10,437 Robux</b> (roughly $130 USD).</p><details><summary>See every game pass</summary><div class="wrap"><table class="tbl"><tr><th>Game pass</th><th>Robux</th></tr><tr><td>Heat Mythic Bundle</td><td>3,399</td></tr><tr><td>Heat Mythic Skin</td><td>1,699</td></tr><tr><td>Heat Mythic Effect</td><td>1,699</td></tr><tr><td>All Star</td><td>699</td></tr><tr><td>Autocaptain</td><td>499</td></tr><tr><td>Eurostep [UNLOCK]</td><td>499</td></tr><tr><td>Lob [UNLOCK]</td><td>449</td></tr><tr><td>Post [UNLOCK]</td><td>399</td></tr><tr><td>2X Coins</td><td>299</td></tr><tr><td>Dunk Pack</td><td>299</td></tr><tr><td>Toxic Pack</td><td>199</td></tr><tr><td>Celebration Pack</td><td>199</td></tr><tr><td>Jersey Editor</td><td>99</td></tr></table></div></details><p class="mut small">Games can also sell one-time items inside the game, which are not listed here. Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>
 <p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=basketball-legends">Plan a session</a></p>
 <script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
