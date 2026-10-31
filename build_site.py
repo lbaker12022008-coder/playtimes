@@ -17,7 +17,9 @@ from datetime import datetime, timezone
 import roblox_api
 
 SITE = "PlayTime"          # the site's name (don't put "Roblox" in your domain name)
-MIN_SAMPLES = 200          # how many player counts a game needs before it gets a page
+MIN_SAMPLES = 2            # how many player counts a game needs before it gets a page
+# Raise this to 200 only once the games actually have that many, or every page
+# disappears. Check the admin dashboard: each game gains about 144 a day.
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site into
@@ -159,7 +161,19 @@ ROBOTS = '<meta name="robots" content="noindex,nofollow">' if NOINDEX else ""
 
 # Counts one page view. No cookies, no login, nothing about the visitor is stored.
 HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},'
-       'body:location.pathname,keepalive:true})}catch(e){}</script>')
+       'body:location.pathname,keepalive:true})}catch(e){}'
+       # Then measure how long the page is actually being looked at, and send the
+       # total once, as the visitor leaves. Nothing identifying is sent.
+       '(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;'
+       'function stop(){if(since){seen+=Date.now()-since;since=0}}'
+       'function start(){if(!since)since=Date.now()}'
+       'document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});'
+       'function send(){if(sent)return;stop();var s=Math.round(seen/1000);'
+       'if(s<1||s>3600)return;sent=true;'
+       'try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}'
+       'addEventListener("pagehide",send);'
+       'document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();'
+       '</script>')
 
 # The sections along the top of every page: (key, label, address)
 TABS = [("home", "All games", "/"),
@@ -987,9 +1001,11 @@ second short-lived one that lasts a few minutes while you are being sent to Robl
 necessary for signing in: there is no advertising cookie and no tracking cookie, and neither is shared with
 anyone else. Signing out or pressing <b>Delete my data</b> removes them.</p>
 <h2>Counting visits</h2>
-<p>We count how many times each page is opened, so we know which pages people find useful. We count the page
-address and the date, and nothing else: no names, no accounts, and nothing that identifies you or your device.
-This counting uses no cookies and does not know whether you are signed in.</p>
+<p>We count how many times each page is opened, and roughly how many seconds it stays open, so we know which
+pages people find useful. We record the page address, the date, and that number of seconds, and nothing else:
+no names, no accounts, and nothing that identifies you or your device. The seconds go into one running total
+per page, so we cannot tell one visitor from another or follow anyone between pages. This counting uses no
+cookies and does not know whether you are signed in.</p>
 <h2>Our hosting provider</h2>
 <p>The site is hosted by Cloudflare. Like any website host, Cloudflare automatically handles basic technical information
 (such as IP addresses and browser type) to deliver pages and protect the site from attacks. See
@@ -1192,6 +1208,16 @@ def main():
 
     cards.sort(key=lambda c: c["avg"], reverse=True)
     print(f"Built {len(cards)} game pages.")
+
+    # Safety net: a site with no games is never what we want, and publishing one
+    # would wipe every page. Usually it means MIN_SAMPLES was raised too early.
+    if not cards and games:
+        most = max((w["samples"] for w in waiting), default=0)
+        raise SystemExit(
+            f"\nSTOPPED: no game reached MIN_SAMPLES ({MIN_SAMPLES}), so this build would have\n"
+            f"published an empty site and deleted every game page.\n"
+            f"The best-covered game has {most} player counts so far.\n"
+            f"Lower MIN_SAMPLES in build_site.py, or wait until the games catch up.\n")
 
     # ---- the data file the Compare and Plan pages load
     write("data.json", json.dumps({
