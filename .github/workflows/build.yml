@@ -3,6 +3,9 @@ on:
   schedule:
     - cron: "30 4 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [build_site.py, cloud/build_cloud.py, collector.py]
 permissions:
   contents: write
 concurrency:
