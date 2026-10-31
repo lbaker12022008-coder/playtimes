@@ -11,7 +11,7 @@ Preview your changes without touching the live site:
     python -m http.server
 Then open http://localhost:8000
 """
-import html, json, os, re, sqlite3, statistics, time
+import html, json, math, os, re, sqlite3, statistics, time
 from datetime import datetime, timezone
 
 import roblox_api
@@ -568,7 +568,75 @@ def updates_html(name, events, meta, spikes, now):
                      f'{"".join(rows)}</table></div>')
     if not parts:
         return ""
-    return f'<div class="card"><h2>Recent updates and changes</h2>{"".join(parts)}</div>'
+    # The rhythm line is filled in by the page itself, in the visitor's timezone.
+    return (f'<div class="card"><h2>Recent updates and changes</h2>'
+            f'<p id="pattern" class="mut small"></p>{"".join(parts)}</div>')
+
+
+def update_pattern(events, spikes, now):
+    """When this game's updates usually land, or None if there is not enough history.
+
+    Creators put their updates on Roblox's own event calendar, so the start times of
+    past events show each game's rhythm: plenty of them ship every week on the same
+    afternoon. Days we spotted a jump in players count too, but only towards the
+    weekday, because a jump is measured over a whole day and has no useful hour.
+
+    Returns the weekday and hour in UTC. The page turns them into the visitor's own
+    timezone, the same as every other time on the site.
+    """
+    past = sorted(e["start"] for e in (events or []) if e["start"] < now)
+    at = lambda t: datetime.fromtimestamp(t, timezone.utc)
+    weekdays = [at(t).weekday() for t in past] + [at(d).weekday() for d, _ in spikes]
+    if len(weekdays) < 8:                 # too little history to call it a habit
+        return None
+    wd = max(set(weekdays), key=weekdays.count)
+    if weekdays.count(wd) / len(weekdays) < 0.3:    # no day stands out, so claim nothing
+        return None
+
+    # Only name an hour if one really repeats, instead of whichever happened most by luck.
+    hours = [at(t).hour for t in past if at(t).weekday() == wd]
+    hour = max(set(hours), key=hours.count) if hours else None
+    if hour is not None and hours.count(hour) < max(3, 0.3 * len(hours)):
+        hour = None
+
+    # Only claim "every N days" from several gaps that are short enough to be a schedule.
+    gaps = [g for g in (round((b - a) / 86400) for a, b in zip(past, past[1:])) if g > 0]
+    every = None
+    if len(gaps) >= 4:
+        med = statistics.median(gaps)
+        if med <= 31:
+            every = int(med)
+    return {"wd": wd, "hour": hour, "every": every, "n": len(weekdays)}
+
+
+def similar(card, cards, n=6):
+    """The games most like this one: same category first, then closest in size.
+
+    "Similar" means somewhere else you might go instead, so category matters most and
+    size second: a game with a million players and one with a thousand feel nothing
+    alike even when they are both tycoons. Size is compared on a log scale, so 1K
+    against 2K counts as the same sort of gap as 100K against 200K.
+    """
+    others = [c for c in cards if c["slug"] != card["slug"]]
+    mine = max(card["avg"], 1)
+
+    def rank(c):
+        same_genre = not (card["genre"] and c["genre"] == card["genre"])
+        return (same_genre, abs(math.log(max(c["avg"], 1)) - math.log(mine)))
+
+    return sorted(others, key=rank)[:n]
+
+
+def similar_html(card, cards):
+    picks = similar(card, cards)
+    if len(picks) < 2:
+        return ""                         # one lonely suggestion is not worth a heading
+    same = sum(1 for c in picks if card["genre"] and c["genre"] == card["genre"])
+    note = (f'Other {html.escape(card["genre"].lower())} games with about as many players.'
+            if same >= len(picks) - 1 else
+            "Games with about as many players, so they feel similar to play.")
+    return (f'<div class="card"><h2>Similar games</h2><p class="mut small">{note}</p>'
+            f'{grid(picks)}</div>')
 
 
 def parents_html(passes):
@@ -681,10 +749,15 @@ var at=list.indexOf(pick),len=1;
 for(var k=at+1;k<list.length;k++){var ok=mode==='quiet'?list[k].v<=pick.v*1.25:list[k].v>=pick.v*.8;
 if(!ok)break;len++}
 pick.len=len;return pick}
-function countdown(ms){if(ms<=0)return 'right now';
-var m=Math.round(ms/60000),h=Math.floor(m/60);m=m%60;
-if(h>=24){var d=Math.floor(h/24);return 'in '+d+' day'+(d>1?'s':'')+' '+(h%24)+'h'}
-if(h)return 'in '+h+'h '+m+'m';return 'in '+m+' min'}"""
+/* A gap in time for a ticking clock, e.g. "2h 14m 07s". Seconds are only padded when
+   a bigger unit is next to them, so a short wait reads as "9s" and not "09s". */
+function ticker(ms){var s=Math.max(0,Math.round(ms/1000));
+var d=Math.floor(s/86400);
+if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
+var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
+if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
+if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
+return ss+'s'}"""
 
 GAME_JS = """var M=__DATA__,L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
 var best=null,worst=null,dayq=null;
@@ -698,23 +771,43 @@ $('quiet').innerHTML='Quietest: <b>'+DAY[best[0]]+' around '+fmt(best[1])+'</b>'
 (dayq&&(dayq[0]+':'+dayq[1])!=(best[0]+':'+best[1])?' (or <b>'+DAY[dayq[0]]+' around '+fmt(dayq[1])+
 '</b> if you play during the day).':'.');
 
-/* Plan my session */
-var mode='quiet';
+/* Plan my session: a live countdown to the next quiet or busy stretch.
+   plan() works out which hour we are aiming at; tick() only rewrites the clock, so the
+   digits can move every second without redoing the maths. */
+var mode='quiet',aim=null;
 function plan(){
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.m===mode)});
 var p=nextBlock(L,mode);
-if(!p){$('plantxt').textContent='Not enough player counts yet to plan ahead.';return}
-var top=new Date(p.t);top.setMinutes(0,0,0);
-$('cd').textContent=countdown(top-new Date());
-$('plantxt').innerHTML='The next '+(mode==='quiet'?'quiet':'busy')+' stretch is <b>'+DAY[(top.getDay()+6)%7]+
-' at '+fmt(top.getHours())+'</b> your time, when it is usually <b>'+W[B.level(p.v)]+
-'</b> with about '+p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
+if(!p){aim=null;$('cdw').hidden=true;
+$('plantxt').textContent='Not enough player counts yet to work out the next '+
+(mode==='quiet'?'quiet':'busy')+' stretch.';return}
+aim=new Date(p.t);aim.setMinutes(0,0,0);
+$('cdlab').textContent=(mode==='quiet'?'Quietest':'Busiest')+' window starts in';
+$('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getHours())+
+'</b> your time, when it is usually <b>'+W[B.level(p.v)]+'</b> with about '+
+p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
 ' hour'+(p.len>1?'s':'')+'</b>.';
-$('cdw').hidden=false}
+$('cdw').hidden=false;tick()}
+function tick(){if(!aim)return;
+var ms=aim-new Date();
+if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
+$('cd').textContent=ticker(ms)}
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.onclick=function(){mode=b.dataset.m;plan()}});
-plan();setInterval(plan,30000);
+plan();setInterval(tick,1000);setInterval(plan,300000);
+
+/* When this game's updates usually land, worked out from the creators' own event
+   dates. Written here rather than on the server so it reads in the visitor's timezone. */
+var P=__PATTERN__;
+if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
+', about every '+P.every+' day'+(P.every>1?'s':''):'';
+if(ph!=null){var pt=ph+tzOff();
+while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
+$('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
+'</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
+else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
+'. Worked out from the last '+P.n+' updates and busy days.'}
 
 /* One day at a time */
 function show(d){
@@ -865,26 +958,33 @@ b.setAttribute('aria-label',n);b.onclick=function(){day=i;draw()};$('days').appe
 $('ga').onchange=$('gb').onchange=draw;$('load').hidden=true;$('cmp').hidden=false;draw()})
 .catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});"""
 
-PLAN_JS = """var DATA=null,mode='quiet';
+PLAN_JS = """var DATA=null,mode='quiet',aim=null;
 function find(s){var r=null;DATA.games.forEach(function(g){if(g.s===s)r=g});return r}
 function draw(){
 var g=find($('g').value);if(!g)return;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.m===mode)});
 var L=toLocal(g.m),B=bands(L),p=nextBlock(L,mode);
-if(!p){$('out').innerHTML='<p class="none">Not enough player counts for this game yet.</p>';return}
-var top=new Date(p.t);top.setMinutes(0,0,0);
+if(!p){aim=null;
+$('out').innerHTML='<p class="none">Not enough player counts for this game yet.</p>';return}
+aim=new Date(p.t);aim.setMinutes(0,0,0);
 var rows='';for(var i=0;i<12;i++){var t=new Date(new Date().getTime()+i*3600000);
 var v=L[(t.getDay()+6)%7][t.getHours()],lv=B.level(v);
 rows+='<tr><td><span class="key" style="background:var(--l'+(lv||1)+')"></span>'+
 (i?fmt(t.getHours()):'now')+'</td><td>'+(lv?W[lv]:'no data')+'</td></tr>'}
-$('out').innerHTML='<span class="mut small">Next '+(mode==='quiet'?'quiet':'busy')+' stretch for '+esc(g.n)+
-'</span><span class="cd">'+countdown(top-new Date())+'</span><p>'+DAY[(top.getDay()+6)%7]+' at <b>'+
-fmt(top.getHours())+'</b> your time &ndash; usually <b>'+W[B.level(p.v)]+'</b> with about '+
+$('out').innerHTML='<span class="mut small">'+(mode==='quiet'?'Quietest':'Busiest')+
+' window for '+esc(g.n)+' starts in</span><span class="cd" id="cd">'+ticker(aim-new Date())+
+'</span><p>That is '+DAY[(aim.getDay()+6)%7]+' at <b>'+
+fmt(aim.getHours())+'</b> your time &ndash; usually <b>'+W[B.level(p.v)]+'</b> with about '+
 p.v.toLocaleString()+' players, lasting about <b>'+p.len+' hour'+(p.len>1?'s':'')+'</b>.</p>'+
 '<p><a class="btn" href="/game/'+esc(g.s)+'.html">See '+esc(g.n)+'\\u2019s whole week</a></p>'+
 '<h3>The next 12 hours</h3><div class="wrap"><table class="tbl"><tr><th>Your time</th>'+
 '<th>How busy</th></tr>'+rows+'</table></div>'}
+/* Only rewrites the clock, so it can move every second without redoing the maths. */
+function tick(){if(!aim)return;var el=$('cd');if(!el)return;
+var ms=aim-new Date();
+if(ms<=0){draw();return}
+el.textContent=ticker(ms)}
 fetch('/data.json').then(function(r){return r.json()}).then(function(d){
 DATA=d;if(!DATA.games.length){$('load').innerHTML='<p class="none">No games have enough player counts yet.</p>';return}
 DATA.games.forEach(function(g){var o=document.createElement('option');o.value=g.s;o.textContent=g.n;
@@ -894,7 +994,8 @@ if(p.get('want')==='busy')mode='busy';
 $('g').onchange=draw;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.onclick=function(){mode=b.dataset.m;draw()}});
-$('load').hidden=true;$('plan').hidden=false;draw();setInterval(draw,30000)})
+$('load').hidden=true;$('plan').hidden=false;draw();
+setInterval(tick,1000);setInterval(draw,300000)})
 .catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});"""
 
 
@@ -909,7 +1010,8 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>When is __NAME__ busiest?</h1
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
-<div id="cdw" hidden><span class="cd" id="cd"></span></div><p id="plantxt"></p></div>
+<div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
+<p id="plantxt"></p></div>
 <div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -927,6 +1029,7 @@ __UPDATES__
 __CALENDAR__
 __ABOUT__
 __PARENTS__
+__SIMILAR__
 <p><a href="/">&larr; All games</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a></p>
 <script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>"""
 
@@ -1156,7 +1259,9 @@ def main():
         genre_count[g[2]] = genre_count.get(g[2], 0) + 1
     cats = {g for g, n in genre_count.items() if g and g != "All" and n >= 2}
 
-    cards, waiting, all_events = [], [], []
+    # First pass: work out every game's numbers. The pages are written afterwards,
+    # because the "Similar games" row on each one needs to know about all the others.
+    cards, waiting = [], []
     for uid, name, genre, place in games:
         rows = db.execute("SELECT ts,playing FROM samples WHERE universe_id=? ORDER BY ts",
                           (uid,)).fetchall()
@@ -1164,22 +1269,44 @@ def main():
             waiting.append({"name": name, "samples": len(rows)})
             continue
         a = analyze(rows)
-        s = slug(name)
+        cards.append({"name": name, "slug": slug(name), "icon": icons.get(uid), "genre": genre,
+                      "avg": a["avg7"], "trend": a["trend"], "month": a["month"],
+                      "samples": len(rows), "days": a["days"], "week": a["week"],
+                      "levels": levels_string(a["week"]), "verdict": verdict(a)[0],
+                      "uid": uid, "place": place, "a": a})
+
+    cards.sort(key=lambda c: c["avg"], reverse=True)
+
+    # Safety net: a site with no games is never what we want, and publishing one
+    # would wipe every page. Usually it means MIN_SAMPLES was raised too early.
+    if not cards and games:
+        most = max((w["samples"] for w in waiting), default=0)
+        raise SystemExit(
+            f"\nSTOPPED: no game reached MIN_SAMPLES ({MIN_SAMPLES}), so this build would have\n"
+            f"published an empty site and deleted every game page.\n"
+            f"The best-covered game has {most} player counts so far.\n"
+            f"Lower MIN_SAMPLES in build_site.py, or wait until the games catch up.\n")
+
+    # Second pass: the game pages themselves.
+    all_events = []
+    for c in cards:
+        uid, name, s, a = c["uid"], c["name"], c["slug"], c["a"]
         meta = metas.get(uid)
         events = roblox_api.fetch_events(uid)
         passes = roblox_api.fetch_passes(uid)
         upcoming = [e for e in (events or []) if (e["end"] or e["start"] + 86400) >= now]
         for e in upcoming:
-            all_events.append(dict(e, game=name, slug=s, icon=icons.get(uid)))
+            all_events.append(dict(e, game=name, slug=s, icon=c["icon"]))
+        c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
 
-        play = (f'<a class="btn" href="https://www.roblox.com/games/{place}">Play {html.escape(name)}</a>'
-                if place and place > 1 else "")
-        cat = (f' Category: <a href="/category/{slug(genre)}.html">{html.escape(genre)}</a>.'
-               if genre in cats else "")
-        body = (GAME.replace("__ICON__", thumb(name, icons.get(uid), f"{name} icon"))
+        play = (f'<a class="btn" href="https://www.roblox.com/games/{c["place"]}">'
+                f'Play {html.escape(name)}</a>' if c["place"] and c["place"] > 1 else "")
+        cat = (f' Category: <a href="/category/{slug(c["genre"])}.html">{html.escape(c["genre"])}</a>.'
+               if c["genre"] in cats else "")
+        body = (GAME.replace("__ICON__", thumb(name, c["icon"], f"{name} icon"))
                 .replace("__NAME__", html.escape(name))
-                .replace("__N__", f"{len(rows):,}")
+                .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
                 .replace("__SLUG__", s)
@@ -1192,32 +1319,17 @@ def main():
                 .replace("__CALENDAR__", calendar_html(name, events, now))
                 .replace("__ABOUT__", about_game_html(name, meta))
                 .replace("__PARENTS__", parents_html(passes))
+                .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__SHARED__", SHARED_JS)
                 .replace("__FAVJS__", FAV_GAME)
-                .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"]))))
+                .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"]))
+                         .replace("__PATTERN__", jsdata(update_pattern(events, a["spikes"], now)))))
         write(f"game/{s}.html", page(
             f"Best Time to Play {name}: Busy and Quiet Hours", body,
             f"When is {name} busiest and quietest? Hourly player counts, upcoming events, "
             f"recent updates, and whether it is growing or dying."))
 
-        cards.append({"name": name, "slug": s, "icon": icons.get(uid), "genre": genre,
-                      "avg": a["avg7"], "trend": a["trend"], "month": a["month"],
-                      "samples": len(rows), "days": a["days"], "week": a["week"],
-                      "levels": levels_string(a["week"]), "verdict": vlabel,
-                      "events": len(events or []), "upcoming": len(upcoming)})
-
-    cards.sort(key=lambda c: c["avg"], reverse=True)
     print(f"Built {len(cards)} game pages.")
-
-    # Safety net: a site with no games is never what we want, and publishing one
-    # would wipe every page. Usually it means MIN_SAMPLES was raised too early.
-    if not cards and games:
-        most = max((w["samples"] for w in waiting), default=0)
-        raise SystemExit(
-            f"\nSTOPPED: no game reached MIN_SAMPLES ({MIN_SAMPLES}), so this build would have\n"
-            f"published an empty site and deleted every game page.\n"
-            f"The best-covered game has {most} player counts so far.\n"
-            f"Lower MIN_SAMPLES in build_site.py, or wait until the games catch up.\n")
 
     # ---- the data file the Compare and Plan pages load
     write("data.json", json.dumps({
