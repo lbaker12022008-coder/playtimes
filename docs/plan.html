@@ -209,29 +209,41 @@ var at=list.indexOf(pick),len=1;
 for(var k=at+1;k<list.length;k++){var ok=mode==='quiet'?list[k].v<=pick.v*1.25:list[k].v>=pick.v*.8;
 if(!ok)break;len++}
 pick.len=len;return pick}
-function countdown(ms){if(ms<=0)return 'right now';
-var m=Math.round(ms/60000),h=Math.floor(m/60);m=m%60;
-if(h>=24){var d=Math.floor(h/24);return 'in '+d+' day'+(d>1?'s':'')+' '+(h%24)+'h'}
-if(h)return 'in '+h+'h '+m+'m';return 'in '+m+' min'}</script><script>var DATA=null,mode='quiet';
+/* A gap in time for a ticking clock, e.g. "2h 14m 07s". Seconds are only padded when
+   a bigger unit is next to them, so a short wait reads as "9s" and not "09s". */
+function ticker(ms){var s=Math.max(0,Math.round(ms/1000));
+var d=Math.floor(s/86400);
+if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
+var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
+if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
+if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
+return ss+'s'}</script><script>var DATA=null,mode='quiet',aim=null;
 function find(s){var r=null;DATA.games.forEach(function(g){if(g.s===s)r=g});return r}
 function draw(){
 var g=find($('g').value);if(!g)return;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.m===mode)});
 var L=toLocal(g.m),B=bands(L),p=nextBlock(L,mode);
-if(!p){$('out').innerHTML='<p class="none">Not enough player counts for this game yet.</p>';return}
-var top=new Date(p.t);top.setMinutes(0,0,0);
+if(!p){aim=null;
+$('out').innerHTML='<p class="none">Not enough player counts for this game yet.</p>';return}
+aim=new Date(p.t);aim.setMinutes(0,0,0);
 var rows='';for(var i=0;i<12;i++){var t=new Date(new Date().getTime()+i*3600000);
 var v=L[(t.getDay()+6)%7][t.getHours()],lv=B.level(v);
 rows+='<tr><td><span class="key" style="background:var(--l'+(lv||1)+')"></span>'+
 (i?fmt(t.getHours()):'now')+'</td><td>'+(lv?W[lv]:'no data')+'</td></tr>'}
-$('out').innerHTML='<span class="mut small">Next '+(mode==='quiet'?'quiet':'busy')+' stretch for '+esc(g.n)+
-'</span><span class="cd">'+countdown(top-new Date())+'</span><p>'+DAY[(top.getDay()+6)%7]+' at <b>'+
-fmt(top.getHours())+'</b> your time &ndash; usually <b>'+W[B.level(p.v)]+'</b> with about '+
+$('out').innerHTML='<span class="mut small">'+(mode==='quiet'?'Quietest':'Busiest')+
+' window for '+esc(g.n)+' starts in</span><span class="cd" id="cd">'+ticker(aim-new Date())+
+'</span><p>That is '+DAY[(aim.getDay()+6)%7]+' at <b>'+
+fmt(aim.getHours())+'</b> your time &ndash; usually <b>'+W[B.level(p.v)]+'</b> with about '+
 p.v.toLocaleString()+' players, lasting about <b>'+p.len+' hour'+(p.len>1?'s':'')+'</b>.</p>'+
 '<p><a class="btn" href="/game/'+esc(g.s)+'.html">See '+esc(g.n)+'\u2019s whole week</a></p>'+
 '<h3>The next 12 hours</h3><div class="wrap"><table class="tbl"><tr><th>Your time</th>'+
 '<th>How busy</th></tr>'+rows+'</table></div>'}
+/* Only rewrites the clock, so it can move every second without redoing the maths. */
+function tick(){if(!aim)return;var el=$('cd');if(!el)return;
+var ms=aim-new Date();
+if(ms<=0){draw();return}
+el.textContent=ticker(ms)}
 fetch('/data.json').then(function(r){return r.json()}).then(function(d){
 DATA=d;if(!DATA.games.length){$('load').innerHTML='<p class="none">No games have enough player counts yet.</p>';return}
 DATA.games.forEach(function(g){var o=document.createElement('option');o.value=g.s;o.textContent=g.n;
@@ -241,5 +253,6 @@ if(p.get('want')==='busy')mode='busy';
 $('g').onchange=draw;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.onclick=function(){mode=b.dataset.m;draw()}});
-$('load').hidden=true;$('plan').hidden=false;draw();setInterval(draw,30000)})
-.catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}</script></body></html>
+$('load').hidden=true;$('plan').hidden=false;draw();
+setInterval(tick,1000);setInterval(draw,300000)})
+.catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>

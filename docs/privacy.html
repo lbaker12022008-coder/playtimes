@@ -198,9 +198,11 @@ second short-lived one that lasts a few minutes while you are being sent to Robl
 necessary for signing in: there is no advertising cookie and no tracking cookie, and neither is shared with
 anyone else. Signing out or pressing <b>Delete my data</b> removes them.</p>
 <h2>Counting visits</h2>
-<p>We count how many times each page is opened, so we know which pages people find useful. We count the page
-address and the date, and nothing else: no names, no accounts, and nothing that identifies you or your device.
-This counting uses no cookies and does not know whether you are signed in.</p>
+<p>We count how many times each page is opened, and roughly how many seconds it stays open, so we know which
+pages people find useful. We record the page address, the date, and that number of seconds, and nothing else:
+no names, no accounts, and nothing that identifies you or your device. The seconds go into one running total
+per page, so we cannot tell one visitor from another or follow anyone between pages. This counting uses no
+cookies and does not know whether you are signed in.</p>
 <h2>Our hosting provider</h2>
 <p>The site is hosted by Cloudflare. Like any website host, Cloudflare automatically handles basic technical information
 (such as IP addresses and browser type) to deliver pages and protect the site from attacks. See
@@ -231,4 +233,4 @@ m.textContent='That did not work. Please try again.'})}})();</script>
 <a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
-</div><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}</script></body></html>
+</div><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>

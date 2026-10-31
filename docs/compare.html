@@ -209,10 +209,15 @@ var at=list.indexOf(pick),len=1;
 for(var k=at+1;k<list.length;k++){var ok=mode==='quiet'?list[k].v<=pick.v*1.25:list[k].v>=pick.v*.8;
 if(!ok)break;len++}
 pick.len=len;return pick}
-function countdown(ms){if(ms<=0)return 'right now';
-var m=Math.round(ms/60000),h=Math.floor(m/60);m=m%60;
-if(h>=24){var d=Math.floor(h/24);return 'in '+d+' day'+(d>1?'s':'')+' '+(h%24)+'h'}
-if(h)return 'in '+h+'h '+m+'m';return 'in '+m+' min'}</script><script>var A=null,B=null,day=nowDay(),DATA=null;
+/* A gap in time for a ticking clock, e.g. "2h 14m 07s". Seconds are only padded when
+   a bigger unit is next to them, so a short wait reads as "9s" and not "09s". */
+function ticker(ms){var s=Math.max(0,Math.round(ms/1000));
+var d=Math.floor(s/86400);
+if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
+var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
+if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
+if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
+return ss+'s'}</script><script>var A=null,B=null,day=nowDay(),DATA=null;
 function opts(sel,pick){DATA.games.forEach(function(g){var o=document.createElement('option');
 o.value=g.s;o.textContent=g.n;sel.appendChild(o)});sel.value=pick}
 function find(s){var r=null;DATA.games.forEach(function(g){if(g.s===s)r=g});return r}
@@ -254,4 +259,4 @@ if($('ga').value===$('gb').value)$('gb').selectedIndex=($('ga').selectedIndex+1)
 DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
 b.setAttribute('aria-label',n);b.onclick=function(){day=i;draw()};$('days').appendChild(b)});
 $('ga').onchange=$('gb').onchange=draw;$('load').hidden=true;$('cmp').hidden=false;draw()})
-.catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}</script></body></html>
+.catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
