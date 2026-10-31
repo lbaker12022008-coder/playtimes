@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [build_site.py, cloud/build_cloud.py, collector.py, games.txt]
+    paths: [build_site.py, roblox_api.py, cloud/build_cloud.py, collector.py, games.txt]
 permissions:
   contents: write
 concurrency:

@@ -8,3 +8,6 @@ datarepo/
 .dev.vars
 .wrangler/
 node_modules/
+
+# Cached answers from Roblox, rebuilt automatically
+.cache/

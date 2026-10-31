@@ -280,6 +280,7 @@ function render(d) {
     '<h2>Data</h2><div class="tiles">',
     tile('Games tracked', t.games_tracked), tile('Pages built', t.pages_built),
     tile('Player counts saved', t.samples), tile('Ready for trends', t.trend_ready),
+    tile('Games with events', t.with_events), tile('Events coming up', t.upcoming_events),
     '</div>',
     '<div class="card"><b>Every game</b><div class="wrap"><table>',
     '<tr><th>Game</th><th>Category</th><th class="num">Counts</th><th class="num">Days</th>',

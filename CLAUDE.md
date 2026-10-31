@@ -9,8 +9,8 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 ## How it works
 1. `cloud/collector_cloud.py` (uses `collector.py`) reads universe IDs from `games.txt`, calls Roblox public APIs, and appends rows to `games.csv` and `samples.csv` on the **`data` branch**. (Icons are not stored: `build_site.py` fetches them fresh from `thumbnails.roblox.com` at build time.)
 2. `.github/workflows/collect.yml` runs it every ~30 minutes, 3 samples 10 minutes apart per run.
-3. `cloud/build_cloud.py` turns the CSVs into `data.db`, then `build_site.py` writes the static site to `docs/` on **`main`**.
-4. `.github/workflows/build.yml` runs nightly, by hand, and automatically on any push to `main` that changes `build_site.py`, `cloud/build_cloud.py` or `collector.py`. It commits `docs/`.
+3. `cloud/build_cloud.py` turns the CSVs into `data.db`, then `build_site.py` writes the static site to `docs/` on **`main`**. While building, `roblox_api.py` also fetches the things that change on their own and are not worth storing: icons, descriptions, game passes and the creators' event calendars.
+4. `.github/workflows/build.yml` runs nightly, by hand, and automatically on any push to `main` that changes `build_site.py`, `roblox_api.py`, `cloud/build_cloud.py`, `collector.py` or `games.txt`. It commits `docs/`.
 5. Cloudflare Workers (project `playtimes`) auto-deploys from `main` within seconds of each push. Its deploy command must be plain `npx wrangler deploy`; settings now come from `wrangler.jsonc`.
 
 ## Admin dashboard (owner only)
@@ -22,10 +22,12 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - Never commit `.dev.vars` or `.wrangler/`.
 
 ## Files
-- `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT`.
+- `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT` (reads `SITE_OUT`), `DOMAIN`, `CONTACT`, `SPIKE`.
+- `roblox_api.py`: every Roblox call made while building (icons, descriptions, game passes, events). Answers are cached in `.cache/` (gitignored) so a rebuild is instant; a cold build takes about 40 seconds for 51 games. If an endpoint dies, the function returns `None` and the page quietly leaves that section out.
 - `collector.py`, `cloud/collector_cloud.py`, `cloud/build_cloud.py`: data pipeline. They import each other, so change them together.
-- `seed_demo.py`: fake data for local previews. `lookup_ids.py` turns game links into universe IDs. `check_missing.py` lists IDs Roblox does not return.
+- `seed_demo.py`: invents player counts for local previews, using the real IDs in `games.txt` so names, pictures, descriptions and events are real. It refuses to run if `SITE_OUT=docs`.
 - `games.txt`: one universe ID per line (not place IDs).
+- Browser code lives in `build_site.py` as `SHARED_JS` (timezone shifting, busy-ness bands, "next good block", escaping) plus one block per page. Anything that puts a game name into HTML in the browser must pass it through `esc()`: names come from Roblox and can contain quotes and angle brackets.
 
 ## Rules
 - The Roblox endpoints are unofficial and can change. Use only public endpoints. Never ask for logins, never add Robux generators or gambling.
@@ -38,9 +40,19 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 ## Current status
 - Collecting data (51 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live on a `workers.dev` address with `NOINDEX = True` (hidden from Google while designing).
 - `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
-- Done: About + Privacy pages, game thumbnails, parent section (game passes, fetched at build time from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes`; the old `games.roblox.com` one is dead), Trending page, Save/favorites (browser localStorage only), category pages (from Roblox `genre_l1`, saved in the `genre` column; categories need 2+ games).
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
+
+### Done
+- About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only).
+- For-parents game-pass section, fetched from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes` (the old `games.roblox.com` one is dead).
+- Category pages from Roblox `genre_l1` (saved in the `genre` column; a category needs 2+ games).
+- Sections across the top of every page (`TABS` in `build_site.py`): All games, Most popular, Trending, Growing, Shrinking, Events, Compare, Plan a session. Genres are pills on the homepage.
+- Homepage: "What are you looking for?" (busy / quiet / browsing) re-sorts the list for the visitor's current hour, and a "Quietest / Busiest right now" strip. Both run off a 168-digit busy-ness string per game baked into the page, so there is no extra request.
+- Per-game pages: event calendar, recent updates and changes, game description, "Is X dead?" verdict with a 45-day chart, "Days the player count jumped" (any day `SPIKE`x busier than the week before, matched against the creators' events), and "Plan my session" with a live countdown.
+- `/events.html` site-wide calendar, `/compare.html` (two games overlaid, loads `/data.json`), `/plan.html`.
+- Events and updates come from `apis.roblox.com/virtual-events/v1/universes/{id}/virtual-events`. Creators use these as a changelog, so past ones are the "recent updates" list and unfinished ones are the calendar. Unofficial endpoint: if it dies, both sections disappear on their own.
+- Timezones: `tzOff()` in `SHARED_JS` rounds the visitor's offset to whole hours. Every page must use it. The homepage and the game pages convert between local and UTC in opposite directions, and they disagreed by an hour for half-hour timezones (India) until this was shared.
 
 ## To do
 1. Launch: buy domain, set `DOMAIN` and `CONTACT`, `MIN_SAMPLES = 200`, `NOINDEX = False`; add to Google Search Console; AdSense once 20+ pages have real data (mark site as child-directed).
-2. Trending page fills in after ~2 weeks of data for each game.
+2. These fill in with more real data: Trending / Growing / Shrinking need ~2 weeks per game, the "Is X dead?" verdict needs 10 days, and "Days the player count jumped" needs about 2 weeks.
