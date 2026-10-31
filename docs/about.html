@@ -49,8 +49,18 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
 .ghead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:16px 0}
 .ghead .thumb{width:150px;flex:none}.ghead>div{flex:1 1 260px}
-.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}</style></head><body><div class="w">
-<div class="top"><a class="logo" href="/">PlayTime</a></div><div class="doc"><h1>About PlayTime</h1>
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
+.top nav{display:flex;gap:16px;font-weight:700}.top nav a{text-decoration:none}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
+.pills a:hover{border-color:var(--acc)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+.fav{font:inherit;font-weight:700;padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.fav[aria-pressed=true]{border-color:#e0a800;color:#b8860b}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}.tbl td,.tbl th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
+details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}</style></head><body><div class="w">
+<div class="top"><a class="logo" href="/">PlayTime</a><nav><a href="/trending.html">Trending</a></nav></div><div class="doc"><h1>About PlayTime</h1>
 <p>PlayTime shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
 <h2>How it works</h2>
 <p>About every 30 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
@@ -67,6 +77,6 @@ Parents should still check a game themselves and use Roblox's parental controls.
 Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
 <p>We never ask for a Roblox login, and there are no accounts or sign-ups here. See our <a href="/privacy.html">Privacy Policy</a>.</p>
 </div>
-<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
 </div></body></html>

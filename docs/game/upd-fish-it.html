@@ -49,20 +49,32 @@ input[type=search]{width:100%;font:inherit;padding:12px 16px;border-radius:12px;
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
 .ghead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:16px 0}
 .ghead .thumb{width:150px;flex:none}.ghead>div{flex:1 1 260px}
-.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}</style></head><body><div class="w">
-<div class="top"><a class="logo" href="/">PlayTime</a></div><div class="ghead"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5ea76667d613e65e99edef13ef0d068b/256/256/Image/Webp/noFilter" alt="[🎃UPD] Fish It! 🐟 icon" width="256" height="256" loading="lazy"><div><h1>When is [🎃UPD] Fish It! 🐟 busiest?</h1>
-<p class="mut">Times are shown in your timezone. Based on 20 player counts.</p><p><a class="btn" href="https://www.roblox.com/games/121864768012064">Play [🎃UPD] Fish It! 🐟</a></p></div></div>
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
+.top nav{display:flex;gap:16px;font-weight:700}.top nav a{text-decoration:none}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
+.pills a:hover{border-color:var(--acc)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+.fav{font:inherit;font-weight:700;padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.fav[aria-pressed=true]{border-color:#e0a800;color:#b8860b}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}.tbl td,.tbl th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
+details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}</style></head><body><div class="w">
+<div class="top"><a class="logo" href="/">PlayTime</a><nav><a href="/trending.html">Trending</a></nav></div><div class="ghead"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5ea76667d613e65e99edef13ef0d068b/256/256/Image/Webp/noFilter" alt="[🎃UPD] Fish It! 🐟 icon" width="256" height="256" loading="lazy"><div><h1>When is [🎃UPD] Fish It! 🐟 busiest?</h1>
+<p class="mut">Times are shown in your timezone. Based on 21 player counts.</p>
+<div class="actions"><a class="btn" href="https://www.roblox.com/games/121864768012064">Play [🎃UPD] Fish It! 🐟</a><button class="fav" id="fav" data-s="upd-fish-it" aria-pressed="false">&#9734; Save</button></div></div></div>
 <div class="card ans"><h2>The short answer</h2><p id="now"></p><p id="best"></p><p id="quiet"></p></div>
 <div class="card"><h2>Pick a day</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
 <div class="card"><h2>The whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i><i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p></div>
-<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>65,062</b></div>
+<div class="card stats"><div><span class="mut small">Typical players (last 7 days)</span><b>65,066</b></div>
 <div><span class="mut small">Highest seen</span><b>66,564</b></div>
 <div><span class="mut small">Compared to last week</span><b><span class="mut">Not enough history yet</span></b></div></div>
+<div class="card"><h2>For parents: what costs money</h2><p>This game sells <b>12 game passes</b>, from <b>50 to 999 Robux</b>. Buying every one would cost <b>4,511 Robux</b> (roughly $56 USD).</p><details><summary>See every game pass</summary><div class="wrap"><table class="tbl"><tr><th>Game pass</th><th>Robux</th></tr><tr><td>Hyper Pack ⭐</td><td>999</td></tr><tr><td>Advanced Luck 🍀✨</td><td>545</td></tr><tr><td>VIP 👑</td><td>445</td></tr><tr><td>Lightning Pack ⚡</td><td>399</td></tr><tr><td>Blossom Pack 🌸</td><td>399</td></tr><tr><td>Futuristic Pack 🚨</td><td>399</td></tr><tr><td>Sell Anywhere 🌍</td><td>315</td></tr><tr><td>More Mutations 🌈⭐</td><td>295</td></tr><tr><td>Extra Luck 🍀✨</td><td>245</td></tr><tr><td>Mini Hoverboat 🔥</td><td>225</td></tr><tr><td>Double XP 💜</td><td>195</td></tr><tr><td>Small Luck 🍀</td><td>50</td></tr></table></div></details><p class="mut small">Games can also sell one-time items inside the game, which are not listed here. Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>
 <p><a href="/">&larr; All games</a></p>
-<script>const M=[[null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 66090, 64818, 64342, 64740, 64767], [65057, 65233, 65150, 65210, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]],D=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<script>const M=[[null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 66090, 64818, 64342, 64740, 64767], [65057, 65233, 65150, 65176, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]],D=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const off=-new Date().getTimezoneOffset()/60,L=D.map(()=>Array(24).fill(null));
 for(let d=0;d<7;d++)for(let h=0;h<24;h++){let t=h+off,dd=d;while(t<0){t+=24;dd=(dd+6)%7}while(t>=24){t-=24;dd=(dd+1)%7}L[dd][Math.floor(t)]=M[d][h]}
 const vals=L.flat().filter(v=>v!=null).sort((a,b)=>a-b),mx=vals[vals.length-1]||1;
@@ -89,7 +101,11 @@ D.forEach((n,i)=>{const b=document.createElement('button');b.textContent=n.slice
 let g='<div></div>';['12 AM','6 AM','12 PM','6 PM'].forEach(t=>g+='<span style="grid-column:span 6">'+t+'</span>');
 for(let d=0;d<7;d++){g+='<div>'+D[d].slice(0,3)+'</div>';for(let h=0;h<24;h++){const v=L[d][h];
 g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+D[d]+' '+fmt(h)+': about '+(v||0).toLocaleString()+' players" style="background:'+(v==null?'transparent':'var(--l'+lv(v)+')')+'"></div>'}}
-$('hm').innerHTML=g;show(nd);</script>
-<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
+$('hm').innerHTML=g;show(nd);</script><script>function getFavs(){try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
+function setFavs(f){try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}}
+(()=>{const b=document.getElementById('fav'),k=b.dataset.s;
+const draw=()=>{const on=getFavs().includes(k);b.setAttribute('aria-pressed',on);b.innerHTML=on?'&#9733; Saved':'&#9734; Save'};
+b.onclick=()=>{let f=getFavs();f=f.includes(k)?f.filter(x=>x!==k):f.concat(k);setFavs(f);draw()};draw()})();</script>
+<footer class="foot"><nav class="small"><a href="/">All games</a><a href="/trending.html">Trending</a><a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it shows when people play, not whether a game is good or safe.</p></footer>
 </div></body></html>
