@@ -1,584 +1,227 @@
 // Written by build_site.py on every build. Do not edit by hand.
 export default {
- "built_at": "2026-10-31T05:11:28Z",
+ "built_at": "2026-10-31T05:17:02Z",
  "site": {
   "noindex": true,
-  "min_samples": 2,
+  "min_samples": 200,
   "domain": "",
   "contact": "",
   "ads": false
  },
  "totals": {
   "games_tracked": 51,
-  "pages_built": 51,
+  "pages_built": 0,
   "samples": 626,
   "trend_ready": 0,
-  "with_events": 47,
-  "upcoming_events": 71
+  "with_events": 0,
+  "upcoming_events": 0
  },
- "games": [
+ "games": [],
+ "waiting": [
   {
-   "name": "Steal An Egg",
-   "genre": "Simulation",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 920962,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 11,
-   "upcoming": 1
-  },
-  {
-   "name": "Brookhaven \ud83c\udfe1RP",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 476722,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 76,
-   "upcoming": 3
-  },
-  {
-   "name": "[\ud83d\udc80] Steal a Brainrot",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 332400,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 63,
-   "upcoming": 0
+   "name": "Flee the Facility",
+   "samples": 3
   },
   {
    "name": "[1.2X\ud83c\udf83] Adopt Me!",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 233906,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 147,
-   "upcoming": 0
-  },
-  {
-   "name": "[\ud83c\udf83] RIVALS",
-   "genre": "Shooter",
-   "samples": 18,
-   "days": 0.4,
-   "avg7": 224147,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 29,
-   "upcoming": 2
-  },
-  {
-   "name": "99 Nights in the Forest \ud83d\udd26",
-   "genre": "Survival",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 158478,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 50,
-   "upcoming": 2
-  },
-  {
-   "name": "[\ud83c\udf83] Jujutsu Shenanigans",
-   "genre": "Action",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 158334,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 11,
-   "upcoming": 1
-  },
-  {
-   "name": "Blox Fruits",
-   "genre": "RPG",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 154673,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 13,
-   "upcoming": 1
-  },
-  {
-   "name": "\ud83c\udf83 Dandy's World [ALPHA]",
-   "genre": "Survival",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 114853,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 41,
-   "upcoming": 3
-  },
-  {
-   "name": "DONT SPLASH",
-   "genre": "Obby & Platformer",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 96435,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "name": "Break and Steal an Egg",
-   "genre": "Simulation",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 83598,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 1
-  },
-  {
-   "name": "[\ud83c\udf83] Throw Food For Animals",
-   "genre": "Simulation",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 80098,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "name": "The Strongest Battlegrounds",
-   "genre": "Action",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 78876,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 1
-  },
-  {
-   "name": "[ALPHA] Practical Basketball",
-   "genre": "Sports & Racing",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 77242,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 1
-  },
-  {
-   "name": "[\ud83c\udf83 NEW QUEST] Dress To Impress",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 72144,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 39,
-   "upcoming": 2
-  },
-  {
-   "name": "[\ud83c\udf83DUELS] Murderers VS Sheriffs",
-   "genre": "Action",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 71963,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 34,
-   "upcoming": 3
-  },
-  {
-   "name": "Catalog Avatar Creator",
-   "genre": "Shopping",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 66087,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
-  },
-  {
-   "name": "Fisch \ud83c\udf83",
-   "genre": "Simulation",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 65897,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 48,
-   "upcoming": 3
-  },
-  {
-   "name": "[\ud83c\udf83UPD] Fish It! \ud83d\udc1f",
-   "genre": "Simulation",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 65147,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 34,
-   "upcoming": 0
-  },
-  {
-   "name": "\ud83c\udf89 [PSX] Pet Simulator 99! \ud83d\udc3e",
-   "genre": "Simulation",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 63857,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 48,
-   "upcoming": 4
-  },
-  {
-   "name": "[\ud83c\udf83] Anime Dice",
-   "genre": "Simulation",
-   "samples": 26,
-   "days": 0.4,
-   "avg7": 61876,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 1
-  },
-  {
-   "name": "[SOON \ud83c\udf83HLWN] Evade ",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 52134,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 39,
-   "upcoming": 4
-  },
-  {
-   "name": "The Hollow",
-   "genre": "Entertainment",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 50592,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 2
-  },
-  {
-   "name": "[BUTCHER x \ud83c\udf83] Violence District",
-   "genre": "Survival",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 50527,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 1
-  },
-  {
-   "name": "[\ud83e\udd39APRIL FOOL'S\ud83e\udd21] Anime Adventures",
-   "genre": "Strategy",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 49575,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "name": "[UPD] Volleyball Legends",
-   "genre": "Sports & Racing",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 47810,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 89,
-   "upcoming": 1
-  },
-  {
-   "name": "Forsaken",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 44746,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 18,
-   "upcoming": 0
-  },
-  {
-   "name": "[\ud83c\udf83] Steal A Pet And Ride It!",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 44346,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 2
-  },
-  {
-   "name": "[\ud83d\udcb0X2] Cameraman Tower Defense",
-   "genre": "Strategy",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 42397,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 1
-  },
-  {
-   "name": "Driving Empire [\ud83c\udf83HALLOWEEN EVENT\ud83c\udf83]",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 40096,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 101,
-   "upcoming": 1
-  },
-  {
-   "name": "Berry Avenue \ud83c\udfe0 RP",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 38090,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
-  },
-  {
-   "name": "[\ud83d\udc7b] Tap Simulator REBORN",
-   "genre": "Simulation",
-   "samples": 16,
-   "days": 0.2,
-   "avg7": 37641,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "name": "+1 Spider Arm\ud83d\udd77\ufe0f",
-   "genre": "Simulation",
-   "samples": 25,
-   "days": 0.4,
-   "avg7": 36264,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 2
-  },
-  {
-   "name": "Fling Things and People",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 35240,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "name": "Sol's RNG [ Radiant Forest\ud83c\udf19]",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 34606,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 41,
-   "upcoming": 2
+   "samples": 26
   },
   {
    "name": "Bee Swarm Simulator",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 31571,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
+   "samples": 3
+  },
+  {
+   "name": "Blox Fruits",
+   "samples": 26
   },
   {
    "name": "[\ud83c\udf19 NIGHT 4] Tower Defense Simulator",
-   "genre": "Strategy",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 31124,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 57,
-   "upcoming": 2
+   "samples": 3
   },
   {
-   "name": "DOORS \ud83c\udf6c\ud83c\udf6d",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 30583,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 22,
-   "upcoming": 4
-  },
-  {
-   "name": "[\ud83d\udc7bRereleases] BedWars",
-   "genre": "Action",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 28498,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 80,
-   "upcoming": 1
-  },
-  {
-   "name": "\ud83c\udf83 Creatures of Sonaria \ud83c\udf6c Survive Kaiju Animals",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 26929,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 32,
-   "upcoming": 3
-  },
-  {
-   "name": "[\ud83d\udd25UPD] Hypershot",
-   "genre": "Shooter",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 24869,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 17,
-   "upcoming": 1
-  },
-  {
-   "name": "[\ud83c\udf83] Grow a Garden \ud83c\udf36\ufe0f",
-   "genre": "Simulation",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 23226,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 114,
-   "upcoming": 4
-  },
-  {
-   "name": "LifeTogether \ud83c\udfe0 RP [FAMILIES]",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 22959,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 1
-  },
-  {
-   "name": "Flee the Facility",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 22854,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 19,
-   "upcoming": 0
-  },
-  {
-   "name": "Piggy [THE HOLLOW]",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 22090,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 3
-  },
-  {
-   "name": "\ud83d\udecd\ufe0f My Avatar!",
-   "genre": "Shopping",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 20898,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "name": "[\ud83c\udf83] The Mimic",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 15239,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 9,
-   "upcoming": 2
-  },
-  {
-   "name": "Raise The Biggest Family",
-   "genre": "Roleplay & Avatar Sim",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 14703,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "name": "[\ud83c\udf83] Murder Duels",
-   "genre": "Shooter",
-   "samples": 18,
-   "days": 0.4,
-   "avg7": 11353,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 16,
-   "upcoming": 1
+   "name": "Driving Empire [\ud83c\udf83HALLOWEEN EVENT\ud83c\udf83]",
+   "samples": 3
   },
   {
    "name": "\ud83d\udd2aSurvive the Killer!",
-   "genre": "Survival",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 10982,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 0
+   "samples": 3
+  },
+  {
+   "name": "Piggy [THE HOLLOW]",
+   "samples": 3
+  },
+  {
+   "name": "Brookhaven \ud83c\udfe1RP",
+   "samples": 26
+  },
+  {
+   "name": "\ud83c\udf83 Creatures of Sonaria \ud83c\udf6c Survive Kaiju Animals",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83] The Mimic",
+   "samples": 3
+  },
+  {
+   "name": "DOORS \ud83c\udf6c\ud83c\udf6d",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83d\udc7bRereleases] BedWars",
+   "samples": 3
+  },
+  {
+   "name": "Fling Things and People",
+   "samples": 3
+  },
+  {
+   "name": "Catalog Avatar Creator",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83e\udd39APRIL FOOL'S\ud83e\udd21] Anime Adventures",
+   "samples": 3
+  },
+  {
+   "name": "Berry Avenue \ud83c\udfe0 RP",
+   "samples": 25
+  },
+  {
+   "name": "\ud83c\udf89 [PSX] Pet Simulator 99! \ud83d\udc3e",
+   "samples": 26
+  },
+  {
+   "name": "[\ud83c\udf83] Jujutsu Shenanigans",
+   "samples": 25
+  },
+  {
+   "name": "[SOON \ud83c\udf83HLWN] Evade ",
+   "samples": 3
+  },
+  {
+   "name": "The Strongest Battlegrounds",
+   "samples": 25
+  },
+  {
+   "name": "LifeTogether \ud83c\udfe0 RP [FAMILIES]",
+   "samples": 3
   },
   {
    "name": "[\ud83c\udf83]\ud83c\udfc0Basketball Legends\ud83c\udfc0",
-   "genre": "Sports & Racing",
-   "samples": 3,
-   "days": 0.0,
-   "avg7": 6284,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 22,
-   "upcoming": 0
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83 NEW QUEST] Dress To Impress",
+   "samples": 26
+  },
+  {
+   "name": "Sol's RNG [ Radiant Forest\ud83c\udf19]",
+   "samples": 3
+  },
+  {
+   "name": "\ud83c\udf83 Dandy's World [ALPHA]",
+   "samples": 26
+  },
+  {
+   "name": "Fisch \ud83c\udf83",
+   "samples": 25
+  },
+  {
+   "name": "[\ud83d\udd25UPD] Hypershot",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83] RIVALS",
+   "samples": 18
+  },
+  {
+   "name": "Forsaken",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83UPD] Fish It! \ud83d\udc1f",
+   "samples": 26
+  },
+  {
+   "name": "[BUTCHER x \ud83c\udf83] Violence District",
+   "samples": 25
+  },
+  {
+   "name": "[UPD] Volleyball Legends",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83DUELS] Murderers VS Sheriffs",
+   "samples": 26
+  },
+  {
+   "name": "99 Nights in the Forest \ud83d\udd26",
+   "samples": 26
+  },
+  {
+   "name": "[\ud83c\udf83] Grow a Garden \ud83c\udf36\ufe0f",
+   "samples": 3
+  },
+  {
+   "name": "[ALPHA] Practical Basketball",
+   "samples": 3
+  },
+  {
+   "name": "\ud83d\udecd\ufe0f My Avatar!",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83d\udc80] Steal a Brainrot",
+   "samples": 3
+  },
+  {
+   "name": "[\ud83c\udf83] Murder Duels",
+   "samples": 18
+  },
+  {
+   "name": "Steal An Egg",
+   "samples": 26
+  },
+  {
+   "name": "[\ud83d\udc7b] Tap Simulator REBORN",
+   "samples": 16
+  },
+  {
+   "name": "[\ud83c\udf83] Anime Dice",
+   "samples": 26
+  },
+  {
+   "name": "[\ud83d\udcb0X2] Cameraman Tower Defense",
+   "samples": 3
+  },
+  {
+   "name": "Break and Steal an Egg",
+   "samples": 25
+  },
+  {
+   "name": "[\ud83c\udf83] Throw Food For Animals",
+   "samples": 26
+  },
+  {
+   "name": "[\ud83c\udf83] Steal A Pet And Ride It!",
+   "samples": 3
+  },
+  {
+   "name": "Raise The Biggest Family",
+   "samples": 3
+  },
+  {
+   "name": "The Hollow",
+   "samples": 3
+  },
+  {
+   "name": "DONT SPLASH",
+   "samples": 3
+  },
+  {
+   "name": "+1 Spider Arm\ud83d\udd77\ufe0f",
+   "samples": 25
   }
  ],
- "waiting": [],
  "missing_ids": []
 };
