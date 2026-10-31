@@ -14,7 +14,7 @@ import STATS from "./stats.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
-const MAX_TRIES = 8;            // failed logins allowed...
+const MAX_TRIES = 5;            // failed logins allowed...
 const WINDOW_MINUTES = 15;      // ...within this many minutes, per visitor
 const SAFE_PATH = /^\/[A-Za-z0-9/._-]*$/;
 
