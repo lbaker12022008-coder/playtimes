@@ -101,8 +101,8 @@ filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
 .banner::after{content:"";position:absolute;inset:0;
 background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
 .shell{position:relative;z-index:1}   /* keep the page content above the artwork */
-.w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:1400px}
+.w{max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:min(1400px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
    when there is something to put in them. */
@@ -111,7 +111,11 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    the widest thing inside it. On a phone that let one wide child drag .w to 1094px
    inside a 390px track, and every page then scrolled sideways. The track is already
    minmax(0,1fr); this is the other half of the same fix. */
-.shell>*{min-width:0}
+/* max-width is the half that actually does the work. .shell centres its track with
+   justify-content, and a grid item in a centred track is allowed to grow past the
+   track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
+   phone and every page scrolled sideways. min-width:0 alone does not stop that. */
+.shell>*{min-width:0;max-width:100%}
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
@@ -168,7 +172,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 7px}
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:6px 16px 7px}
 .hrow{display:flex;align-items:center;gap:10px}
 .hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
@@ -259,14 +263,17 @@ border:1px solid var(--line);border-radius:13px}
 :root[data-view=list] .ph{font-size:1.4rem}
 :root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
 :root[data-view=list] .tmeta{margin:0;flex:none}
-.tabs{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
+/* A scrolling strip is written as a block with nowrap text, never as a nowrap
+   flex row: a nowrap flex container hands its parent the total width of its
+   items, so the page grows to fit a strip that was supposed to scroll. */
+.tabs{display:none;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px;white-space:nowrap}
 .tabs::-webkit-scrollbar{display:none}
-.tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
+.tabs a{display:inline-block;margin-right:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
 .tabs a:hover{border-color:var(--acc);transform:translateY(-1px)}
 .tabs a[aria-current=page]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 /* Only one of the two ways into the sections is ever on screen: the row when it fits,
    the menu button when it does not. 900px is where all eight pills stop needing a drag. */
-@media(min-width:900px){.tabs{display:flex}#menubtn{display:none}.hdr .in{padding-bottom:0}}
+@media(min-width:900px){.tabs{display:block}#menubtn{display:none}.hdr .in{padding-bottom:0}}
 .drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
@@ -288,7 +295,7 @@ font-size:.9rem;font-weight:600}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
 /* game tiles */
-.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
+.grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
 .tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
 .thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
@@ -444,9 +451,10 @@ h2{font-size:1.06rem}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
-.pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
+.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
 .pills::-webkit-scrollbar{display:none}
-.pills a{flex:none}
+.pills a{display:inline-block;margin-right:8px}
+.pills a:last-child{margin-right:0}
 /* all seven days fit across, so the chart below does not jump when you change day */
 .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
 .days button{padding:6px 0;font-size:.82rem}
@@ -457,7 +465,11 @@ h2{font-size:1.06rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
 .ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
 .ghead .thumb{width:72px;border-radius:12px;margin-top:-30px;border-width:2px}
-.ghead>div{flex:1 1 170px}
+/* On a phone the picture goes on its own line and the words get the full width.
+   Beside a 72px picture the text column was about 250px, which broke a heading
+   into three lines and the opening paragraph into eleven. */
+.ghead>div{flex:1 1 100%}
+h1{font-size:1.5rem}
 .actions{gap:7px}
 .btn{padding:10px 16px}
 .fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
