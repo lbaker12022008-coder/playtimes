@@ -309,6 +309,12 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
 .desc{white-space:pre-line;margin:.3em 0}
 .evt{list-style:none;padding:0;margin:8px 0}
+/* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
+   is about and only picks up the accent when the pointer is on it. */
+.remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 13px;
+font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
+background:var(--card);color:var(--mut);cursor:pointer}
+.remind:hover{border-color:var(--acc);color:var(--ink)}
 .evt li{border-left:3px solid var(--line);padding:2px 0 2px 14px;margin:16px 0}
 .evt li.soon{border-left-color:var(--acc2);background:var(--soft);border-radius:0 10px 10px 0;padding:8px 12px 8px 14px}
 .evt li.live{border-left-color:var(--up)}
@@ -448,7 +454,67 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
-e.preventDefault();history.back()}});</script></head><body>
+e.preventDefault();history.back()}});</script><script>
+function ptPad(n){return (n<10?'0':'')+n}
+function ptIcsText(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;')
+.replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+/* Octets, not characters: nearly a quarter of the event titles Roblox gives us have
+   an emoji in them, and one emoji is four of the 75. JavaScript walks a string in
+   16-bit pieces, so an emoji arrives as two of them ("surrogates"); the pair counts
+   as four octets at the first piece and nothing at the second, which also means a
+   line can never be folded down the middle of one. Do not reach for
+   encodeURIComponent here to measure it: handed half an emoji it throws. */
+function ptIcsFold(line){var out='',run=0;
+for(var i=0;i<line.length;i++){var ch=line[i],c=line.charCodeAt(i);
+var n=c<128?1:c<2048?2:(c>=0xD800&&c<0xDC00)?4:(c>=0xDC00&&c<0xE000)?0:3;
+if(n&&run+n>74){out+='\r\n ';run=1}
+out+=ch;run+=n}
+return out}
+function ptIcsDate(d){return d.getUTCFullYear()+ptPad(d.getUTCMonth()+1)+ptPad(d.getUTCDate())+
+'T'+ptPad(d.getUTCHours())+ptPad(d.getUTCMinutes())+ptPad(d.getUTCSeconds())+'Z'}
+/* ev: {uid,start,end,title,desc,url,rrule,alarm}. start and end are Dates, and they
+   are written in UTC so the file never has to carry a timezone of its own: the
+   calendar app shows them on the reader's own clock, which is the same thing every
+   other time on this site does. */
+function ptIcs(ev){
+var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PlayTime//EN','CALSCALE:GREGORIAN',
+'BEGIN:VEVENT','UID:'+ev.uid,'DTSTAMP:'+ptIcsDate(new Date()),
+'DTSTART:'+ptIcsDate(ev.start),'DTEND:'+ptIcsDate(ev.end)];
+if(ev.rrule)L.push('RRULE:'+ev.rrule);
+L.push('SUMMARY:'+ptIcsText(ev.title));
+if(ev.desc)L.push('DESCRIPTION:'+ptIcsText(ev.desc));
+if(ev.url)L.push('URL:'+ptIcsText(ev.url));
+L.push('BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:-PT'+(ev.alarm||10)+'M',
+'DESCRIPTION:'+ptIcsText(ev.title),'END:VALARM','END:VEVENT','END:VCALENDAR');
+var out=[];for(var i=0;i<L.length;i++)out.push(ptIcsFold(L[i]));
+return out.join('\r\n')+'\r\n'}
+function ptSave(name,text){
+try{
+var b=new Blob([text],{type:'text/calendar;charset=utf-8'});
+var u=URL.createObjectURL(b),a=document.createElement('a');
+a.href=u;a.download=name;document.body.appendChild(a);a.click();
+document.body.removeChild(a);
+setTimeout(function(){URL.revokeObjectURL(u)},4000);return true}
+catch(e){return false}}
+/* One handler for every "Remind me" button on the site. Each button carries its own
+   event on itself, so this covers a game page, the site-wide calendar and the
+   session planner without any of them needing their own code. */
+document.addEventListener('click',function(e){
+var b=e.target&&e.target.closest?e.target.closest('button[data-ics]'):null;
+if(!b||!b.dataset.start)return;
+e.preventDefault();
+var st=new Date(+b.dataset.start*1000);
+var en=b.dataset.end?new Date(+b.dataset.end*1000):new Date(+b.dataset.start*1000+3600000);
+var ok=ptSave(b.dataset.ics+'.ics',ptIcs({
+/* A stable id where the page can give one, so adding the same weekly reminder
+   twice updates it instead of leaving two in the calendar. */
+uid:(b.dataset.uid||b.dataset.ics+'-'+b.dataset.start)+'@playtime',
+start:st,end:en,title:b.dataset.title||'Reminder',desc:b.dataset.desc||'',
+url:location.href,rrule:b.dataset.rrule||'',alarm:+b.dataset.alarm||10}));
+var was=b.dataset.label||b.textContent;
+b.textContent=ok?'\u2713 Saved to your calendar':'Could not save the file';
+setTimeout(function(){b.textContent=was},3000)});
+</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-d111581431e4b643bca09551eeae1aff/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
@@ -506,7 +572,11 @@ Visit the Dance Studio today and start dancing!</p></li><li class=""><b>Apartmen
 🐱 Cute Cats &amp; Kittens!
 🐾 NEW Pet Animations &amp; Interactions!
 ✨ And much more to discover!
-❤️ Adopt, play &amp; create unforgettable memories together!</p></li></ul></div><p><a href="/game/dubai-rp.html">&larr; Back to Dubai RP</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+❤️ Adopt, play &amp; create unforgettable memories together!</p><button type="button" class="remind" data-label="&#128276; Remind me" data-ics="playtime-pet-update" data-start="1793984432" data-title="Pet Update! 🐾" data-alarm="15" data-end="1794589232" data-desc="🐶 Adorable Dogs &amp; Puppies!
+🐱 Cute Cats &amp; Kittens!
+🐾 NEW Pet Animations &amp; Interactions!
+✨ And much more to discover!
+❤️ Adopt, play &amp; create unforgettable memories together!">&#128276; Remind me</button></li></ul></div><p><a href="/game/dubai-rp.html">&larr; Back to Dubai RP</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
