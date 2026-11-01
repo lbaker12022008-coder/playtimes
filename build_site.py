@@ -32,33 +32,38 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 
 # The dark palette, written once and used twice below: once for people whose device
 # is set to dark, and once for people who pressed the theme button themselves.
-# Colours: the owner's emerald palette. Dark mode is it exactly, as supplied:
-# background #0B1411, cards #14231D, accent #10B981, secondary #34D399, text
-# #ECFDF5. Light mode is the same idea turned over, so the toggle still works:
-# #0B1411 ink on a faintly green near-white. Every pair was measured against the
-# surface it sits on, not guessed, and all body text clears the 4.5 it needs.
-#   --acc2 is a violet rather than a third green ON PURPOSE. It is the second
-#   line on /compare.html and the second bar in the hourly chart, so it has to be
-#   tellable from --acc at a glance; two greens would make that page useless.
+# Colours: the owner's black and neon purple palette. Dark mode is it exactly,
+# as supplied: background #0A0A0F, cards #171521, accent #A855F7, secondary
+# #C084FC, text #F5F3FF. Light mode is the same idea turned over, so the toggle
+# still works: #0A0A0F ink on a faintly purple near-white. Every pair was
+# measured against the surface it sits on, not guessed, and all body text clears
+# the 4.5 it needs.
+#   --acc2 is the supplied secondary, a lighter purple, and it is DECORATIVE:
+#   gradients and the edge of a soon-starting event. It is not a data colour.
+#   --alt is the data colour, a cyan, and it is a different hue ON PURPOSE. It
+#   draws the second game on /compare.html, the second set of bars in the hourly
+#   chart and the spike dots on the 45-day line, so it has to be tellable from
+#   --acc at a glance. Two purples would make those unreadable, which is exactly
+#   why the second series cannot just be the supplied secondary.
 #   --btnink is the text on a filled accent button: white in light mode, near
-#   black in dark, because #10B981 only reaches 2.54 against white.
+#   black in dark, because white on #A855F7 only reaches 3.96.
 #   --l1..--l5 are the heatmap, and they now mean crowding rather than depth:
 #   green is quiet, amber is middling, red is busy. Hue alone would not be enough
 #   (red-green colourblindness is common, and much of this audience is children),
 #   so the perceived lightness ALSO falls in even 7-point steps, L* 88 81 74 67 60.
 #   That keeps the bands tellable apart in greyscale. Keep both properties if you
 #   ever retune them: scratch a hue and you must re-check the lightness as well.
-DARK = """--bg:#0B1411;--card:rgba(20,35,29,.82);--solid:#14231D;--ink:#ECFDF5;--mut:#8FA99C;--line:#23382E;
---acc:#10B981;--acc2:#D96AF0;--sky:#BFF3DF;--glass:rgba(11,20,17,.86);--btnink:#06120D;
+DARK = """--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
+--acc:#A855F7;--acc2:#C084FC;--alt:#22D3EE;--sky:#E9D5FF;--glass:rgba(10,10,15,.86);--btnink:#0A0A0F;
 --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
---up:#34D399;--down:#FF7A8A;--soft:#13271F;--favbg:#16302A;--favink:#6EE7B7;
+--up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
 --shade:rgba(255,255,255,.06);--bannerop:.3"""
 
-CSS = """:root{--bg:#F2F8F5;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0B1411;--mut:#4A5F56;
---line:#CFE0D8;--acc:#047857;--acc2:#7E22CE;--sky:#BFF3DF;--btnink:#fff;
---glass:rgba(242,248,245,.86);--sh:0 1px 2px rgba(11,20,17,.07),0 10px 30px rgba(11,20,17,.11);
+CSS = """:root{--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;--mut:#595068;
+--line:#DDD6E8;--acc:#7E22CE;--acc2:#9333EA;--alt:#0E7490;--sky:#E9D5FF;--btnink:#fff;
+--glass:rgba(246,244,251,.86);--sh:0 1px 2px rgba(10,10,15,.07),0 10px 30px rgba(10,10,15,.11);
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
---soft:#E2F3EB;--favbg:#E2F3EB;--favink:#065F46;--shade:rgba(11,20,17,.05);--bannerop:.14}
+--soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
@@ -456,13 +461,13 @@ def crumbs(trail):
 def logo_svg(cls="mark", ident="lg"):
     return (f'<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true">'
             f'<defs><linearGradient id="{ident}" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0" stop-color="#6EE7B7"/><stop offset="1" stop-color="#10B981"/>'
+            f'<stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/>'
             f'</linearGradient></defs>'
             f'<circle cx="16" cy="16" r="15" fill="url(#{ident})"/>'
-            f'<circle cx="16" cy="16" r="11" fill="none" stroke="#06120D" stroke-opacity=".45" '
+            f'<circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" '
             f'stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" '
             f'transform="rotate(-90 16 16)"/>'
-            f'<path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#06120D"/></svg>')
+            f'<path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg>')
 
 
 FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
@@ -616,7 +621,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
         social = '<meta name="twitter:card" content="summary">'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#10B981">
+<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#A855F7">
 {robots_meta(noindex)}<link rel="canonical" href="{html.escape(url)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{html.escape(SITE)}">
 <meta property="og:title" content="{html.escape(title)}">
@@ -1028,7 +1033,7 @@ def sparkline(daily, spikes):
     y = lambda v: round(h - 6 - (v - lo) / span * (h - 14), 1)
     line = " ".join(f"{x(i)},{y(v)}" for i, (_, v) in enumerate(pts))
     spike_days = {d for d, _ in spikes}
-    dots = "".join(f'<circle cx="{x(i)}" cy="{y(v)}" r="4" fill="var(--acc2)"><title>'
+    dots = "".join(f'<circle cx="{x(i)}" cy="{y(v)}" r="4" fill="var(--alt)"><title>'
                    f'{when(d)}: about {v:,} players, much busier than usual</title></circle>'
                    for i, (d, v) in enumerate(pts) if d in spike_days)
     return (f'<svg class="spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
@@ -1037,7 +1042,7 @@ def sparkline(daily, spikes):
             f'<polyline points="{line}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
             f'stroke-linejoin="round" stroke-linecap="round"/>{dots}</svg>'
             f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}. '
-            f'Each point is a day. Purple dots are days that were much busier than usual.</p>')
+            f'Each point is a day. The dots mark days that were much busier than usual.</p>')
 
 
 def levels_string(week):
@@ -2002,7 +2007,7 @@ var va=La[day][h],vb=Lb[day][h];
 out+='<div style="display:flex;gap:1px;align-items:flex-end;align-self:stretch">'+
 '<div class="bar" style="--i:'+h+';flex:1;height:'+Math.max(3,(va||0)/Ba.max*100)+'%;background:var(--acc)" '+
 'title="'+esc(a.n)+' '+fmt(h)+': about '+(va||0).toLocaleString()+' players"></div>'+
-'<div class="bar b2" style="--i:'+h+';flex:1;height:'+Math.max(3,(vb||0)/Bb.max*100)+'%;background:var(--acc2)" '+
+'<div class="bar b2" style="--i:'+h+';flex:1;height:'+Math.max(3,(vb||0)/Bb.max*100)+'%;background:var(--alt)" '+
 'title="'+esc(b.n)+' '+fmt(h)+': about '+(vb||0).toLocaleString()+' players"></div></div>'}
 $('bars').innerHTML=out;
 /* Each game is measured against its own week, so a small game can still be "busy". */
@@ -2935,7 +2940,7 @@ def main():
         '<div class="days" id="days"></div><div class="bars cols" id="bars"></div>'
         '<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>'
         '<div class="legend"><i style="background:var(--acc)"></i><span id="alab"></span>'
-        '<i style="background:var(--acc2);margin-left:10px"></i><span id="blab"></span></div>'
+        '<i style="background:var(--alt);margin-left:10px"></i><span id="blab"></span></div>'
         '<p id="verdict" style="margin-top:14px"></p>'
         '<div class="stats" id="nums"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
