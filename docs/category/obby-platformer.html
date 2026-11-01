@@ -14,6 +14,17 @@
 --glass:rgba(246,244,251,.86);--sh:0 1px 2px rgba(10,10,15,.07),0 10px 30px rgba(10,10,15,.11);
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
 --soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14}
+/* Widths only apply once there is room for them. Below 900px every card is full
+   width again, because two columns of this on a phone is unreadable. */
+@media(min-width:900px){
+.bento{gap:18px;margin-top:-30px}   /* pulls the first row up under the heading panel */
+.bento>.sp4{grid-column:span 4}.bento>.sp5{grid-column:span 5}
+.bento>.sp6{grid-column:span 6}.bento>.sp7{grid-column:span 7}.bento>.sp8{grid-column:span 8}
+/* The week grid gets a lot wider on a wide page, so the squares grow with it rather
+   than stretching into letterboxes, and it stops short of the full width. */
+.hm{max-width:1120px;margin-left:auto;margin-right:auto}
+.hm .c{height:32px}
+}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
 --acc:#A855F7;--acc2:#C084FC;--alt:#22D3EE;--sky:#E9D5FF;--glass:rgba(10,10,15,.86);--btnink:#0A0A0F;
@@ -59,6 +70,18 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* ---- Bento: a page as a grid, not one tall column ---------------------------
+   A game page has a dozen sections. Stacked one per row, the last of them is a very
+   long way down. Laid out two and three across, a visitor sees several at once.
+   Each card keeps its place in the HTML and only its WIDTH changes, so the reading
+   order, screen readers and check_seo.py all see exactly what they saw before: the
+   grid never reorders anything, which is why there is no grid-auto-flow:dense here.
+   Cards keep their own height (align-items:start) rather than stretching to match the
+   tallest in the row. What goes in them varies far too much for that: a game with no
+   events sits next to a long FAQ, a 7-row table next to a 24-row one, and stretching
+   turns the short one into a mostly empty box. The even gaps hold the grid together. */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
+.bento>*{grid-column:1/-1;margin:0}   /* full width by default; the grid owns the spacing */
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -224,8 +247,13 @@ font-size:.9rem;font-weight:600}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 
 /* game page */
-.ghead{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin:14px 0}
-.ghead .thumb{width:150px;flex:none}
+/* The heading sits on its own glass panel over the game's artwork, and the picture
+   lifts out of the top of it, so the page opens with depth instead of two flat things
+   stacked. z-index keeps the panel above the cards that tuck up underneath it. */
+.ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+.ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
@@ -316,8 +344,8 @@ h2{font-size:1.06rem}
 .hm .c{height:17px;border-radius:3px}
 .axis{font-size:.72rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
-.ghead{gap:13px;margin:10px 0}
-.ghead .thumb{width:72px;border-radius:12px}
+.ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
+.ghead .thumb{width:72px;border-radius:12px;margin-top:-30px;border-width:2px}
 .ghead>div{flex:1 1 170px}
 .actions{gap:7px}
 .btn{padding:10px 16px}
@@ -387,7 +415,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Obby &amp; Platformer games</span></nav></div><div class="hero"><h1>Obby &amp; Platformer Roblox games: player counts and best times to play</h1><p class="lede">Live-tracked player counts for 2 games popular obby &amp; platformer games on Roblox. DONT SPLASH is the busiest, with about 111,642 players at a typical moment. Pick a game to see its week, its events and its updates.</p></div><h2 style="margin-top:22px">What are you looking for?</h2><div class="ask" id="ask"><button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b><i>Trading, full servers, live events</i></button><button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b><i>Claim events, no queues, less lag</i></button><button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b><i>Show the most popular games</i></button></div><div id="asknote" class="note" hidden></div><p id="asktxt" class="mut small">Showing all 2 games, most popular first.</p><div class="rowhead"><span></span><div class="actions" style="margin:0"><span class="mut small">2 games</span><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><ul class="grid" id="all"><li style="--i:0" data-n="dont splash" data-s="dont-splash"><a class="tile" href="/game/dont-splash.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter" alt="DONT SPLASH Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">DONT SPLASH</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 111.6K</span></span></a></li><li style="--i:1" data-n="tower of hell" data-s="tower-of-hell"><a class="tile" href="/game/tower-of-hell.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter" alt="Tower of Hell Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tower of Hell</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 26.5K</span></span></a></li></ul><p><a href="/">&larr; All Roblox player counts</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Obby &amp; Platformer games</span></nav></div><div class="hero"><h1>Obby &amp; Platformer Roblox games: player counts and best times to play</h1><p class="lede">Live-tracked player counts for 2 games popular obby &amp; platformer games on Roblox. DONT SPLASH is the busiest, with about 111,705 players at a typical moment. Pick a game to see its week, its events and its updates.</p></div><h2 style="margin-top:22px">What are you looking for?</h2><div class="ask" id="ask"><button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b><i>Trading, full servers, live events</i></button><button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b><i>Claim events, no queues, less lag</i></button><button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b><i>Show the most popular games</i></button></div><div id="asknote" class="note" hidden></div><p id="asktxt" class="mut small">Showing all 2 games, most popular first.</p><div class="rowhead"><span></span><div class="actions" style="margin:0"><span class="mut small">2 games</span><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><ul class="grid" id="all"><li style="--i:0" data-n="dont splash" data-s="dont-splash"><a class="tile" href="/game/dont-splash.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter" alt="DONT SPLASH Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">DONT SPLASH</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 111.7K</span></span></a></li><li style="--i:1" data-n="tower of hell" data-s="tower-of-hell"><a class="tile" href="/game/tower-of-hell.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter" alt="Tower of Hell Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tower of Hell</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 25.8K</span></span></a></li></ul><p><a href="/">&larr; All Roblox player counts</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -503,7 +531,7 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var G=[{"s":"dont-splash","n":"DONT SPLASH","i":"https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter","a":111642,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021111122345555544432233400000000000000000000"},{"s":"tower-of-hell","n":"Tower of Hell","i":"https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter","a":26535,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000055544332111200000000000000000000"}];
+return ss+'s'}</script><script>var G=[{"s":"dont-splash","n":"DONT SPLASH","i":"https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter","a":111705,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021111122345555544432233400000000000000000000"},{"s":"tower-of-hell","n":"Tower of Hell","i":"https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter","a":25826,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000055544332111200000000000000000000"}];
 /* Each game carries 168 digits: one busy-ness level per hour of the week, in UTC.
    Work out which of those digits is "now" by going from local time back to UTC. */
 var off=tzOff();
