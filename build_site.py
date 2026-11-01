@@ -184,7 +184,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:30px;height:30px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-@media(max-width:560px){.logo .wordmark{display:none}}
+/* Below the width where the row of sections fits, the header is logo, name and
+   game picker on the left and the three-line button on the right. Search, theme
+   and the account are in the panel that button opens, so they are hidden here
+   rather than fighting for the same row. */
+@media(max-width:899px){#searchbtn,#themebtn,.hrow>#acct{display:none}}
 /* the game switcher, top left */
 .gpick{position:relative;min-width:0}
 .gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;min-width:0;padding:5px 10px;border-radius:999px;
@@ -206,16 +210,25 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
 .iconb svg{width:18px;height:18px;fill:currentColor}
-.iconb .moon{display:none}
-:root[data-theme=dark] .iconb .moon{display:block}
-:root[data-theme=dark] .iconb .sun{display:none}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .iconb .moon{display:block}
-:root:not([data-theme=light]) .iconb .sun{display:none}}
+.themeic .moon{display:none}
+:root[data-theme=dark] .themeic .moon{display:block}
+:root[data-theme=dark] .themeic .sun{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .themeic .moon{display:block}
+:root:not([data-theme=light]) .themeic .sun{display:none}}
 /* the side drawer and the search sheet, used on the pages about one game */
 .drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
 background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
 padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
 .drawer[hidden]{display:none}
+/* The panel's top section: the controls that are in the header on a wide screen. */
+.dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
+border-bottom:1px solid var(--line)}
+.drow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:0;
+border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
+text-align:left;cursor:pointer}
+.drow:hover,.drow:focus-visible{background:var(--shade)}
+.drow svg{width:18px;height:18px;flex:none;fill:currentColor}
+.dacct{padding:6px 13px;min-height:0}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -723,17 +736,29 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # where you already are without having to read every link.
     drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                      for k, t, u in TABS)
-    buttons = (f'<button class="iconb" id="searchbtn" type="button" aria-label="Search for a game">'
-               f'{ICON_SEARCH}</button>'
+    # On a wide screen the header carries search, theme and the account itself. On a
+    # phone there is only the three-line button, and those three move into the panel
+    # it opens, so the row stays logo, name, game picker on one side and one button
+    # on the other. data-search and data-themebtn are how both copies of a control
+    # find the same code, rather than one id that only one of them can have.
+    buttons = (f'<button class="iconb" id="searchbtn" data-search type="button" '
+               f'aria-label="Search for a game">{ICON_SEARCH}</button>'
                f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
-               f'aria-controls="drawer" aria-label="Sections">{ICON_MENU}</button>')
+               f'aria-controls="drawer" aria-label="Menu">{ICON_MENU}</button>')
     nav_row = f'<nav class="tabs" aria-label="Sections">{tabs}</nav>'
     # These two are position:fixed and must be written OUTSIDE <header>. The header
     # has backdrop-filter, and that makes it the containing block for any fixed
     # descendant: inside it, the side menu was 88px tall instead of the height of
     # the screen, and the search panel was pinned to the header's own box rather
     # than the page. They sit after </header> as siblings instead.
-    extras = (f'<div class="drawer" id="drawer" hidden><nav aria-label="Sections">{drawer}'
+    extras = (f'<div class="drawer" id="drawer" hidden>'
+              f'<div class="dtop">'
+              f'<button class="drow" data-search type="button">{ICON_SEARCH}'
+              f'<span>Search for a game</span></button>'
+              f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
+              f'<span class="tlab">Dark mode</span></button>'
+              f'<div class="acct dacct"></div></div>'
+              f'<nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours.html">When is Roblox busiest?</a>'
               f'<a href="/about.html">About</a></nav></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
@@ -771,7 +796,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 {banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-{buttons}<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
+{buttons}<button class="iconb themeic" id="themebtn" data-themebtn type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
 <div class="acct" id="acct"></div></div>
 {nav_row}</div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
@@ -1796,11 +1821,14 @@ body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function ptPaint(){var el=document.getElementById('acct');
-if(el){el.innerHTML=!PT.available?'':PT.name
+function ptPaint(){var markup=!PT.available?'':PT.name
 ?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
 +'<button class="linkish" type="submit">Sign out</button></form>'
-:'<a class="signin" href="/auth/login">Sign in with Roblox</a>'}
+:'<a class="signin" href="/auth/login">Sign in with Roblox</a>';
+/* Two of these: the one in the header on a wide screen and the one in the phone
+   panel. Whichever is hidden costs nothing, and neither can go stale. */
+Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
+el.innerHTML=markup});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
@@ -1845,10 +1873,18 @@ var d=document.documentElement;
    that choice is remembered and wins from then on. */
 function theme(){return d.getAttribute('data-theme')||
 (window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}
-var tb=document.getElementById('themebtn');
-if(tb){tb.onclick=function(){var next=theme()==='dark'?'light':'dark';
+/* Both copies are bound and both are relabelled, so the panel row never says
+   "Dark mode" while the page is already dark. The row carries a .tlab to write
+   into; the header button is an icon and has only its aria-label. */
+function paintTheme(){var dark=theme()==='dark';
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');
+var lab=b.querySelector('.tlab');if(lab)lab.textContent=dark?'Light mode':'Dark mode'})}
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.onclick=function(){var next=theme()==='dark'?'light':'dark';
 d.setAttribute('data-theme',next);try{localStorage.setItem('pt_theme',next)}catch(e){}
-tb.setAttribute('aria-label',next==='dark'?'Switch to light mode':'Switch to dark mode')}}
+paintTheme()}});
+paintTheme();
 
 /* Grid or list. One attribute on the page, so every list of games follows it. */
 window.ptView=function(v){d.setAttribute('data-view',v);
@@ -1882,8 +1918,8 @@ dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show)
 if(show){var a=dr.querySelector('a');if(a)a.focus()}};
 
 /* Search. The list of games is only fetched the first time it is opened. */
-var sb=document.getElementById('searchbtn'),sheet=document.getElementById('sheet'),GAMES=null;
-if(sb&&sheet){
+var sheet=document.getElementById('sheet'),GAMES=null;
+if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
 var t=q.value.trim().toLowerCase();
@@ -1894,11 +1930,15 @@ return '<a href="/game/'+ptEsc(g.s)+'.html">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
 ptEsc(g.n.charAt(0).toUpperCase())+'</span>')+'<span>'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No game matches that.</p>'}
-sb.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
+/* The magnifier on a wide screen, and the first row of the phone panel. shut()
+   closes the panel on the way, so opening search from inside it does the right
+   thing. The list of games is still only fetched the first time. */
+Array.prototype.forEach.call(document.querySelectorAll('[data-search]'),function(b){
+b.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
 if(!show)return;
 sheet.hidden=false;shade(true);q.value='';draw();q.focus();
 if(!GAMES)fetch('/games.json').then(function(r){return r.json()}).then(function(d){
-GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})};
+GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})}});
 q.oninput=draw;
 sheet.onclick=function(e){if(e.target===sheet)shut()}}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
