@@ -75,6 +75,7 @@ CSS = """:root{__LIGHT__}
    width again, because two columns of this on a phone is unreadable. */
 @media(min-width:900px){
 .bento{gap:18px;margin-top:-30px}   /* pulls the first row up under the heading panel */
+.lstack{gap:18px}                   /* must match .bento's gap, or the column looks loose */
 .bento>.sp4{grid-column:span 4}.bento>.sp5{grid-column:span 5}
 .bento>.sp6{grid-column:span 6}.bento>.sp7{grid-column:span 7}.bento>.sp8{grid-column:span 8}
 /* The week grid gets a lot wider on a wide page, so the squares grow with it rather
@@ -168,6 +169,16 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 /* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
    or long word inside a card could otherwise force the whole grid wider. */
 .bento>*{grid-column:1/-1;margin:0;min-width:0}   /* full width by default; the grid owns the spacing */
+/* Two short cards sharing one column, so the tall card beside them has something
+   to sit against. The grid cannot do this by itself: its rows are rigid, so a card
+   shorter than the one next to it simply leaves the space under it empty - "The
+   short answer" is 239px tall and "Plan my session" is 735px, which left a 496px
+   hole on every game page. A nested column is used rather than grid-row:span 2
+   because spanning splits the slack evenly between the rows, which would open an
+   arbitrary gap BETWEEN the two cards instead of closing it. Its gap has to be
+   kept level with the bento's own, both here and in the wide block above. */
+.lstack{display:flex;flex-direction:column;gap:14px}
+.lstack>.card{margin:0;min-width:0}
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -2478,10 +2489,14 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and bes
 <a class="fav" href="/compare.html?a=__SLUG__">Compare</a></div></div></div>
 __ABOUT__
 <div class="bento">
-<div class="sp7 card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
+<div class="sp7 lstack">
+<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p>
 <p class="mut small">The times above are in UTC until the page loads, then they switch to your
 own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
+<div class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
+<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
+__SPARK__</div></div>
 <div class="sp5 card rise3"><h2>Plan my session</h2>
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
@@ -2508,9 +2523,6 @@ picked. No account, and nothing about you is stored.</p></div></div>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
 __HOURS__</div>
-<div class="sp6 card"><h2>Is __NAME__ dead?</h2><div class="verdict">
-<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
-__SPARK__</div>
 __HISTORY__
 __CALENDAR__
 __PARENTS__
@@ -3100,7 +3112,7 @@ def main():
                 .replace("__QUIET__", quiet_txt)
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
-                .replace("__HISTORY__", span(history_html(name, a), 6))
+                .replace("__HISTORY__", history_html(name, a))
                 .replace("__FAQ__", faq)
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
