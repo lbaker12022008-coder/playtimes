@@ -137,7 +137,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:30px;height:30px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-@media(max-width:560px){.logo .wordmark{display:none}}
+/* Below the width where the row of sections fits, the header is logo, name and
+   game picker on the left and the three-line button on the right. Search, theme
+   and the account are in the panel that button opens, so they are hidden here
+   rather than fighting for the same row. */
+@media(max-width:899px){#searchbtn,#themebtn,.hrow>#acct{display:none}}
 /* the game switcher, top left */
 .gpick{position:relative;min-width:0}
 .gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;min-width:0;padding:5px 10px;border-radius:999px;
@@ -159,16 +163,25 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
 .iconb svg{width:18px;height:18px;fill:currentColor}
-.iconb .moon{display:none}
-:root[data-theme=dark] .iconb .moon{display:block}
-:root[data-theme=dark] .iconb .sun{display:none}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .iconb .moon{display:block}
-:root:not([data-theme=light]) .iconb .sun{display:none}}
+.themeic .moon{display:none}
+:root[data-theme=dark] .themeic .moon{display:block}
+:root[data-theme=dark] .themeic .sun{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .themeic .moon{display:block}
+:root:not([data-theme=light]) .themeic .sun{display:none}}
 /* the side drawer and the search sheet, used on the pages about one game */
 .drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
 background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
 padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
 .drawer[hidden]{display:none}
+/* The panel's top section: the controls that are in the header on a wide screen. */
+.dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
+border-bottom:1px solid var(--line)}
+.drow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:0;
+border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
+text-align:left;cursor:pointer}
+.drow:hover,.drow:focus-visible{background:var(--shade)}
+.drow svg{width:18px;height:18px;flex:none;fill:currentColor}
+.dacct{padding:6px 13px;min-height:0}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -343,6 +356,11 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
    worked for as long as anyone here has been alive. The fieldset stays a block for
    the same sort of reason - a legend inside a flex container lands differently in
    different browsers - and the labels flow as inline blocks instead. */
+/* The reminder is its own question, so it is ruled off from the countdown above it
+   rather than running on from it. */
+.rem{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.rem>p:first-child{margin:0 0 8px}
+.rem .days{margin:0}
 .daypick{border:0;padding:0;margin:12px 0 4px;display:block}
 .daypick legend{padding:0;margin-bottom:6px}
 .daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
@@ -470,11 +488,14 @@ body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function ptPaint(){var el=document.getElementById('acct');
-if(el){el.innerHTML=!PT.available?'':PT.name
+function ptPaint(){var markup=!PT.available?'':PT.name
 ?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
 +'<button class="linkish" type="submit">Sign out</button></form>'
-:'<a class="signin" href="/auth/login">Sign in with Roblox</a>'}
+:'<a class="signin" href="/auth/login">Sign in with Roblox</a>';
+/* Two of these: the one in the header on a wide screen and the one in the phone
+   panel. Whichever is hidden costs nothing, and neither can go stale. */
+Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
+el.innerHTML=markup});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
@@ -505,13 +526,13 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-d275cb477fc17ca18b4d067526d65840/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<button class="iconb" id="searchbtn" type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Sections"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button><button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg></button>
+<button class="iconb" id="searchbtn" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button><button class="iconb themeic" id="themebtn" data-themebtn type="button" aria-label="Switch between light and dark"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg></button>
 <div class="acct" id="acct"></div></div>
-<nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button><div class="acct dacct"></div></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation.html">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/1-venom-evolution.html">+1 Venom Evolution player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-1342a62555c7c6a92393171a82dc7eb4/256/256/Image/Webp/noFilter" alt="+1 Venom Evolution Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>+1 Venom Evolution update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days +1 Venom Evolution&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/1-venom-evolution.html">&larr; +1 Venom Evolution player count</a><a class="btn" href="https://www.roblox.com/games/116448925875915">Play +1 Venom Evolution</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sun 1 Nov).</p><ul class="evt"><li class=""><b>HALLOWEEN ADMIN ABUSE!</b><span class="d">???</span><span class="d">Thu 29 Oct &middot; 2 days ago</span></li><li class=""><b>UPDATE 1 + ADMIN ABUSE</b><span class="d">WORLD 2</span><span class="d">Sun 18 Oct &middot; 13 days ago</span><p>-WORLD 2
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation.html">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/1-venom-evolution.html">+1 Venom Evolution player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-72e2dd1f14e5ad0f7a7c63fb0d0d8043/256/256/Image/Webp/noFilter" alt="+1 Venom Evolution Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>+1 Venom Evolution update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days +1 Venom Evolution&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/1-venom-evolution.html">&larr; +1 Venom Evolution player count</a><a class="btn" href="https://www.roblox.com/games/116448925875915">Play +1 Venom Evolution</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sun 1 Nov).</p><ul class="evt"><li class=""><b>HALLOWEEN ADMIN ABUSE!</b><span class="d">???</span><span class="d">Thu 29 Oct &middot; 3 days ago</span></li><li class=""><b>UPDATE 1 + ADMIN ABUSE</b><span class="d">WORLD 2</span><span class="d">Sun 18 Oct &middot; 13 days ago</span><p>-WORLD 2
 -10 NEW EVOLUTIONS
--AND MORE!</p></li></ul></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>UPDATE 2 🎃</b><span class="d">???</span><span class="d">Happening now &middot; ends Sun 1 Nov</span></li><li class="soon"><b>UPDATE 3 + ADMIN ABUSE</b><span class="d">WORLD 3 &amp; MORE</span><span class="d">Starts Sun 1 Nov</span></li></ul></div><p><a href="/game/1-venom-evolution.html">&larr; Back to +1 Venom Evolution</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+-AND MORE!</p></li></ul></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>UPDATE 2 🎃</b><span class="d">???</span><span class="d">Happening now &middot; ends Sun 1 Nov</span></li><li class="soon"><b>UPDATE 3 + ADMIN ABUSE</b><span class="d">WORLD 3 &amp; MORE</span><span class="d">Starts Sun 1 Nov</span></li><li class="soon"><b>ADMIN ABUSE</b><span class="d">???</span><span class="d">Starts Thu 5 Nov</span></li><li class="soon"><b>UPDATE 4</b><span class="d">???</span><span class="d">Starts Sun 8 Nov</span></li></ul></div><p><a href="/game/1-venom-evolution.html">&larr; Back to +1 Venom Evolution</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -634,7 +655,7 @@ while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
 $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
 '</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
 else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
-'. Worked out from the last '+P.n+' updates and busy days.'}</script><script>window.PT_GAME={"s":"1-venom-evolution","n":"+1 Venom Evolution","i":"https://tr.rbxcdn.com/180DAY-1342a62555c7c6a92393171a82dc7eb4/256/256/Image/Webp/noFilter"};</script>
+'. Worked out from the last '+P.n+' updates and busy days.'}</script><script>window.PT_GAME={"s":"1-venom-evolution","n":"+1 Venom Evolution","i":"https://tr.rbxcdn.com/180DAY-72e2dd1f14e5ad0f7a7c63fb0d0d8043/256/256/Image/Webp/noFilter"};</script>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>
@@ -650,10 +671,18 @@ var d=document.documentElement;
    that choice is remembered and wins from then on. */
 function theme(){return d.getAttribute('data-theme')||
 (window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}
-var tb=document.getElementById('themebtn');
-if(tb){tb.onclick=function(){var next=theme()==='dark'?'light':'dark';
+/* Both copies are bound and both are relabelled, so the panel row never says
+   "Dark mode" while the page is already dark. The row carries a .tlab to write
+   into; the header button is an icon and has only its aria-label. */
+function paintTheme(){var dark=theme()==='dark';
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');
+var lab=b.querySelector('.tlab');if(lab)lab.textContent=dark?'Light mode':'Dark mode'})}
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.onclick=function(){var next=theme()==='dark'?'light':'dark';
 d.setAttribute('data-theme',next);try{localStorage.setItem('pt_theme',next)}catch(e){}
-tb.setAttribute('aria-label',next==='dark'?'Switch to light mode':'Switch to dark mode')}}
+paintTheme()}});
+paintTheme();
 
 /* Grid or list. One attribute on the page, so every list of games follows it. */
 window.ptView=function(v){d.setAttribute('data-view',v);
@@ -687,8 +716,8 @@ dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show)
 if(show){var a=dr.querySelector('a');if(a)a.focus()}};
 
 /* Search. The list of games is only fetched the first time it is opened. */
-var sb=document.getElementById('searchbtn'),sheet=document.getElementById('sheet'),GAMES=null;
-if(sb&&sheet){
+var sheet=document.getElementById('sheet'),GAMES=null;
+if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
 var t=q.value.trim().toLowerCase();
@@ -699,11 +728,15 @@ return '<a href="/game/'+ptEsc(g.s)+'.html">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
 ptEsc(g.n.charAt(0).toUpperCase())+'</span>')+'<span>'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No game matches that.</p>'}
-sb.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
+/* The magnifier on a wide screen, and the first row of the phone panel. shut()
+   closes the panel on the way, so opening search from inside it does the right
+   thing. The list of games is still only fetched the first time. */
+Array.prototype.forEach.call(document.querySelectorAll('[data-search]'),function(b){
+b.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
 if(!show)return;
 sheet.hidden=false;shade(true);q.value='';draw();q.focus();
 if(!GAMES)fetch('/games.json').then(function(r){return r.json()}).then(function(d){
-GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})};
+GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})}});
 q.oninput=draw;
 sheet.onclick=function(e){if(e.target===sheet)shut()}}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
