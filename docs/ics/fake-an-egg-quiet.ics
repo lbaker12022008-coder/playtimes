@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-fake-an-egg-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T230000Z
+DTEND:20261108T000000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Fake an Egg is usually quiet
+DESCRIPTION:Fake an Egg is usually at its quietest around now\, with about
+  24\,515 players\, for about 1 hour. Worked out from the player counts Pl
+ ayTime collects. Repeats weekly for three months\, so check the site agai
+ n after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Fake an Egg is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

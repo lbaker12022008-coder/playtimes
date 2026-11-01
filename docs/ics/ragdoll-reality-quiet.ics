@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-ragdoll-reality-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T230000Z
+DTEND:20261108T010000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Ragdoll Reality is usually quiet
+DESCRIPTION:Ragdoll Reality is usually at its quietest around now\, with a
+ bout 24\,030 players\, for about 2 hours. Worked out from the player coun
+ ts PlayTime collects. Repeats weekly for three months\, so check the site
+  again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Ragdoll Reality is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

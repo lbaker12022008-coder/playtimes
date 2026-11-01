@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-criminal-simulator-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T170000Z
+DTEND:20261107T220000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Criminal Simulator is usually busy
+DESCRIPTION:Criminal Simulator is usually at its busiest around now\, with
+  about 24\,251 players\, for about 5 hours. Worked out from the player co
+ unts PlayTime collects. Repeats weekly for three months\, so check the si
+ te again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Criminal Simulator is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

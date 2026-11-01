@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-feed-a-mosquito-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T220000Z
+DTEND:20261108T000000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Feed A Mosquito is usually quiet
+DESCRIPTION:Feed A Mosquito is usually at its quietest around now\, with a
+ bout 15\,842 players\, for about 2 hours. Worked out from the player coun
+ ts PlayTime collects. Repeats weekly for three months\, so check the site
+  again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Feed A Mosquito is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

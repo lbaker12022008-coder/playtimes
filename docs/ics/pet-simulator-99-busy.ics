@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-pet-simulator-99-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T160000Z
+DTEND:20261107T190000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Pet Simulator 99 is usually busy
+DESCRIPTION:Pet Simulator 99 is usually at its busiest around now\, with a
+ bout 104\,735 players\, for about 3 hours. Worked out from the player cou
+ nts PlayTime collects. Repeats weekly for three months\, so check the sit
+ e again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Pet Simulator 99 is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

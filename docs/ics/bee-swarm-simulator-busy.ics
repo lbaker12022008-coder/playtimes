@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-bee-swarm-simulator-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T130000Z
+DTEND:20261107T200000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Bee Swarm Simulator is usually busy
+DESCRIPTION:Bee Swarm Simulator is usually at its busiest around now\, wit
+ h about 37\,085 players\, for about 7 hours. Worked out from the player c
+ ounts PlayTime collects. Repeats weekly for three months\, so check the s
+ ite again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Bee Swarm Simulator is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

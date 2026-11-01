@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-animal-hospital-anomaly-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T230000Z
+DTEND:20261108T020000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Animal Hospital (Anomaly) is usually quiet
+DESCRIPTION:Animal Hospital (Anomaly) is usually at its quietest around no
+ w\, with about 25\,624 players\, for about 3 hours. Worked out from the p
+ layer counts PlayTime collects. Repeats weekly for three months\, so chec
+ k the site again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Animal Hospital (Anomaly) is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

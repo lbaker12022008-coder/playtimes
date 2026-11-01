@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-jujutsu-shenanigans-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T070000Z
+DTEND:20261107T120000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Jujutsu Shenanigans is usually quiet
+DESCRIPTION:Jujutsu Shenanigans is usually at its quietest around now\, wi
+ th about 100\,215 players\, for about 5 hours. Worked out from the player
+  counts PlayTime collects. Repeats weekly for three months\, so check the
+  site again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Jujutsu Shenanigans is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

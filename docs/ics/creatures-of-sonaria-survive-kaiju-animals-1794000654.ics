@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-creatures-of-sonaria-survive-kaiju-animals-1794000654@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261106T213054Z
+DTEND:20261109T213054Z
+SUMMARY:Creatures of Sonaria Survive Kaiju Animals: ☀️SOLAR MONSTER
+ 🐊
+DESCRIPTION:Join us in Creatures of Sonaria for the arrival of the "Sigil"
+  Subspecies 👀\n\nUnlock the Redesign of a prehistoric species this wee
+ k too! 🪻🌷\n\nDon't miss out on these awesome new additions!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Creatures of Sonaria Survive Kaiju Animals: ☀️SOLAR MONSTE
+ R🐊
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-throw-food-for-animals-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T160000Z
+DTEND:20261107T170000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Throw Food For Animals is usually busy
+DESCRIPTION:Throw Food For Animals is usually at its busiest around now\, 
+ with about 265\,200 players\, for about 1 hour. Worked out from the playe
+ r counts PlayTime collects. Repeats weekly for three months\, so check th
+ e site again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Throw Food For Animals is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

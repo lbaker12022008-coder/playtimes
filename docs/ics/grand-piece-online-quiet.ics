@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-grand-piece-online-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261108T040000Z
+DTEND:20261108T050000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Grand Piece Online is usually quiet
+DESCRIPTION:Grand Piece Online is usually at its quietest around now\, wit
+ h about 14\,848 players\, for about 1 hour. Worked out from the player co
+ unts PlayTime collects. Repeats weekly for three months\, so check the si
+ te again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Grand Piece Online is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

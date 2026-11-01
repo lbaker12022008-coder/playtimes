@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-piggy-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T160000Z
+DTEND:20261107T200000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Piggy is usually busy
+DESCRIPTION:Piggy is usually at its busiest around now\, with about 31\,13
+ 0 players\, for about 4 hours. Worked out from the player counts PlayTime
+  collects. Repeats weekly for three months\, so check the site again afte
+ r that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Piggy is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

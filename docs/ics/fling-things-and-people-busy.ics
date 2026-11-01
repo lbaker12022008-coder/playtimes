@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-fling-things-and-people-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T130000Z
+DTEND:20261107T170000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Fling Things and People is usually busy
+DESCRIPTION:Fling Things and People is usually at its busiest around now\,
+  with about 53\,262 players\, for about 4 hours. Worked out from the play
+ er counts PlayTime collects. Repeats weekly for three months\, so check t
+ he site again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Fling Things and People is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

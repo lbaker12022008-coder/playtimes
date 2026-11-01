@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-durian-garden-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T220000Z
+DTEND:20261107T230000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Durian Garden is usually quiet
+DESCRIPTION:Durian Garden is usually at its quietest around now\, with abo
+ ut 2\,572 players\, for about 1 hour. Worked out from the player counts P
+ layTime collects. Repeats weekly for three months\, so check the site aga
+ in after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Durian Garden is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

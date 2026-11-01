@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-the-mimic-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T140000Z
+DTEND:20261107T180000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:The Mimic is usually busy
+DESCRIPTION:The Mimic is usually at its busiest around now\, with about 18
+ \,262 players\, for about 4 hours. Worked out from the player counts Play
+ Time collects. Repeats weekly for three months\, so check the site again 
+ after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:The Mimic is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

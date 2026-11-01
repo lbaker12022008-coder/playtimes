@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-ball-vs-ball-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T220000Z
+DTEND:20261108T000000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Ball VS Ball is usually quiet
+DESCRIPTION:Ball VS Ball is usually at its quietest around now\, with abou
+ t 13\,164 players\, for about 2 hours. Worked out from the player counts 
+ PlayTime collects. Repeats weekly for three months\, so check the site ag
+ ain after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Ball VS Ball is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

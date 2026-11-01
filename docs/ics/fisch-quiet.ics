@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-fisch-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T060000Z
+DTEND:20261107T120000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Fisch is usually quiet
+DESCRIPTION:Fisch is usually at its quietest around now\, with about 60\,0
+ 13 players\, for about 6 hours. Worked out from the player counts PlayTim
+ e collects. Repeats weekly for three months\, so check the site again aft
+ er that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Fisch is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-the-hollow-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T100000Z
+DTEND:20261107T160000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:The Hollow is usually quiet
+DESCRIPTION:The Hollow is usually at its quietest around now\, with about 
+ 44\,778 players\, for about 6 hours. Worked out from the player counts Pl
+ ayTime collects. Repeats weekly for three months\, so check the site agai
+ n after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:The Hollow is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

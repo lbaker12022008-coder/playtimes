@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-game-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261108T030000Z
+DTEND:20261108T050000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:صيد الضبّان is usually quiet
+DESCRIPTION:صيد الضبّان is usually at its quietest around now\, 
+ with about 11\,703 players\, for about 2 hours. Worked out from the playe
+ r counts PlayTime collects. Repeats weekly for three months\, so check th
+ e site again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:صيد الضبّان is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

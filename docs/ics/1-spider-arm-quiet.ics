@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-1-spider-arm-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T050000Z
+DTEND:20261107T090000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:+1 Spider Arm is usually quiet
+DESCRIPTION:+1 Spider Arm is usually at its quietest around now\, with abo
+ ut 23\,527 players\, for about 4 hours. Worked out from the player counts
+  PlayTime collects. Repeats weekly for three months\, so check the site a
+ gain after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:+1 Spider Arm is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

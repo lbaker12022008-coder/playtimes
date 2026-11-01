@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-blox-fruits-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T140000Z
+DTEND:20261107T160000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Blox Fruits is usually busy
+DESCRIPTION:Blox Fruits is usually at its busiest around now\, with about 
+ 783\,313 players\, for about 2 hours. Worked out from the player counts P
+ layTime collects. Repeats weekly for three months\, so check the site aga
+ in after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Blox Fruits is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

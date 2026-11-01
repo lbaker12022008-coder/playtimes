@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-steal-a-brainrot-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T190000Z
+DTEND:20261107T200000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Steal a Brainrot is usually busy
+DESCRIPTION:Steal a Brainrot is usually at its busiest around now\, with a
+ bout 939\,787 players\, for about 1 hour. Worked out from the player coun
+ ts PlayTime collects. Repeats weekly for three months\, so check the site
+  again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Steal a Brainrot is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

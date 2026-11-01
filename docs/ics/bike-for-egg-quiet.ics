@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-bike-for-egg-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T210000Z
+DTEND:20261107T230000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Bike For Egg is usually quiet
+DESCRIPTION:Bike For Egg is usually at its quietest around now\, with abou
+ t 14\,211 players\, for about 2 hours. Worked out from the player counts 
+ PlayTime collects. Repeats weekly for three months\, so check the site ag
+ ain after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Bike For Egg is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-sol-s-rng-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T080000Z
+DTEND:20261107T100000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Sol's RNG is usually busy
+DESCRIPTION:Sol's RNG is usually at its busiest around now\, with about 64
+ \,435 players\, for about 2 hours. Worked out from the player counts Play
+ Time collects. Repeats weekly for three months\, so check the site again 
+ after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Sol's RNG is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

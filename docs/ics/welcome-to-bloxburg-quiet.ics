@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-welcome-to-bloxburg-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261108T040000Z
+DTEND:20261108T050000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Welcome to Bloxburg is usually quiet
+DESCRIPTION:Welcome to Bloxburg is usually at its quietest around now\, wi
+ th about 13\,362 players\, for about 1 hour. Worked out from the player c
+ ounts PlayTime collects. Repeats weekly for three months\, so check the s
+ ite again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Welcome to Bloxburg is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

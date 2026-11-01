@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-murder-duels-quiet@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T220000Z
+DTEND:20261108T020000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Murder Duels is usually quiet
+DESCRIPTION:Murder Duels is usually at its quietest around now\, with abou
+ t 8\,154 players\, for about 4 hours. Worked out from the player counts P
+ layTime collects. Repeats weekly for three months\, so check the site aga
+ in after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Murder Duels is usually quiet
+END:VALARM
+END:VEVENT
+END:VCALENDAR

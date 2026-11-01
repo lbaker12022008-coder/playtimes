@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-the-hollow-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T170000Z
+DTEND:20261107T180000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:The Hollow is usually busy
+DESCRIPTION:The Hollow is usually at its busiest around now\, with about 3
+ 34\,687 players\, for about 1 hour. Worked out from the player counts Pla
+ yTime collects. Repeats weekly for three months\, so check the site again
+  after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:The Hollow is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-berry-avenue-rp-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T160000Z
+DTEND:20261107T210000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Berry Avenue RP is usually busy
+DESCRIPTION:Berry Avenue RP is usually at its busiest around now\, with ab
+ out 54\,104 players\, for about 5 hours. Worked out from the player count
+ s PlayTime collects. Repeats weekly for three months\, so check the site 
+ again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Berry Avenue RP is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

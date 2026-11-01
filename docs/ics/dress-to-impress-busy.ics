@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:ptq-dress-to-impress-busy@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261107T150000Z
+DTEND:20261107T200000Z
+RRULE:FREQ=WEEKLY;COUNT=13
+SUMMARY:Dress To Impress is usually busy
+DESCRIPTION:Dress To Impress is usually at its busiest around now\, with a
+ bout 114\,443 players\, for about 5 hours. Worked out from the player cou
+ nts PlayTime collects. Repeats weekly for three months\, so check the sit
+ e again after that.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Dress To Impress is usually busy
+END:VALARM
+END:VEVENT
+END:VCALENDAR

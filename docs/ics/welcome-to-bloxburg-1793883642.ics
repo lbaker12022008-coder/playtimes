@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-welcome-to-bloxburg-1793883642@playtime
+DTSTAMP:20261101T045531Z
+DTSTART:20261105T130042Z
+DTEND:20261112T125542Z
+SUMMARY:Welcome to Bloxburg: 🫧 Frutiger Aero 🌿
+DESCRIPTION:Hej Bloxburgers!\nThis is no ordinary furniture from the deep 
+ blue underworld\, these are the new and futuristic Frutiger Aero items!\n
+ Coming next Thursday\, November 5.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Welcome to Bloxburg: 🫧 Frutiger Aero 🌿
+END:VALARM
+END:VEVENT
+END:VCALENDAR
