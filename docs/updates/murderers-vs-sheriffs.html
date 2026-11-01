@@ -258,6 +258,30 @@ font-size:.9rem;font-weight:600}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
+/* The same glow the game tiles have, on the two rows of controls above them, so
+   the chooser and the categories belong to the page rather than sitting on it.
+   It is the tile's machinery exactly - isolation:isolate, a ::before behind the
+   control at z-index -1, and one hue in --glow - only the shape differs: these
+   are wide and short rather than square, so the halo is an ellipse that spills
+   a little past each edge instead of a circle. --glow comes from the thing
+   itself: the heatmap's own red and green for "busy" and "quiet" (band_hue),
+   and for a category the hue of its biggest game's picture. A pill with no hue
+   falls back to --glowh, the accent's, like a tile with a colourless icon.
+   A pressed chip keeps its glow, since it is the one being asked about. */
+.chip,.pills a{position:relative;isolation:isolate}
+.chip::before,.pills a::before{content:"";position:absolute;z-index:-1;pointer-events:none;
+opacity:0;transition:opacity .22s ease;
+background:radial-gradient(58% 118% at 50% 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 72%)}
+/* The sideways spill is 12px because the page's own gutter is 14px on a phone
+   and 16px on a laptop (.w): a halo wider than that hangs off the right of the
+   screen and the page can be dragged 3px sideways, since body's overflow-x:clip
+   is propagated to the viewport and so does not clip the body's own children.
+   Measured, not guessed - 20px here was enough to do it. */
+.chip::before{inset:-16px -12px}
+.pills a::before{inset:-11px -12px}
+.chip:hover::before,.chip:focus-visible::before,.chip[aria-pressed=true]::before,
+.pills a:hover::before,.pills a:focus-visible::before{opacity:1}
+
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
@@ -441,7 +465,7 @@ h2{font-size:1.06rem}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
-.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
+.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:12px 14px}
 .pills::-webkit-scrollbar{display:none}
 .pills a{display:inline-block;margin-right:8px}
 .pills a:last-child{margin-right:0}
@@ -536,7 +560,7 @@ Bring a deadly touch to your loadout with the Widow’s Wrath Scythe and Widow�
 A new limited stock item arrives Saturday at 6 PM EST! Mark your calendar and be ready to grab yours before stock runs out!
 
 🎃 x2 Pumpkin Weekend!
-Earn double pumpkins all weekend long! Jump into…</p></li><li class=""><b>X2 PUMPKIN WEEKEND</b><span class="d">x2 PUMPKIN WEEKEND</span><span class="d">Fri 23 Oct &middot; 8 days ago</span><p>Play for Murderers vs Sheriffs between now and Sunday @ 11:59 PM to earn x2 Pumpkins! Good luck finishing the Halloween Event!</p></li><li class=""><b>LIMITED CRATES+MORE</b><span class="d">New Crates!</span><span class="d">Sat 17 Oct &middot; 14 days ago</span><p>🧟🍂 NEW LIMITED-TIME CRATES!
+Earn double pumpkins all weekend long! Jump into…</p></li><li class=""><b>X2 PUMPKIN WEEKEND</b><span class="d">x2 PUMPKIN WEEKEND</span><span class="d">Fri 23 Oct &middot; 9 days ago</span><p>Play for Murderers vs Sheriffs between now and Sunday @ 11:59 PM to earn x2 Pumpkins! Good luck finishing the Halloween Event!</p></li><li class=""><b>LIMITED CRATES+MORE</b><span class="d">New Crates!</span><span class="d">Sat 17 Oct &middot; 14 days ago</span><p>🧟🍂 NEW LIMITED-TIME CRATES!
 
 Two new crates have arrived with limited-time weapons to collect!
 
