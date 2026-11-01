@@ -12,7 +12,7 @@ Preview your changes without touching the live site:
 Then open http://localhost:8000
 """
 import html, json, math, os, re, sqlite3, statistics, time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import roblox_api
 
@@ -107,6 +107,11 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    game-value sites lay out. The side columns only appear on wide screens, and only
    when there is something to put in them. */
 .shell{display:grid;grid-template-columns:minmax(0,1fr);justify-content:center}
+/* A grid item defaults to min-width:auto, which means it refuses to shrink below
+   the widest thing inside it. On a phone that let one wide child drag .w to 1094px
+   inside a 390px track, and every page then scrolled sideways. The track is already
+   minmax(0,1fr); this is the other half of the same fix. */
+.shell>*{min-width:0}
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
@@ -370,9 +375,9 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
 .evt{list-style:none;padding:0;margin:8px 0}
 /* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
    is about and only picks up the accent when the pointer is on it. */
-.remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 13px;
+.remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
 font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
-background:var(--card);color:var(--mut);cursor:pointer}
+background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}
 .remind:hover{border-color:var(--acc);color:var(--ink)}
 .evt li{border-left:3px solid var(--line);padding:2px 0 2px 14px;margin:16px 0}
 .evt li.soon{border-left-color:var(--acc2);background:var(--soft);border-radius:0 10px 10px 0;padding:8px 12px 8px 14px}
@@ -483,6 +488,10 @@ CSS = CSS.replace("__LIGHT__", LIGHT).replace("__DARK__", DARK)
 #   sitemap.xml      the list of pages we actually want Google to look at
 # A page left out of the sitemap is still on the site and still works; we are only
 # saying it is not worth a search engine's time yet.
+
+# One moment for the whole build, so every page and every calendar file agrees.
+BUILT = int(time.time())
+
 
 def robots_meta(noindex=False):
     """The <meta robots> tag for one page.
@@ -656,78 +665,6 @@ def back_link(href="/", label="All games"):
     return f'<a class="back" href="{href}" data-back aria-label="{where}" title="{where}">&larr; Back</a>'
 
 
-# Builds a calendar file in the visitor's browser when they press "Remind me".
-# This is the whole notification feature: nothing is sent to us, nobody signs up
-# for anything, and the reminder then lives in their own phone's calendar whether
-# they ever come back to the site or not. It is in the head of every page, so any
-# list of events anywhere gets the buttons for free.
-#
-# The format is iCalendar (RFC 5545). Three things in it are easy to get wrong and
-# make strict calendar apps reject the whole file rather than the one bad line:
-# every line ends CRLF, text values must escape \ ; , and newlines, and a line
-# longer than 75 OCTETS has to be folded onto the next one with a leading space.
-ICS_JS = r"""
-function ptPad(n){return (n<10?'0':'')+n}
-function ptIcsText(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;')
-.replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
-/* Octets, not characters: nearly a quarter of the event titles Roblox gives us have
-   an emoji in them, and one emoji is four of the 75. JavaScript walks a string in
-   16-bit pieces, so an emoji arrives as two of them ("surrogates"); the pair counts
-   as four octets at the first piece and nothing at the second, which also means a
-   line can never be folded down the middle of one. Do not reach for
-   encodeURIComponent here to measure it: handed half an emoji it throws. */
-function ptIcsFold(line){var out='',run=0;
-for(var i=0;i<line.length;i++){var ch=line[i],c=line.charCodeAt(i);
-var n=c<128?1:c<2048?2:(c>=0xD800&&c<0xDC00)?4:(c>=0xDC00&&c<0xE000)?0:3;
-if(n&&run+n>74){out+='\r\n ';run=1}
-out+=ch;run+=n}
-return out}
-function ptIcsDate(d){return d.getUTCFullYear()+ptPad(d.getUTCMonth()+1)+ptPad(d.getUTCDate())+
-'T'+ptPad(d.getUTCHours())+ptPad(d.getUTCMinutes())+ptPad(d.getUTCSeconds())+'Z'}
-/* ev: {uid,start,end,title,desc,url,rrule,alarm}. start and end are Dates, and they
-   are written in UTC so the file never has to carry a timezone of its own: the
-   calendar app shows them on the reader's own clock, which is the same thing every
-   other time on this site does. */
-function ptIcs(ev){
-var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PlayTime//EN','CALSCALE:GREGORIAN',
-'BEGIN:VEVENT','UID:'+ev.uid,'DTSTAMP:'+ptIcsDate(new Date()),
-'DTSTART:'+ptIcsDate(ev.start),'DTEND:'+ptIcsDate(ev.end)];
-if(ev.rrule)L.push('RRULE:'+ev.rrule);
-L.push('SUMMARY:'+ptIcsText(ev.title));
-if(ev.desc)L.push('DESCRIPTION:'+ptIcsText(ev.desc));
-if(ev.url)L.push('URL:'+ptIcsText(ev.url));
-L.push('BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:-PT'+(ev.alarm||10)+'M',
-'DESCRIPTION:'+ptIcsText(ev.title),'END:VALARM','END:VEVENT','END:VCALENDAR');
-var out=[];for(var i=0;i<L.length;i++)out.push(ptIcsFold(L[i]));
-return out.join('\r\n')+'\r\n'}
-function ptSave(name,text){
-try{
-var b=new Blob([text],{type:'text/calendar;charset=utf-8'});
-var u=URL.createObjectURL(b),a=document.createElement('a');
-a.href=u;a.download=name;document.body.appendChild(a);a.click();
-document.body.removeChild(a);
-setTimeout(function(){URL.revokeObjectURL(u)},4000);return true}
-catch(e){return false}}
-/* One handler for every "Remind me" button on the site. Each button carries its own
-   event on itself, so this covers a game page, the site-wide calendar and the
-   session planner without any of them needing their own code. */
-document.addEventListener('click',function(e){
-var b=e.target&&e.target.closest?e.target.closest('button[data-ics]'):null;
-if(!b||!b.dataset.start)return;
-e.preventDefault();
-var st=new Date(+b.dataset.start*1000);
-var en=b.dataset.end?new Date(+b.dataset.end*1000):new Date(+b.dataset.start*1000+3600000);
-var ok=ptSave(b.dataset.ics+'.ics',ptIcs({
-/* A stable id where the page can give one, so adding the same weekly reminder
-   twice updates it instead of leaving two in the calendar. */
-uid:(b.dataset.uid||b.dataset.ics+'-'+b.dataset.start)+'@playtime',
-start:st,end:en,title:b.dataset.title||'Reminder',desc:b.dataset.desc||'',
-url:location.href,rrule:b.dataset.rrule||'',alarm:+b.dataset.alarm||10}));
-var was=b.dataset.label||b.textContent;
-b.textContent=ok?'\u2713 Saved to your calendar':'Could not save the file';
-setTimeout(function(){b.textContent=was},3000)});
-"""
-
 
 def page(title, body, desc="", wide=False, nav="", tail="", banner="",
          back=("/", "All games"), canon="", image="", trail=None,
@@ -795,7 +732,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 {f'<meta property="article:modified_time" content="{modified}">' if modified else ''}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
-{BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script><script>{ICS_JS}</script>{ADS}</head><body>
+{BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
 {banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
@@ -1512,7 +1449,7 @@ def about_game_html(name, meta):
             f'<p class="mut small">Description written by the game\'s own creators and shown on Roblox.</p></div></details>')
 
 
-def event_item(e, now, cls=""):
+def event_item(e, now, cls="", gslug=""):
     """One event in a list: title, when it runs, and what the creators said about it."""
     live = e["start"] <= now <= (e["end"] or e["start"] + 86400)
     soon = e["start"] > now
@@ -1528,30 +1465,140 @@ def event_item(e, now, cls=""):
         desc = desc[:420].rsplit(" ", 1)[0] + "…"
     sub = f'<span class="d">{html.escape(e["subtitle"])}</span>' if e.get("subtitle") else ""
     body = f"<p>{html.escape(desc)}</p>" if desc else ""
-    bell = remind_btn(e["title"], e["start"], e.get("end"), desc=desc,
-                      stem="playtime-" + (slug(e["title"]) or "event")) if soon else ""
+    bell = remind_btn("/" + event_ics_name(gslug, e)) if (soon and gslug) else ""
     return (f'<li class="{klass}"><b>{html.escape(e["title"])}</b>{sub}'
             f'<span class="d">{label}</span>{body}{bell}</li>')
 
 
-def remind_btn(title, start, end=None, desc="", stem="playtime-event", alarm=15, rrule=""):
-    """A "Remind me" button. The event rides on the button, ICS_JS does the rest.
+# ----------------------------------------------------------------- reminders
+# "Remind me" hands the visitor a calendar file. The files are written here, at
+# build time, and served like any other file on the site: a link to one gets iOS's
+# own "Add to Calendar" screen, and a file built inside the page never does.
+#
+# The format is iCalendar (RFC 5545), and it is picky in three ways that lose the
+# whole file rather than one line: every line ends CRLF, text escapes \ ; , and
+# newlines, and no line may exceed 75 OCTETS. Nearly a quarter of Roblox's event
+# titles carry an emoji, which is four octets on its own, so the folding below
+# counts bytes rather than characters and never splits a character in half.
+def ics_text(value):
+    return (str(value).replace("\\", "\\\\").replace(";", "\\;")
+            .replace(",", "\\,").replace("\r\n", "\\n").replace("\n", "\\n"))
 
-    Only ever offered for something that has not happened yet: a reminder for last
-    Tuesday would be worse than no button at all.
+
+def ics_fold(line):
+    out, run = [], 0
+    for ch in line:
+        n = len(ch.encode("utf-8"))
+        if run + n > 74:
+            out.append("\r\n ")
+            run = 1
+        out.append(ch)
+        run += n
+    return "".join(out)
+
+
+def ics_stamp(ts):
+    return datetime.fromtimestamp(int(ts), timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def ics_file(uid, start, end, title, desc="", url="", rrule="", alarm=10):
+    """One calendar file, as text. Times are UTC, so it carries no timezone of its
+    own and the reader's calendar shows them on their own clock."""
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PlayTime//EN",
+             "CALSCALE:GREGORIAN", "BEGIN:VEVENT", f"UID:{uid}@playtime",
+             f"DTSTAMP:{ics_stamp(BUILT)}", f"DTSTART:{ics_stamp(start)}",
+             f"DTEND:{ics_stamp(end)}"]
+    if rrule:
+        lines.append("RRULE:" + rrule)
+    lines.append("SUMMARY:" + ics_text(title))
+    if desc:
+        lines.append("DESCRIPTION:" + ics_text(desc))
+    # Only a full web address belongs here. Until DOMAIN is set abs_url() gives a
+    # path, and a path on its own is not a valid URL for a calendar to follow.
+    if url.startswith("http"):
+        lines.append("URL:" + ics_text(url))
+    lines += ["BEGIN:VALARM", "ACTION:DISPLAY", f"TRIGGER:-PT{int(alarm)}M",
+              "DESCRIPTION:" + ics_text(title), "END:VALARM", "END:VEVENT",
+              "END:VCALENDAR"]
+    return "\r\n".join(ics_fold(l) for l in lines) + "\r\n"
+
+
+def next_utc(weekday, hour, after=None):
+    """The next time it is this weekday (0 = Monday) at this hour, in UTC."""
+    now = datetime.fromtimestamp(after or BUILT, timezone.utc)
+    ahead = (weekday - ((now.weekday()) % 7)) % 7
+    when_ = now.replace(hour=hour, minute=0, second=0, microsecond=0) + timedelta(days=ahead)
+    if when_.timestamp() <= (after or BUILT):
+        when_ += timedelta(days=7)
+    return int(when_.timestamp())
+
+
+def quiet_ics(card, mode):
+    """The weekly reminder for one game's quietest (or busiest) hour.
+
+    The hour is the same moment in UTC for everybody - shifting the week into a
+    reader's timezone only relabels the same squares - so one file suits every
+    visitor and the calendar app does the converting.
     """
-    if not start:
+    week = card["a"]["week"]
+    cells = [(week[d][h], d, h) for d in range(7) for h in range(24) if week[d][h] is not None]
+    if not cells:
+        return None
+    value, day, hour = min(cells) if mode == "quiet" else max(cells)
+    # How long it stays that way, counted the same way the page's countdown does.
+    length = 1
+    for step in range(1, 7):
+        d, h = divmod(day * 24 + hour + step, 24)
+        nxt = week[d % 7][h]
+        if nxt is None or (nxt > value * 1.25 if mode == "quiet" else nxt < value * 0.8):
+            break
+        length += 1
+    start = next_utc(day, hour)
+    word = "quiet" if mode == "quiet" else "busy"
+    return ics_file(
+        f"ptq-{card['slug']}-{mode}", start, start + length * 3600,
+        f"{card['name']} is usually {word}",
+        desc=(f"{card['name']} is usually at its {'quietest' if mode == 'quiet' else 'busiest'} "
+              f"around now, with about {card['a']['week'][day][hour]:,.0f} players, for about "
+              f"{length} hour{'s' if length > 1 else ''}. Worked out from the player counts "
+              f"{SITE} collects. Repeats weekly for three months, so check the site again "
+              f"after that."),
+        url=abs_url(f"/game/{card['slug']}.html"),
+        rrule="FREQ=WEEKLY;COUNT=13", alarm=10)
+
+
+def event_ics_name(slug, event):
+    return f"ics/{slug}-{int(event['start'])}.ics"
+
+
+def write_event_ics(slug, game, events, now):
+    """A calendar file for every event of this game that has not happened yet."""
+    for e in events or []:
+        if e["start"] <= now:
+            continue
+        desc = clean_desc(e.get("description") or "")[:600]
+        write(event_ics_name(slug, e), ics_file(
+            f"pte-{slug}-{int(e['start'])}", e["start"],
+            e["end"] or e["start"] + 3600, f"{game}: {e['title']}",
+            desc=desc, url=abs_url(f"/game/{slug}.html"), alarm=15))
+
+
+def remind_btn(href, label="Remind me"):
+    """A link to one of the calendar files written above.
+
+    A plain link on purpose. The browser version of this did the work in the page
+    and never ran on an iPhone, where a click arrives at a text node rather than at
+    the button; a real address also gets iOS's own "Add to Calendar" screen. There
+    is no "download" attribute for the same reason: letting Safari open the file is
+    what produces that screen, while desktop browsers save it either way.
+    """
+    if not href:
         return ""
-    extra = f' data-end="{int(end)}"' if end else ""
-    extra += f' data-desc="{html.escape(desc)}"' if desc else ""
-    extra += f' data-rrule="{html.escape(rrule)}"' if rrule else ""
-    return (f'<button type="button" class="remind" data-label="&#128276; Remind me" '
-            f'data-ics="{html.escape(stem)}" data-start="{int(start)}"'
-            f' data-title="{html.escape(title)}" data-alarm="{int(alarm)}"{extra}>'
-            f'&#128276; Remind me</button>')
+    return (f'<a class="remind" href="{html.escape(href)}" type="text/calendar">'
+            f'&#128276; {html.escape(label)}</a>')
 
 
-def calendar_html(name, events, now):
+def calendar_html(name, events, now, gslug=""):
     """Upcoming and currently running events for one game."""
     if events is None:
         return ""
@@ -1560,7 +1607,7 @@ def calendar_html(name, events, now):
     if not soon:
         return (f'<div class="card"><h2>Event calendar</h2><p class="none">{html.escape(name)} has no '
                 f'events planned on Roblox right now. When the creators announce one it will show up here.</p></div>')
-    items = "".join(event_item(e, now) for e in soon[:8])
+    items = "".join(event_item(e, now, gslug=gslug) for e in soon[:8])
     return (f'<div class="card"><h2>Event calendar</h2>'
             f'<p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p>'
             f'<ul class="evt">{items}</ul></div>')
@@ -2036,7 +2083,6 @@ Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),funct
 b.setAttribute('aria-pressed',b.dataset.m===mode)});
 var p=nextBlock(L,mode);
 if(!p){aim=null;$('cdw').hidden=true;
-if($('remind')){$('remind').hidden=true;$('remindnote').hidden=true}
 $('plantxt').textContent='Not enough player counts yet to work out the next '+
 (mode==='quiet'?'quiet':'busy')+' stretch.';return}
 aim=new Date(p.t);aim.setMinutes(0,0,0);
@@ -2046,21 +2092,10 @@ $('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getH
 p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
 ' hour'+(p.len>1?'s':'')+'</b>.';
 $('cdw').hidden=false;
-/* The same hour comes round every week, so the reminder repeats weekly rather
-   than being a single alarm. It stops after three months because by then the
-   game's pattern will have moved and the file would be quietly wrong. */
+/* Both files were written when the site was built, so switching between quiet and
+   busy is only a matter of pointing the link at the other one. */
 var rb=$('remind');
-if(rb&&window.PT_GAME){rb.hidden=false;$('remindnote').hidden=false;
-rb.dataset.start=Math.round(aim.getTime()/1000);
-rb.dataset.end=Math.round(aim.getTime()/1000)+p.len*3600;
-rb.dataset.ics='playtime-'+PT_GAME.s+'-'+mode;
-rb.dataset.uid='ptq-'+PT_GAME.s+'-'+mode;
-rb.dataset.rrule='FREQ=WEEKLY;COUNT=13';
-rb.dataset.title=PT_GAME.n+' is usually '+(mode==='quiet'?'quiet':'busy');
-rb.dataset.desc=PT_GAME.n+' is usually '+W[B.level(p.v)]+' around now, with about '+
-p.v.toLocaleString()+' players, for about '+p.len+' hour'+(p.len>1?'s':'')+'. '+
-'Worked out from the player counts PlayTime collects. Repeats weekly for three '+
-'months; check the site again after that.'}
+if(rb&&window.PT_GAME)rb.href='/ics/'+PT_GAME.s+'-'+mode+'.ics';
 tick()}
 function tick(){if(!aim)return;
 var ms=aim-new Date();
@@ -2350,10 +2385,10 @@ own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-<button type="button" class="remind" id="remind" data-ics="playtime" hidden
-data-label="&#128276; Remind me every week">&#128276; Remind me every week</button>
-<p class="mut small" id="remindnote" hidden>Saves to your own calendar. Nothing is sent to us,
-and you do not need an account.</p></div>
+<a class="remind" id="remind" href="/ics/__SLUG__-quiet.ics" type="text/calendar">
+&#128276; Remind me every week</a>
+<p class="mut small">Adds it to your own calendar. No account, and we are not told
+which reminder you set.</p></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -2450,9 +2485,10 @@ collect personal information from children under 13. If you believe a child has,
 <p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
 <p>If you tap <b>Save</b> on a game, the list of games you saved is kept in your browser's storage on your device.
 If you are not signed in, it stays there and is never sent to us. Clearing your browser data removes it.</p>
-<p>If you tap <b>Remind me</b>, your browser makes a calendar file on your device and hands it to you to open.
-Nothing is sent to us, we are not told that you did it, and the reminder belongs to your calendar app
-afterwards, not to this site. We do not send notifications and we do not ask for permission to.</p>
+<p>If you tap <b>Remind me</b>, your device downloads a small calendar file from this site, the same way it
+downloads a page. We do not store anything about you when you do, you do not need an account, and the reminder
+belongs to your own calendar app afterwards, not to this site. We never send notifications and never ask for
+permission to.</p>
 <h2>Cookies</h2>
 <p>If you never sign in, <b>we give you no cookies at all</b>. Nothing we store recognises you, and we cannot
 tell one visitor from another. (Cloudflare, who host the site, may set its own security cookie to block
@@ -2526,13 +2562,17 @@ WRITTEN = set()            # every file this build wrote, so stale ones can be c
 
 
 def write(path, text):
+    # newline="" turns off Python's line-ending translation, so a file holds exactly
+    # what we put in it. Without it, building on Windows turns the CRLF that calendar
+    # files are required to use into CR CR LF, and every calendar app rejects them.
+    # It also means a build here and a build on the server produce identical files.
     os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
-    with open(f"{OUT}/{path}", "w", encoding="utf-8") as f:
+    with open(f"{OUT}/{path}", "w", encoding="utf-8", newline="") as f:
         f.write(text)
     WRITTEN.add(path.replace("\\", "/"))
 
 
-def prune(folders=("game", "category", "updates")):
+def prune(folders=("game", "category", "updates", "ics")):
     """Deletes pages from an earlier build that this build did not write.
 
     Pages in these folders are named after the game or category, so without this a
@@ -2550,7 +2590,7 @@ def prune(folders=("game", "category", "updates")):
         if not os.path.isdir(d):
             continue
         for name in sorted(os.listdir(d)):
-            if name.endswith(".html") and f"{folder}/{name}" not in WRITTEN:
+            if name.endswith((".html", ".ics")) and f"{folder}/{name}" not in WRITTEN:
                 os.remove(f"{d}/{name}")
                 gone.append(f"{folder}/{name}")
     if gone:
@@ -2896,6 +2936,14 @@ def main():
         upcoming = [e for e in (events or []) if (e["end"] or e["start"] + 86400) >= now]
         for e in upcoming:
             all_events.append(dict(e, game=name, slug=s, icon=c["icon"]))
+        # The "Remind me" files. Written before the pages that link to them, and
+        # for every upcoming event rather than the handful this game's own page
+        # shows, because /events.html lists far more of them.
+        write_event_ics(s, name, events, now)
+        for mode in ("quiet", "busy"):
+            text = quiet_ics(c, mode)
+            if text:
+                write(f"ics/{s}-{mode}.ics", text)
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
         pattern = update_pattern(events, a["spikes"], now)
@@ -2942,7 +2990,7 @@ def main():
                 .replace("__SLUG__", s)
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__CALENDAR__", span(calendar_html(name, events, now), 6))
+                .replace("__CALENDAR__", span(calendar_html(name, events, now, gslug=s), 6))
                 .replace("__ABOUT__", about_game_html(name, meta))
                 .replace("__PARENTS__", span(parents_html(passes, pass_icons), 6))
                 .replace("__SIMILAR__", similar_html(c, cards))
@@ -3189,8 +3237,7 @@ def main():
                           else f'Starts {when(e["start"])}')
                        + '</span>'
                        + ("" if e["start"] <= now else
-                          remind_btn(f'{e["game"]}: {e["title"]}', e["start"], e.get("end"),
-                                     stem="playtime-" + e["slug"] + "-event"))
+                          remind_btn("/" + event_ics_name(e["slug"], e)))
                        + '</li>')
         return f'<ul class="evt">{"".join(out)}</ul>' if out else ""
 
