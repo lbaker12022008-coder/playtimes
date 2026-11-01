@@ -335,6 +335,24 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
 .evt{list-style:none;padding:0;margin:8px 0}
 /* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
    is about and only picks up the accent when the pointer is on it. */
+/* The day picker: seven boxes that look like the pills elsewhere on the site. The
+   real checkbox stays where it is for screen readers and the keyboard and is simply
+   not drawn, and the pill beside it follows its state.
+   Deliberately "input:checked + span" and not ":has()": a lot of this audience is on
+   a handed-down iPad, and :has needs Safari 15.4 while the sibling selector has
+   worked for as long as anyone here has been alive. The fieldset stays a block for
+   the same sort of reason - a legend inside a flex container lands differently in
+   different browsers - and the labels flow as inline blocks instead. */
+.daypick{border:0;padding:0;margin:12px 0 4px;display:block}
+.daypick legend{padding:0;margin-bottom:6px}
+.daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
+.daypick input{position:absolute;opacity:0;width:0;height:0}
+.daypick span{display:inline-flex;align-items:center;justify-content:center;min-width:46px;
+min-height:38px;padding:0 10px;border-radius:999px;border:1px solid var(--line);
+background:var(--card);color:var(--mut);font-size:.84rem;font-weight:600}
+.daypick input:checked+span{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.daypick input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
+.remind[aria-disabled=true]{opacity:.5;pointer-events:none}
 .remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
 font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
 background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}

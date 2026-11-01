@@ -335,6 +335,24 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
 .evt{list-style:none;padding:0;margin:8px 0}
 /* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
    is about and only picks up the accent when the pointer is on it. */
+/* The day picker: seven boxes that look like the pills elsewhere on the site. The
+   real checkbox stays where it is for screen readers and the keyboard and is simply
+   not drawn, and the pill beside it follows its state.
+   Deliberately "input:checked + span" and not ":has()": a lot of this audience is on
+   a handed-down iPad, and :has needs Safari 15.4 while the sibling selector has
+   worked for as long as anyone here has been alive. The fieldset stays a block for
+   the same sort of reason - a legend inside a flex container lands differently in
+   different browsers - and the labels flow as inline blocks instead. */
+.daypick{border:0;padding:0;margin:12px 0 4px;display:block}
+.daypick legend{padding:0;margin-bottom:6px}
+.daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
+.daypick input{position:absolute;opacity:0;width:0;height:0}
+.daypick span{display:inline-flex;align-items:center;justify-content:center;min-width:46px;
+min-height:38px;padding:0 10px;border-radius:999px;border:1px solid var(--line);
+background:var(--card);color:var(--mut);font-size:.84rem;font-weight:600}
+.daypick input:checked+span{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.daypick input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
+.remind[aria-disabled=true]{opacity:.5;pointer-events:none}
 .remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
 font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
 background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}
@@ -491,7 +509,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/action.html">Action games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/command-an-army.html">Command An Army player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-97aa00e2d5d33d82f9bc970c7ae16f25/256/256/Image/Webp/noFilter" alt="Command An Army Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Command An Army update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Command An Army&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/command-an-army.html">&larr; Command An Army player count</a><a class="btn" href="https://www.roblox.com/games/101770480176177">Play Command An Army</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sat 31 Oct).</p><ul class="evt"><li class=""><b>ARCHER CLASS</b><span class="d">New player class</span><span class="d">Sat 17 Oct &middot; 14 days ago</span><p>Introducing the new archer class!</p></li><li class=""><b>Mongols</b><span class="d">New Content Drop!</span><span class="d">Sat 3 Oct &middot; 28 days ago</span><p>Introducing Battlepass!
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/action.html">Action games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/command-an-army.html">Command An Army player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-97aa00e2d5d33d82f9bc970c7ae16f25/256/256/Image/Webp/noFilter" alt="Command An Army Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Command An Army update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Command An Army&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/command-an-army.html">&larr; Command An Army player count</a><a class="btn" href="https://www.roblox.com/games/101770480176177">Play Command An Army</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sun 1 Nov).</p><ul class="evt"><li class=""><b>ARCHER CLASS</b><span class="d">New player class</span><span class="d">Sat 17 Oct &middot; 14 days ago</span><p>Introducing the new archer class!</p></li><li class=""><b>Mongols</b><span class="d">New Content Drop!</span><span class="d">Sat 3 Oct &middot; 28 days ago</span><p>Introducing Battlepass!
 Season 1 - Mongol
 - Nokor (⭐⭐⭐)
 - Bataar (⭐⭐⭐)
