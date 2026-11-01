@@ -172,8 +172,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:6px 16px 7px}
-.hrow{display:flex;align-items:center;gap:10px}
+/* One slim bar, about 62px tall, holding four things. */
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 20px}
+.hrow{display:flex;align-items:center;gap:12px}
 .hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
 .acct form{margin:0}
@@ -181,20 +182,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
 .acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
-.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
-.logo .mark{width:30px;height:30px;flex:none}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* Below the width where the row of sections fits, the header is logo, name and
    game picker on the left and the three-line button on the right. Search, theme
    and the account are in the panel that button opens, so they are hidden here
    rather than fighting for the same row. */
-@media(max-width:899px){#searchbtn,#themebtn,.hrow>#acct{display:none}}
 /* the game switcher, top left */
 .gpick{position:relative;min-width:0}
-.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;min-width:0;padding:5px 10px;border-radius:999px;
-border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.9rem;font-weight:700}
+.gpick>button{display:flex;align-items:center;gap:8px;max-width:240px;min-width:0;padding:8px 13px;border-radius:12px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:700}
 .gpick>button:hover{border-color:var(--acc)}
-.gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
+.gpick img,.gpick .ph{width:24px;height:24px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
 .gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
 .gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--solid);
@@ -206,10 +206,10 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
 .gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
 /* round icon button on the right of the header */
-.iconb{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:999px;
+.iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
-.iconb svg{width:18px;height:18px;fill:currentColor}
+.iconb svg{width:19px;height:19px;fill:currentColor}
 .themeic .moon{display:none}
 :root[data-theme=dark] .themeic .moon{display:block}
 :root[data-theme=dark] .themeic .sun{display:none}
@@ -279,14 +279,6 @@ border:1px solid var(--line);border-radius:13px}
 /* A scrolling strip is written as a block with nowrap text, never as a nowrap
    flex row: a nowrap flex container hands its parent the total width of its
    items, so the page grows to fit a strip that was supposed to scroll. */
-.tabs{display:none;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px;white-space:nowrap}
-.tabs::-webkit-scrollbar{display:none}
-.tabs a{display:inline-block;margin-right:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
-.tabs a:hover{border-color:var(--acc);transform:translateY(-1px)}
-.tabs a[aria-current=page]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-/* Only one of the two ways into the sections is ever on screen: the row when it fits,
-   the menu button when it does not. 900px is where all eight pills stop needing a drag. */
-@media(min-width:900px){.tabs{display:block}#menubtn{display:none}.hdr .in{padding-bottom:0}}
 .drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
@@ -474,10 +466,13 @@ body{font-size:17px}
 h2{font-size:1.06rem}
 .lede{font-size:1rem}
 .rowhead{margin-top:18px}
-/* the top bar has to hold five things, so everything in it gives up a little */
-.iconb{width:36px;height:36px}
-.hrow{gap:8px}
-.gpick>button{max-width:118px}
+/* the same four things, a little tighter, so the bar is not a third of the screen */
+.hdr .in{padding:8px 14px}
+.iconb{width:38px;height:38px}
+.hrow{gap:9px}
+.logo{font-size:1.2rem}
+.logo .mark{width:29px;height:29px}
+.gpick>button{max-width:150px;padding:7px 11px}
 /* two games across even on the narrowest phone, with less air between them */
 .grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(min(132px,100%),1fr));margin:12px 0}
 /* busy / quiet / browsing becomes one row of three. The line under each one goes:
@@ -735,22 +730,22 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
       noindex   keep this one page out of Google even when the rest of the site is in.
       modified  the date the page's facts last changed, as YYYY-MM-DD.
     """
-    tabs = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
-                   for k, t, u in TABS)
-    # The menu marks the page you are on, the same as the row does, so it is clear
-    # where you already are without having to read every link.
+    # The menu marks the page you are on, so it is clear where you already are
+    # without having to read every link.
+    # (The row of section pills that used to sit under the header is gone. It was a
+    # second navigation that only ever appeared on a wide screen, and the panel
+    # already holds the same links plus two more. The footer still lists them as
+    # plain visible links, so nothing is hidden from a search engine.)
     drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                      for k, t, u in TABS)
-    # On a wide screen the header carries search, theme and the account itself. On a
-    # phone there is only the three-line button, and those three move into the panel
-    # it opens, so the row stays logo, name, game picker on one side and one button
-    # on the other. data-search and data-themebtn are how both copies of a control
-    # find the same code, rather than one id that only one of them can have.
-    buttons = (f'<button class="iconb" id="searchbtn" data-search type="button" '
-               f'aria-label="Search for a game">{ICON_SEARCH}</button>'
-               f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
+    # One button, at every width: logo, name, game picker, and then the three lines.
+    # Search, light/dark and the account are all inside the panel it opens, so a
+    # laptop gets the same header as a phone instead of its own arrangement. The
+    # controls therefore exist once each now, but the scripts still bind every
+    # [data-search] and [data-themebtn] rather than an id, so a second copy can be
+    # put back in the row without touching them.
+    buttons = (f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
                f'aria-controls="drawer" aria-label="Menu">{ICON_MENU}</button>')
-    nav_row = f'<nav class="tabs" aria-label="Sections">{tabs}</nav>'
     # These two are position:fixed and must be written OUTSIDE <header>. The header
     # has backdrop-filter, and that makes it the containing block for any fixed
     # descendant: inside it, the side menu was 88px tall instead of the height of
@@ -801,9 +796,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 {banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-{buttons}<button class="iconb themeic" id="themebtn" data-themebtn type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
-<div class="acct" id="acct"></div></div>
-{nav_row}</div></header>{extras}
+{buttons}</div></div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a>
