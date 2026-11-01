@@ -11,7 +11,7 @@ Preview your changes without touching the live site:
     python -m http.server
 Then open http://localhost:8000
 """
-import html, json, math, os, re, sqlite3, statistics, time
+import colorsys, html, json, math, os, re, sqlite3, statistics, time
 from datetime import datetime, timedelta, timezone
 
 import roblox_api
@@ -68,6 +68,20 @@ LIGHT = """--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;-
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
 --soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14;
 --glowh:272;--glowa:.32"""
+
+
+def band_hue(name):
+    """The hue of one heatmap band, read back out of LIGHT rather than typed in
+    again. "Busy right now" glows the red the heatmap uses for a busy hour and
+    "Quiet right now" the green it uses for a quiet one, so the chooser and the
+    week grid cannot end up telling the visitor two different colour stories.
+    Retune --l1 or --l5 and the glow follows on the next build."""
+    hx = re.search(name + r":#([0-9A-Fa-f]{6})", LIGHT).group(1)
+    r, g, b = (int(hx[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    return round(colorsys.rgb_to_hsv(r, g, b)[0] * 360)
+
+
+QUIET_HUE, BUSY_HUE = band_hue("--l1"), band_hue("--l5")
 
 CSS = """:root{__LIGHT__}
 /* Widths only apply once there is room for them. Below 900px every card is full
@@ -305,6 +319,30 @@ font-size:.9rem;font-weight:600}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
+/* The same glow the game tiles have, on the two rows of controls above them, so
+   the chooser and the categories belong to the page rather than sitting on it.
+   It is the tile's machinery exactly - isolation:isolate, a ::before behind the
+   control at z-index -1, and one hue in --glow - only the shape differs: these
+   are wide and short rather than square, so the halo is an ellipse that spills
+   a little past each edge instead of a circle. --glow comes from the thing
+   itself: the heatmap's own red and green for "busy" and "quiet" (band_hue),
+   and for a category the hue of its biggest game's picture. A pill with no hue
+   falls back to --glowh, the accent's, like a tile with a colourless icon.
+   A pressed chip keeps its glow, since it is the one being asked about. */
+.chip,.pills a{position:relative;isolation:isolate}
+.chip::before,.pills a::before{content:"";position:absolute;z-index:-1;pointer-events:none;
+opacity:0;transition:opacity .22s ease;
+background:radial-gradient(58% 118% at 50% 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 72%)}
+/* The sideways spill is 12px because the page's own gutter is 14px on a phone
+   and 16px on a laptop (.w): a halo wider than that hangs off the right of the
+   screen and the page can be dragged 3px sideways, since body's overflow-x:clip
+   is propagated to the viewport and so does not clip the body's own children.
+   Measured, not guessed - 20px here was enough to do it. */
+.chip::before{inset:-16px -12px}
+.pills a::before{inset:-11px -12px}
+.chip:hover::before,.chip:focus-visible::before,.chip[aria-pressed=true]::before,
+.pills a:hover::before,.pills a:focus-visible::before{opacity:1}
+
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
@@ -488,7 +526,7 @@ h2{font-size:1.06rem}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
-.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
+.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:12px 14px}
 .pills::-webkit-scrollbar{display:none}
 .pills a{display:inline-block;margin-right:8px}
 .pills a:last-child{margin-right:0}
@@ -1040,10 +1078,10 @@ def ask_html(lede="Showing the most popular games first."):
     category page, where it narrows that category only."""
     return ('<h2 style="margin-top:22px">What are you looking for?</h2>'
             '<div class="ask" id="ask">'
-            '<button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b>'
-            '<i>Trading, full servers, live events</i></button>'
-            '<button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b>'
-            '<i>Claim events, no queues, less lag</i></button>'
+            f'<button class="chip" data-w="busy" aria-pressed="false" style="--glow:{BUSY_HUE}">'
+            '<b>Busy right now</b><i>Trading, full servers, live events</i></button>'
+            f'<button class="chip" data-w="quiet" aria-pressed="false" style="--glow:{QUIET_HUE}">'
+            '<b>Quiet right now</b><i>Claim events, no queues, less lag</i></button>'
             '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
             '<i>Show the most popular games</i></button></div>'
             '<div id="asknote" class="note" hidden></div>'
@@ -3159,9 +3197,9 @@ def main():
         cg = [c for c in cards if c["genre"] == g]
         if not cg:
             continue
-        cat_pages.append((g, f"/category/{slug(g)}.html"))
         count = f'{len(cg)} game{"s" if len(cg) != 1 else ""}'
         biggest = cg[0]
+        cat_pages.append((g, f"/category/{slug(g)}.html", biggest.get("hue")))
         write(f"category/{slug(g)}.html", page(
             seo_title(f"{g} Roblox Games: Player Counts & Best Times",
                       f"{g} Roblox Games by Player Count"),
@@ -3183,7 +3221,15 @@ def main():
             image=biggest["banner"] or biggest["icon"] or "",
             trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}.html")],
             schema=[item_list(cg, f"{g} Roblox games by player count")]))
-    pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
+    # A category pill carries the hue of its biggest game, so it glows the colour
+    # of the artwork already sitting behind that category's own heading. A game
+    # whose picture has no real colour in it hands over nothing, and the pill
+    # falls back to the accent's hue like a colourless tile does.
+    pills = ""
+    for g, u, h in cat_pages:
+        tint = "" if h is None else f' style="--glow:{h}"'
+        pills += f'<a href="{u}"{tint}>{html.escape(g)}</a>'
+
 
     # ---- homepage
     # Two numbers worth saying out loud, because they are the reason to trust the rest
@@ -3424,7 +3470,7 @@ def main():
     for u in [u for _, _, u in TABS if u not in ("/", "/popular.html")]:
         pages.append((u, "0.7", today))
     pages.append(("/busiest-hours.html", "0.8", today))
-    pages += [(u, "0.7", today) for _, u in cat_pages]
+    pages += [(u, "0.7", today) for _, u, _ in cat_pages]
     for c in cards:
         if not index_ok(c):
             continue
