@@ -38,7 +38,13 @@
 --up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
 --shade:rgba(255,255,255,.06);--bannerop:.3;--glowa:.5}
 *{box-sizing:border-box}
-body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;overflow-wrap:break-word;overflow-x:clip}
+/* overflow-wrap stops one long word dragging the page wider than the phone. The
+   text is not ours: creators paste group links into a game's description, and a
+   61-character URL is about 430px, which is wider than a card on any phone.
+   overflow-x:clip is the net under all of this, in case something new overflows
+   one day. It must be clip and not hidden: hidden makes the body a scrolling box,
+   which would stop the sticky header sticking. */
 /* The game's own artwork, faded out behind the top of the page. Decorative only:
    it sits under everything and fades into the page colour, so text stays readable
    in both themes. The sticky header is see-through, so it picks the colour up too. */
@@ -70,6 +76,7 @@ h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter
 h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
+.card,.ghead>div{min-width:0}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
 /* The description drawer under the game heading. Its arrow is drawn with two
    borders rather than loaded as a picture, and turns over when the drawer opens. */
@@ -97,7 +104,9 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
    events sits next to a long FAQ, a 7-row table next to a 24-row one, and stretching
    turns the short one into a mostly empty box. The even gaps hold the grid together. */
 .bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
-.bento>*{grid-column:1/-1;margin:0}   /* full width by default; the grid owns the spacing */
+/* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
+   or long word inside a card could otherwise force the whole grid wider. */
+.bento>*{grid-column:1/-1;margin:0;min-width:0}   /* full width by default; the grid owns the spacing */
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -121,8 +130,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 @media(max-width:560px){.logo .wordmark{display:none}}
 /* the game switcher, top left */
-.gpick{position:relative}
-.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;padding:5px 10px;border-radius:999px;
+.gpick{position:relative;min-width:0}
+.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;min-width:0;padding:5px 10px;border-radius:999px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.9rem;font-weight:700}
 .gpick>button:hover{border-color:var(--acc)}
 .gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
@@ -169,7 +178,7 @@ text-decoration:none;color:var(--ink)}
 .qout p{margin:8px 10px;color:var(--mut);font-size:.9rem}
 /* game passes: picture, what it contains, what it costs */
 .passes{list-style:none;padding:0;margin:14px 0 6px;display:grid;gap:10px;
-grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr))}
 .pass{display:flex;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--shade)}
 .pass img,.pass .ph{width:64px;height:64px;flex:none;border-radius:12px;object-fit:cover;
 background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--mut);font-size:.95rem}
@@ -213,7 +222,7 @@ border:1px solid var(--line);border-radius:13px}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
-.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin:14px 0}
+.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));margin:14px 0}
 .chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
 .chip:hover{transform:translateY(-2px);border-color:var(--acc)}
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
@@ -227,7 +236,7 @@ font-size:.9rem;font-weight:600}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
 /* game tiles */
-.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
+.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
 .tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
 .thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
@@ -273,6 +282,9 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .graph{touch-action:pan-y;cursor:crosshair}
 .graph .cursor{transition:opacity .12s}
 .readout{min-height:1.6em;margin:.2em 0 0;font-size:1.05rem}
+/* Roblox text: names, descriptions, event blurbs, game-pass names. Any of it can
+   be a pasted link or an unbroken run of characters, so it may break anywhere. */
+.desc,.gdesc-in,.evt b,.evt p,.pass b,.pass p,.tname,.qout a,.gmenu a{overflow-wrap:anywhere}
 .bar{border-radius:5px 5px 0 0;min-height:4px;transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*11ms)}
 .bar.b2{opacity:.72}
 .axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
@@ -283,7 +295,7 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
 .spark{width:100%;height:80px;display:block}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:12px}
 .stats b{display:block;font-size:1.5rem}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 
@@ -323,7 +335,7 @@ background:var(--card);color:var(--mut);cursor:pointer}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
-.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
 input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:var(--sh);font:inherit}
 .foot{border-top:1px solid var(--line);margin-top:36px;padding-top:12px}
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
@@ -339,7 +351,7 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .crumbs span[aria-current]{color:var(--ink);font-weight:600}
 /* The facts list under each game's heading. Written into the page by the builder,
    not by the browser, so a search engine reads the numbers without running any code. */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px 18px;margin:10px 0 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px 18px;margin:10px 0 0}
 .facts div{min-width:0}
 .facts dt{font-size:.85rem;color:var(--mut)}
 .facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
@@ -372,7 +384,7 @@ h2{font-size:1.06rem}
 .hrow{gap:8px}
 .gpick>button{max-width:118px}
 /* two games across even on the narrowest phone, with less air between them */
-.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));margin:12px 0}
+.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(min(132px,100%),1fr));margin:12px 0}
 /* busy / quiet / browsing becomes one row of three. The line under each one goes:
    there is no room for it, and the heading above already asks the question. */
 .ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
@@ -384,8 +396,8 @@ h2{font-size:1.06rem}
 .pills::-webkit-scrollbar{display:none}
 .pills a{flex:none}
 /* all seven days fit across, so the chart below does not jump when you change day */
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
-.days button{padding:6px 2px;font-size:.88rem}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
+.days button{padding:6px 0;font-size:.82rem}
 /* the week grid: 24 columns on a phone, so the squares have to be small */
 .hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
 .hm .c{height:17px;border-radius:3px}
@@ -522,7 +534,7 @@ setTimeout(function(){b.textContent=was},3000)});
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/survival.html">Survival games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/sell-fries.html">Sell Fries player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5a9aecb23d5482af737724ea17e5f8d1/256/256/Image/Webp/noFilter" alt="Sell Fries Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Sell Fries update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Sell Fries&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/sell-fries.html">&larr; Sell Fries player count</a><a class="btn" href="https://www.roblox.com/games/94891079210424">Play Sell Fries</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sat 31 Oct).</p><p class="none">The creators have not posted any updates to the Roblox event calendar, so we only know the date above.</p></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="soon"><b>Chapter 2</b><span class="d">???</span><span class="d">Starts Sun 1 Nov</span><button type="button" class="remind" data-label="&#128276; Remind me" data-ics="playtime-chapter-2" data-start="1793548822" data-title="Chapter 2" data-alarm="15" data-end="1793635222">&#128276; Remind me</button></li></ul></div><p><a href="/game/sell-fries.html">&larr; Back to Sell Fries</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/survival.html">Survival games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/sell-fries.html">Sell Fries player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9d7a853647d788937fc906b2348693e8/256/256/Image/Webp/noFilter" alt="Sell Fries Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Sell Fries update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Sell Fries&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/sell-fries.html">&larr; Sell Fries player count</a><a class="btn" href="https://www.roblox.com/games/94891079210424">Play Sell Fries</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sat 31 Oct).</p><p class="none">The creators have not posted any updates to the Roblox event calendar, so we only know the date above.</p></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="soon"><b>Chapter 2</b><span class="d">???</span><span class="d">Starts Sun 1 Nov</span><button type="button" class="remind" data-label="&#128276; Remind me" data-ics="playtime-chapter-2" data-start="1793548822" data-title="Chapter 2" data-alarm="15" data-end="1793635222">&#128276; Remind me</button></li></ul></div><p><a href="/game/sell-fries.html">&larr; Back to Sell Fries</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -645,7 +657,7 @@ while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
 $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
 '</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
 else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
-'. Worked out from the last '+P.n+' updates and busy days.'}</script><script>window.PT_GAME={"s":"sell-fries","n":"Sell Fries","i":"https://tr.rbxcdn.com/180DAY-5a9aecb23d5482af737724ea17e5f8d1/256/256/Image/Webp/noFilter"};</script>
+'. Worked out from the last '+P.n+' updates and busy days.'}</script><script>window.PT_GAME={"s":"sell-fries","n":"Sell Fries","i":"https://tr.rbxcdn.com/180DAY-9d7a853647d788937fc906b2348693e8/256/256/Image/Webp/noFilter"};</script>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>

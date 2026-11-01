@@ -38,7 +38,13 @@
 --up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
 --shade:rgba(255,255,255,.06);--bannerop:.3;--glowa:.5}
 *{box-sizing:border-box}
-body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;overflow-wrap:break-word;overflow-x:clip}
+/* overflow-wrap stops one long word dragging the page wider than the phone. The
+   text is not ours: creators paste group links into a game's description, and a
+   61-character URL is about 430px, which is wider than a card on any phone.
+   overflow-x:clip is the net under all of this, in case something new overflows
+   one day. It must be clip and not hidden: hidden makes the body a scrolling box,
+   which would stop the sticky header sticking. */
 /* The game's own artwork, faded out behind the top of the page. Decorative only:
    it sits under everything and fades into the page colour, so text stays readable
    in both themes. The sticky header is see-through, so it picks the colour up too. */
@@ -70,6 +76,7 @@ h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter
 h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
+.card,.ghead>div{min-width:0}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
 /* The description drawer under the game heading. Its arrow is drawn with two
    borders rather than loaded as a picture, and turns over when the drawer opens. */
@@ -97,7 +104,9 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
    events sits next to a long FAQ, a 7-row table next to a 24-row one, and stretching
    turns the short one into a mostly empty box. The even gaps hold the grid together. */
 .bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
-.bento>*{grid-column:1/-1;margin:0}   /* full width by default; the grid owns the spacing */
+/* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
+   or long word inside a card could otherwise force the whole grid wider. */
+.bento>*{grid-column:1/-1;margin:0;min-width:0}   /* full width by default; the grid owns the spacing */
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -121,8 +130,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 @media(max-width:560px){.logo .wordmark{display:none}}
 /* the game switcher, top left */
-.gpick{position:relative}
-.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;padding:5px 10px;border-radius:999px;
+.gpick{position:relative;min-width:0}
+.gpick>button{display:flex;align-items:center;gap:7px;max-width:210px;min-width:0;padding:5px 10px;border-radius:999px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.9rem;font-weight:700}
 .gpick>button:hover{border-color:var(--acc)}
 .gpick img,.gpick .ph{width:22px;height:22px;border-radius:6px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
@@ -169,7 +178,7 @@ text-decoration:none;color:var(--ink)}
 .qout p{margin:8px 10px;color:var(--mut);font-size:.9rem}
 /* game passes: picture, what it contains, what it costs */
 .passes{list-style:none;padding:0;margin:14px 0 6px;display:grid;gap:10px;
-grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr))}
 .pass{display:flex;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--shade)}
 .pass img,.pass .ph{width:64px;height:64px;flex:none;border-radius:12px;object-fit:cover;
 background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--mut);font-size:.95rem}
@@ -213,7 +222,7 @@ border:1px solid var(--line);border-radius:13px}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
-.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin:14px 0}
+.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));margin:14px 0}
 .chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
 .chip:hover{transform:translateY(-2px);border-color:var(--acc)}
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
@@ -227,7 +236,7 @@ font-size:.9rem;font-weight:600}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
 /* game tiles */
-.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
+.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
 .tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
 .thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
@@ -273,6 +282,9 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .graph{touch-action:pan-y;cursor:crosshair}
 .graph .cursor{transition:opacity .12s}
 .readout{min-height:1.6em;margin:.2em 0 0;font-size:1.05rem}
+/* Roblox text: names, descriptions, event blurbs, game-pass names. Any of it can
+   be a pasted link or an unbroken run of characters, so it may break anywhere. */
+.desc,.gdesc-in,.evt b,.evt p,.pass b,.pass p,.tname,.qout a,.gmenu a{overflow-wrap:anywhere}
 .bar{border-radius:5px 5px 0 0;min-height:4px;transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*11ms)}
 .bar.b2{opacity:.72}
 .axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
@@ -283,7 +295,7 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
 .spark{width:100%;height:80px;display:block}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:12px}
 .stats b{display:block;font-size:1.5rem}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 
@@ -323,7 +335,7 @@ background:var(--card);color:var(--mut);cursor:pointer}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
-.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
 input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:var(--sh);font:inherit}
 .foot{border-top:1px solid var(--line);margin-top:36px;padding-top:12px}
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
@@ -339,7 +351,7 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .crumbs span[aria-current]{color:var(--ink);font-weight:600}
 /* The facts list under each game's heading. Written into the page by the builder,
    not by the browser, so a search engine reads the numbers without running any code. */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px 18px;margin:10px 0 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px 18px;margin:10px 0 0}
 .facts div{min-width:0}
 .facts dt{font-size:.85rem;color:var(--mut)}
 .facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
@@ -372,7 +384,7 @@ h2{font-size:1.06rem}
 .hrow{gap:8px}
 .gpick>button{max-width:118px}
 /* two games across even on the narrowest phone, with less air between them */
-.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));margin:12px 0}
+.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(min(132px,100%),1fr));margin:12px 0}
 /* busy / quiet / browsing becomes one row of three. The line under each one goes:
    there is no room for it, and the heading above already asks the question. */
 .ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
@@ -384,8 +396,8 @@ h2{font-size:1.06rem}
 .pills::-webkit-scrollbar{display:none}
 .pills a{flex:none}
 /* all seven days fit across, so the chart below does not jump when you change day */
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
-.days button{padding:6px 2px;font-size:.88rem}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
+.days button{padding:6px 0;font-size:.82rem}
 /* the week grid: 24 columns on a phone, so the squares have to be small */
 .hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
 .hm .c{height:17px;border-radius:3px}
@@ -412,7 +424,7 @@ h2{font-size:1.06rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"/"},{"@type":"ListItem","position":2,"name":"Shooter games","item":"/category/shooter.html"},{"@type":"ListItem","position":3,"name":"One Tap","item":"/game/one-tap.html"}]},{"@type":"VideoGame","name":"One Tap","url":"/game/one-tap.html","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-00155b28dc7219013f3365f5def385ef/256/256/Image/Webp/noFilter","genre":"Shooter","author":{"@type":"Organization","name":"Stringless Banjo"},"description":"Boom Headshot!\n\nOne Tap is a fast-paced FPS sniper FFA arena, no teams, just pure chaos!\n\n\ud83c\udfaf One-shot snipers\n\ud83d\udd2b Two-Shot Secondaries (One to the head)\n\ud83d\udd2a Melee Weapons\n\ud83c\udfc6 Streaks, trick shots, clean kills and more!\n\n\ud83d\udd13 Progress & Customization\n\n-Unlock 70+ weapon skins (more coming soon)\n-Roll cases to earn rare & limited cosmetics\n-Equip kill effects, name tags, and skins\n-Earn rewards from levels, d","datePublished":"2025-12-04","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":653306090}},{"@type":"Dataset","name":"One Tap player count history","description":"Concurrent player counts for the Roblox game One Tap, sampled from the public Roblox player count every few minutes. 42 readings so far.","url":"/game/one-tap.html","temporalCoverage":"2026-10-31/2026-11-01","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"creator":{"@type":"Organization","name":"PlayTime"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people play One Tap?","acceptedAnswer":{"@type":"Answer","text":"About 19,804 people are in One Tap at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 25,938. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play One Tap?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Saturday around 10 PM UTC, when there are usually about 15,006 players. For full servers and trading, Saturday around 4 PM UTC is the busiest hour we see, at roughly 24,916 players. The charts on this page show those times on your own clock."}},{"@type":"Question","name":"When is One Tap busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 4 PM UTC is its busiest hour in a typical week, with about 24,916 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Is One Tap dying?","acceptedAnswer":{"@type":"Answer","text":"We have not been watching this game long enough to say which way it is going. Check back in a week or two."}},{"@type":"Question","name":"How many visits does One Tap have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 653,306,090 total visits for One Tap so far, and it was first released 10 months ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"/"},{"@type":"ListItem","position":2,"name":"Shooter games","item":"/category/shooter.html"},{"@type":"ListItem","position":3,"name":"One Tap","item":"/game/one-tap.html"}]},{"@type":"VideoGame","name":"One Tap","url":"/game/one-tap.html","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-00155b28dc7219013f3365f5def385ef/256/256/Image/Webp/noFilter","genre":"Shooter","author":{"@type":"Organization","name":"Stringless Banjo"},"description":"Boom Headshot!\n\nOne Tap is a fast-paced FPS sniper FFA arena, no teams, just pure chaos!\n\n\ud83c\udfaf One-shot snipers\n\ud83d\udd2b Two-Shot Secondaries (One to the head)\n\ud83d\udd2a Melee Weapons\n\ud83c\udfc6 Streaks, trick shots, clean kills and more!\n\n\ud83d\udd13 Progress & Customization\n\n-Unlock 70+ weapon skins (more coming soon)\n-Roll cases to earn rare & limited cosmetics\n-Equip kill effects, name tags, and skins\n-Earn rewards from levels, d","datePublished":"2025-12-04","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":653319140}},{"@type":"Dataset","name":"One Tap player count history","description":"Concurrent player counts for the Roblox game One Tap, sampled from the public Roblox player count every few minutes. 42 readings so far.","url":"/game/one-tap.html","temporalCoverage":"2026-10-31/2026-11-01","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"creator":{"@type":"Organization","name":"PlayTime"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people play One Tap?","acceptedAnswer":{"@type":"Answer","text":"About 19,804 people are in One Tap at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 25,938. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play One Tap?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Saturday around 10 PM UTC, when there are usually about 15,006 players. For full servers and trading, Saturday around 4 PM UTC is the busiest hour we see, at roughly 24,916 players. The charts on this page show those times on your own clock."}},{"@type":"Question","name":"When is One Tap busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 4 PM UTC is its busiest hour in a typical week, with about 24,916 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Is One Tap dying?","acceptedAnswer":{"@type":"Answer","text":"We have not been watching this game long enough to say which way it is going. Check back in a week or two."}},{"@type":"Question","name":"How many visits does One Tap have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 653,319,140 total visits for One Tap so far, and it was first released 10 months ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
@@ -583,7 +595,7 @@ and you do not need an account.</p></div>
 
 <div class="sp6 card"><h2>Event calendar</h2><p class="none">One Tap has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div>
 <div class="sp6 card"><h2>What costs money</h2><p>This game sells <b>4 game passes</b>, from <b>79 to 499 Robux</b>. Buying every one would cost <b>1,026 Robux</b> (roughly $13 USD).</p><ul class="passes"><li class="pass"><img src="https://tr.rbxcdn.com/180DAY-92ecd69a633159af5992933538a34bc3/150/150/Image/Png/noFilter" alt="" width="64" height="64" loading="lazy"><div><b>Double Voting Value</b><span class="ptag cheap">Cheapest</span><p class="mut">The creators did not say what this one contains.</p><span class="price">79 Robux <span class="mut">&middot; about $0.99</span></span></div></li><li class="pass"><img src="https://tr.rbxcdn.com/180DAY-7334a706fbd51db34425825de68afa49/150/150/Image/Png/noFilter" alt="" width="64" height="64" loading="lazy"><div><b>2x Level XP</b><span class="ptag new">Newest</span><p class="mut">The creators did not say what this one contains.</p><span class="price">149 Robux <span class="mut">&middot; about $1.86</span></span></div></li><li class="pass"><img src="https://tr.rbxcdn.com/180DAY-3022114a1a08a56b899f9ec4f1d48003/150/150/Image/Png/noFilter" alt="" width="64" height="64" loading="lazy"><div><b>2x Money</b><p class="mut">The creators did not say what this one contains.</p><span class="price">299 Robux <span class="mut">&middot; about $3.74</span></span></div></li><li class="pass"><img src="https://tr.rbxcdn.com/180DAY-4773e30c64c7437a258d3b1609618e68/150/150/Image/Png/noFilter" alt="" width="64" height="64" loading="lazy"><div><b>2x Case Luck</b><p class="mut">The creators did not say what this one contains.</p><span class="price">499 Robux <span class="mut">&middot; about $6.24</span></span></div></li></ul><p class="mut small">Cheapest and newest come from Roblox's own numbers. We do not say which pass is best: Roblox does not publish how many people buy each one, so anyone ranking them is guessing.</p><p class="mut small">Games can also sell one-time items inside the game, which are not listed here. Roblox Parental Controls let you set a monthly spending limit and get alerts about purchases.</p></div>
-<div class="card faq"><h2>One Tap: common questions</h2><h3>How many people play One Tap?</h3><p>About 19,804 people are in One Tap at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 25,938. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><h3>What is the best time to play One Tap?</h3><p>For quiet servers, aim for Saturday around 10 PM UTC, when there are usually about 15,006 players. For full servers and trading, Saturday around 4 PM UTC is the busiest hour we see, at roughly 24,916 players. The charts on this page show those times on your own clock.</p><h3>When is One Tap busiest?</h3><p>Saturday around 4 PM UTC is its busiest hour in a typical week, with about 24,916 players. Saturday is its busiest day overall.</p><h3>Is One Tap dying?</h3><p>We have not been watching this game long enough to say which way it is going. Check back in a week or two.</p><h3>How many visits does One Tap have?</h3><p>Roblox reports 653,306,090 total visits for One Tap so far, and it was first released 10 months ago.</p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div>
+<div class="card faq"><h2>One Tap: common questions</h2><h3>How many people play One Tap?</h3><p>About 19,804 people are in One Tap at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 25,938. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><h3>What is the best time to play One Tap?</h3><p>For quiet servers, aim for Saturday around 10 PM UTC, when there are usually about 15,006 players. For full servers and trading, Saturday around 4 PM UTC is the busiest hour we see, at roughly 24,916 players. The charts on this page show those times on your own clock.</p><h3>When is One Tap busiest?</h3><p>Saturday around 4 PM UTC is its busiest hour in a typical week, with about 24,916 players. Saturday is its busiest day overall.</p><h3>Is One Tap dying?</h3><p>We have not been watching this game long enough to say which way it is going. Check back in a week or two.</p><h3>How many visits does One Tap have?</h3><p>Roblox reports 653,319,140 total visits for One Tap so far, and it was first released 10 months ago.</p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div>
 </div>
 <div class="rowhead"><h2>Similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other shooter games with about as many players.</p><ul class="grid"><li style="--i:0;--glow:214" data-n="deagle arena" data-s="deagle-arena"><a class="tile" href="/game/deagle-arena.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d0a9388dd68f96f968f6c2f283540f97/256/256/Image/Webp/noFilter" alt="Deagle Arena Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Deagle Arena</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 17.7K</span></span></a></li><li style="--i:1;--glow:201" data-n="bloxstrike" data-s="bloxstrike"><a class="tile" href="/game/bloxstrike.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9848282ed9e744dcd0f62953fde267d0/256/256/Image/Webp/noFilter" alt="BloxStrike Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">BloxStrike</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 17.2K</span></span></a></li><li style="--i:2;--glow:203" data-n="hypershot" data-s="hypershot"><a class="tile" href="/game/hypershot.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-1ea86b8367b8f98a32addaa9ad56e910/256/256/Image/Webp/noFilter" alt="Hypershot Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Hypershot</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 27.9K</span></span></a></li><li style="--i:3;--glow:4" data-n="murder duels" data-s="murder-duels"><a class="tile" href="/game/murder-duels.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-382d94c75f72a17dbef41b4a2055adf1/256/256/Image/Webp/noFilter" alt="Murder Duels Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Murder Duels</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 11.2K</span></span></a></li><li style="--i:4;--glow:22" data-n="rivals" data-s="rivals"><a class="tile" href="/game/rivals.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-803b10967bcf106364e5d475685d8545/256/256/Image/Webp/noFilter" alt="RIVALS Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">RIVALS</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 224.8K</span></span></a></li><li style="--i:5;--glow:360" data-n="ball vs ball" data-s="ball-vs-ball"><a class="tile" href="/game/ball-vs-ball.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-6e1d49b37b44e3e4de7f5d2a2a7dc4dd/256/256/Image/Webp/noFilter" alt="Ball VS Ball Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Ball VS Ball</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 19.8K</span></span></a></li></ul>
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan.html?g=one-tap">Plan a session</a>
