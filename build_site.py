@@ -80,6 +80,10 @@ CSS = """:root{__LIGHT__}
    than stretching into letterboxes, and it stops short of the full width. */
 .hm{max-width:1120px;margin-left:auto;margin-right:auto}
 .hm .c{height:32px}
+/* The magnifier goes back in the bar once there is room for it, and the panel
+   then drops its own search row so the same control is not offered twice. */
+.iconb.deskonly{display:grid}
+.dtop .drow[data-search]{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
@@ -209,6 +213,8 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
+/* Shown only inside the min-width:900px block near the top of this stylesheet. */
+.deskonly{display:none}
 .iconb svg{width:19px;height:19px;fill:currentColor}
 .themeic .moon{display:none}
 :root[data-theme=dark] .themeic .moon{display:block}
@@ -738,13 +744,16 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # plain visible links, so nothing is hidden from a search engine.)
     drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                      for k, t, u in TABS)
-    # One button, at every width: logo, name, game picker, and then the three lines.
-    # Search, light/dark and the account are all inside the panel it opens, so a
-    # laptop gets the same header as a phone instead of its own arrangement. The
-    # controls therefore exist once each now, but the scripts still bind every
-    # [data-search] and [data-themebtn] rather than an id, so a second copy can be
-    # put back in the row without touching them.
-    buttons = (f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
+    # The same shape at every width: logo, name, game picker, then the buttons on
+    # the right. Light/dark and the account live inside the panel the three lines
+    # open, on a laptop exactly as on a phone. Search is the one exception: a wide
+    # screen has room for it, so the magnifier sits in the bar there (.deskonly)
+    # and the panel hides its own search row to match. Nothing in the scripts had
+    # to change for the second copy, because they bind every [data-search] and
+    # [data-themebtn] rather than an id - keep it that way.
+    buttons = (f'<button class="iconb deskonly" data-search type="button" '
+               f'aria-label="Search for a game">{ICON_SEARCH}</button>'
+               f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
                f'aria-controls="drawer" aria-label="Menu">{ICON_MENU}</button>')
     # These two are position:fixed and must be written OUTSIDE <header>. The header
     # has backdrop-filter, and that makes it the containing block for any fixed
