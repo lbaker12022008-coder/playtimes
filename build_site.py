@@ -64,6 +64,17 @@ CSS = """:root{--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A
 --glass:rgba(246,244,251,.86);--sh:0 1px 2px rgba(10,10,15,.07),0 10px 30px rgba(10,10,15,.11);
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
 --soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14}
+/* Widths only apply once there is room for them. Below 900px every card is full
+   width again, because two columns of this on a phone is unreadable. */
+@media(min-width:900px){
+.bento{gap:18px;margin-top:-30px}   /* pulls the first row up under the heading panel */
+.bento>.sp4{grid-column:span 4}.bento>.sp5{grid-column:span 5}
+.bento>.sp6{grid-column:span 6}.bento>.sp7{grid-column:span 7}.bento>.sp8{grid-column:span 8}
+/* The week grid gets a lot wider on a wide page, so the squares grow with it rather
+   than stretching into letterboxes, and it stops short of the full width. */
+.hm{max-width:1120px;margin-left:auto;margin-right:auto}
+.hm .c{height:32px}
+}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
@@ -101,6 +112,18 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* ---- Bento: a page as a grid, not one tall column ---------------------------
+   A game page has a dozen sections. Stacked one per row, the last of them is a very
+   long way down. Laid out two and three across, a visitor sees several at once.
+   Each card keeps its place in the HTML and only its WIDTH changes, so the reading
+   order, screen readers and check_seo.py all see exactly what they saw before: the
+   grid never reorders anything, which is why there is no grid-auto-flow:dense here.
+   Cards keep their own height (align-items:start) rather than stretching to match the
+   tallest in the row. What goes in them varies far too much for that: a game with no
+   events sits next to a long FAQ, a 7-row table next to a 24-row one, and stretching
+   turns the short one into a mostly empty box. The even gaps hold the grid together. */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
+.bento>*{grid-column:1/-1;margin:0}   /* full width by default; the grid owns the spacing */
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -266,8 +289,13 @@ font-size:.9rem;font-weight:600}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 
 /* game page */
-.ghead{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin:14px 0}
-.ghead .thumb{width:150px;flex:none}
+/* The heading sits on its own glass panel over the game's artwork, and the picture
+   lifts out of the top of it, so the page opens with depth instead of two flat things
+   stacked. z-index keeps the panel above the cards that tuck up underneath it. */
+.ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+.ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
@@ -358,8 +386,8 @@ h2{font-size:1.06rem}
 .hm .c{height:17px;border-radius:3px}
 .axis{font-size:.72rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
-.ghead{gap:13px;margin:10px 0}
-.ghead .thumb{width:72px;border-radius:12px}
+.ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
+.ghead .thumb{width:72px;border-radius:12px;margin-top:-30px;border-width:2px}
 .ghead>div{flex:1 1 170px}
 .actions{gap:7px}
 .btn{padding:10px 16px}
@@ -2088,31 +2116,44 @@ setInterval(tick,1000);setInterval(draw,300000)})
 # The browser's version replaces the builder's where they overlap (#best, #quiet),
 # which is why those two carry UTC times and say so: nothing is hidden, the same
 # fact is simply shown on the reader's own clock once a script can run.
+def span(block, n):
+    """Gives a section's own <div class="card"> its width in the bento grid, in
+    twelfths. The sections below build their own card, so this is the one place that
+    card learns how wide it should be, and a section that decided it had nothing to
+    say (an empty string) stays empty rather than becoming an empty box."""
+    return block.replace('<div class="card', f'<div class="sp{n} card', 1) if block else ""
+
+
+# The order here is the order a visitor reads in, and the grid never reorders it.
+# Sections are paired by how tall they are, not just by subject: the short answer
+# next to the session planner, the hourly graph next to the numbers it is drawn
+# from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>
 <div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__.html">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 <a class="fav" href="/compare.html?a=__SLUG__">Compare</a></div></div></div>
-<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
+<div class="bento">
+<div class="sp7 card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p>
 <p class="mut small">The times above are in UTC until the page loads, then they switch to your
 own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
-<div class="card rise3"><h2>Plan my session</h2>
+<div class="sp5 card rise3"><h2>Plan my session</h2>
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p></div>
-<div class="card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
+<div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
+<div class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
 __HOURS__</div>
-<div class="card"><h2>__NAME__ statistics</h2>__FACTS__</div>
-<div class="card"><h2>Is __NAME__ dead?</h2><div class="verdict">
+<div class="sp6 card"><h2>Is __NAME__ dead?</h2><div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div>
 __HISTORY__
@@ -2120,6 +2161,7 @@ __CALENDAR__
 __FAQ__
 __ABOUT__
 __PARENTS__
+</div>
 __SIMILAR__
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a>
 &middot; <a href="/busiest-hours.html">When is Roblox busiest?</a></p>
@@ -2437,7 +2479,7 @@ def busy_page(cards, now):
         + (f'{DAYS[busy_day]} is the busiest day overall and {DAYS[quiet_day]} the '
            f'quietest. ' if busy_day is not None else "")
         + 'Each game is counted as a share of its own busiest hour, so the big games '
-          'do not drown out the small ones.</p></div>'
+          'do not drown out the small ones.</p></div><div class="bento">'
         f'<div class="card"><h2>The whole week, every game at once</h2>'
         f'<p class="mut small">Darker means busier. Each square is the average player '
         f'count that hour as a percentage of each game\'s own peak hour.</p>'
@@ -2446,11 +2488,11 @@ def busy_page(cards, now):
         f'<i style="background:var(--l2)"></i><i style="background:var(--l3)"></i>'
         f'<i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>'
         f'<p class="mut small" id="tzn"></p></div>'
-        f'<div class="card"><h2>Roblox busiest hours, hour by hour</h2>'
+        f'<div class="sp6 card"><h2>Roblox busiest hours, hour by hour</h2>'
         f'<p class="mut small">Averaged over the whole week, in UTC.</p><div class="wrap">'
         f'<table class="tbl"><thead><tr><th>Hour (UTC)</th><th>Share of peak</th>'
         f'<th>How busy</th></tr></thead><tbody>{hours_rows}</tbody></table></div></div>'
-        f'<div class="card"><h2>Busiest days of the week on Roblox</h2><div class="wrap">'
+        f'<div class="sp6 card"><h2>Busiest days of the week on Roblox</h2><div class="wrap">'
         f'<table class="tbl"><thead><tr><th>Day</th><th>Share of peak</th>'
         f'<th>How busy</th></tr></thead><tbody>{days_rows}</tbody></table></div></div>'
         f'<div class="card faq"><h2>Common questions</h2>'
@@ -2471,7 +2513,7 @@ def busy_page(cards, now):
         f'<p class="mut small">Worked out from '
         f'{sum(c["samples"] for c in cards):,} player counts we took ourselves. These are '
         f'averages of samples, so treat them as a good guess rather than an official '
-        f'figure.</p></div>'
+        f'figure.</p></div></div>'
         + row_head("Busiest games right now",
                    f'<span class="mut small">{len(cards)} games</span>')
         + grid(cards[:12])
@@ -2658,17 +2700,17 @@ def main():
                 .replace("__QUIET__", quiet_txt)
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
-                .replace("__HISTORY__", history_html(name, a))
-                .replace("__FAQ__", faq)
+                .replace("__HISTORY__", span(history_html(name, a), 6))
+                .replace("__FAQ__", span(faq, 6))
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
                 .replace("__SLUG__", s)
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__CALENDAR__", calendar_html(name, events, now))
-                .replace("__ABOUT__", about_game_html(name, meta))
-                .replace("__PARENTS__", parents_html(passes, pass_icons))
+                .replace("__CALENDAR__", span(calendar_html(name, events, now), 6))
+                .replace("__ABOUT__", span(about_game_html(name, meta), 6))
+                .replace("__PARENTS__", span(parents_html(passes, pass_icons), 6))
                 .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
@@ -2726,7 +2768,7 @@ def main():
             clip(f"{name} has about {a['avg7']:,} players at a typical moment, and we have "
                  f"seen {a['peak']:,} at once. Its player count history, busiest and quietest "
                  f"hours, and the best time to play."),
-            banner=c["banner"], back=where, canon=f"/game/{s}.html",
+            wide=True, banner=c["banner"], back=where, canon=f"/game/{s}.html",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}.html")],
             schema=game_schema(c, a, meta, qa), noindex=thin, modified=iso_day(a["last"])))
 
