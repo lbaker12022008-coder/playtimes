@@ -85,7 +85,8 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Past mistake to avoid: pasting one file's contents into another (for example workflow text into `collector.py`). Check the first line of each file after any edit.
 
 ## Current status
-- Collecting data (51 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live on a `workers.dev` address with `NOINDEX = True` (hidden from Google while designing).
+- Collecting data (51 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live at **https://playtimes.lbaker12022008.workers.dev** with `NOINDEX = True` (hidden from Google while designing).
+- In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
 
