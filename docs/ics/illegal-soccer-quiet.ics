@@ -4,15 +4,15 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-illegal-soccer-quiet@playtime
-DTSTAMP:20261101T045531Z
-DTSTART:20261107T230000Z
-DTEND:20261108T050000Z
+DTSTAMP:20261101T050831Z
+DTSTART:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:Illegal Soccer is usually quiet
 DESCRIPTION:Illegal Soccer is usually at its quietest around now\, with ab
- out 41\,556 players\, for about 6 hours. Worked out from the player count
- s PlayTime collects. Repeats weekly for three months\, so check the site 
- again after that.
+ out 40\,087 players\, for about 1 hour. Worked out from the player counts
+  PlayTime collects. Repeats weekly for three months\, so check the site a
+ gain after that.
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT10M

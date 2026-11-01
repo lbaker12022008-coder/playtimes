@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-say-cheese-quiet@playtime
-DTSTAMP:20261101T045531Z
-DTSTART:20261108T040000Z
-DTEND:20261108T050000Z
+DTSTAMP:20261101T050831Z
+DTSTART:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:Say Cheese is usually quiet
 DESCRIPTION:Say Cheese is usually at its quietest around now\, with about 
- 12\,898 players\, for about 1 hour. Worked out from the player counts Pla
+ 12\,351 players\, for about 1 hour. Worked out from the player counts Pla
  yTime collects. Repeats weekly for three months\, so check the site again
   after that.
 BEGIN:VALARM

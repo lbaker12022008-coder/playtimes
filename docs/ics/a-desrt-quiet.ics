@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-a-desrt-quiet@playtime
-DTSTAMP:20261101T045531Z
+DTSTAMP:20261101T050831Z
 DTSTART:20261108T000000Z
-DTEND:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:A desrt is usually quiet
 DESCRIPTION:A desrt is usually at its quietest around now\, with about 9\,
- 951 players\, for about 5 hours. Worked out from the player counts PlayTi
+ 951 players\, for about 6 hours. Worked out from the player counts PlayTi
  me collects. Repeats weekly for three months\, so check the site again af
  ter that.
 BEGIN:VALARM

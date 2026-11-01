@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-my-small-business-quiet@playtime
-DTSTAMP:20261101T045531Z
+DTSTAMP:20261101T050831Z
 DTSTART:20261107T230000Z
-DTEND:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:My Small Business is usually quiet
 DESCRIPTION:My Small Business is usually at its quietest around now\, with
-  about 18\,459 players\, for about 6 hours. Worked out from the player co
+  about 18\,459 players\, for about 7 hours. Worked out from the player co
  unts PlayTime collects. Repeats weekly for three months\, so check the si
  te again after that.
 BEGIN:VALARM

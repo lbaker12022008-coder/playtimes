@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-bike-for-egg-busy@playtime
-DTSTAMP:20261101T045531Z
+DTSTAMP:20261101T050831Z
 DTSTART:20261108T030000Z
-DTEND:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:Bike For Egg is usually busy
 DESCRIPTION:Bike For Egg is usually at its busiest around now\, with about
-  47\,428 players\, for about 2 hours. Worked out from the player counts P
+  47\,428 players\, for about 3 hours. Worked out from the player counts P
  layTime collects. Repeats weekly for three months\, so check the site aga
  in after that.
 BEGIN:VALARM

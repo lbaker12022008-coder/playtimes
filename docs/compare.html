@@ -54,8 +54,8 @@ filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
 .banner::after{content:"";position:absolute;inset:0;
 background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
 .shell{position:relative;z-index:1}   /* keep the page content above the artwork */
-.w{max-width:820px;margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:1400px}
+.w{max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:min(1400px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
    when there is something to put in them. */
@@ -64,7 +64,11 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    the widest thing inside it. On a phone that let one wide child drag .w to 1094px
    inside a 390px track, and every page then scrolled sideways. The track is already
    minmax(0,1fr); this is the other half of the same fix. */
-.shell>*{min-width:0}
+/* max-width is the half that actually does the work. .shell centres its track with
+   justify-content, and a grid item in a centred track is allowed to grow past the
+   track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
+   phone and every page scrolled sideways. min-width:0 alone does not stop that. */
+.shell>*{min-width:0;max-width:100%}
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
@@ -121,7 +125,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-.hdr .in{max-width:1400px;margin:0 auto;padding:6px 16px 7px}
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:6px 16px 7px}
 .hrow{display:flex;align-items:center;gap:10px}
 .hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
@@ -212,14 +216,17 @@ border:1px solid var(--line);border-radius:13px}
 :root[data-view=list] .ph{font-size:1.4rem}
 :root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
 :root[data-view=list] .tmeta{margin:0;flex:none}
-.tabs{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px}
+/* A scrolling strip is written as a block with nowrap text, never as a nowrap
+   flex row: a nowrap flex container hands its parent the total width of its
+   items, so the page grows to fit a strip that was supposed to scroll. */
+.tabs{display:none;overflow-x:auto;scrollbar-width:none;padding:8px 16px;margin:0 -16px;white-space:nowrap}
 .tabs::-webkit-scrollbar{display:none}
-.tabs a{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
+.tabs a{display:inline-block;margin-right:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;white-space:nowrap;transition:transform .12s,border-color .12s}
 .tabs a:hover{border-color:var(--acc);transform:translateY(-1px)}
 .tabs a[aria-current=page]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 /* Only one of the two ways into the sections is ever on screen: the row when it fits,
    the menu button when it does not. 900px is where all eight pills stop needing a drag. */
-@media(min-width:900px){.tabs{display:flex}#menubtn{display:none}.hdr .in{padding-bottom:0}}
+@media(min-width:900px){.tabs{display:block}#menubtn{display:none}.hdr .in{padding-bottom:0}}
 .drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
@@ -241,7 +248,7 @@ font-size:.9rem;font-weight:600}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
 /* game tiles */
-.grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
+.grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
 .tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
 .thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
@@ -397,9 +404,10 @@ h2{font-size:1.06rem}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
-.pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
+.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -14px;padding:0 14px}
 .pills::-webkit-scrollbar{display:none}
-.pills a{flex:none}
+.pills a{display:inline-block;margin-right:8px}
+.pills a:last-child{margin-right:0}
 /* all seven days fit across, so the chart below does not jump when you change day */
 .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
 .days button{padding:6px 0;font-size:.82rem}
@@ -410,7 +418,11 @@ h2{font-size:1.06rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
 .ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
 .ghead .thumb{width:72px;border-radius:12px;margin-top:-30px;border-width:2px}
-.ghead>div{flex:1 1 170px}
+/* On a phone the picture goes on its own line and the words get the full width.
+   Beside a 72px picture the text column was about 250px, which broke a heading
+   into three lines and the opening paragraph into eleven. */
+.ghead>div{flex:1 1 100%}
+h1{font-size:1.5rem}
 .actions{gap:7px}
 .btn{padding:10px 16px}
 .fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
@@ -479,7 +491,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html" aria-current=page>Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html" aria-current=page>Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Compare</span></nav></div><div class="hero"><h1>Compare two Roblox games</h1><p class="lede">Put two games side by side, hour by hour, to answer things like &ldquo;which one is less crowded on Saturday?&rdquo;</p></div><div class="card" id="cmp" hidden><div class="two"><label>First game<br><select class="sel" id="ga"></select></label><label>Second game<br><select class="sel" id="gb"></select></label></div><div class="days" id="days"></div><div class="bars cols" id="bars"></div><div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div><div class="legend"><i style="background:var(--acc)"></i><span id="alab"></span><i style="background:var(--alt);margin-left:10px"></i><span id="blab"></span></div><p id="verdict" style="margin-top:14px"></p><div class="stats" id="nums"></div></div><p class="mut small" id="load">Loading the games&hellip;</p><h2 style="margin-top:28px">The player counts</h2><p class="mut small">&ldquo;Typical&rdquo; is the average number of players we saw over the last 7 days. &ldquo;Highest seen&rdquo; is the largest single player count we have ever recorded for that game.</p><div class="wrap"><table class="tbl"><thead><tr><th>#</th><th>Game</th><th>Typical players</th><th>Highest seen</th><th>vs last week</th></tr></thead><tbody><tr><td>1</td><td><a href="/game/steal-an-egg.html">Steal An Egg</a></td><td>1,289,545</td><td>7,314,118</td><td><span class=mut>steady</span></td></tr><tr><td>2</td><td><a href="/game/brookhaven-rp.html">Brookhaven RP</a></td><td>477,076</td><td>651,570</td><td><span class=mut>steady</span></td></tr><tr><td>3</td><td><a href="/game/steal-a-brainrot.html">Steal a Brainrot</a></td><td>328,762</td><td>1,082,620</td><td><span class=mut>steady</span></td></tr><tr><td>4</td><td><a href="/game/blox-fruits.html">Blox Fruits</a></td><td>288,138</td><td>869,200</td><td><span class=mut>steady</span></td></tr><tr><td>5</td><td><a href="/game/adopt-me.html">Adopt Me</a></td><td>245,871</td><td>1,068,401</td><td><span class=mut>steady</span></td></tr><tr><td>6</td><td><a href="/game/99-nights-in-the-forest.html">99 Nights in the Forest</a></td><td>236,219</td><td>1,545,823</td><td><span class=mut>steady</span></td></tr><tr><td>7</td><td><a href="/game/rivals.html">RIVALS</a></td><td>224,596</td><td>303,634</td><td><span class=mut>steady</span></td></tr><tr><td>8</td><td><a href="/game/1-speed-keyboard-escape-candy-chocolate.html">+1 Speed Keyboard Escape | Candy &amp; Chocolate</a></td><td>190,697</td><td>1,383,360</td><td><span class=mut>steady</span></td></tr><tr><td>9</td><td><a href="/game/jujutsu-shenanigans.html">Jujutsu Shenanigans</a></td><td>141,251</td><td>172,487</td><td><span class=mut>steady</span></td></tr><tr><td>10</td><td><a href="/game/throw-food-for-animals.html">Throw Food For Animals</a></td><td>112,155</td><td>343,181</td><td><span class=mut>steady</span></td></tr><tr><td>11</td><td><a href="/game/dont-splash.html">DONT SPLASH</a></td><td>111,605</td><td>154,241</td><td><span class=mut>steady</span></td></tr><tr><td>12</td><td><a href="/game/dandy-s-world.html">Dandy&#x27;s World</a></td><td>108,339</td><td>144,673</td><td><span class=mut>steady</span></td></tr><tr><td>13</td><td><a href="/game/fisch.html">Fisch</a></td><td>107,225</td><td>433,915</td><td><span class=mut>steady</span></td></tr><tr><td>14</td><td><a href="/game/the-hollow.html">The Hollow</a></td><td>99,748</td><td>507,606</td><td><span class=mut>steady</span></td></tr><tr><td>15</td><td><a href="/game/break-and-steal-an-egg.html">Break and Steal an Egg</a></td><td>78,771</td><td>108,689</td><td><span class=mut>steady</span></td></tr><tr><td>16</td><td><a href="/game/the-strongest-battlegrounds.html">The Strongest Battlegrounds</a></td><td>76,744</td><td>94,604</td><td><span class=mut>steady</span></td></tr><tr><td>17</td><td><a href="/game/dress-to-impress.html">Dress To Impress</a></td><td>73,252</td><td>114,443</td><td><span class=mut>steady</span></td></tr><tr><td>18</td><td><a href="/game/pet-simulator-99.html">Pet Simulator 99</a></td><td>71,144</td><td>105,605</td><td><span class=mut>steady</span></td></tr><tr><td>19</td><td><a href="/game/fish-it.html">Fish It</a></td><td>68,723</td><td>134,287</td><td><span class=mut>steady</span></td></tr><tr><td>20</td><td><a href="/game/catalog-avatar-creator.html">Catalog Avatar Creator</a></td><td>67,753</td><td>85,619</td><td><span class=mut>steady</span></td></tr></tbody></table></div><p><a href="/">&larr; All Roblox player counts</a></p>
+<div class="w"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Compare</span></nav></div><div class="hero"><h1>Compare two Roblox games</h1><p class="lede">Put two games side by side, hour by hour, to answer things like &ldquo;which one is less crowded on Saturday?&rdquo;</p></div><div class="card" id="cmp" hidden><div class="two"><label>First game<br><select class="sel" id="ga"></select></label><label>Second game<br><select class="sel" id="gb"></select></label></div><div class="days" id="days"></div><div class="bars cols" id="bars"></div><div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div><div class="legend"><i style="background:var(--acc)"></i><span id="alab"></span><i style="background:var(--alt);margin-left:10px"></i><span id="blab"></span></div><p id="verdict" style="margin-top:14px"></p><div class="stats" id="nums"></div></div><p class="mut small" id="load">Loading the games&hellip;</p><h2 style="margin-top:28px">The player counts</h2><p class="mut small">&ldquo;Typical&rdquo; is the average number of players we saw over the last 7 days. &ldquo;Highest seen&rdquo; is the largest single player count we have ever recorded for that game.</p><div class="wrap"><table class="tbl"><thead><tr><th>#</th><th>Game</th><th>Typical players</th><th>Highest seen</th><th>vs last week</th></tr></thead><tbody><tr><td>1</td><td><a href="/game/steal-an-egg.html">Steal An Egg</a></td><td>1,288,056</td><td>7,314,118</td><td><span class=mut>steady</span></td></tr><tr><td>2</td><td><a href="/game/brookhaven-rp.html">Brookhaven RP</a></td><td>476,175</td><td>651,570</td><td><span class=mut>steady</span></td></tr><tr><td>3</td><td><a href="/game/steal-a-brainrot.html">Steal a Brainrot</a></td><td>326,350</td><td>1,082,620</td><td><span class=mut>steady</span></td></tr><tr><td>4</td><td><a href="/game/blox-fruits.html">Blox Fruits</a></td><td>289,683</td><td>869,200</td><td><span class=mut>steady</span></td></tr><tr><td>5</td><td><a href="/game/adopt-me.html">Adopt Me</a></td><td>245,124</td><td>1,068,401</td><td><span class=mut>steady</span></td></tr><tr><td>6</td><td><a href="/game/99-nights-in-the-forest.html">99 Nights in the Forest</a></td><td>235,673</td><td>1,545,823</td><td><span class=mut>steady</span></td></tr><tr><td>7</td><td><a href="/game/rivals.html">RIVALS</a></td><td>224,493</td><td>303,634</td><td><span class=mut>steady</span></td></tr><tr><td>8</td><td><a href="/game/1-speed-keyboard-escape-candy-chocolate.html">+1 Speed Keyboard Escape | Candy &amp; Chocolate</a></td><td>187,198</td><td>1,383,360</td><td><span class=mut>steady</span></td></tr><tr><td>9</td><td><a href="/game/jujutsu-shenanigans.html">Jujutsu Shenanigans</a></td><td>141,015</td><td>172,487</td><td><span class=mut>steady</span></td></tr><tr><td>10</td><td><a href="/game/throw-food-for-animals.html">Throw Food For Animals</a></td><td>112,460</td><td>343,181</td><td><span class=mut>steady</span></td></tr><tr><td>11</td><td><a href="/game/dont-splash.html">DONT SPLASH</a></td><td>111,546</td><td>154,241</td><td><span class=mut>steady</span></td></tr><tr><td>12</td><td><a href="/game/dandy-s-world.html">Dandy&#x27;s World</a></td><td>108,139</td><td>144,673</td><td><span class=mut>steady</span></td></tr><tr><td>13</td><td><a href="/game/fisch.html">Fisch</a></td><td>107,220</td><td>433,915</td><td><span class=mut>steady</span></td></tr><tr><td>14</td><td><a href="/game/the-hollow.html">The Hollow</a></td><td>99,957</td><td>507,606</td><td><span class=mut>steady</span></td></tr><tr><td>15</td><td><a href="/game/break-and-steal-an-egg.html">Break and Steal an Egg</a></td><td>78,937</td><td>108,689</td><td><span class=mut>steady</span></td></tr><tr><td>16</td><td><a href="/game/the-strongest-battlegrounds.html">The Strongest Battlegrounds</a></td><td>76,747</td><td>94,604</td><td><span class=mut>steady</span></td></tr><tr><td>17</td><td><a href="/game/dress-to-impress.html">Dress To Impress</a></td><td>73,011</td><td>114,443</td><td><span class=mut>steady</span></td></tr><tr><td>18</td><td><a href="/game/pet-simulator-99.html">Pet Simulator 99</a></td><td>71,025</td><td>105,605</td><td><span class=mut>steady</span></td></tr><tr><td>19</td><td><a href="/game/fish-it.html">Fish It</a></td><td>68,779</td><td>134,287</td><td><span class=mut>steady</span></td></tr><tr><td>20</td><td><a href="/game/catalog-avatar-creator.html">Catalog Avatar Creator</a></td><td>67,738</td><td>85,619</td><td><span class=mut>steady</span></td></tr></tbody></table></div><p><a href="/">&larr; All Roblox player counts</a></p>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>

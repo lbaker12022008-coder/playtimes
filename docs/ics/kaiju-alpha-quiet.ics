@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-kaiju-alpha-quiet@playtime
-DTSTAMP:20261101T045531Z
-DTSTART:20261108T040000Z
-DTEND:20261108T050000Z
+DTSTAMP:20261101T050831Z
+DTSTART:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:Kaiju Alpha is usually quiet
 DESCRIPTION:Kaiju Alpha is usually at its quietest around now\, with about
-  11\,178 players\, for about 1 hour. Worked out from the player counts Pl
+  10\,543 players\, for about 1 hour. Worked out from the player counts Pl
  ayTime collects. Repeats weekly for three months\, so check the site agai
  n after that.
 BEGIN:VALARM

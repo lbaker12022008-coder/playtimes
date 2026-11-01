@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:ptq-huss-valley-quiet@playtime
-DTSTAMP:20261101T045531Z
+DTSTAMP:20261101T050831Z
 DTSTART:20261107T230000Z
-DTEND:20261108T050000Z
+DTEND:20261108T060000Z
 RRULE:FREQ=WEEKLY;COUNT=13
 SUMMARY:Huss Valley is usually quiet
 DESCRIPTION:Huss Valley is usually at its quietest around now\, with about
-  32\,172 players\, for about 6 hours. Worked out from the player counts P
+  32\,172 players\, for about 7 hours. Worked out from the player counts P
  layTime collects. Repeats weekly for three months\, so check the site aga
  in after that.
 BEGIN:VALARM
