@@ -728,6 +728,11 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
                f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
                f'aria-controls="drawer" aria-label="Sections">{ICON_MENU}</button>')
     nav_row = f'<nav class="tabs" aria-label="Sections">{tabs}</nav>'
+    # These two are position:fixed and must be written OUTSIDE <header>. The header
+    # has backdrop-filter, and that makes it the containing block for any fixed
+    # descendant: inside it, the side menu was 88px tall instead of the height of
+    # the screen, and the search panel was pinned to the header's own box rather
+    # than the page. They sit after </header> as siblings instead.
     extras = (f'<div class="drawer" id="drawer" hidden><nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours.html">When is Roblox busiest?</a>'
               f'<a href="/about.html">About</a></nav></div>'
@@ -768,7 +773,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 {buttons}<button class="iconb" id="themebtn" type="button" aria-label="Switch between light and dark">{SUN}{MOON}</button>
 <div class="acct" id="acct"></div></div>
-{nav_row}</div>{extras}</header>
+{nav_row}</div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a>
@@ -2099,7 +2104,12 @@ var rb=$('remind');
 if(!picked.length){$('daylist').textContent='Tick at least one day.';
 if(rb){rb.setAttribute('aria-disabled','true');rb.removeAttribute('href')}return}
 $('daylist').textContent=(mode==='quiet'?'Quietest':'Busiest')+': '+shown.join('  \u00b7  ');
+/* The Quiet/Busy choice at the top of this card drives the reminder as well as the
+   countdown. Nothing said so, and people reasonably assumed the reminder was always
+   about quiet hours, so the wording here follows the choice in as many words. */
+$('daylegend').innerHTML='Remind me when it is <b>'+mode+'</b> on';
 if(rb&&window.PT_GAME){rb.setAttribute('aria-disabled','false');
+rb.innerHTML='&#128276; Add '+mode+' times to my calendar';
 rb.href='/reminder.ics?g='+encodeURIComponent(PT_GAME.s)+'&m='+mode+
 '&z='+tzOff()+'&d='+picked.join(',')}}
 Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
@@ -2392,11 +2402,12 @@ own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-<fieldset class="daypick" id="daypick"><legend class="mut small">Remind me on</legend>
-__DAYBOXES__</fieldset>
+<fieldset class="daypick" id="daypick"><legend class="mut small" id="daylegend">Remind me when
+it is <b>quiet</b> on</legend>__DAYBOXES__</fieldset>
 <p class="mut small" id="daylist"></p>
 <a class="remind" id="remind" type="text/calendar"
-href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add to my calendar</a>
+href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add quiet times to my
+calendar</a>
 <p class="mut small">Adds it to your own calendar, at the right hour for each day you
 picked. No account, and nothing about you is stored.</p></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
