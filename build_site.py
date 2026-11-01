@@ -403,6 +403,11 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
    worked for as long as anyone here has been alive. The fieldset stays a block for
    the same sort of reason - a legend inside a flex container lands differently in
    different browsers - and the labels flow as inline blocks instead. */
+/* The reminder is its own question, so it is ruled off from the countdown above it
+   rather than running on from it. */
+.rem{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.rem>p:first-child{margin:0 0 8px}
+.rem .days{margin:0}
 .daypick{border:0;padding:0;margin:12px 0 4px;display:block}
 .daypick legend{padding:0;margin-bottom:6px}
 .daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
@@ -2122,7 +2127,7 @@ $('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getH
 '</b> your time, when it is usually <b>'+W[B.level(p.v)]+'</b> with about '+
 p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
 ' hour'+(p.len>1?'s':'')+'</b>.';
-$('cdw').hidden=false;days();tick()}
+$('cdw').hidden=false;tick()}
 
 /* The reminder. Each day of the week has its own best hour - the quietest hour of a
    Tuesday is rarely the quietest hour of a Saturday - so this shows the hour for
@@ -2131,29 +2136,40 @@ $('cdw').hidden=false;days();tick()}
    the file is built around the same days they are looking at. Only the link's
    address is touched: tapping it is then an ordinary link, which is the one thing
    an iPhone was certain to get right. */
+/* The reminder keeps its own quiet-or-busy choice, separate from the countdown's
+   above. They were one control, and nobody could tell: the buttons sat at the top
+   of the card under "What do you want?" and the reminder was at the bottom, so it
+   read as being about quiet hours and nothing else. Two questions asked in two
+   places now answer themselves, and changing your mind about the countdown no
+   longer quietly changes what you are about to put in your calendar. */
+var rmode='quiet';
 function days(){
 var picked=[],shown=[];
+Array.prototype.forEach.call(document.querySelectorAll('#rbtns button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.r===rmode)});
 Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
 if(b.checked)picked.push(+b.value)});
 picked.forEach(function(d){
 var at=null,v=null;
 for(var h=0;h<24;h++){var x=L[d][h];if(x==null)continue;
-if(v==null||(mode==='quiet'?x<v:x>v)){at=h;v=x}}
+if(v==null||(rmode==='quiet'?x<v:x>v)){at=h;v=x}}
 if(at!=null)shown.push(DAY[d].slice(0,3)+' '+fmt(at))});
 var rb=$('remind');
-if(!picked.length){$('daylist').textContent='Tick at least one day.';
+if(rb)rb.innerHTML='&#128276; Add '+rmode+' times to my calendar';
+/* A day can be ticked and still have nothing to say, if we have no readings for it
+   yet. Saying so is better than offering a calendar file with holes in it. */
+if(!shown.length){$('daylist').textContent=picked.length
+?'We have not got enough player counts for those days yet.':'Tick at least one day.';
 if(rb){rb.setAttribute('aria-disabled','true');rb.removeAttribute('href')}return}
-$('daylist').textContent=(mode==='quiet'?'Quietest':'Busiest')+': '+shown.join('  \u00b7  ');
-/* The Quiet/Busy choice at the top of this card drives the reminder as well as the
-   countdown. Nothing said so, and people reasonably assumed the reminder was always
-   about quiet hours, so the wording here follows the choice in as many words. */
-$('daylegend').innerHTML='Remind me when it is <b>'+mode+'</b> on';
+$('daylist').textContent=(rmode==='quiet'?'Quietest':'Busiest')+': '+shown.join('  \u00b7  ');
 if(rb&&window.PT_GAME){rb.setAttribute('aria-disabled','false');
-rb.innerHTML='&#128276; Add '+mode+' times to my calendar';
-rb.href='/reminder.ics?g='+encodeURIComponent(PT_GAME.s)+'&m='+mode+
+rb.href='/reminder.ics?g='+encodeURIComponent(PT_GAME.s)+'&m='+rmode+
 '&z='+tzOff()+'&d='+picked.join(',')}}
 Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
 b.onchange=days});
+Array.prototype.forEach.call(document.querySelectorAll('#rbtns button'),function(b){
+b.onclick=function(){rmode=b.dataset.r;days()}});
+days();
 function tick(){if(!aim)return;
 var ms=aim-new Date();
 if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
@@ -2442,14 +2458,17 @@ own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-<fieldset class="daypick" id="daypick"><legend class="mut small" id="daylegend">Remind me when
-it is <b>quiet</b> on</legend>__DAYBOXES__</fieldset>
+<div class="rem"><p class="mut small">Remind me when it is</p>
+<div class="days" id="rbtns"><button data-r="quiet" aria-pressed="true">Quiet</button>
+<button data-r="busy" aria-pressed="false">Busy</button></div>
+<fieldset class="daypick" id="daypick"><legend class="mut small">on these days</legend>
+__DAYBOXES__</fieldset>
 <p class="mut small" id="daylist"></p>
 <a class="remind" id="remind" type="text/calendar"
 href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add quiet times to my
 calendar</a>
 <p class="mut small">Adds it to your own calendar, at the right hour for each day you
-picked. No account, and nothing about you is stored.</p></div>
+picked. No account, and nothing about you is stored.</p></div></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>

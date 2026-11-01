@@ -93,6 +93,12 @@ quietest hour of a Tuesday is rarely the quietest hour of a Saturday.
   `bestHour()` undoes the shift to look the hour up, so a Tokyo Saturday is found in
   the right UTC squares. Get this backwards and every reminder is out by a day for
   half the world. There are tests for seven offsets.
+- **The reminder has its own Quiet/Busy buttons** (`#rbtns`, `rmode`), separate from
+  the countdown's `#planbtns`/`mode` above it in the same card. They used to be one
+  control and nobody could tell: the buttons sat at the top under "What do you
+  want?" and the reminder was at the bottom, so it read as being about quiet hours
+  only. **Do not re-join them** - changing your mind about the countdown should not
+  quietly change what you are about to put in your calendar.
 - **No JavaScript is needed to use it.** The link's own address covers all seven
   days at UTC; the page only rewrites the address as the boxes are ticked. That
   matters: the first version built the file in the page from a click handler and
