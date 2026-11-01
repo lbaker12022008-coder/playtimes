@@ -62,6 +62,36 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - **Game passes** (`pass_card`, `parents_html`, `roblox_api.fetch_passes` with `passView=Full`): picture, name, what the creators say it contains, and the price in Robux and dollars. The only labels are ones the data supports: `Cheapest`, `Newest` and `On sale now` (Roblox's own `priceDiscountDetails`). **Never add a "recommended" or "best" badge**: the game-pass API returns no sales, ratings or popularity of any kind, so a ranking would be invented, and the people reading it are often children about to spend real money. The page says so in as many words.
 - **Game artwork behind the heading** (`banner_html`, `roblox_api.fetch_banners`): the wide 768x432 picture from Roblox's `multiget/thumbnails`, blurred and faded into the page colour behind the top 360px. Game pages use their own, category pages use their biggest game's, and the homepage has none on purpose (picking one game there would read as an endorsement). It is decorative, so it is `aria-hidden` and simply absent when Roblox has no picture. Opacity is `--bannerop`, weaker in light mode (.17) than dark (.3), because dark heading text on a light page needs the art to stay faint. The banner is the first thing in `<body>` at `z-index:0` with `.shell` above it at `z-index:1`; the sticky header is see-through, so it picks the colour up.
 
+## Reminders ("Remind me")
+The whole notification feature, and it collects nothing. `ICS_JS` is in the head of
+every page; a button carries its own event in `data-` attributes and one delegated
+handler turns that into an iCalendar file in the browser and hands it to the visitor
+as a download. **No request ever reaches us when one is pressed**, so a signed-out
+visitor is still a visitor we know nothing about, and the reminder then lives in the
+person's own calendar app whether they come back or not.
+
+- `remind_btn()` writes the buttons: on each upcoming event in a game's calendar, on
+  each upcoming event on `/events.html`, and once per game page for the quiet or busy
+  window, where `plan()` fills the attributes in because only the browser knows the
+  visitor's timezone. **Never offer one for something already finished.**
+- The game-page one repeats weekly and stops after 13 weeks, because by then the
+  game's pattern will have moved and a reminder that is quietly wrong is worse than
+  none. It carries a `data-uid`, so pressing it twice updates the calendar entry
+  instead of leaving two.
+- Times are written in UTC (`...Z`) so the file carries no timezone of its own and
+  the calendar app shows them on the reader's clock, the same as everything else here.
+- **Three things in iCalendar (RFC 5545) will make an app reject the whole file**:
+  lines must end CRLF, text must escape `\ ; ,` and newlines, and no line may exceed
+  **75 octets**. Nearly a quarter of Roblox's event titles contain an emoji, which is
+  four octets and arrives in JavaScript as two surrogate halves, so `ptIcsFold`
+  counts the pair at the first half and zero at the second and can never split one.
+  **Do not measure the length with `encodeURIComponent`**: handed half an emoji it
+  throws, which silently broke 30 of the 130 buttons until it was caught.
+- Deliberately not built: web push. It needs a stored per-device identifier, which is
+  personal information under COPPA, and this site's whole position is that it holds
+  nothing about a signed-out visitor. If it is ever wanted, offer it **only to people
+  signed in with Roblox**, who are 13+ by Roblox's own rule.
+
 ## Search engines (SEO)
 All of this lives in `build_site.py`. Nothing here is a trick: every number a page claims is one it worked out from our own samples, and nothing is hidden from visitors to feed Google something different.
 
@@ -114,6 +144,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **Redesign (Oct 2026)**: owner's palette, one game's page stripped back to a side menu plus search, hourly data drawn as line graphs with a draggable readout, a separate `/updates/<game>.html` page behind a "Game updates" button, and game passes shown with pictures and contents. See "Look and layout" above.
 - **Tile glow**: hovering a game lights it up in a colour taken from its own icon. Worked out at build time, so the browser downloads nothing extra and does no work for it. 99 of 100 games get a colour; the spread is mostly reds and oranges, which is what Roblox icons actually are.
 - **Admin dashboard redesign**: four tabs instead of one long page, the site's own black-and-purple palette fed in from `worker/theme.js`, a "Needs doing" list at the top worked out from real conditions, and the numbers drawn as graphs (a drag-to-read line for page views, rings for progress, bars for the days of the week and for pages and games). See "Admin dashboard" above.
+- **Reminders**: a "Remind me" button on every upcoming event and on each game's quiet window, which builds a calendar file in the browser. No accounts, no notifications, nothing sent to us. See "Reminders" above.
 - **Similar games** row at the foot of each game page (`similar`): same category first, then closest in typical player count on a log scale, so 1K vs 2K counts like 100K vs 200K. The wording changes to "games with about as many players" when the category could not fill the row.
 - `main()` runs in **two passes**: pass one works out every game's numbers, pass two writes the pages. It has to be this way round because the "Similar games" row on each page needs to know about all the others. The empty-site guard sits between them, so it fires before anything is written.
 - `/events.html` site-wide calendar, `/compare.html` (two games overlaid, loads `/data.json`), `/plan.html`.
