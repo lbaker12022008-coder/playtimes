@@ -57,13 +57,19 @@ DARK = """--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;-
 --acc:#A855F7;--acc2:#C084FC;--alt:#22D3EE;--sky:#E9D5FF;--glass:rgba(10,10,15,.86);--btnink:#0A0A0F;
 --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
 --up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
---shade:rgba(255,255,255,.06);--bannerop:.3"""
+--shade:rgba(255,255,255,.06);--bannerop:.3;--glowa:.5"""
 
-CSS = """:root{--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;--mut:#595068;
+# The light palette, named for the same reason DARK is: the admin dashboard is
+# served by the worker rather than written here, and theme.js hands it both of
+# these so a colour changed here reaches the dashboard too.
+LIGHT = """--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;--mut:#595068;
 --line:#DDD6E8;--acc:#7E22CE;--acc2:#9333EA;--alt:#0E7490;--sky:#E9D5FF;--btnink:#fff;
 --glass:rgba(246,244,251,.86);--sh:0 1px 2px rgba(10,10,15,.07),0 10px 30px rgba(10,10,15,.11);
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
---soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14}
+--soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14;
+--glowh:272;--glowa:.32"""
+
+CSS = """:root{__LIGHT__}
 /* Widths only apply once there is room for them. Below 900px every card is full
    width again, because two columns of this on a phone is unreadable. */
 @media(min-width:900px){
@@ -270,10 +276,35 @@ font-size:.9rem;font-weight:600}
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
 .grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
-.tile{display:block;text-decoration:none;color:var(--ink)}
+.tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
 .thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
 .ph{display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:var(--mut)}
-.tile:hover .thumb{transform:translateY(-4px) scale(1.015);box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.tile:hover .thumb{transform:translateY(-4px) scale(1.015);
+box-shadow:0 10px 24px hsl(var(--glow,var(--glowh)) 75% 38%/.45)}
+/* The glow behind a tile is that game's own colour. --glow is the hue of its
+   picture, worked out while the site is built (roblox_api.fetch_icon_hues) and
+   written onto the tile as a single number; a game whose picture has no colour
+   in it never gets one, and falls back to --glowh, the site accent's hue. Only
+   the hue is stored, because the saturation and lightness are fixed here: left
+   to themselves some icons would glow in a muddy brown and others in a glare.
+   isolation:isolate keeps the glow inside the tile's own stack, so z-index:-1
+   puts it behind the picture and the words without dropping it behind the page.
+   The picture itself is not see-through, so a glow the size of the tile would be
+   hidden behind it: this one is half as wide again, centred on the picture, and
+   holds full strength to 35% of its radius so that what spills past the edge is
+   still bright. :hover lifts the whole tile so its glow is not painted under the
+   next tile along. */
+.tile:hover,.tile:focus-visible{z-index:2}
+.tile::before{content:"";position:absolute;left:50%;top:-25%;width:150%;aspect-ratio:1;
+transform:translateX(-50%);z-index:-1;pointer-events:none;border-radius:50%;opacity:0;
+transition:opacity .22s ease;
+background:radial-gradient(closest-side,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)) 35%,transparent)}
+.tile:hover::before,.tile:focus-visible::before{opacity:1}
+/* In a list a tile is a wide card, so the glow spreads out of the picture on the
+   left rather than sitting as a circle on top of the words. */
+:root[data-view=list] .tile::before{left:0;top:0;width:100%;height:100%;aspect-ratio:auto;
+transform:none;border-radius:13px;
+background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 74%)}
 .tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:.95rem;line-height:1.3;margin-top:8px}
 .tmeta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--mut);margin-top:3px}
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
@@ -424,7 +455,7 @@ h2{font-size:1.06rem}
 .card{animation:fade .7s both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"""
 
-CSS = CSS.replace("__DARK__", DARK)
+CSS = CSS.replace("__LIGHT__", LIGHT).replace("__DARK__", DARK)
 
 # ---------------------------------------------------------------- search engines
 #
@@ -882,7 +913,11 @@ def trend_html(t):
 
 
 def tile(c, i=0):
-    return (f'<li style="--i:{min(i, 14)}" data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}">'
+    # --glow is the hue of this game's own picture, so the glow behind the tile is
+    # the game's colour. Left off entirely when the picture has no colour in it, so
+    # that the stylesheet's fallback (the site accent) takes over.
+    glow = "" if c.get("hue") is None else f';--glow:{c["hue"]}'
+    return (f'<li style="--i:{min(i, 14)}{glow}" data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}">'
             f'<a class="tile" href="/game/{c["slug"]}.html">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
             f'<span class="tname">{html.escape(c["name"])}</span>'
             f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
@@ -2390,6 +2425,24 @@ def prune(folders=("game", "category", "updates")):
     return gone
 
 
+def write_theme():
+    """Saves the site's two palettes where the worker can read them.
+
+    The admin dashboard lives in worker/index.js, not here, so it cannot share this
+    file's stylesheet. Writing the palettes out means a colour changed in LIGHT or
+    DARK above reaches the dashboard on the next build, instead of the two slowly
+    drifting apart. Only the colours travel: the dashboard has its own layout.
+    """
+    if OUT != "docs":
+        return                      # previews must not touch the real worker
+    os.makedirs("worker", exist_ok=True)
+    with open("worker/theme.js", "w", encoding="utf-8") as f:
+        f.write("// Written by build_site.py on every build. Do not edit by hand:\n"
+                "// change LIGHT or DARK in build_site.py instead.\n"
+                "export const LIGHT = " + json.dumps(LIGHT) + ";\n"
+                "export const DARK = " + json.dumps(DARK) + ";\n")
+
+
 def write_stats(db, games, cards, waiting):
     """Saves the numbers the admin dashboard shows. Baked into the worker, not a public file."""
     if OUT != "docs":
@@ -2652,6 +2705,9 @@ def main():
     icons = roblox_api.fetch_icons(ids)
     banners = roblox_api.fetch_banners(ids)
     metas = roblox_api.fetch_meta(ids)
+    # One number per game: the hue its picture reads as, for the glow behind its
+    # tile. Games whose picture is grey are left out and fall back to the accent.
+    hues = roblox_api.fetch_icon_hues(ids)
 
     # Categories need at least 2 games to be worth a page ("All" is Roblox's "no genre").
     genre_count = {}
@@ -2675,7 +2731,8 @@ def main():
                       "avg": a["avg7"], "trend": a["trend"], "month": a["month"],
                       "samples": len(rows), "days": a["days"], "week": a["week"],
                       "levels": levels_string(a["week"]), "verdict": verdict(a)[0],
-                      "uid": uid, "place": place, "a": a, "banner": banners.get(uid)})
+                      "uid": uid, "place": place, "a": a, "banner": banners.get(uid),
+                      "hue": hues.get(uid)})
 
     cards.sort(key=lambda c: c["avg"], reverse=True)
 
@@ -3146,6 +3203,7 @@ def main():
              "# Sitemap: set DOMAIN in build_site.py and this line appears\n"))
 
     write_stats(db, games, cards, waiting)
+    write_theme()
     prune()                        # last, so a build that fails never deletes anything
     db.close()
     print(f"Wrote {len(pages)} addresses into {OUT}/sitemap.xml in "
