@@ -240,13 +240,13 @@ border:1px solid var(--line);border-radius:13px}
    items, so the page grows to fit a strip that was supposed to scroll. */
 .drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
-.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem;transition:border-color .12s,box-shadow .18s}
 .pills a:hover{border-color:var(--acc)}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
 .ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));margin:14px 0}
-.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
+.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s,box-shadow .18s}
 .chip:hover{transform:translateY(-2px);border-color:var(--acc)}
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
 .note{border:1px solid var(--acc);border-radius:14px;padding:12px 15px;margin:12px 0;
@@ -258,29 +258,29 @@ font-size:.9rem;font-weight:600}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
-/* The same glow the game tiles have, on the two rows of controls above them, so
-   the chooser and the categories belong to the page rather than sitting on it.
-   It is the tile's machinery exactly - isolation:isolate, a ::before behind the
-   control at z-index -1, and one hue in --glow - only the shape differs: these
-   are wide and short rather than square, so the halo is an ellipse that spills
-   a little past each edge instead of a circle. --glow comes from the thing
-   itself: the heatmap's own red and green for "busy" and "quiet" (band_hue),
-   and for a category the hue of its biggest game's picture. A pill with no hue
-   falls back to --glowh, the accent's, like a tile with a colourless icon.
-   A pressed chip keeps its glow, since it is the one being asked about. */
-.chip,.pills a{position:relative;isolation:isolate}
-.chip::before,.pills a::before{content:"";position:absolute;z-index:-1;pointer-events:none;
-opacity:0;transition:opacity .22s ease;
-background:radial-gradient(58% 118% at 50% 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 72%)}
-/* The sideways spill is 12px because the page's own gutter is 14px on a phone
-   and 16px on a laptop (.w): a halo wider than that hangs off the right of the
-   screen and the page can be dragged 3px sideways, since body's overflow-x:clip
-   is propagated to the viewport and so does not clip the body's own children.
-   Measured, not guessed - 20px here was enough to do it. */
-.chip::before{inset:-16px -12px}
-.pills a::before{inset:-11px -12px}
-.chip:hover::before,.chip:focus-visible::before,.chip[aria-pressed=true]::before,
-.pills a:hover::before,.pills a:focus-visible::before{opacity:1}
+/* A thin rim of light around the two rows of controls above the games, so they
+   answer a hover the way a game tile does without being painted like one.
+   Deliberately different from the tile glow on both counts:
+   - It is a box-shadow, not a blob behind the control, so the light follows the
+     border and stops there. A halo the size of the whole chip read as the chip
+     changing colour rather than as it lighting up.
+   - Every one of them is the accent. A tile borrows the hue of its own icon
+     because it HAS one; a category and a question do not, and a different
+     colour per category read as decoration pretending to mean something.
+   --glowh is the accent's hue and --glowa the strength, both already tuned per
+   theme for the tiles, so this stays in step with them. z-index lifts the one
+   being pointed at, or the next pill along paints over its light. */
+.chip,.pills a{position:relative;
+--rim:0 0 0 1px hsl(var(--glowh) 92% 62%/.5),0 0 12px hsl(var(--glowh) 92% 62%/var(--glowa))}
+.chip:hover,.chip:focus-visible,.pills a:hover,.pills a:focus-visible{z-index:1}
+.chip:hover,.chip:focus-visible{box-shadow:var(--sh),var(--rim)}
+.pills a:hover,.pills a:focus-visible{box-shadow:var(--rim)}
+/* The chosen chip is marked by its inset ring and does NOT glow on its own: a
+   light that is always on stops reading as a response to anything. It still
+   lights up while it is the one being pointed at, which needs a rule of its own
+   because [aria-pressed=true] and :hover have equal specificity. */
+.chip[aria-pressed=true]:hover,.chip[aria-pressed=true]:focus-visible{
+box-shadow:inset 0 0 0 2px var(--acc),var(--rim)}
 
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
@@ -462,6 +462,9 @@ h2{font-size:1.06rem}
    there is no room for it, and the heading above already asks the question. */
 .ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
 .chip{padding:9px 7px;text-align:center;border-radius:12px;box-shadow:none}
+/* The chips drop their shadow on a phone, so the rim must not quietly hand it
+   back on a tap - a tap leaves :hover stuck on in most mobile browsers. */
+.chip:hover,.chip:focus-visible{box-shadow:var(--rim)}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
@@ -553,7 +556,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button><div class="acct dacct"></div></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/backseat-rally.html">Backseat Rally player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-769e8d2e245d78ec64afa858db8ac9b7/256/256/Image/Webp/noFilter" alt="Backseat Rally Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Backseat Rally update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Backseat Rally&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/backseat-rally.html">&larr; Backseat Rally player count</a><a class="btn" href="https://www.roblox.com/games/94278659624110">Play Backseat Rally</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>yesterday</b> (Sat 31 Oct).</p><ul class="evt"><li class=""><b>UPD + Weekend Tournament</b><span class="d">Win EXCLUSIVE gloves</span><span class="d">Fri 23 Oct &middot; 8 days ago</span><p>A new update lands Friday, and the Weekend tournament starts with it!
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/backseat-rally.html">Backseat Rally player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-769e8d2e245d78ec64afa858db8ac9b7/256/256/Image/Webp/noFilter" alt="Backseat Rally Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Backseat Rally update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Backseat Rally&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/backseat-rally.html">&larr; Backseat Rally player count</a><a class="btn" href="https://www.roblox.com/games/94278659624110">Play Backseat Rally</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>yesterday</b> (Sat 31 Oct).</p><ul class="evt"><li class=""><b>UPD + Weekend Tournament</b><span class="d">Win EXCLUSIVE gloves</span><span class="d">Fri 23 Oct &middot; 9 days ago</span><p>A new update lands Friday, and the Weekend tournament starts with it!
 
 🏆 A tournament every hour, all weekend. Place first for EXCLUSIVE Tournament gloves.
 🧤 Fastest in your class wins exclusive gloves. S class gets the best pair
