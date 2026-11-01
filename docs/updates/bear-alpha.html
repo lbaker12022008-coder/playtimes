@@ -19,6 +19,7 @@
    width again, because two columns of this on a phone is unreadable. */
 @media(min-width:900px){
 .bento{gap:18px;margin-top:-30px}   /* pulls the first row up under the heading panel */
+.lstack{gap:18px}                   /* must match .bento's gap, or the column looks loose */
 .bento>.sp4{grid-column:span 4}.bento>.sp5{grid-column:span 5}
 .bento>.sp6{grid-column:span 6}.bento>.sp7{grid-column:span 7}.bento>.sp8{grid-column:span 8}
 /* The week grid gets a lot wider on a wide page, so the squares grow with it rather
@@ -120,6 +121,16 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 /* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
    or long word inside a card could otherwise force the whole grid wider. */
 .bento>*{grid-column:1/-1;margin:0;min-width:0}   /* full width by default; the grid owns the spacing */
+/* Two short cards sharing one column, so the tall card beside them has something
+   to sit against. The grid cannot do this by itself: its rows are rigid, so a card
+   shorter than the one next to it simply leaves the space under it empty - "The
+   short answer" is 239px tall and "Plan my session" is 735px, which left a 496px
+   hole on every game page. A nested column is used rather than grid-row:span 2
+   because spanning splits the slack evenly between the rows, which would open an
+   arbitrary gap BETWEEN the two cards instead of closing it. Its gap has to be
+   kept level with the bento's own, both here and in the wide block above. */
+.lstack{display:flex;flex-direction:column;gap:14px}
+.lstack>.card{margin:0;min-width:0}
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
