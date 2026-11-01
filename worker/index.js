@@ -15,6 +15,7 @@
 import STATS from "./stats.js";
 import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
+import { handleIcs } from "./ics.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -36,6 +37,8 @@ export default {
       if (path === "/admin/data") return await adminData(request, env);
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
+      const reminder = await handleIcs(request, env, path);
+      if (reminder) return reminder;
     } catch (err) {
       // Log the detail for us (Cloudflare observability), but never show visitors the
       // internals: these errors now cover sign-in and the database too.

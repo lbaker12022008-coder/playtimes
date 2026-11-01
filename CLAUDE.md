@@ -14,6 +14,7 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 5. Cloudflare Workers (project `playtimes`) auto-deploys from `main` within seconds of each push. Its deploy command must be plain `npx wrangler deploy`; settings now come from `wrangler.jsonc`.
 
 ## Admin dashboard (owner only)
+- `worker/ics.js` builds the "Remind me" calendar files. See "Reminders" below.
 - `worker/index.js` is a Cloudflare Worker deployed alongside the static site. It serves `/admin` (behind an admin code) and `POST /api/hit` (counts page views). Everything else is still plain files from `docs/`.
 - Secrets live in Cloudflare, never in the repo: `ADMIN_CODE` and `SESSION_SECRET` (set with `npx wrangler secret put NAME`).
 - Analytics are stored in the D1 database `playtime-admin` (`worker/schema.sql`). Page views only: path + date, no cookies, no IPs. Login attempts store a salted one-way hash for rate limiting and are deleted after 24h.
@@ -73,35 +74,46 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - **Game artwork behind the heading** (`banner_html`, `roblox_api.fetch_banners`): the wide 768x432 picture from Roblox's `multiget/thumbnails`, blurred and faded into the page colour behind the top 360px. Game pages use their own, category pages use their biggest game's, and the homepage has none on purpose (picking one game there would read as an endorsement). It is decorative, so it is `aria-hidden` and simply absent when Roblox has no picture. Opacity is `--bannerop`, weaker in light mode (.17) than dark (.3), because dark heading text on a light page needs the art to stay faint. The banner is the first thing in `<body>` at `z-index:0` with `.shell` above it at `z-index:1`; the sticky header is see-through, so it picks the colour up.
 
 ## Reminders ("Remind me")
-The whole notification feature. `ics_file()` writes real iCalendar files into
-`<out>/ics/` while the site is built, and a "Remind me" link points at one. There is
-**no browser code at all**, which is the point: the first version built the file in
-the page and never worked on an iPhone, because Safari hands a bubbled click a text
-node rather than an element, so `e.target.closest` was undefined and the handler
-bailed out in silence. A real address also gets iOS's own "Add to Calendar" screen.
+The whole notification feature, and it holds nothing about anybody. A visitor ticks
+which days they want and whether they mean quiet or busy, and gets a calendar file
+with **one event per day, each at that day's own predicted hour**, because the
+quietest hour of a Tuesday is rarely the quietest hour of a Saturday.
 
-- Two files per game (`ics/<slug>-quiet.ics`, `-busy.ics`) plus one per upcoming
-  event (`ics/<slug>-<start>.ics`). `write_event_ics` writes a file for **every**
-  upcoming event, not just the handful a game page shows, because `/events.html`
-  lists far more of them.
-- The weekly one is anchored to the quietest hour of the whole week and repeats
-  with `COUNT=13`. It stops after three months because by then the game's pattern
-  will have moved, and a reminder that is quietly wrong is worse than none.
-- **One file suits every visitor.** Times are written in UTC, and shifting the week
-  into a reader's timezone only relabels the same squares, so the quietest hour is
-  the same moment everywhere; the calendar app does the converting. `plan()` only
-  ever switches the link between the quiet file and the busy one.
-- **No `download` attribute on the link.** Letting Safari open the file is what
-  produces the iOS "Add to Calendar" screen; desktop browsers save it either way.
-- **`write()` passes `newline=""`.** Without it Python turns the CRLF that iCalendar
-  requires into CR CR LF when the build runs on Windows, and every calendar app
-  rejects the file. It also makes a build here byte-identical to one on the server.
+- **`worker/ics.js` builds it**, at `/reminder.ics?g=<slug>&m=quiet|busy&d=0,5,6&z=1`
+  (`d` is Monday-first, `z` is the visitor's hours ahead of UTC). It reads the same
+  `/data.json` the compare page loads, through the `ASSETS` binding. It has to be
+  built per request because seven days and two kinds of hour make **256 combinations
+  per game**, which is not something to write out as files.
+- **Events are still real files**, `ics/<slug>-<start>.ics`, written by
+  `write_event_ics` for every upcoming event (not just the handful a game page
+  shows, since `/events.html` lists far more). `prune()` covers `ics/` too.
+- **The day a visitor picks is their day, not UTC.** `z` goes with the address and
+  `bestHour()` undoes the shift to look the hour up, so a Tokyo Saturday is found in
+  the right UTC squares. Get this backwards and every reminder is out by a day for
+  half the world. There are tests for seven offsets.
+- **No JavaScript is needed to use it.** The link's own address covers all seven
+  days at UTC; the page only rewrites the address as the boxes are ticked. That
+  matters: the first version built the file in the page from a click handler and
+  **never ran on an iPhone**, where a click that has bubbled up to the document
+  arrives at a text node, so `e.target.closest` was undefined and it died in silence.
+  Tapping a plain link is the one thing every phone gets right.
+- **No `download` attribute**, and the worker sends `content-disposition: inline`:
+  that is what gets iOS's own "Add to Calendar" screen. Desktop browsers save it.
+- The day pills use **`input:checked + span`, never `:has()`** - a lot of this
+  audience is on a handed-down iPad, and `:has` needs Safari 15.4.
+- **`write()` passes `newline=""`.** Without it Python turns the CRLF iCalendar
+  requires into CR CR LF when built on Windows, and every calendar app refuses the
+  file. It also makes a build here byte-identical to one on the server.
 - **iCalendar (RFC 5545) loses the whole file over one bad line**: CRLF endings,
-  `\ ; ,` and newlines escaped, and no line over **75 octets**. Fold by bytes, not
-  characters - a tenth of these titles carry an emoji, which is four octets.
-- `URL:` is only written once `DOMAIN` is set, since a bare path is not a valid URL.
-- `prune()` covers `ics/` too, so an event that is cancelled or a game that drops
-  out does not leave a file behind for ever.
+  `\ ; ,` and newlines escaped, no line over **75 octets**, folded by bytes rather
+  than characters (a tenth of these titles carry an emoji, which is four octets, and
+  JavaScript stores one as two halves that must never be split).
+- `UID`s are steady, so adding the same reminder twice updates it rather than
+  leaving two. `COUNT=13` stops it after about three months, by which time the
+  game's pattern will have moved and a reminder that is quietly wrong is worse
+  than none.
+- `check_seo.py` skips `/reminder.ics`, `/admin` and `/api/*`: the worker answers
+  those, so there is no file to find.
 - Deliberately not built: web push. It needs a stored per-device identifier, which
   is personal information under COPPA, and this site holds nothing about a visitor
   who has not signed in. If it is ever wanted, offer it **only to people signed in
@@ -159,7 +171,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **Redesign (Oct 2026)**: owner's palette, one game's page stripped back to a side menu plus search, hourly data drawn as line graphs with a draggable readout, a separate `/updates/<game>.html` page behind a "Game updates" button, and game passes shown with pictures and contents. See "Look and layout" above.
 - **Tile glow**: hovering a game lights it up in a colour taken from its own icon. Worked out at build time, so the browser downloads nothing extra and does no work for it. 99 of 100 games get a colour; the spread is mostly reds and oranges, which is what Roblox icons actually are.
 - **Admin dashboard redesign**: four tabs instead of one long page, the site's own black-and-purple palette fed in from `worker/theme.js`, a "Needs doing" list at the top worked out from real conditions, and the numbers drawn as graphs (a drag-to-read line for page views, rings for progress, bars for the days of the week and for pages and games). See "Admin dashboard" above.
-- **Reminders**: a "Remind me" link on every upcoming event and on each game's quiet window, pointing at a calendar file written at build time. No accounts and no notifications. See "Reminders" above.
+- **Reminders**: pick your days and whether you mean quiet or busy, and get a calendar file with each day's own best hour in it. Plus one per upcoming event. No accounts and no notifications. See "Reminders" above.
 - **Similar games** row at the foot of each game page (`similar`): same category first, then closest in typical player count on a log scale, so 1K vs 2K counts like 100K vs 200K. The wording changes to "games with about as many players" when the category could not fill the row.
 - `main()` runs in **two passes**: pass one works out every game's numbers, pass two writes the pages. It has to be this way round because the "Similar games" row on each page needs to know about all the others. The empty-site guard sits between them, so it fires before anything is written.
 - `/events.html` site-wide calendar, `/compare.html` (two games overlaid, loads `/data.json`), `/plan.html`.

@@ -382,6 +382,24 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
 .evt{list-style:none;padding:0;margin:8px 0}
 /* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
    is about and only picks up the accent when the pointer is on it. */
+/* The day picker: seven boxes that look like the pills elsewhere on the site. The
+   real checkbox stays where it is for screen readers and the keyboard and is simply
+   not drawn, and the pill beside it follows its state.
+   Deliberately "input:checked + span" and not ":has()": a lot of this audience is on
+   a handed-down iPad, and :has needs Safari 15.4 while the sibling selector has
+   worked for as long as anyone here has been alive. The fieldset stays a block for
+   the same sort of reason - a legend inside a flex container lands differently in
+   different browsers - and the labels flow as inline blocks instead. */
+.daypick{border:0;padding:0;margin:12px 0 4px;display:block}
+.daypick legend{padding:0;margin-bottom:6px}
+.daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
+.daypick input{position:absolute;opacity:0;width:0;height:0}
+.daypick span{display:inline-flex;align-items:center;justify-content:center;min-width:46px;
+min-height:38px;padding:0 10px;border-radius:999px;border:1px solid var(--line);
+background:var(--card);color:var(--mut);font-size:.84rem;font-weight:600}
+.daypick input:checked+span{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.daypick input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
+.remind[aria-disabled=true]{opacity:.5;pointer-events:none}
 .remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
 font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
 background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}
@@ -1535,50 +1553,6 @@ def ics_file(uid, start, end, title, desc="", url="", rrule="", alarm=10):
     return "\r\n".join(ics_fold(l) for l in lines) + "\r\n"
 
 
-def next_utc(weekday, hour, after=None):
-    """The next time it is this weekday (0 = Monday) at this hour, in UTC."""
-    now = datetime.fromtimestamp(after or BUILT, timezone.utc)
-    ahead = (weekday - ((now.weekday()) % 7)) % 7
-    when_ = now.replace(hour=hour, minute=0, second=0, microsecond=0) + timedelta(days=ahead)
-    if when_.timestamp() <= (after or BUILT):
-        when_ += timedelta(days=7)
-    return int(when_.timestamp())
-
-
-def quiet_ics(card, mode):
-    """The weekly reminder for one game's quietest (or busiest) hour.
-
-    The hour is the same moment in UTC for everybody - shifting the week into a
-    reader's timezone only relabels the same squares - so one file suits every
-    visitor and the calendar app does the converting.
-    """
-    week = card["a"]["week"]
-    cells = [(week[d][h], d, h) for d in range(7) for h in range(24) if week[d][h] is not None]
-    if not cells:
-        return None
-    value, day, hour = min(cells) if mode == "quiet" else max(cells)
-    # How long it stays that way, counted the same way the page's countdown does.
-    length = 1
-    for step in range(1, 7):
-        d, h = divmod(day * 24 + hour + step, 24)
-        nxt = week[d % 7][h]
-        if nxt is None or (nxt > value * 1.25 if mode == "quiet" else nxt < value * 0.8):
-            break
-        length += 1
-    start = next_utc(day, hour)
-    word = "quiet" if mode == "quiet" else "busy"
-    return ics_file(
-        f"ptq-{card['slug']}-{mode}", start, start + length * 3600,
-        f"{card['name']} is usually {word}",
-        desc=(f"{card['name']} is usually at its {'quietest' if mode == 'quiet' else 'busiest'} "
-              f"around now, with about {card['a']['week'][day][hour]:,.0f} players, for about "
-              f"{length} hour{'s' if length > 1 else ''}. Worked out from the player counts "
-              f"{SITE} collects. Repeats weekly for three months, so check the site again "
-              f"after that."),
-        url=abs_url(f"/game/{card['slug']}.html"),
-        rrule="FREQ=WEEKLY;COUNT=13", alarm=10)
-
-
 def event_ics_name(slug, event):
     return f"ics/{slug}-{int(event['start'])}.ics"
 
@@ -2103,12 +2077,33 @@ $('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getH
 '</b> your time, when it is usually <b>'+W[B.level(p.v)]+'</b> with about '+
 p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
 ' hour'+(p.len>1?'s':'')+'</b>.';
-$('cdw').hidden=false;
-/* Both files were written when the site was built, so switching between quiet and
-   busy is only a matter of pointing the link at the other one. */
+$('cdw').hidden=false;days();tick()}
+
+/* The reminder. Each day of the week has its own best hour - the quietest hour of a
+   Tuesday is rarely the quietest hour of a Saturday - so this shows the hour for
+   every day that is ticked and points the link at a file holding exactly those.
+   L is already in the visitor's own timezone, and tzOff() goes with the address so
+   the file is built around the same days they are looking at. Only the link's
+   address is touched: tapping it is then an ordinary link, which is the one thing
+   an iPhone was certain to get right. */
+function days(){
+var picked=[],shown=[];
+Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
+if(b.checked)picked.push(+b.value)});
+picked.forEach(function(d){
+var at=null,v=null;
+for(var h=0;h<24;h++){var x=L[d][h];if(x==null)continue;
+if(v==null||(mode==='quiet'?x<v:x>v)){at=h;v=x}}
+if(at!=null)shown.push(DAY[d].slice(0,3)+' '+fmt(at))});
 var rb=$('remind');
-if(rb&&window.PT_GAME)rb.href='/ics/'+PT_GAME.s+'-'+mode+'.ics';
-tick()}
+if(!picked.length){$('daylist').textContent='Tick at least one day.';
+if(rb){rb.setAttribute('aria-disabled','true');rb.removeAttribute('href')}return}
+$('daylist').textContent=(mode==='quiet'?'Quietest':'Busiest')+': '+shown.join('  \u00b7  ');
+if(rb&&window.PT_GAME){rb.setAttribute('aria-disabled','false');
+rb.href='/reminder.ics?g='+encodeURIComponent(PT_GAME.s)+'&m='+mode+
+'&z='+tzOff()+'&d='+picked.join(',')}}
+Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
+b.onchange=days});
 function tick(){if(!aim)return;
 var ms=aim-new Date();
 if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
@@ -2397,10 +2392,13 @@ own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-<a class="remind" id="remind" href="/ics/__SLUG__-quiet.ics" type="text/calendar">
-&#128276; Remind me every week</a>
-<p class="mut small">Adds it to your own calendar. No account, and we are not told
-which reminder you set.</p></div>
+<fieldset class="daypick" id="daypick"><legend class="mut small">Remind me on</legend>
+__DAYBOXES__</fieldset>
+<p class="mut small" id="daylist"></p>
+<a class="remind" id="remind" type="text/calendar"
+href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add to my calendar</a>
+<p class="mut small">Adds it to your own calendar, at the right hour for each day you
+picked. No account, and nothing about you is stored.</p></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -2952,10 +2950,6 @@ def main():
         # for every upcoming event rather than the handful this game's own page
         # shows, because /events.html lists far more of them.
         write_event_ics(s, name, events, now)
-        for mode in ("quiet", "busy"):
-            text = quiet_ics(c, mode)
-            if text:
-                write(f"ics/{s}-{mode}.ics", text)
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
         pattern = update_pattern(events, a["spikes"], now)
@@ -2999,6 +2993,9 @@ def main():
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
+                .replace("__DAYBOXES__", "".join(
+                    f'<label><input type="checkbox" value="{i}" checked>'
+                    f'<span>{d[:3]}</span></label>' for i, d in enumerate(DAYS)))
                 .replace("__SLUG__", s)
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))

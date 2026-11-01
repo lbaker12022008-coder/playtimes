@@ -157,6 +157,10 @@ def main():
         for href in re.findall(r'<a\b[^>]*\bhref="([^"]+)"', body, re.I):
             if href.startswith(("http://", "https://", "mailto:", "#", "javascript:")):
                 continue
+            # Addresses the worker answers rather than files in the folder. There is
+            # nothing on disk to find, so looking for one would fail every time.
+            if href.split("?")[0] in ("/reminder.ics", "/admin") or href.startswith("/api/"):
+                continue
             if not exists(href):
                 fail(name, f"link to a page that is not there: {href}")
 
