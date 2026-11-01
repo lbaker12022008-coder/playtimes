@@ -11,7 +11,7 @@ Preview your changes without touching the live site:
     python -m http.server
 Then open http://localhost:8000
 """
-import colorsys, html, json, math, os, re, sqlite3, statistics, time
+import html, json, math, os, re, sqlite3, statistics, time
 from datetime import datetime, timedelta, timezone
 
 import roblox_api
@@ -69,19 +69,6 @@ LIGHT = """--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;-
 --soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14;
 --glowh:272;--glowa:.32"""
 
-
-def band_hue(name):
-    """The hue of one heatmap band, read back out of LIGHT rather than typed in
-    again. "Busy right now" glows the red the heatmap uses for a busy hour and
-    "Quiet right now" the green it uses for a quiet one, so the chooser and the
-    week grid cannot end up telling the visitor two different colour stories.
-    Retune --l1 or --l5 and the glow follows on the next build."""
-    hx = re.search(name + r":#([0-9A-Fa-f]{6})", LIGHT).group(1)
-    r, g, b = (int(hx[i:i + 2], 16) / 255 for i in (0, 2, 4))
-    return round(colorsys.rgb_to_hsv(r, g, b)[0] * 360)
-
-
-QUIET_HUE, BUSY_HUE = band_hue("--l1"), band_hue("--l5")
 
 CSS = """:root{__LIGHT__}
 /* Widths only apply once there is room for them. Below 900px every card is full
@@ -301,13 +288,13 @@ border:1px solid var(--line);border-radius:13px}
    items, so the page grows to fit a strip that was supposed to scroll. */
 .drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
-.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem;transition:border-color .12s,box-shadow .18s}
 .pills a:hover{border-color:var(--acc)}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
 .ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));margin:14px 0}
-.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s}
+.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s,box-shadow .18s}
 .chip:hover{transform:translateY(-2px);border-color:var(--acc)}
 .chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
 .note{border:1px solid var(--acc);border-radius:14px;padding:12px 15px;margin:12px 0;
@@ -319,29 +306,29 @@ font-size:.9rem;font-weight:600}
 .chip b{display:block;font-size:1rem}
 .chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
 
-/* The same glow the game tiles have, on the two rows of controls above them, so
-   the chooser and the categories belong to the page rather than sitting on it.
-   It is the tile's machinery exactly - isolation:isolate, a ::before behind the
-   control at z-index -1, and one hue in --glow - only the shape differs: these
-   are wide and short rather than square, so the halo is an ellipse that spills
-   a little past each edge instead of a circle. --glow comes from the thing
-   itself: the heatmap's own red and green for "busy" and "quiet" (band_hue),
-   and for a category the hue of its biggest game's picture. A pill with no hue
-   falls back to --glowh, the accent's, like a tile with a colourless icon.
-   A pressed chip keeps its glow, since it is the one being asked about. */
-.chip,.pills a{position:relative;isolation:isolate}
-.chip::before,.pills a::before{content:"";position:absolute;z-index:-1;pointer-events:none;
-opacity:0;transition:opacity .22s ease;
-background:radial-gradient(58% 118% at 50% 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 72%)}
-/* The sideways spill is 12px because the page's own gutter is 14px on a phone
-   and 16px on a laptop (.w): a halo wider than that hangs off the right of the
-   screen and the page can be dragged 3px sideways, since body's overflow-x:clip
-   is propagated to the viewport and so does not clip the body's own children.
-   Measured, not guessed - 20px here was enough to do it. */
-.chip::before{inset:-16px -12px}
-.pills a::before{inset:-11px -12px}
-.chip:hover::before,.chip:focus-visible::before,.chip[aria-pressed=true]::before,
-.pills a:hover::before,.pills a:focus-visible::before{opacity:1}
+/* A thin rim of light around the two rows of controls above the games, so they
+   answer a hover the way a game tile does without being painted like one.
+   Deliberately different from the tile glow on both counts:
+   - It is a box-shadow, not a blob behind the control, so the light follows the
+     border and stops there. A halo the size of the whole chip read as the chip
+     changing colour rather than as it lighting up.
+   - Every one of them is the accent. A tile borrows the hue of its own icon
+     because it HAS one; a category and a question do not, and a different
+     colour per category read as decoration pretending to mean something.
+   --glowh is the accent's hue and --glowa the strength, both already tuned per
+   theme for the tiles, so this stays in step with them. z-index lifts the one
+   being pointed at, or the next pill along paints over its light. */
+.chip,.pills a{position:relative;
+--rim:0 0 0 1px hsl(var(--glowh) 92% 62%/.5),0 0 12px hsl(var(--glowh) 92% 62%/var(--glowa))}
+.chip:hover,.chip:focus-visible,.pills a:hover,.pills a:focus-visible{z-index:1}
+.chip:hover,.chip:focus-visible{box-shadow:var(--sh),var(--rim)}
+.pills a:hover,.pills a:focus-visible{box-shadow:var(--rim)}
+/* The chosen chip is marked by its inset ring and does NOT glow on its own: a
+   light that is always on stops reading as a response to anything. It still
+   lights up while it is the one being pointed at, which needs a rule of its own
+   because [aria-pressed=true] and :hover have equal specificity. */
+.chip[aria-pressed=true]:hover,.chip[aria-pressed=true]:focus-visible{
+box-shadow:inset 0 0 0 2px var(--acc),var(--rim)}
 
 /* game tiles */
 .grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
@@ -523,6 +510,9 @@ h2{font-size:1.06rem}
    there is no room for it, and the heading above already asks the question. */
 .ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
 .chip{padding:9px 7px;text-align:center;border-radius:12px;box-shadow:none}
+/* The chips drop their shadow on a phone, so the rim must not quietly hand it
+   back on a tap - a tap leaves :hover stuck on in most mobile browsers. */
+.chip:hover,.chip:focus-visible{box-shadow:var(--rim)}
 .chip i{display:none}
 .chip b{font-size:.84rem;line-height:1.25}
 /* the categories become one sideways row instead of five stacked ones */
@@ -1078,10 +1068,10 @@ def ask_html(lede="Showing the most popular games first."):
     category page, where it narrows that category only."""
     return ('<h2 style="margin-top:22px">What are you looking for?</h2>'
             '<div class="ask" id="ask">'
-            f'<button class="chip" data-w="busy" aria-pressed="false" style="--glow:{BUSY_HUE}">'
-            '<b>Busy right now</b><i>Trading, full servers, live events</i></button>'
-            f'<button class="chip" data-w="quiet" aria-pressed="false" style="--glow:{QUIET_HUE}">'
-            '<b>Quiet right now</b><i>Claim events, no queues, less lag</i></button>'
+            '<button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b>'
+            '<i>Trading, full servers, live events</i></button>'
+            '<button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b>'
+            '<i>Claim events, no queues, less lag</i></button>'
             '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
             '<i>Show the most popular games</i></button></div>'
             '<div id="asknote" class="note" hidden></div>'
@@ -3197,9 +3187,9 @@ def main():
         cg = [c for c in cards if c["genre"] == g]
         if not cg:
             continue
+        cat_pages.append((g, f"/category/{slug(g)}.html"))
         count = f'{len(cg)} game{"s" if len(cg) != 1 else ""}'
         biggest = cg[0]
-        cat_pages.append((g, f"/category/{slug(g)}.html", biggest.get("hue")))
         write(f"category/{slug(g)}.html", page(
             seo_title(f"{g} Roblox Games: Player Counts & Best Times",
                       f"{g} Roblox Games by Player Count"),
@@ -3221,14 +3211,7 @@ def main():
             image=biggest["banner"] or biggest["icon"] or "",
             trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}.html")],
             schema=[item_list(cg, f"{g} Roblox games by player count")]))
-    # A category pill carries the hue of its biggest game, so it glows the colour
-    # of the artwork already sitting behind that category's own heading. A game
-    # whose picture has no real colour in it hands over nothing, and the pill
-    # falls back to the accent's hue like a colourless tile does.
-    pills = ""
-    for g, u, h in cat_pages:
-        tint = "" if h is None else f' style="--glow:{h}"'
-        pills += f'<a href="{u}"{tint}>{html.escape(g)}</a>'
+    pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
 
     # ---- homepage
@@ -3470,7 +3453,7 @@ def main():
     for u in [u for _, _, u in TABS if u not in ("/", "/popular.html")]:
         pages.append((u, "0.7", today))
     pages.append(("/busiest-hours.html", "0.8", today))
-    pages += [(u, "0.7", today) for _, u, _ in cat_pages]
+    pages += [(u, "0.7", today) for _, u in cat_pages]
     for c in cards:
         if not index_ok(c):
             continue
