@@ -70,6 +70,21 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* The description drawer under the game heading. Its arrow is drawn with two
+   borders rather than loaded as a picture, and turns over when the drawer opens. */
+.gdesc{position:relative;z-index:2;background:var(--card);backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);margin:0 0 14px}
+.gdesc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px}
+.gdesc>summary::-webkit-details-marker{display:none}
+.gdesc>summary h2{margin:0;font-size:1.03rem}
+.gdesc>summary:hover h2,.gdesc[open]>summary h2{color:var(--acc)}
+.gdesc>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.gdesc[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.gdesc-in{padding:0 18px 16px}
+.gdesc-in>:first-child{margin-top:0}
 /* ---- Bento: a page as a grid, not one tall column ---------------------------
    A game page has a dozen sections. Stacked one per row, the last of them is a very
    long way down. Laid out two and three across, a visitor sees several at once.
@@ -252,7 +267,7 @@ font-size:.9rem;font-weight:600}
    stacked. z-index keeps the panel above the cards that tuck up underneath it. */
 .ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
 background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 12px}
 .ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
@@ -415,7 +430,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Obby &amp; Platformer games</span></nav></div><div class="hero"><h1>Obby &amp; Platformer Roblox games: player counts and best times to play</h1><p class="lede">Live-tracked player counts for 2 games popular obby &amp; platformer games on Roblox. DONT SPLASH is the busiest, with about 111,705 players at a typical moment. Pick a game to see its week, its events and its updates.</p></div><h2 style="margin-top:22px">What are you looking for?</h2><div class="ask" id="ask"><button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b><i>Trading, full servers, live events</i></button><button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b><i>Claim events, no queues, less lag</i></button><button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b><i>Show the most popular games</i></button></div><div id="asknote" class="note" hidden></div><p id="asktxt" class="mut small">Showing all 2 games, most popular first.</p><div class="rowhead"><span></span><div class="actions" style="margin:0"><span class="mut small">2 games</span><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><ul class="grid" id="all"><li style="--i:0" data-n="dont splash" data-s="dont-splash"><a class="tile" href="/game/dont-splash.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter" alt="DONT SPLASH Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">DONT SPLASH</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 111.7K</span></span></a></li><li style="--i:1" data-n="tower of hell" data-s="tower-of-hell"><a class="tile" href="/game/tower-of-hell.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter" alt="Tower of Hell Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tower of Hell</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 25.8K</span></span></a></li></ul><p><a href="/">&larr; All Roblox player counts</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Obby &amp; Platformer games</span></nav></div><div class="hero"><h1>Obby &amp; Platformer Roblox games: player counts and best times to play</h1><p class="lede">Live-tracked player counts for 2 games popular obby &amp; platformer games on Roblox. DONT SPLASH is the busiest, with about 111,692 players at a typical moment. Pick a game to see its week, its events and its updates.</p></div><h2 style="margin-top:22px">What are you looking for?</h2><div class="ask" id="ask"><button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b><i>Trading, full servers, live events</i></button><button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b><i>Claim events, no queues, less lag</i></button><button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b><i>Show the most popular games</i></button></div><div id="asknote" class="note" hidden></div><p id="asktxt" class="mut small">Showing all 2 games, most popular first.</p><div class="rowhead"><span></span><div class="actions" style="margin:0"><span class="mut small">2 games</span><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><ul class="grid" id="all"><li style="--i:0" data-n="dont splash" data-s="dont-splash"><a class="tile" href="/game/dont-splash.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter" alt="DONT SPLASH Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">DONT SPLASH</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 111.7K</span></span></a></li><li style="--i:1" data-n="tower of hell" data-s="tower-of-hell"><a class="tile" href="/game/tower-of-hell.html"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter" alt="Tower of Hell Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tower of Hell</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 25.5K</span></span></a></li></ul><p><a href="/">&larr; All Roblox player counts</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -531,7 +546,7 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var G=[{"s":"dont-splash","n":"DONT SPLASH","i":"https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter","a":111705,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021111122345555544432233400000000000000000000"},{"s":"tower-of-hell","n":"Tower of Hell","i":"https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter","a":25826,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000055544332111200000000000000000000"}];
+return ss+'s'}</script><script>var G=[{"s":"dont-splash","n":"DONT SPLASH","i":"https://tr.rbxcdn.com/180DAY-644bf5a236d485c076985aebb6904180/256/256/Image/Webp/noFilter","a":111692,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021111122345555544432233430000000000000000000"},{"s":"tower-of-hell","n":"Tower of Hell","i":"https://tr.rbxcdn.com/180DAY-9704151d9c8a70e7ebe0ced8cb2b95c1/256/256/Image/Webp/noFilter","a":25501,"l":"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000055544333111220000000000000000000"}];
 /* Each game carries 168 digits: one busy-ness level per hour of the week, in UTC.
    Work out which of those digits is "now" by going from local time back to UTC. */
 var off=tzOff();
@@ -553,7 +568,23 @@ var all=$('all'),original=Array.prototype.slice.call(all.children);
 var by={};G.forEach(function(g){by[g.s]=g});
 var want='',term='';
 function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
-function fits(l){if(!want)return true;return want==='quiet'?(l>0&&l<=2):(l>=4)}
+/* strict() is what "quiet" and "busy" really mean: the bottom two of a game's own
+   five levels, or the top two. fits() is what we filter on, and it is allowed to
+   widen. Every game follows roughly the same daily rhythm, so at 8pm no game is
+   quiet by its own standards and at 5am none is busy: filtering on strict() alone
+   came up empty for 85 of the week's 168 hours for "quiet" and 67 for "busy", which
+   reads as a broken page rather than as an answer. So the band widens only as far as
+   it has to -- to the quietest (or busiest) level any game is actually at right now.
+   When some games really are quiet, lo is already 1 or 2 and nothing changes. */
+function strict(l){return want==='quiet'?(l>0&&l<=2):(l>=4)}
+var band={lo:2,hi:4,relaxed:false};
+function setBand(){
+var seen=[];G.forEach(function(g){if(g.lv)seen.push(g.lv)});
+if(!seen.length){band={lo:2,hi:4,relaxed:false};return}
+var lo=Math.min.apply(null,seen),hi=Math.max.apply(null,seen);
+band={lo:Math.max(2,lo),hi:Math.min(4,hi),relaxed:want==='quiet'?lo>2:hi<4}}
+function fits(l){if(!want)return true;
+return want==='quiet'?(l>0&&l<=band.lo):(l>=band.hi)}
 
 /* The next hour in the next day when a few games would match, in the visitor's
    own clock. cell is an hour of the week in UTC, so +1 is simply the next hour. */
@@ -561,7 +592,7 @@ function nextGood(){
 var best=null;
 for(var k=1;k<=24;k++){
 var c=(cell+k)%168,n=0;
-G.forEach(function(g){var l=+g.l.charAt(c);if(l&&fits(l))n++});
+G.forEach(function(g){var l=+g.l.charAt(c);if(l&&strict(l))n++});
 /* Three is a decent spread; one is still worth saying while most of the week
    has no readings yet, so take the first of either. */
 if(n>=3||(n>=1&&!best)){
@@ -573,6 +604,7 @@ best=hit}}
 return best}
 
 function refresh(){
+setBand();
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.w===want)});
 
@@ -601,18 +633,24 @@ var word=want==='quiet'?'quiet':'busy';
 var note=$('asknote');
 if(note){
 if(loose){
+/* No game has a reading for this hour at all, which is a different thing from
+   no game being quiet, and used to be told to the visitor as the same thing. */
 var nx=nextGood();
-note.innerHTML='<b>Nothing is '+word+' right now.</b> '+
-(nx?('Try again <b>'+nx.when+'</b>, when about '+nx.n+' game'+(nx.n===1?'':'s')+
-' should be '+word+'. Meanwhile here is '):
-('At this hour nearly every game is '+(want==='quiet'?'busy':'quiet')+
-'. Here is '))+
+note.innerHTML='<b>We have no player counts for this hour yet.</b> '+
+(nx?('Try again <b>'+nx.when+'</b>. Meanwhile here is '):'Here is ')+
 'every game we track, most popular first.';
+note.hidden=false}
+else if(band.relaxed){
+var nx2=nextGood();
+note.innerHTML='<b>No game is properly '+word+' right now.</b> Nearly every game we track '+
+'is '+(want==='quiet'?'busy':'quiet')+' at this hour, so these are the '+
+(want==='quiet'?'quietest':'busiest')+' of them.'+
+(nx2?(' For genuinely '+word+' games, try <b>'+nx2.when+'</b>.'):'');
 note.hidden=false}
 else note.hidden=true}
 
 $('asktxt').textContent=!want?'Showing the most popular games first.':
-loose?'':
+(loose||band.relaxed)?'':
 term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
 (fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, most popular first. '+
 (want==='quiet'?'Good for claiming event items and avoiding queues.':

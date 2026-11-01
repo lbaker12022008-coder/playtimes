@@ -70,6 +70,21 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* The description drawer under the game heading. Its arrow is drawn with two
+   borders rather than loaded as a picture, and turns over when the drawer opens. */
+.gdesc{position:relative;z-index:2;background:var(--card);backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);margin:0 0 14px}
+.gdesc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px}
+.gdesc>summary::-webkit-details-marker{display:none}
+.gdesc>summary h2{margin:0;font-size:1.03rem}
+.gdesc>summary:hover h2,.gdesc[open]>summary h2{color:var(--acc)}
+.gdesc>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.gdesc[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.gdesc-in{padding:0 18px 16px}
+.gdesc-in>:first-child{margin-top:0}
 /* ---- Bento: a page as a grid, not one tall column ---------------------------
    A game page has a dozen sections. Stacked one per row, the last of them is a very
    long way down. Laid out two and three across, a visitor sees several at once.
@@ -252,7 +267,7 @@ font-size:.9rem;font-weight:600}
    stacked. z-index keeps the panel above the cards that tuck up underneath it. */
 .ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
 background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 12px}
 .ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
@@ -415,7 +430,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="acct" id="acct"></div></div>
 <nav class="tabs" aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a></nav></div><div class="drawer" id="drawer" hidden><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div></header>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/survival.html">Survival games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/clone-baby-care-anomaly.html">Clone Baby Care (Anomaly) player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-bebe0676d56ae86ca4dee60c37e0f17f/256/256/Image/Webp/noFilter" alt="Clone Baby Care (Anomaly) Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Clone Baby Care (Anomaly) update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Clone Baby Care (Anomaly)&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/clone-baby-care-anomaly.html">&larr; Clone Baby Care (Anomaly) player count</a><a class="btn" href="https://www.roblox.com/games/87346021451395">Play Clone Baby Care (Anomaly)</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sun 1 Nov).</p><ul class="evt"><li class=""><b>👶 2x Baby Coins Event</b><span class="d">48H 2x Baby Coins!</span><span class="d">Wed 21 Oct &middot; 10 days ago</span><p>[✨ 2x BABY COINS EVENT | LIVE NOW!]
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/survival.html">Survival games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/clone-baby-care-anomaly.html">Clone Baby Care (Anomaly) player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-bebe0676d56ae86ca4dee60c37e0f17f/256/256/Image/Webp/noFilter" alt="Clone Baby Care (Anomaly) Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Clone Baby Care (Anomaly) update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Clone Baby Care (Anomaly)&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/clone-baby-care-anomaly.html">&larr; Clone Baby Care (Anomaly) player count</a><a class="btn" href="https://www.roblox.com/games/87346021451395">Play Clone Baby Care (Anomaly)</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sun 1 Nov).</p><ul class="evt"><li class=""><b>👶 2x Baby Coins Event</b><span class="d">48H 2x Baby Coins!</span><span class="d">Wed 21 Oct &middot; 11 days ago</span><p>[✨ 2x BABY COINS EVENT | LIVE NOW!]
 
 Earn 2x Baby Coins for each night you survive!
 

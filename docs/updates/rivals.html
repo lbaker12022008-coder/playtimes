@@ -70,6 +70,21 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* The description drawer under the game heading. Its arrow is drawn with two
+   borders rather than loaded as a picture, and turns over when the drawer opens. */
+.gdesc{position:relative;z-index:2;background:var(--card);backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);margin:0 0 14px}
+.gdesc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px}
+.gdesc>summary::-webkit-details-marker{display:none}
+.gdesc>summary h2{margin:0;font-size:1.03rem}
+.gdesc>summary:hover h2,.gdesc[open]>summary h2{color:var(--acc)}
+.gdesc>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.gdesc[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.gdesc-in{padding:0 18px 16px}
+.gdesc-in>:first-child{margin-top:0}
 /* ---- Bento: a page as a grid, not one tall column ---------------------------
    A game page has a dozen sections. Stacked one per row, the last of them is a very
    long way down. Laid out two and three across, a visitor sees several at once.
@@ -252,7 +267,7 @@ font-size:.9rem;font-weight:600}
    stacked. z-index keeps the panel above the cards that tuck up underneath it. */
 .ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
 background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 12px}
 .ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
