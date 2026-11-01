@@ -167,7 +167,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
 
 ### Done
-- About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only).
+- About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only). The About page carries a **Reminders** section and a **"Which games are on here"** section saying we only list games Roblox labels Minimal or Mild and that we read that label back from Roblox rather than guessing - worded as a rule about the label, not a promise about the game, with the caveat kept below it. **Every count on the site is computed** (`len(cards)`, `total_samples`), so adding games to `games.txt` updates the wording on its own; nothing anywhere types a number of games in. The collector runs every 30 minutes and takes three readings ten minutes apart inside each run, so the pages say **"about every 10 minutes"** - the old "every 30 minutes" on About and "every few minutes" on the homepage were both wrong and disagreed with each other.
 - For-parents game-pass section, fetched from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes` (the old `games.roblox.com` one is dead).
 - Category pages from Roblox `genre_l1` (saved in the `genre` column; a category needs 2+ games).
 - `TABS` in `build_site.py` is the site's section list (All games, Most popular, Trending, Growing, Shrinking, Events, Compare, Plan a session). It is rendered into the panel behind the three-line button and into the footer; the row of pills that used to sit across the top of every page was removed in Nov 2026. Genres are pills on the homepage.

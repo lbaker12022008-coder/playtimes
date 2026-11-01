@@ -2527,12 +2527,23 @@ def about_body():
     return f"""<div class="doc"><h1>About {html.escape(SITE)}</h1>
 <p>{html.escape(SITE)} shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
 <h2>How it works</h2>
-<p>About every 30 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
+<p>About every 10 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
 Over days and weeks, those counts add up to a picture of each game's week: which hours are packed and which are quiet.
 Times are shown in your own timezone.</p>
 <h2>Why use it?</h2>
 <ul><li><b>Quiet hours</b> are good for shorter queues, less lag, claiming event items, and learning a game without a crowd.</li>
 <li><b>Busy hours</b> are good for full servers, trading, and events.</li></ul>
+<h2>Reminders</h2>
+<p>Every game page has a <b>Remind me</b> button. Tick the days you want, choose quiet or busy, and your
+device adds them to its own calendar &mdash; each day at that day's own best hour, because the quietest hour
+of a Tuesday is rarely the quietest hour of a Saturday. There is no account, no notification to switch on,
+and nothing about you is stored. Reminders stop after about three months, because by then a game's pattern
+will have moved and a reminder that is quietly wrong is worse than none.</p>
+<h2>Which games are on here</h2>
+<p>We only list games that Roblox itself labels <b>Minimal</b> or <b>Mild</b> for content, and we read that
+label back from Roblox before adding a game rather than guessing from its name. That is why some of the
+biggest games on Roblox are missing: it is deliberate, not an oversight. It is a rule about the label, though,
+not a promise &mdash; see &ldquo;What it does not tell you&rdquo; below.</p>
 <h2>Where the extra details come from</h2>
 <ul><li><b>Event calendars and updates</b> come from the events the game's own creators post on Roblox.</li>
 <li><b>Descriptions, pictures and game passes</b> are the public ones Roblox shows on each game's page.</li>
@@ -2550,8 +2561,9 @@ been watching.</p>
 We use the game's core name for headings and web addresses so links keep working, and each game page says what
 Roblox is calling it today.</p>
 <h2>What it does not tell you</h2>
-<p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children.
-Parents should still check a game themselves and use Roblox's parental controls.</p>
+<p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children,
+and neither does Roblox's content label on its own. Parents should still check a game themselves and use
+Roblox's parental controls.</p>
 <h2>The fine print</h2>
 <p>{html.escape(SITE)} is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
 Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
@@ -3221,8 +3233,8 @@ def main():
     top = cards[0] if cards else None
     body = (
         '<div class="hero rise"><h1>Roblox player counts and the <em>best times</em> to play</h1>'
-        f'<p class="lede">We track the player count of {len(cards)} popular Roblox games every '
-        f'few minutes &ndash; {total_samples:,} readings so far &ndash; and turn them into an '
+        f'<p class="lede">We track the player count of {len(cards)} popular Roblox games about every '
+        f'10 minutes &ndash; {total_samples:,} readings so far &ndash; and turn them into an '
         'hour-by-hour picture of each game\'s week, in your own timezone. Pick a quiet hour for '
         'easy claims and no queues, or a busy one for trading and events.</p></div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
@@ -3249,10 +3261,14 @@ def main():
            'or busy stretch for any game.</li>'
            '<li><a href="/events.html">Event calendar</a> &ndash; what the creators have '
            'announced, so you know which hours will be packed.</li>'
+           '<li><b>Remind me</b> &ndash; on any game\'s page, tick the days you want and add '
+           'them straight to your phone\'s calendar, each one at that day\'s own quiet (or '
+           'busy) hour. No account, and nothing about you is stored.</li>'
            '</ul></div>'
            '<h2>Where the numbers come from</h2>'
            '<div class="card"><p>Roblox publishes how many people are in each game right now. '
-           'We read that figure for every game on our list every few minutes and keep it, which '
+           'We read that figure for every game on our list about every 10 minutes and keep it, '
+           'which '
            'is something Roblox itself does not show you: it tells you about now, not about last '
            'Tuesday. Averaging those readings by hour and weekday gives each game\'s rhythm, and '
            'comparing one week with the next shows whether it is growing or shrinking.</p>'
