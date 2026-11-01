@@ -32,28 +32,33 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 
 # The dark palette, written once and used twice below: once for people whose device
 # is set to dark, and once for people who pressed the theme button themselves.
-# Colours: a neutral black-and-grey base with bright pink and purple accents.
-# Light mode is near-black ink (#16161A) on light grey (#EFEFF2); dark mode is
-# near-white on near-black (#0E0E11). Nothing but the accents carries colour, so
-# the brightness of the pink and the purple is the whole of what the eye sees.
-# Every pair was measured against the surface it sits on, not guessed:
-#   --acc #7B2BD6 purple reaches 5.79 in light mode and --acc2 #CE1A77 pink 4.53,
-#   both past the 4.5 body text needs. Dark mode lifts them to #D98BFF and
-#   #FF73B3, which are far too bright for white text to sit on, so --btnink
-#   flips to near-black there and every filled button reads it instead of #fff.
-#   --l1..--l5 travel pale pink -> magenta -> purple with the lightness falling in
-#   even steps (L* 89, 79, 69, 60, 50), so the heatmap squares stay tellable apart.
-DARK = """--bg:#0E0E11;--card:rgba(30,30,37,.72);--solid:#1A1A20;--ink:#F2F2F6;--mut:#A3A3B0;--line:#33333D;
---acc:#D98BFF;--acc2:#FF73B3;--sky:#FBD3E7;--glass:rgba(14,14,17,.86);--btnink:#15101A;
+# Colours: the owner's emerald palette. Dark mode is it exactly, as supplied:
+# background #0B1411, cards #14231D, accent #10B981, secondary #34D399, text
+# #ECFDF5. Light mode is the same idea turned over, so the toggle still works:
+# #0B1411 ink on a faintly green near-white. Every pair was measured against the
+# surface it sits on, not guessed, and all body text clears the 4.5 it needs.
+#   --acc2 is a violet rather than a third green ON PURPOSE. It is the second
+#   line on /compare.html and the second bar in the hourly chart, so it has to be
+#   tellable from --acc at a glance; two greens would make that page useless.
+#   --btnink is the text on a filled accent button: white in light mode, near
+#   black in dark, because #10B981 only reaches 2.54 against white.
+#   --l1..--l5 are the heatmap, and they now mean crowding rather than depth:
+#   green is quiet, amber is middling, red is busy. Hue alone would not be enough
+#   (red-green colourblindness is common, and much of this audience is children),
+#   so the perceived lightness ALSO falls in even 7-point steps, L* 88 81 74 67 60.
+#   That keeps the bands tellable apart in greyscale. Keep both properties if you
+#   ever retune them: scratch a hue and you must re-check the lightness as well.
+DARK = """--bg:#0B1411;--card:rgba(20,35,29,.82);--solid:#14231D;--ink:#ECFDF5;--mut:#8FA99C;--line:#23382E;
+--acc:#10B981;--acc2:#D96AF0;--sky:#BFF3DF;--glass:rgba(11,20,17,.86);--btnink:#06120D;
 --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
---up:#6EE7A0;--down:#FF8FA3;--soft:#2A1F33;--favbg:#33203A;--favink:#F0A8FF;
---shade:rgba(255,255,255,.07);--bannerop:.32"""
+--up:#34D399;--down:#FF7A8A;--soft:#13271F;--favbg:#16302A;--favink:#6EE7B7;
+--shade:rgba(255,255,255,.06);--bannerop:.3"""
 
-CSS = """:root{--bg:#EFEFF2;--card:rgba(255,255,255,.76);--solid:#fff;--ink:#16161A;--mut:#55555F;
---line:#D6D6DD;--acc:#7B2BD6;--acc2:#CE1A77;--sky:#FBD3E7;--btnink:#fff;
---glass:rgba(239,239,242,.86);--sh:0 1px 2px rgba(22,22,26,.07),0 10px 30px rgba(22,22,26,.11);
---l1:#F9D7E8;--l2:#F3AFD6;--l3:#E888C8;--l4:#CF68CC;--l5:#B14CC6;--up:#1F7A43;--down:#B3203F;
---soft:#F2E3F8;--favbg:#FBE4F2;--favink:#9A1A6B;--shade:rgba(22,22,26,.05);--bannerop:.14}
+CSS = """:root{--bg:#F2F8F5;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0B1411;--mut:#4A5F56;
+--line:#CFE0D8;--acc:#047857;--acc2:#7E22CE;--sky:#BFF3DF;--btnink:#fff;
+--glass:rgba(242,248,245,.86);--sh:0 1px 2px rgba(11,20,17,.07),0 10px 30px rgba(11,20,17,.11);
+--l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
+--soft:#E2F3EB;--favbg:#E2F3EB;--favink:#065F46;--shade:rgba(11,20,17,.05);--bannerop:.14}
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
 :root[data-theme=dark]{__DARK__}
@@ -172,7 +177,7 @@ background:var(--line);display:grid;place-items:center;font-weight:800;color:var
 .pass .price{font-weight:700;font-size:.92rem}
 .ptag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;
 margin:3px 4px 0 0;vertical-align:1px;background:var(--soft);color:var(--acc)}
-.ptag.sale{background:#2F7D4F;color:#fff}
+.ptag.sale{background:#E5AD2A;color:#10131c}
 .ptag.cheap{background:var(--sky);color:#10131c}
 /* grid or list */
 .vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
@@ -247,7 +252,7 @@ font-size:.9rem;font-weight:600}
 .axis span{grid-column:span 6}
 .hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
 .hm .c{height:26px;border-radius:4px}
-.hm .now{outline:3px solid var(--ink);outline-offset:-1px}
+.hm .now{outline:2px solid #10131c;outline-offset:-1px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.82)}
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
 .spark{width:100%;height:80px;display:block}
@@ -451,13 +456,13 @@ def crumbs(trail):
 def logo_svg(cls="mark", ident="lg"):
     return (f'<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true">'
             f'<defs><linearGradient id="{ident}" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0" stop-color="#FF4FA3"/><stop offset="1" stop-color="#7B2BD6"/>'
+            f'<stop offset="0" stop-color="#6EE7B7"/><stop offset="1" stop-color="#10B981"/>'
             f'</linearGradient></defs>'
             f'<circle cx="16" cy="16" r="15" fill="url(#{ident})"/>'
-            f'<circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" '
+            f'<circle cx="16" cy="16" r="11" fill="none" stroke="#06120D" stroke-opacity=".45" '
             f'stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" '
             f'transform="rotate(-90 16 16)"/>'
-            f'<path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#fff"/></svg>')
+            f'<path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#06120D"/></svg>')
 
 
 FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
@@ -611,7 +616,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
         social = '<meta name="twitter:card" content="summary">'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#7B2BD6">
+<meta name="description" content="{html.escape(desc)}"><meta name="theme-color" content="#10B981">
 {robots_meta(noindex)}<link rel="canonical" href="{html.escape(url)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{html.escape(SITE)}">
 <meta property="og:title" content="{html.escape(title)}">
@@ -991,14 +996,14 @@ def verdict(a):
     score = t if m is None else t * 0.65 + m * 0.35
     players = short(a["avg7"])
     if score >= 15:
-        return ("Growing", "var(--l2)",
+        return ("Growing", "var(--l1)",
                 f"No, the opposite. More people are playing than a week ago, with about {players} "
                 f"in the game at a typical moment.")
     if score >= 5:
-        return ("Slowly growing", "var(--l2)",
+        return ("Slowly growing", "var(--l1)",
                 f"No. It is picking up a little, with about {players} players at a typical moment.")
     if score > -5:
-        return ("Steady", "var(--l1)",
+        return ("Steady", "var(--l2)",
                 f"No. It has about the same number of players as last week: roughly {players} "
                 f"at a typical moment.")
     if score > -20:
