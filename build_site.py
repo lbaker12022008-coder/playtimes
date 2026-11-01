@@ -112,6 +112,21 @@ h2{font-size:1.15rem;margin:0 0 6px}
 h3{font-size:1rem;margin:1.3em 0 .2em}
 .lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
 .card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* The description drawer under the game heading. Its arrow is drawn with two
+   borders rather than loaded as a picture, and turns over when the drawer opens. */
+.gdesc{position:relative;z-index:2;background:var(--card);backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);margin:0 0 14px}
+.gdesc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px}
+.gdesc>summary::-webkit-details-marker{display:none}
+.gdesc>summary h2{margin:0;font-size:1.03rem}
+.gdesc>summary:hover h2,.gdesc[open]>summary h2{color:var(--acc)}
+.gdesc>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.gdesc[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.gdesc-in{padding:0 18px 16px}
+.gdesc-in>:first-child{margin-top:0}
 /* ---- Bento: a page as a grid, not one tall column ---------------------------
    A game page has a dozen sections. Stacked one per row, the last of them is a very
    long way down. Laid out two and three across, a visitor sees several at once.
@@ -294,7 +309,7 @@ font-size:.9rem;font-weight:600}
    stacked. z-index keeps the panel above the cards that tuck up underneath it. */
 .ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
 background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 16px}
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 12px}
 .ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
@@ -1333,7 +1348,14 @@ def clean_desc(text):
 
 
 def about_game_html(name, meta):
-    """The "what is this game?" card, using the description Roblox shows on the game's page."""
+    """The game's own description, as a drawer directly under the heading.
+
+    It is the first thing a visitor wonders ("what IS this game?") but also the
+    longest and least re-readable thing on the page, and the creators write it for
+    players who have already chosen the game. Under the heading it answers that
+    question for someone who has not, and closed by default it costs a reader who
+    already knows nothing at all. Being behind a click is also why the 600-character
+    truncation went: the whole description can simply go inside."""
     if not meta:
         return ""
     desc = clean_desc(meta.get("description") or "")
@@ -1355,15 +1377,13 @@ def about_game_html(name, meta):
     if bits:
         bits[0] = bits[0][0].upper() + bits[0][1:]
     line = f'<p class="mut small">{", ".join(bits)}.</p>' if bits else ""
-    if len(desc) > 600:
-        head, rest = desc[:600].rsplit(" ", 1)[0], desc[len(desc[:600].rsplit(" ", 1)[0]):]
-        body = (f'<p class="desc">{html.escape(head)}&hellip;</p>'
-                f'<details><summary>Read the rest</summary>'
-                f'<p class="desc">{html.escape(rest.strip())}</p></details>')
-    else:
-        body = f'<p class="desc">{html.escape(desc)}</p>' if desc else ""
-    return (f'<div class="card"><h2>What is {html.escape(name)}?</h2>{body}{line}'
-            f'<p class="mut small">Description written by the game\'s own creators and shown on Roblox.</p></div>')
+    body = f'<p class="desc">{html.escape(desc)}</p>' if desc else ""
+    # The h2 stays, inside the summary, so the page keeps its heading for search
+    # engines and for anyone moving through the page heading by heading. <summary>
+    # is allowed to hold heading content.
+    return (f'<details class="gdesc"><summary><h2>What is {html.escape(name)}?</h2></summary>'
+            f'<div class="gdesc-in">{body}{line}'
+            f'<p class="mut small">Description written by the game\'s own creators and shown on Roblox.</p></div></details>')
 
 
 def event_item(e, now, cls=""):
@@ -1933,7 +1953,23 @@ var all=$('__GRID__'),original=Array.prototype.slice.call(all.children);
 var by={};G.forEach(function(g){by[g.s]=g});
 var want='',term='';
 function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
-function fits(l){if(!want)return true;return want==='quiet'?(l>0&&l<=2):(l>=4)}
+/* strict() is what "quiet" and "busy" really mean: the bottom two of a game's own
+   five levels, or the top two. fits() is what we filter on, and it is allowed to
+   widen. Every game follows roughly the same daily rhythm, so at 8pm no game is
+   quiet by its own standards and at 5am none is busy: filtering on strict() alone
+   came up empty for 85 of the week's 168 hours for "quiet" and 67 for "busy", which
+   reads as a broken page rather than as an answer. So the band widens only as far as
+   it has to -- to the quietest (or busiest) level any game is actually at right now.
+   When some games really are quiet, lo is already 1 or 2 and nothing changes. */
+function strict(l){return want==='quiet'?(l>0&&l<=2):(l>=4)}
+var band={lo:2,hi:4,relaxed:false};
+function setBand(){
+var seen=[];G.forEach(function(g){if(g.lv)seen.push(g.lv)});
+if(!seen.length){band={lo:2,hi:4,relaxed:false};return}
+var lo=Math.min.apply(null,seen),hi=Math.max.apply(null,seen);
+band={lo:Math.max(2,lo),hi:Math.min(4,hi),relaxed:want==='quiet'?lo>2:hi<4}}
+function fits(l){if(!want)return true;
+return want==='quiet'?(l>0&&l<=band.lo):(l>=band.hi)}
 
 /* The next hour in the next day when a few games would match, in the visitor's
    own clock. cell is an hour of the week in UTC, so +1 is simply the next hour. */
@@ -1941,7 +1977,7 @@ function nextGood(){
 var best=null;
 for(var k=1;k<=24;k++){
 var c=(cell+k)%168,n=0;
-G.forEach(function(g){var l=+g.l.charAt(c);if(l&&fits(l))n++});
+G.forEach(function(g){var l=+g.l.charAt(c);if(l&&strict(l))n++});
 /* Three is a decent spread; one is still worth saying while most of the week
    has no readings yet, so take the first of either. */
 if(n>=3||(n>=1&&!best)){
@@ -1953,6 +1989,7 @@ best=hit}}
 return best}
 
 function refresh(){
+setBand();
 Array.prototype.forEach.call(document.querySelectorAll('#ask button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.w===want)});
 
@@ -1981,18 +2018,24 @@ var word=want==='quiet'?'quiet':'busy';
 var note=$('asknote');
 if(note){
 if(loose){
+/* No game has a reading for this hour at all, which is a different thing from
+   no game being quiet, and used to be told to the visitor as the same thing. */
 var nx=nextGood();
-note.innerHTML='<b>Nothing is '+word+' right now.</b> '+
-(nx?('Try again <b>'+nx.when+'</b>, when about '+nx.n+' game'+(nx.n===1?'':'s')+
-' should be '+word+'. Meanwhile here is '):
-('At this hour nearly every game is '+(want==='quiet'?'busy':'quiet')+
-'. Here is '))+
+note.innerHTML='<b>We have no player counts for this hour yet.</b> '+
+(nx?('Try again <b>'+nx.when+'</b>. Meanwhile here is '):'Here is ')+
 'every game we track, most popular first.';
+note.hidden=false}
+else if(band.relaxed){
+var nx2=nextGood();
+note.innerHTML='<b>No game is properly '+word+' right now.</b> Nearly every game we track '+
+'is '+(want==='quiet'?'busy':'quiet')+' at this hour, so these are the '+
+(want==='quiet'?'quietest':'busiest')+' of them.'+
+(nx2?(' For genuinely '+word+' games, try <b>'+nx2.when+'</b>.'):'');
 note.hidden=false}
 else note.hidden=true}
 
 $('asktxt').textContent=!want?'Showing the most popular games first.':
-loose?'':
+(loose||band.relaxed)?'':
 term?(shown+' of the '+fitting+' games that are '+word+' right now match your search.'):
 (fitting+' game'+(fitting===1?' is':'s are')+' '+word+' right now, most popular first. '+
 (want==='quiet'?'Good for claiming event items and avoiding queues.':
@@ -2133,6 +2176,7 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and bes
 <div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__.html">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 <a class="fav" href="/compare.html?a=__SLUG__">Compare</a></div></div></div>
+__ABOUT__
 <div class="bento">
 <div class="sp7 card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p>
@@ -2158,9 +2202,8 @@ __HOURS__</div>
 __SPARK__</div>
 __HISTORY__
 __CALENDAR__
-__FAQ__
-__ABOUT__
 __PARENTS__
+__FAQ__
 </div>
 __SIMILAR__
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a>
@@ -2701,7 +2744,7 @@ def main():
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", span(history_html(name, a), 6))
-                .replace("__FAQ__", span(faq, 6))
+                .replace("__FAQ__", faq)
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
@@ -2709,7 +2752,7 @@ def main():
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
                 .replace("__CALENDAR__", span(calendar_html(name, events, now), 6))
-                .replace("__ABOUT__", span(about_game_html(name, meta), 6))
+                .replace("__ABOUT__", about_game_html(name, meta))
                 .replace("__PARENTS__", span(parents_html(passes, pass_icons), 6))
                 .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
