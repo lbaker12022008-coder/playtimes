@@ -37,10 +37,27 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - `MAX_FAVS` in `worker/auth.js` and `MAXFAVS` in `FAVJS` must stay equal.
 - Saved-game merging: the first time a device signs in to an account it hands over anything saved locally, and records that account's id in `pt_joined`. After that the server wins, so un-saving a game on one device is not undone by another device's older list.
 
-### Sign-in is switched ON and live (Nov 2026)
-Steps 1-4 below are **done**. `ROBLOX_CLIENT_ID`, `ROBLOX_CLIENT_SECRET`, `ADMIN_CODE` and
-`SESSION_SECRET` are all set in Cloudflare, `users` and `favourites` exist in D1, `/api/me`
-answers `available:true`, and the button renders on the live site. Only step 5 is left.
+### Sign-in is wired up but BLOCKED until the site has its own domain (Nov 2026)
+**Roblox will not accept a `workers.dev` address as a redirect URL.** The Creator Hub refuses to
+save it ("the link is invalid"), and an authorize attempt against an app without it saved ends on
+Roblox's own red "Authorization Error - Redirect URI is invalid for this application" page.
+`workers.dev` is a shared domain anyone can take a subdomain on, which is the usual reason an
+OAuth provider blocks one. **So step 1 cannot be finished until `DOMAIN` is bought**, and buying
+it is now a blocker for sign-in rather than only for the sitemap. Do not spend time re-testing
+the `workers.dev` address: it has been tried on two different Roblox accounts.
+
+Everything on our side is done and verified: `ROBLOX_CLIENT_ID`, `ROBLOX_CLIENT_SECRET`,
+`ADMIN_CODE` and `SESSION_SECRET` are all set in Cloudflare, `users` and `favourites` exist in
+D1, and the client id and secret are known-good - a token request with a deliberately invalid
+code comes back `invalid_grant` (the code), not `invalid_client` (the credentials). That test is
+worth repeating whenever sign-in misbehaves, because it separates our half from Roblox's half in
+one call.
+
+**While it is blocked, the button should not be on the live site.** `configured()` is true as
+long as the three secrets exist, so the button renders and leads straight to Roblox's red error
+page. Deleting `ROBLOX_CLIENT_ID` (`npx wrangler secret delete ROBLOX_CLIENT_ID`) is the switch:
+`/api/me` then answers `available:false` and no button is drawn. Put it back once the domain is
+registered as a redirect URL.
 
 **The OAuth app belongs to the Roblox account `gp_isweird`.** It was moved there in Nov 2026
 from an earlier account; the old app should be deleted. Moving it again means redoing steps 1
@@ -184,7 +201,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live at **https://playtimes.lbaker12022008.workers.dev** with `NOINDEX = True` (hidden from Google while designing).
-- **Sign in with Roblox is live**, on the `gp_isweird` OAuth app, capped at 10 people until it passes Roblox's review. Nobody has signed in yet.
+- **Sign in with Roblox is built and credentialed but cannot work yet**, because Roblox rejects `workers.dev` redirect URLs - it is waiting on the domain, not on code. The OAuth app is on the Roblox account `gp_isweird`. Nobody has ever signed in.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
@@ -213,7 +230,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 Launch checklist, in order:
 1. **Buy the domain**, then set `DOMAIN` and `CONTACT` at the top of `build_site.py`. `CONTACT` must not be a personal address. Setting `DOMAIN` is what turns the sitemap into full web addresses.
 2. **`MIN_SAMPLES = 200`**. It is back down to `2` for design work, because at 200 the site had no game pages at all while collection was young. Put it back to 200 before launch; a game needs about a day and a half of collecting to reach it.
-3. **Submit the Roblox app for review** (step 5 under "Sign in with Roblox" above). Sign-in itself is already switched on and working; until the review passes, Roblox caps it at 10 signed-in people, which is fine for testing but not for launch.
+3. **Finish Sign in with Roblox**, which cannot happen before step 1: Roblox rejects a `workers.dev` redirect URL, so the app has no working redirect until the domain exists. Once it does, add `https://<domain>/auth/callback` to the app, put `ROBLOX_CLIENT_ID` back, test a real sign-in, then submit the app for review (step 5 under "Sign in with Roblox" above) to lift the 10-person cap.
 4. **`NOINDEX = False`**, then add the site to Google Search Console and submit `sitemap.xml`. Do this only once the pages have real data in them, so Google's first look is a good one. Check `python check_seo.py docs` is clean first, and register every address the site answers on (the `workers.dev` one too) so Search Console does not see two different sites.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
 6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.
