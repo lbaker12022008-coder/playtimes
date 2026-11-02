@@ -203,7 +203,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live at **https://playtimes.lbaker12022008.workers.dev** with `NOINDEX = True` (hidden from Google while designing).
 - **Sign in with Roblox is built and credentialed but cannot work yet**, because Roblox rejects `workers.dev` redirect URLs - it is waiting on the domain, not on code. The OAuth app is on the Roblox account `gp_isweird`. Nobody has ever signed in.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
-- `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
+- **`MIN_SAMPLES` is at its launch value of 200** (set 2 Nov 2026). On that day only 19 of the 140 games had 200 readings, so the site briefly carries 19 game pages instead of 100 and `prune()` deletes the rest; at about 71 readings a game a day they all pass 200 within ~2 days and the pages come back on their own. Lowering it to 2 is the undo - nothing is lost either way, since every reading lives on the `data` branch. Still to do before launch: `NOINDEX = False`.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
 
 ### Done
@@ -229,7 +229,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 ## To do
 Launch checklist, in order:
 1. **Buy the domain**, then set `DOMAIN` and `CONTACT` at the top of `build_site.py`. `CONTACT` must not be a personal address. Setting `DOMAIN` is what turns the sitemap into full web addresses.
-2. **`MIN_SAMPLES = 200`**. It is back down to `2` for design work, because at 200 the site had no game pages at all while collection was young. Put it back to 200 before launch; a game needs about a day and a half of collecting to reach it.
+2. ~~**`MIN_SAMPLES = 200`**~~ **done 2 Nov 2026.** If it ever needs lowering again for design work, remember the trade: below 200 the site shows every game, at 200 it shows only the ones with enough readings to be worth believing, and `prune()` deletes the pages of any that drop out.
 3. **Finish Sign in with Roblox**, which cannot happen before step 1: Roblox rejects a `workers.dev` redirect URL, so the app has no working redirect until the domain exists. Once it does, add `https://<domain>/auth/callback` to the app, put `ROBLOX_CLIENT_ID` back, test a real sign-in, then submit the app for review (step 5 under "Sign in with Roblox" above) to lift the 10-person cap.
 4. **`NOINDEX = False`**, then add the site to Google Search Console and submit `sitemap.xml`. Do this only once the pages have real data in them, so Google's first look is a good one. Check `python check_seo.py docs` is clean first, and register every address the site answers on (the `workers.dev` one too) so Search Console does not see two different sites.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.

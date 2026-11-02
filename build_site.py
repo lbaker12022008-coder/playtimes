@@ -17,9 +17,11 @@ from datetime import datetime, timedelta, timezone
 import roblox_api
 
 SITE = "PlayTime"          # the site's name (don't put "Roblox" in your domain name)
-MIN_SAMPLES = 2            # how many player counts a game needs before it gets a page
-# Raise this to 200 only once the games actually have that many, or every page
-# disappears. Check the admin dashboard: each game gains about 144 a day.
+MIN_SAMPLES = 200          # how many player counts a game needs before it gets a page
+# Set to the launch value on 2 Nov 2026. A game below this keeps no page at all and
+# prune() deletes any it had, so lowering it back to 2 is the undo and the pages
+# come straight back on the next build - nothing is lost, the readings live on the
+# data branch. Each game gains about 71 a day at the current collection rate.
 ADS = ""                   # paste your AdSense <script> here
 NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
 OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site into
