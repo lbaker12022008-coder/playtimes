@@ -8,16 +8,9 @@
 /plan.html
 /busiest-hours.html
 /category/action.html
-/category/adventure.html
-/category/obby-platformer.html
-/category/party-casual.html
 /category/rpg.html
 /category/roleplay-avatar-sim.html
-/category/shooter.html
-/category/shopping.html
 /category/simulation.html
-/category/sports-racing.html
-/category/strategy.html
 /category/survival.html
 /about.html
 /privacy.html

@@ -4,10 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-brookhaven-rp-1793991627@playtime
-DTSTAMP:20261102T052829Z
+DTSTAMP:20261102T153244Z
 DTSTART:20261106T190027Z
 DTEND:20261112T190027Z
 SUMMARY:Brookhaven RP: ✨ ART DECO ✨
+DESCRIPTION:A beautiful new Premium House\, a FREE house for everyone\, PL
+ US brand-new props to bring some vintage glamour to your Brookhaven build
+ s!
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

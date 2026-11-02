@@ -1,20 +1,20 @@
 // Written by build_site.py on every build. Do not edit by hand.
 export default {
- "built_at": "2026-11-02T05:34:36Z",
+ "built_at": "2026-11-02T15:33:30Z",
  "site": {
   "noindex": true,
-  "min_samples": 2,
+  "min_samples": 200,
   "domain": "",
   "contact": "",
   "ads": false
  },
  "totals": {
   "games_tracked": 140,
-  "pages_built": 140,
-  "samples": 15707,
+  "pages_built": 19,
+  "samples": 19347,
   "trend_ready": 0,
-  "with_events": 124,
-  "upcoming_events": 153
+  "with_events": 19,
+  "upcoming_events": 26
  },
  "games": [
   {
@@ -22,9 +22,9 @@ export default {
    "name": "Steal An Egg",
    "genre": "Simulation",
    "slug": "steal-an-egg",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 1127254,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 1098081,
    "trend": null,
    "verdict": "Too new to say",
    "events": 12,
@@ -35,9 +35,9 @@ export default {
    "name": "Brookhaven RP",
    "genre": "Roleplay & Avatar Sim",
    "slug": "brookhaven-rp",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 472469,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 455355,
    "trend": null,
    "verdict": "Too new to say",
    "events": 76,
@@ -48,9 +48,9 @@ export default {
    "name": "Blox Fruits",
    "genre": "RPG",
    "slug": "blox-fruits",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 333075,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 335934,
    "trend": null,
    "verdict": "Too new to say",
    "events": 13,
@@ -61,48 +61,22 @@ export default {
    "name": "Adopt Me",
    "genre": "Roleplay & Avatar Sim",
    "slug": "adopt-me",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 244008,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 240762,
    "trend": null,
    "verdict": "Too new to say",
    "events": 147,
    "upcoming": 0
   },
   {
-   "id": "7709344486",
-   "name": "Steal a Brainrot",
-   "genre": "Simulation",
-   "slug": "steal-a-brainrot",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 220171,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 63,
-   "upcoming": 0
-  },
-  {
-   "id": "6035872082",
-   "name": "RIVALS",
-   "genre": "Shooter",
-   "slug": "rivals",
-   "samples": 172,
-   "days": 2.4,
-   "avg7": 218747,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 29,
-   "upcoming": 2
-  },
-  {
    "id": "7326934954",
    "name": "99 Nights in the Forest",
    "genre": "Survival",
    "slug": "99-nights-in-the-forest",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 217424,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 208472,
    "trend": null,
    "verdict": "Too new to say",
    "events": 50,
@@ -113,25 +87,12 @@ export default {
    "name": "Jujutsu Shenanigans",
    "genre": "Action",
    "slug": "jujutsu-shenanigans",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 134098,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 126291,
    "trend": null,
    "verdict": "Too new to say",
    "events": 11,
-   "upcoming": 1
-  },
-  {
-   "id": "10771421858",
-   "name": "DONT SPLASH",
-   "genre": "Obby & Platformer",
-   "slug": "dont-splash",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 117543,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
    "upcoming": 1
   },
   {
@@ -139,155 +100,103 @@ export default {
    "name": "Throw Food For Animals",
    "genre": "Simulation",
    "slug": "throw-food-for-animals",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 110921,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 112228,
    "trend": null,
    "verdict": "Too new to say",
    "events": 2,
    "upcoming": 1
-  },
-  {
-   "id": "5569032992",
-   "name": "Dandy's World",
-   "genre": "Survival",
-   "slug": "dandy-s-world",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 105139,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 41,
-   "upcoming": 3
-  },
-  {
-   "id": "5750914919",
-   "name": "Fisch",
-   "genre": "Simulation",
-   "slug": "fisch",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 104824,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 48,
-   "upcoming": 3
   },
   {
    "id": "10765288803",
    "name": "Break and Steal an Egg",
    "genre": "Simulation",
    "slug": "break-and-steal-an-egg",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 97889,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 104363,
    "trend": null,
    "verdict": "Too new to say",
    "events": 7,
-   "upcoming": 2
-  },
-  {
-   "id": "10770728771",
-   "name": "The Hollow",
-   "genre": "Entertainment",
-   "slug": "the-hollow",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 93606,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
-  },
-  {
-   "id": "9584852943",
-   "name": "+1 Speed Keyboard Escape | Candy & Chocolate",
-   "genre": "Simulation",
-   "slug": "1-speed-keyboard-escape-candy-chocolate",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 90705,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
    "upcoming": 1
+  },
+  {
+   "id": "5750914919",
+   "name": "Fisch",
+   "genre": "Simulation",
+   "slug": "fisch",
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 100923,
+   "trend": null,
+   "verdict": "Too new to say",
+   "events": 48,
+   "upcoming": 3
+  },
+  {
+   "id": "5569032992",
+   "name": "Dandy's World",
+   "genre": "Survival",
+   "slug": "dandy-s-world",
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 100106,
+   "trend": null,
+   "verdict": "Too new to say",
+   "events": 41,
+   "upcoming": 3
   },
   {
    "id": "3808081382",
    "name": "The Strongest Battlegrounds",
    "genre": "Action",
    "slug": "the-strongest-battlegrounds",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 78565,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 78743,
    "trend": null,
    "verdict": "Too new to say",
    "events": 4,
    "upcoming": 1
   },
   {
-   "id": "5203828273",
-   "name": "Dress To Impress",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "dress-to-impress",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 74544,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 39,
-   "upcoming": 2
-  },
-  {
    "id": "3317771874",
    "name": "Pet Simulator 99",
    "genre": "Simulation",
    "slug": "pet-simulator-99",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 74069,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 73223,
    "trend": null,
    "verdict": "Too new to say",
    "events": 48,
    "upcoming": 2
   },
   {
-   "id": "2711375305",
-   "name": "Catalog Avatar Creator",
-   "genre": "Shopping",
-   "slug": "catalog-avatar-creator",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 69710,
+   "id": "5203828273",
+   "name": "Dress To Impress",
+   "genre": "Roleplay & Avatar Sim",
+   "slug": "dress-to-impress",
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 70964,
    "trend": null,
    "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
+   "events": 39,
+   "upcoming": 2
   },
   {
    "id": "6701277882",
    "name": "Fish It",
    "genre": "Simulation",
    "slug": "fish-it",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 67271,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 66978,
    "trend": null,
    "verdict": "Too new to say",
    "events": 34,
-   "upcoming": 1
-  },
-  {
-   "id": "7529591378",
-   "name": "Practical Basketball",
-   "genre": "Sports & Racing",
-   "slug": "practical-basketball",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 67138,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
    "upcoming": 1
   },
   {
@@ -295,51 +204,12 @@ export default {
    "name": "Violence District",
    "genre": "Survival",
    "slug": "violence-district",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 63606,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 63250,
    "trend": null,
    "verdict": "Too new to say",
    "events": 4,
-   "upcoming": 1
-  },
-  {
-   "id": "3183403065",
-   "name": "Anime Adventures",
-   "genre": "Strategy",
-   "slug": "anime-adventures",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 62904,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "id": "3647333358",
-   "name": "Evade",
-   "genre": "Survival",
-   "slug": "evade",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 59814,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 39,
-   "upcoming": 4
-  },
-  {
-   "id": "6931042565",
-   "name": "Volleyball Legends",
-   "genre": "Sports & Racing",
-   "slug": "volleyball-legends",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 58885,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 89,
    "upcoming": 1
   },
   {
@@ -347,9 +217,9 @@ export default {
    "name": "Anime Dice",
    "genre": "Simulation",
    "slug": "anime-dice",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 56724,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 56077,
    "trend": null,
    "verdict": "Too new to say",
    "events": 10,
@@ -360,103 +230,12 @@ export default {
    "name": "Murderers VS Sheriffs",
    "genre": "Action",
    "slug": "murderers-vs-sheriffs",
-   "samples": 180,
-   "days": 2.4,
-   "avg7": 54622,
+   "samples": 206,
+   "days": 2.9,
+   "avg7": 50160,
    "trend": null,
    "verdict": "Too new to say",
    "events": 34,
-   "upcoming": 2
-  },
-  {
-   "id": "4658598196",
-   "name": "Attack on Titan Revolution",
-   "genre": "RPG",
-   "slug": "attack-on-titan-revolution",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 50033,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 1
-  },
-  {
-   "id": "10155360168",
-   "name": "Illegal Soccer",
-   "genre": "Sports & Racing",
-   "slug": "illegal-soccer",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 47732,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 9,
-   "upcoming": 1
-  },
-  {
-   "id": "2440500124",
-   "name": "DOORS",
-   "genre": "Survival",
-   "slug": "doors",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 46384,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 22,
-   "upcoming": 2
-  },
-  {
-   "id": "6331902150",
-   "name": "Forsaken",
-   "genre": "Survival",
-   "slug": "forsaken",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 44955,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 18,
-   "upcoming": 0
-  },
-  {
-   "id": "10629695169",
-   "name": "Tap Simulator REBORN",
-   "genre": "Simulation",
-   "slug": "tap-simulator-reborn",
-   "samples": 170,
-   "days": 2.2,
-   "avg7": 42476,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "5361032378",
-   "name": "Sol's RNG",
-   "genre": "Simulation",
-   "slug": "sol-s-rng",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 42365,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 41,
-   "upcoming": 1
-  },
-  {
-   "id": "10764627709",
-   "name": "Huss Valley",
-   "genre": "Action",
-   "slug": "huss-valley",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 40903,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
    "upcoming": 2
   },
   {
@@ -464,1380 +243,634 @@ export default {
    "name": "+1 Spider Arm",
    "genre": "Simulation",
    "slug": "1-spider-arm",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 40126,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 38491,
    "trend": null,
    "verdict": "Too new to say",
    "events": 2,
    "upcoming": 1
-  },
-  {
-   "id": "10769384180",
-   "name": "Fake an Egg",
-   "genre": "Simulation",
-   "slug": "fake-an-egg",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 39924,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 12,
-   "upcoming": 0
   },
   {
    "id": "3240075297",
    "name": "Berry Avenue RP",
    "genre": "Roleplay & Avatar Sim",
    "slug": "berry-avenue-rp",
-   "samples": 179,
-   "days": 2.4,
-   "avg7": 39498,
+   "samples": 205,
+   "days": 2.8,
+   "avg7": 36904,
    "trend": null,
    "verdict": "Too new to say",
    "events": 10,
    "upcoming": 0
-  },
-  {
-   "id": "10769315427",
-   "name": "Steal A Pet And Ride It",
-   "genre": "Simulation",
-   "slug": "steal-a-pet-and-ride-it",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 38324,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "4839802560",
-   "name": "LifeTogether RP",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "lifetogether-rp",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 38018,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
-  },
-  {
-   "id": "1202096104",
-   "name": "Driving Empire",
-   "genre": "Simulation",
-   "slug": "driving-empire",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 37707,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 101,
-   "upcoming": 1
-  },
-  {
-   "id": "2668101271",
-   "name": "Fling Things and People",
-   "genre": "Simulation",
-   "slug": "fling-things-and-people",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 37453,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "10768284407",
-   "name": "Bike Universe",
-   "genre": "Simulation",
-   "slug": "bike-universe",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 36595,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 3
-  },
-  {
-   "id": "10769464063",
-   "name": "+1 Venom Evolution",
-   "genre": "Simulation",
-   "slug": "1-venom-evolution",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 36282,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 3
-  },
-  {
-   "id": "10767380385",
-   "name": "Sell Fries",
-   "genre": "Survival",
-   "slug": "sell-fries",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 35953,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "id": "10148749921",
-   "name": "Animal Hospital (Anomaly)",
-   "genre": "Survival",
-   "slug": "animal-hospital-anomaly",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 35612,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 14,
-   "upcoming": 2
-  },
-  {
-   "id": "10762636904",
-   "name": "Cameraman Tower Defense",
-   "genre": "Strategy",
-   "slug": "cameraman-tower-defense",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 34745,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 1
-  },
-  {
-   "id": "1176784616",
-   "name": "Tower Defense Simulator",
-   "genre": "Strategy",
-   "slug": "tower-defense-simulator",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 34367,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 57,
-   "upcoming": 2
-  },
-  {
-   "id": "601130232",
-   "name": "Bee Swarm Simulator",
-   "genre": "Simulation",
-   "slug": "bee-swarm-simulator",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 33185,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "10767138232",
-   "name": "Kukirin Life",
-   "genre": "Simulation",
-   "slug": "kukirin-life",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 31391,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 0
-  },
-  {
-   "id": "10770593871",
-   "name": "Realistic Ragdoll Engine",
-   "genre": "Simulation",
-   "slug": "realistic-ragdoll-engine",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 30838,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "10770605947",
-   "name": "Ragdoll Reality",
-   "genre": "Simulation",
-   "slug": "ragdoll-reality",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 30315,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 0
-  },
-  {
-   "id": "10770933473",
-   "name": "+1 Anime Eyes",
-   "genre": "Simulation",
-   "slug": "1-anime-eyes",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 30166,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 2
-  },
-  {
-   "id": "10769957062",
-   "name": "Bug Evolution",
-   "genre": "Survival",
-   "slug": "bug-evolution",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 29611,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 3
-  },
-  {
-   "id": "10765490774",
-   "name": "Climb For Animals Eggs",
-   "genre": "Simulation",
-   "slug": "climb-for-animals-eggs",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 28926,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 7,
-   "upcoming": 2
-  },
-  {
-   "id": "10766620257",
-   "name": "Bike For Egg",
-   "genre": "Simulation",
-   "slug": "bike-for-egg",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 28669,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "id": "2619619496",
-   "name": "BedWars",
-   "genre": "Action",
-   "slug": "bedwars",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 28664,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 80,
-   "upcoming": 1
-  },
-  {
-   "id": "703124385",
-   "name": "Tower of Hell",
-   "genre": "Obby & Platformer",
-   "slug": "tower-of-hell",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 28585,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 0
-  },
-  {
-   "id": "372226183",
-   "name": "Flee the Facility",
-   "genre": "Survival",
-   "slug": "flee-the-facility",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 28434,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 19,
-   "upcoming": 0
-  },
-  {
-   "id": "10769543742",
-   "name": "Backseat Rally",
-   "genre": "All",
-   "slug": "backseat-rally",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 27930,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 2
-  },
-  {
-   "id": "5995470825",
-   "name": "Hypershot",
-   "genre": "Shooter",
-   "slug": "hypershot",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 27128,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 17,
-   "upcoming": 1
-  },
-  {
-   "id": "10771507608",
-   "name": "My Small Business",
-   "genre": "Simulation",
-   "slug": "my-small-business",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 26936,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 3
-  },
-  {
-   "id": "7436755782",
-   "name": "Grow a Garden",
-   "genre": "Simulation",
-   "slug": "grow-a-garden",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 25746,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 114,
-   "upcoming": 3
-  },
-  {
-   "id": "1831550657",
-   "name": "Creatures of Sonaria Survive Kaiju Animals",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "creatures-of-sonaria-survive-kaiju-animals",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 25640,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 32,
-   "upcoming": 3
-  },
-  {
-   "id": "10769149947",
-   "name": "\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646",
-   "genre": "Simulation",
-   "slug": "game",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 25492,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "6521100398",
-   "name": "Dreamville RP",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "dreamville-rp",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 23916,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 28,
-   "upcoming": 2
-  },
-  {
-   "id": "10767537135",
-   "name": "Evermore High",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "evermore-high",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 23790,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "184199275",
-   "name": "NFL Universe Football",
-   "genre": "Sports & Racing",
-   "slug": "nfl-universe-football",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 22734,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 36,
-   "upcoming": 3
-  },
-  {
-   "id": "10035204815",
-   "name": "Ride A Pet",
-   "genre": "Simulation",
-   "slug": "ride-a-pet",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 22066,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 2
-  },
-  {
-   "id": "10769851460",
-   "name": "Criminal Simulator",
-   "genre": "Simulation",
-   "slug": "criminal-simulator",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21578,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "10770699460",
-   "name": "Raise The Biggest Family",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "raise-the-biggest-family",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 21446,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "id": "10769543567",
-   "name": "Cat Battles",
-   "genre": "Action",
-   "slug": "cat-battles",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21405,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 1
-  },
-  {
-   "id": "6774320049",
-   "name": "Dubai RP",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "dubai-rp",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21081,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 17,
-   "upcoming": 2
-  },
-  {
-   "id": "10222476236",
-   "name": "Catalog Avatar Runway",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "catalog-avatar-runway",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21071,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "id": "9978329815",
-   "name": "Mukbang Game",
-   "genre": "All",
-   "slug": "mukbang-game",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21021,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 8,
-   "upcoming": 1
-  },
-  {
-   "id": "2936053166",
-   "name": "Squid Game X",
-   "genre": "Party & Casual",
-   "slug": "squid-game-x",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 21007,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 16,
-   "upcoming": 1
-  },
-  {
-   "id": "10258991999",
-   "name": "Command An Army",
-   "genre": "Action",
-   "slug": "command-an-army",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 20797,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "4949420752",
-   "name": "Realistic Street Soccer",
-   "genre": "Sports & Racing",
-   "slug": "realistic-street-soccer",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 20639,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 1
-  },
-  {
-   "id": "10685282333",
-   "name": "Ball VS Ball",
-   "genre": "Party & Casual",
-   "slug": "ball-vs-ball",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 20638,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "8178086002",
-   "name": "Lethal Ape Experience",
-   "genre": "Survival",
-   "slug": "lethal-ape-experience",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 20587,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 0
-  },
-  {
-   "id": "9294074907",
-   "name": "One Tap",
-   "genre": "Shooter",
-   "slug": "one-tap",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 20365,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 7,
-   "upcoming": 0
-  },
-  {
-   "id": "10768172922",
-   "name": "RoWorld",
-   "genre": "Strategy",
-   "slug": "roworld",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 19830,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "10057403337",
-   "name": "Deagle Arena",
-   "genre": "Shooter",
-   "slug": "deagle-arena",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 19799,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 19,
-   "upcoming": 3
-  },
-  {
-   "id": "10747719434",
-   "name": "Feed A Mosquito",
-   "genre": "Simulation",
-   "slug": "feed-a-mosquito",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 19528,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 2
-  },
-  {
-   "id": "1516533665",
-   "name": "Piggy",
-   "genre": "Survival",
-   "slug": "piggy",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 19216,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 1
-  },
-  {
-   "id": "10758824872",
-   "name": "Ride a Dino",
-   "genre": "Simulation",
-   "slug": "ride-a-dino",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 19155,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 1
-  },
-  {
-   "id": "578392296",
-   "name": "ABA",
-   "genre": "Action",
-   "slug": "aba",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 19008,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 17,
-   "upcoming": 0
-  },
-  {
-   "id": "7554119808",
-   "name": "My Avatar",
-   "genre": "Shopping",
-   "slug": "my-avatar",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 18900,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "88070565",
-   "name": "Welcome to Bloxburg",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "welcome-to-bloxburg",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 18136,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 48,
-   "upcoming": 3
-  },
-  {
-   "id": "7633926880",
-   "name": "BloxStrike",
-   "genre": "Shooter",
-   "slug": "bloxstrike",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 17428,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 10,
-   "upcoming": 0
-  },
-  {
-   "id": "10771871836",
-   "name": "Say Cheese",
-   "genre": "Adventure",
-   "slug": "say-cheese",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 17234,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "10770018231",
-   "name": "Clone Baby Care (Anomaly)",
-   "genre": "Survival",
-   "slug": "clone-baby-care-anomaly",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 16970,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
-  },
-  {
-   "id": "6325068386",
-   "name": "Blue Lock: Rivals",
-   "genre": "Sports & Racing",
-   "slug": "blue-lock-rivals",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 16612,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 79,
-   "upcoming": 0
-  },
-  {
-   "id": "7398552394",
-   "name": "A desrt",
-   "genre": "Adventure",
-   "slug": "a-desrt",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 16603,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 7,
-   "upcoming": 1
-  },
-  {
-   "id": "1000233041",
-   "name": "3008",
-   "genre": "Survival",
-   "slug": "3008",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 16336,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 0
-  },
-  {
-   "id": "8719555347",
-   "name": "Southern Mudding OffRoading",
-   "genre": "Simulation",
-   "slug": "southern-mudding-offroading",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 15896,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 48,
-   "upcoming": 3
-  },
-  {
-   "id": "648454481",
-   "name": "Grand Piece Online",
-   "genre": "RPG",
-   "slug": "grand-piece-online",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 15563,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 17,
-   "upcoming": 1
-  },
-  {
-   "id": "4777817887",
-   "name": "Blade Ball",
-   "genre": "Action",
-   "slug": "blade-ball",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 14330,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 34,
-   "upcoming": 0
-  },
-  {
-   "id": "10772253152",
-   "name": "Durian Garden",
-   "genre": "Simulation",
-   "slug": "durian-garden",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 13850,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "9534705677",
-   "name": "Sniper Arena",
-   "genre": "Shooter",
-   "slug": "sniper-arena",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 12958,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 20,
-   "upcoming": 2
-  },
-  {
-   "id": "6504986360",
-   "name": "Bubble Gum Simulator INFINITY",
-   "genre": "Simulation",
-   "slug": "bubble-gum-simulator-infinity",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 12885,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 92,
-   "upcoming": 3
-  },
-  {
-   "id": "2783797267",
-   "name": "American Plains Mudding",
-   "genre": "Simulation",
-   "slug": "american-plains-mudding",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 12833,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 64,
-   "upcoming": 3
-  },
-  {
-   "id": "2294168059",
-   "name": "The Mimic",
-   "genre": "Survival",
-   "slug": "the-mimic",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 12189,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 9,
-   "upcoming": 0
-  },
-  {
-   "id": "1278035280",
-   "name": "Warrior Cats: Ultimate Edition",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "warrior-cats-ultimate-edition",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 11550,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "id": "4730278139",
-   "name": "untitled boxing game",
-   "genre": "Action",
-   "slug": "untitled-boxing-game",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 11072,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 18,
-   "upcoming": 3
-  },
-  {
-   "id": "10732236937",
-   "name": "Kaiju Alpha",
-   "genre": "Action",
-   "slug": "kaiju-alpha",
-   "samples": 123,
-   "days": 1.6,
-   "avg7": 10958,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "210851291",
-   "name": "Build A Boat For Treasure",
-   "genre": "Simulation",
-   "slug": "build-a-boat-for-treasure",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 10892,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "id": "9561553764",
-   "name": "Murder Duels",
-   "genre": "Shooter",
-   "slug": "murder-duels",
-   "samples": 172,
-   "days": 2.4,
-   "avg7": 10752,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 16,
-   "upcoming": 0
+  }
+ ],
+ "waiting": [
+  {
+   "id": "47545",
+   "name": "[MAZE]\ud83c\udf55Work at a Pizza Place",
+   "samples": 56
   },
   {
    "id": "65241",
    "name": "Natural Disaster Survival",
-   "genre": "Survival",
-   "slug": "natural-disaster-survival",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 10193,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 0
-  },
-  {
-   "id": "4348829796",
-   "name": "MVSD | Murderers VS Sheriffs Duels",
-   "genre": "Action",
-   "slug": "mvsd-murderers-vs-sheriffs-duels",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 9347,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 13,
-   "upcoming": 1
-  },
-  {
-   "id": "1489026993",
-   "name": "Survive the Killer",
-   "genre": "Survival",
-   "slug": "survive-the-killer",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 9179,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 2,
-   "upcoming": 0
-  },
-  {
-   "id": "321778215",
-   "name": "Royale High",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "royale-high",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 9066,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 0
-  },
-  {
-   "id": "1157126388",
-   "name": "BEAR (Alpha)",
-   "genre": "Survival",
-   "slug": "bear-alpha",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 7736,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 1
-  },
-  {
-   "id": "10230942274",
-   "name": "Ability Arena",
-   "genre": "Action",
-   "slug": "ability-arena",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 7709,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 2
-  },
-  {
-   "id": "5578556129",
-   "name": "Vanguards: 2nd Anniversary",
-   "genre": "Strategy",
-   "slug": "vanguards-2nd-anniversary",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 7614,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 18,
-   "upcoming": 0
-  },
-  {
-   "id": "73885730",
-   "name": "Prison Life",
-   "genre": "Action",
-   "slug": "prison-life",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 7572,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
-  },
-  {
-   "id": "371263894",
-   "name": "Greenville RP ( HALLOWEEN + 10TH ANN LIMITED!)",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "greenville-rp-halloween-10th-ann-limited",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 7267,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 20,
-   "upcoming": 1
-  },
-  {
-   "id": "9908641400",
-   "name": "Football Fusion 3",
-   "genre": "Sports & Racing",
-   "slug": "football-fusion-3",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 6385,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "245662005",
-   "name": "Jailbreak",
-   "genre": "Action",
-   "slug": "jailbreak",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 5704,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 18,
-   "upcoming": 0
-  },
-  {
-   "id": "2992873140",
-   "name": "Emergency Hamburg",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "emergency-hamburg",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 5700,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 15,
-   "upcoming": 0
-  },
-  {
-   "id": "4931927012",
-   "name": "Basketball Legends",
-   "genre": "Sports & Racing",
-   "slug": "basketball-legends",
-   "samples": 157,
-   "days": 2.0,
-   "avg7": 5567,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 22,
-   "upcoming": 0
-  },
-  {
-   "id": "4778845442",
-   "name": "Toilet Tower Defense",
-   "genre": "Strategy",
-   "slug": "toilet-tower-defense",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 5051,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 9,
-   "upcoming": 1
-  },
-  {
-   "id": "3085257211",
-   "name": "Rainbow Friends",
-   "genre": "Adventure",
-   "slug": "rainbow-friends",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 4707,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
-  },
-  {
-   "id": "605887098",
-   "name": "Car Dealership Tycoon",
-   "genre": "Simulation",
-   "slug": "car-dealership-tycoon",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 4451,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 52,
-   "upcoming": 1
-  },
-  {
-   "id": "2682938349",
-   "name": "Wild Horse Islands",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "wild-horse-islands",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 4107,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 43,
-   "upcoming": 7
-  },
-  {
-   "id": "807930589",
-   "name": "The Wild West",
-   "genre": "Action",
-   "slug": "the-wild-west",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3580,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 8,
-   "upcoming": 1
-  },
-  {
-   "id": "111958650",
-   "name": "Arsenal",
-   "genre": "Shooter",
-   "slug": "arsenal",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3556,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 3,
-   "upcoming": 0
-  },
-  {
-   "id": "47545",
-   "name": "Work at a Pizza Place",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "work-at-a-pizza-place",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3333,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 6,
-   "upcoming": 0
-  },
-  {
-   "id": "1511883870",
-   "name": "Shindo Life",
-   "genre": "RPG",
-   "slug": "shindo-life",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3204,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 1,
-   "upcoming": 0
+   "samples": 56
   },
   {
    "id": "2471084",
-   "name": "Lumber Tycoon 2",
-   "genre": "Simulation",
-   "slug": "lumber-tycoon-2",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3125,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
+   "name": "\ud83c\udf33 Lumber Tycoon 2",
+   "samples": 56
   },
   {
    "id": "31970568",
    "name": "Theme Park Tycoon 2",
-   "genre": "Simulation",
-   "slug": "theme-park-tycoon-2",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 3009,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 0
+   "samples": 56
+  },
+  {
+   "id": "73885730",
+   "name": "Prison Life",
+   "samples": 56
+  },
+  {
+   "id": "88070565",
+   "name": "[\ud83d\udec1] Welcome to Bloxburg ",
+   "samples": 149
+  },
+  {
+   "id": "110181652",
+   "name": "[\ud83c\udf83] Epic Minigames",
+   "samples": 56
+  },
+  {
+   "id": "111958650",
+   "name": "Arsenal",
+   "samples": 56
   },
   {
    "id": "113491250",
-   "name": "Phantom Forces",
-   "genre": "Shooter",
-   "slug": "phantom-forces",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 2929,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
+   "name": "[Infection!] Phantom Forces",
+   "samples": 56
   },
   {
-   "id": "5422546686",
-   "name": "Horse Life",
-   "genre": "Roleplay & Avatar Sim",
-   "slug": "horse-life",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 2553,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 5,
-   "upcoming": 2
+   "id": "184199275",
+   "name": "[\ud83c\udf83SEASONS\ud83e\udd47] NFL Universe Football",
+   "samples": 56
   },
   {
-   "id": "2765784373",
-   "name": "PHIGHTING",
-   "genre": "Action",
-   "slug": "phighting",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 2354,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 4,
-   "upcoming": 0
+   "id": "210851291",
+   "name": "Build A Boat For Treasure",
+   "samples": 56
+  },
+  {
+   "id": "245662005",
+   "name": "Jailbreak \ud83c\udf41\ud83c\udf41",
+   "samples": 56
+  },
+  {
+   "id": "274816972",
+   "name": "[TITAN ATTACK\ud83d\udca5] Car Crushers 2 - Physics Sim",
+   "samples": 56
+  },
+  {
+   "id": "321778215",
+   "name": "Royale\ud83c\udf83High",
+   "samples": 56
+  },
+  {
+   "id": "371263894",
+   "name": "Greenville RP (\ud83e\udd87HALLOWEEN!) ",
+   "samples": 56
+  },
+  {
+   "id": "372226183",
+   "name": "Flee the Facility",
+   "samples": 183
+  },
+  {
+   "id": "578392296",
+   "name": "ABA",
+   "samples": 149
+  },
+  {
+   "id": "601130232",
+   "name": "Bee Swarm Simulator",
+   "samples": 183
+  },
+  {
+   "id": "605887098",
+   "name": "Car Dealership Tycoon  [\ud83d\udef8]",
+   "samples": 56
+  },
+  {
+   "id": "648454481",
+   "name": "[\ud83c\udf83HALLOWEEN PT 3] Grand Piece Online",
+   "samples": 149
+  },
+  {
+   "id": "703124385",
+   "name": "Tower of Hell",
+   "samples": 149
+  },
+  {
+   "id": "807930589",
+   "name": "The Wild West \ud83c\udf83",
+   "samples": 56
+  },
+  {
+   "id": "1000233041",
+   "name": "3008 [2.75]",
+   "samples": 149
+  },
+  {
+   "id": "1157126388",
+   "name": "BEAR (Alpha)",
+   "samples": 56
+  },
+  {
+   "id": "1176784616",
+   "name": "[\ud83c\udf19 NIGHT 4] Tower Defense Simulator",
+   "samples": 183
+  },
+  {
+   "id": "1202096104",
+   "name": "Driving Empire [\ud83c\udf83HALLOWEEN EVENT\ud83c\udf83]",
+   "samples": 183
+  },
+  {
+   "id": "1278035280",
+   "name": "Warrior Cats: Ultimate Edition",
+   "samples": 56
   },
   {
    "id": "1318971886",
    "name": "Break In (Story)",
-   "genre": "Adventure",
-   "slug": "break-in-story",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 2336,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
+   "samples": 56
   },
   {
    "id": "1390601379",
-   "name": "Combat Warriors",
-   "genre": "Action",
-   "slug": "combat-warriors",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1830,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 12,
-   "upcoming": 1
+   "name": "\ud83c\udf83 Combat Warriors",
+   "samples": 56
   },
   {
-   "id": "274816972",
-   "name": "Car Crushers 2 - Physics Sim",
-   "genre": "Simulation",
-   "slug": "car-crushers-2-physics-sim",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1620,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 79,
-   "upcoming": 3
+   "id": "1480782352",
+   "name": "Vehicle Legends \ud83c\udfce\ufe0f Cars!",
+   "samples": 56
+  },
+  {
+   "id": "1489026993",
+   "name": "\ud83d\udd2aSurvive the Killer!",
+   "samples": 183
+  },
+  {
+   "id": "1511883870",
+   "name": "Shindo Life [251]",
+   "samples": 56
+  },
+  {
+   "id": "1516533665",
+   "name": "Piggy [THE HOLLOW]",
+   "samples": 183
   },
   {
    "id": "1701332290",
    "name": "Field Trip Z",
-   "genre": "Adventure",
-   "slug": "field-trip-z",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1572,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 0,
-   "upcoming": 0
+   "samples": 56
   },
   {
-   "id": "110181652",
-   "name": "Epic Minigames",
-   "genre": "Party & Casual",
-   "slug": "epic-minigames",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1550,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 25,
-   "upcoming": 1
+   "id": "1831550657",
+   "name": "\ud83c\udf83 Creatures of Sonaria \ud83c\udf6c Survive Kaiju Animals",
+   "samples": 183
+  },
+  {
+   "id": "2294168059",
+   "name": "[\ud83c\udf83] The Mimic",
+   "samples": 183
+  },
+  {
+   "id": "2440500124",
+   "name": "DOORS \ud83c\udf6c\ud83c\udf6d",
+   "samples": 183
+  },
+  {
+   "id": "2619619496",
+   "name": "[\ud83d\udc7bRereleases] BedWars",
+   "samples": 183
+  },
+  {
+   "id": "2668101271",
+   "name": "Fling Things and People",
+   "samples": 183
+  },
+  {
+   "id": "2682938349",
+   "name": "\ud83c\udf83\ud83d\udc7b Wild Horse Islands",
+   "samples": 56
+  },
+  {
+   "id": "2711375305",
+   "name": "Catalog Avatar Creator",
+   "samples": 183
+  },
+  {
+   "id": "2765784373",
+   "name": "PHIGHTING! [BETA]",
+   "samples": 56
+  },
+  {
+   "id": "2783797267",
+   "name": "[\ud83c\udf3dHAULING\ud83c\udf3d] American Plains Mudding",
+   "samples": 149
+  },
+  {
+   "id": "2936053166",
+   "name": "[\ud83c\udf83] Squid Game X",
+   "samples": 149
+  },
+  {
+   "id": "2992873140",
+   "name": "Emergency Hamburg",
+   "samples": 56
+  },
+  {
+   "id": "3085257211",
+   "name": "Rainbow Friends",
+   "samples": 56
+  },
+  {
+   "id": "3183403065",
+   "name": "[\u2600\ufe0fUPD 21\ud83c\udfd6\ufe0f] Anime Adventures",
+   "samples": 183
+  },
+  {
+   "id": "3647333358",
+   "name": "[\ud83c\udf83THE HOLLOW\ud83c\udf83] Evade ",
+   "samples": 183
+  },
+  {
+   "id": "4348829796",
+   "name": "MVSD | Murderers VS Sheriffs Duels",
+   "samples": 56
+  },
+  {
+   "id": "4658598196",
+   "name": "[UPDATE 5] Attack on Titan Revolution",
+   "samples": 149
+  },
+  {
+   "id": "4730278139",
+   "name": "[\ud83c\udf83AKUMA] untitled boxing game\ud83e\udd4a",
+   "samples": 56
+  },
+  {
+   "id": "4777817887",
+   "name": "Blade Ball",
+   "samples": 56
+  },
+  {
+   "id": "4778845442",
+   "name": "[\ud83d\udd28FIXES] Toilet Tower Defense",
+   "samples": 56
+  },
+  {
+   "id": "4839802560",
+   "name": "LifeTogether \ud83c\udfe0 RP [FAMILIES]",
+   "samples": 183
+  },
+  {
+   "id": "4931927012",
+   "name": "[\ud83c\udf83]\ud83c\udfc0Basketball Legends\ud83c\udfc0",
+   "samples": 183
+  },
+  {
+   "id": "4949420752",
+   "name": "Realistic Street Soccer",
+   "samples": 149
+  },
+  {
+   "id": "5361032378",
+   "name": "Sol's RNG [ Halloween Event \ud83c\udf83]",
+   "samples": 183
+  },
+  {
+   "id": "5422546686",
+   "name": "[NEW \ud83d\udc3b\ud83d\udc34] Horse Life",
+   "samples": 56
+  },
+  {
+   "id": "5578556129",
+   "name": "Vanguards: 2nd Anniversary",
+   "samples": 56
+  },
+  {
+   "id": "5995470825",
+   "name": "[\ud83d\udd25UPD] Hypershot",
+   "samples": 183
+  },
+  {
+   "id": "6035872082",
+   "name": "[\ud83c\udf83] RIVALS",
+   "samples": 198
+  },
+  {
+   "id": "6325068386",
+   "name": "[ZENTETSU\u26a1] Blue Lock: Rivals",
+   "samples": 56
+  },
+  {
+   "id": "6331902150",
+   "name": "Forsaken",
+   "samples": 183
+  },
+  {
+   "id": "6504986360",
+   "name": "[\ud83c\udf83] Bubble Gum Simulator INFINITY",
+   "samples": 56
+  },
+  {
+   "id": "6521100398",
+   "name": "Dreamville \ud83c\udfe1 RP [Pets! \ud83d\ude3a]",
+   "samples": 149
+  },
+  {
+   "id": "6774320049",
+   "name": "Dubai \ud83c\udfe1 RP [Newborns! \ud83d\udc76]",
+   "samples": 149
+  },
+  {
+   "id": "6931042565",
+   "name": "[UPD] Volleyball Legends",
+   "samples": 183
   },
   {
    "id": "7332711118",
    "name": "Brainrot Evolution",
-   "genre": "Simulation",
-   "slug": "brainrot-evolution",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1355,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 70,
-   "upcoming": 1
+   "samples": 56
   },
   {
-   "id": "1480782352",
-   "name": "Vehicle Legends Cars",
-   "genre": "Simulation",
-   "slug": "vehicle-legends-cars",
-   "samples": 30,
-   "days": 0.4,
-   "avg7": 1302,
-   "trend": null,
-   "verdict": "Too new to say",
-   "events": 47,
-   "upcoming": 0
+   "id": "7398552394",
+   "name": "A desrt [SANDBOX]",
+   "samples": 149
+  },
+  {
+   "id": "7436755782",
+   "name": "[\ud83c\udf83] Grow a Garden \ud83c\udf36\ufe0f",
+   "samples": 183
+  },
+  {
+   "id": "7529591378",
+   "name": "[ALPHA] Practical Basketball",
+   "samples": 183
+  },
+  {
+   "id": "7554119808",
+   "name": "\ud83d\udecd\ufe0f My Avatar!",
+   "samples": 183
+  },
+  {
+   "id": "7633926880",
+   "name": "[ZOMBIES!] BloxStrike",
+   "samples": 149
+  },
+  {
+   "id": "7709344486",
+   "name": "[\ud83d\udc80] Steal a Brainrot",
+   "samples": 183
+  },
+  {
+   "id": "8178086002",
+   "name": "[\ud83c\udf83] Lethal Ape Experience",
+   "samples": 149
+  },
+  {
+   "id": "8719555347",
+   "name": "[\ud83d\udca8BURNOUTS\ud83d\udca8] Southern Mudding \ud83d\ude9c OffRoading",
+   "samples": 149
+  },
+  {
+   "id": "9294074907",
+   "name": "[FPS] One Tap",
+   "samples": 149
+  },
+  {
+   "id": "9534705677",
+   "name": "[\ud83d\udd25New Secret] Sniper Arena",
+   "samples": 56
+  },
+  {
+   "id": "9561553764",
+   "name": "[\ud83c\udf83] Murder Duels",
+   "samples": 198
+  },
+  {
+   "id": "9584852943",
+   "name": "+1 Speed Keyboard Escape | Candy & Chocolate",
+   "samples": 149
+  },
+  {
+   "id": "9908641400",
+   "name": "Football Fusion 3",
+   "samples": 56
+  },
+  {
+   "id": "9978329815",
+   "name": "Mukbang Game [Testing]\ud83e\udd87!",
+   "samples": 149
+  },
+  {
+   "id": "10035204815",
+   "name": "[\ud83c\udf0c] Ride A Pet",
+   "samples": 149
+  },
+  {
+   "id": "10057403337",
+   "name": "[\ud83d\udd25NEW CASE] Deagle Arena",
+   "samples": 149
+  },
+  {
+   "id": "10148749921",
+   "name": "[x2 \ud83c\udfc6] Animal Hospital (Anomaly) \ud83e\uddea",
+   "samples": 149
+  },
+  {
+   "id": "10155360168",
+   "name": "[GO-KART!] Illegal Soccer",
+   "samples": 149
+  },
+  {
+   "id": "10222476236",
+   "name": "\ud83c\udf83 Catalog Avatar Runway",
+   "samples": 149
+  },
+  {
+   "id": "10230942274",
+   "name": "Ability Arena \ud83d\udca5",
+   "samples": 56
+  },
+  {
+   "id": "10258991999",
+   "name": "[\ud83c\udf83EVENT] Command An Army",
+   "samples": 149
+  },
+  {
+   "id": "10629695169",
+   "name": "[\u2728] Tap Simulator REBORN",
+   "samples": 196
+  },
+  {
+   "id": "10685282333",
+   "name": "Ball VS Ball [RANKED]",
+   "samples": 149
+  },
+  {
+   "id": "10732236937",
+   "name": "[ Battra ] Kaiju Alpha",
+   "samples": 149
+  },
+  {
+   "id": "10747719434",
+   "name": "[\ud83c\udf83V4] Feed A Mosquito",
+   "samples": 149
+  },
+  {
+   "id": "10758824872",
+   "name": "[\u267e\ufe0f] Ride a Dino",
+   "samples": 149
+  },
+  {
+   "id": "10762636904",
+   "name": "[\ud83d\udcb0X2] Cameraman Tower Defense",
+   "samples": 183
+  },
+  {
+   "id": "10764627709",
+   "name": "[BOSS\ud83c\udf83] Huss Valley",
+   "samples": 149
+  },
+  {
+   "id": "10765490774",
+   "name": "[\ud83c\udf83]Climb For Animals Eggs\ud83e\udd5a",
+   "samples": 149
+  },
+  {
+   "id": "10766620257",
+   "name": "[\ud83c\udf83] Bike For Egg!",
+   "samples": 149
+  },
+  {
+   "id": "10767138232",
+   "name": "Kukirin Life [Testing]",
+   "samples": 149
+  },
+  {
+   "id": "10767380385",
+   "name": "[CH2] Sell Fries! [Anomaly] \ud83c\udf5f",
+   "samples": 149
+  },
+  {
+   "id": "10767537135",
+   "name": "Evermore High \ud83e\udda2",
+   "samples": 56
+  },
+  {
+   "id": "10768172922",
+   "name": "RoWorld [World PvP]",
+   "samples": 149
+  },
+  {
+   "id": "10768284407",
+   "name": "\ud83d\udee1\ufe0f[S1] Bike Universe",
+   "samples": 149
+  },
+  {
+   "id": "10769149947",
+   "name": "\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646",
+   "samples": 149
+  },
+  {
+   "id": "10769315427",
+   "name": "[\ud83c\udf83] Steal A Pet And Ride It!",
+   "samples": 183
+  },
+  {
+   "id": "10769384180",
+   "name": "[\ud83c\udf83] Fake an Egg",
+   "samples": 149
+  },
+  {
+   "id": "10769464063",
+   "name": "[UPD\ud83c\udf83] +1 Venom Evolution",
+   "samples": 149
+  },
+  {
+   "id": "10769543567",
+   "name": "Cat Battles \ud83d\udc3e",
+   "samples": 149
+  },
+  {
+   "id": "10769543742",
+   "name": "Backseat Rally",
+   "samples": 149
+  },
+  {
+   "id": "10769851460",
+   "name": "Criminal Simulator \ud83d\udcb0 [ALPHA]",
+   "samples": 149
+  },
+  {
+   "id": "10769957062",
+   "name": "Bug Evolution [\ud83d\udd77\ufe0f]",
+   "samples": 149
+  },
+  {
+   "id": "10770018231",
+   "name": "Clone Baby Care (Anomaly)",
+   "samples": 149
+  },
+  {
+   "id": "10770593871",
+   "name": "Realistic Ragdoll Engine \ud83e\ude78",
+   "samples": 149
+  },
+  {
+   "id": "10770605947",
+   "name": "Ragdoll Reality \ud83e\ude78",
+   "samples": 149
+  },
+  {
+   "id": "10770699460",
+   "name": "Raise The Biggest Family",
+   "samples": 183
+  },
+  {
+   "id": "10770728771",
+   "name": "The Hollow",
+   "samples": 183
+  },
+  {
+   "id": "10770933473",
+   "name": "[\ud83c\udf0dUPD] +1 Anime Eyes",
+   "samples": 149
+  },
+  {
+   "id": "10771421858",
+   "name": "DONT SPLASH",
+   "samples": 183
+  },
+  {
+   "id": "10771507608",
+   "name": "\ud83e\uddf8 My Small Business",
+   "samples": 149
+  },
+  {
+   "id": "10771871836",
+   "name": "\ud83d\udcf8 Say Cheese! [STORY]",
+   "samples": 149
+  },
+  {
+   "id": "10772253152",
+   "name": "[UPD] Durian Garden \ud83c\udf48",
+   "samples": 149
   }
  ],
- "waiting": [],
  "missing_ids": []
 };
