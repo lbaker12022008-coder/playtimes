@@ -37,12 +37,34 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - `MAX_FAVS` in `worker/auth.js` and `MAXFAVS` in `FAVJS` must stay equal.
 - Saved-game merging: the first time a device signs in to an account it hands over anything saved locally, and records that account's id in `pt_joined`. After that the server wins, so un-saving a game on one device is not undone by another device's older list.
 
-### Setup still needed before sign-in works (owner does these)
-1. Create the OAuth app at create.roblox.com → Credentials, scopes `openid profile`, redirect URI `<site>/auth/callback` (register every address the site answers on, including the `workers.dev` one).
+### Sign-in is switched ON and live (Nov 2026)
+Steps 1-4 below are **done**. `ROBLOX_CLIENT_ID`, `ROBLOX_CLIENT_SECRET`, `ADMIN_CODE` and
+`SESSION_SECRET` are all set in Cloudflare, `users` and `favourites` exist in D1, `/api/me`
+answers `available:true`, and the button renders on the live site. Only step 5 is left.
+
+**The OAuth app belongs to the Roblox account `gp_isweird`.** It was moved there in Nov 2026
+from an earlier account; the old app should be deleted. Moving it again means redoing steps 1
+and 2 only - nothing in the repo names an account, and D1 keys people by their own Roblox user
+id (`info.sub`), which is global rather than per-app, so saved games survive an app change.
+
+1. Create the OAuth app at `create.roblox.com/dashboard/credentials?activeTab=OAuthTab`. App
+   Category **Account Linking Tools** (the category decides which scopes are offered), scopes
+   `openid` + `profile`, redirect URL `<site>/auth/callback` - register every address the site
+   answers on, including the `workers.dev` one. Max 10 URLs, 256 characters each.
 2. `npx wrangler secret put ROBLOX_CLIENT_ID` and `npx wrangler secret put ROBLOX_CLIENT_SECRET`.
-3. `npx wrangler d1 execute playtime-admin --remote --file worker/schema_auth.sql` (creates `users` and `favourites`).
+   Secrets apply to the running Worker immediately; **no deploy is needed** for a credential swap.
+3. `npx wrangler d1 execute playtime-admin --remote --file worker/schema_auth.sql` (creates
+   `users` and `favourites`).
 4. `npx wrangler deploy`.
-5. Submit the Roblox app for review. Until it passes, Roblox caps the app at 10 signed-in users, so sign-in works for testing but not for the public. Needs a demo video under a minute.
+5. Submit the Roblox app for review. Until it passes, Roblox caps the app at 10 signed-in users,
+   so sign-in works for testing but not for the public. Needs a demo video under a minute that
+   starts signed out and shows the whole flow, plus the privacy and terms URLs (`/privacy` and
+   `/terms`, which the site already serves).
+
+**You cannot check the app's own settings from outside.** Roblox's `/oauth/v1/authorize` redirects
+to its login page whatever you send it - a wrong `redirect_uri`, or a client id that does not exist
+at all, both come back as the same 302. So a bad redirect URL only shows up as a failure *after*
+someone signs in. Test by actually signing in; do not read a 302 as proof the app is configured.
 
 ## Look and layout
 - **Logo**: `logo_svg()` draws a timer ring with a play button inside, inline in the page so it stays sharp and costs no request. `FAVICON` is the same drawing written out as `favicon.svg`.
@@ -162,6 +184,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). Site live at **https://playtimes.lbaker12022008.workers.dev** with `NOINDEX = True` (hidden from Google while designing).
+- **Sign in with Roblox is live**, on the `gp_isweird` OAuth app, capped at 10 people until it passes Roblox's review. Nobody has signed in yet.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - `MIN_SAMPLES` may be lowered for design work. Set it back to 200 and `NOINDEX = False` before launch.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
@@ -190,7 +213,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 Launch checklist, in order:
 1. **Buy the domain**, then set `DOMAIN` and `CONTACT` at the top of `build_site.py`. `CONTACT` must not be a personal address. Setting `DOMAIN` is what turns the sitemap into full web addresses.
 2. **`MIN_SAMPLES = 200`**. It is back down to `2` for design work, because at 200 the site had no game pages at all while collection was young. Put it back to 200 before launch; a game needs about a day and a half of collecting to reach it.
-3. **Switch on Sign in with Roblox** when ready: the four `wrangler` steps under "Sign in with Roblox" above. Do them in that order; setting the secrets without creating the D1 tables makes the button appear and then fail.
+3. **Submit the Roblox app for review** (step 5 under "Sign in with Roblox" above). Sign-in itself is already switched on and working; until the review passes, Roblox caps it at 10 signed-in people, which is fine for testing but not for launch.
 4. **`NOINDEX = False`**, then add the site to Google Search Console and submit `sitemap.xml`. Do this only once the pages have real data in them, so Google's first look is a good one. Check `python check_seo.py docs` is clean first, and register every address the site answers on (the `workers.dev` one too) so Search Console does not see two different sites.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
 6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.
