@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-creatures-of-sonaria-survive-kaiju-animals-1794605425@playtime
+DTSTAMP:20261103T052435Z
+DTSTART:20261113T213025Z
+DTEND:20261116T213025Z
+SUMMARY:Creatures of Sonaria Survive Kaiju Animals: 🍁HARVEST EVENT🍂
+DESCRIPTION:🍂Join us in Creatures of Sonaria for WEEK ONE of the 2026 H
+ arvest Event!\n\nUnlock the "Monstrous Pine Cone" creature this week...  
+ 👀\n\nComplete quests and unlock unique a NEW fall themed monster durin
+ g the season of harvest! 🍁\n\n🌲These new items & cosmetics are temp
+ orarily available and will be gone once the Harvest Event ends!\n\nReturn
+ ing creatures and cosmetics from the past years' Harvest Events will be o
+ btainable this year! 🍂
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Creatures of Sonaria Survive Kaiju Animals: 🍁HARVEST EVENT
+ 🍂
+END:VALARM
+END:VEVENT
+END:VCALENDAR
