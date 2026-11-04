@@ -2035,15 +2035,30 @@ return L}
 function bands(L){var v=[];for(var d=0;d<7;d++)for(var h=0;h<24;h++)if(L[d][h]!=null)v.push(L[d][h]);
 v.sort(function(a,b){return a-b});
 var q=[.2,.4,.6,.8].map(function(p){return v[Math.floor(p*(v.length-1))]});
-return {max:v[v.length-1]||1,level:function(x){if(x==null)return 0;var n=1;
+return {max:v[v.length-1]||1,lo:v[0]||0,level:function(x){if(x==null)return 0;var n=1;
 for(var i=0;i<4;i++)if(x>q[i])n++;return n}}}
+/* The floor and ceiling the day graph is drawn between. Starting the axis at zero
+   wastes the bottom of the chart on space no game ever visits: measured across the
+   live site, one day's line used only 39% of the height, which is what makes a day
+   read as a gentle curve. Running the axis from the week's quietest hour to its
+   busiest lifts that to about 52%. It is the WEEK's range, not the day's, so the
+   seven days stay comparable - scale each day to itself and a quiet Tuesday looks
+   exactly like a heaving Saturday. The 8% padding keeps the extremes off the edges. */
+function graphRange(B){var pad=(B.max-B.lo)*.08||1;
+return {f:Math.max(0,B.lo-pad),c:B.max+pad}}
 function nowDay(){return (new Date().getDay()+6)%7}
 /* Draws one day as a line with a see-through wash underneath, so the shape of the
    day reads as a trend instead of 24 separate bars. Gaps in the data break the line
-   rather than being drawn as zero, which would invent a quiet hour that we never saw. */
-function dayGraph(vals,max,label,hue){
-var W=720,H=250,P=14,top=16,bot=H-26,span=bot-top;
-var x=function(i){return P+i*(W-P*2)/23},y=function(v){return bot-(v/(max||1))*span};
+   rather than being drawn as zero, which would invent a quiet hour that we never saw.
+   The box is 720x320. It was 720x250, which drew 865x300 on a laptop - nearly three
+   times wider than tall - and a day's entire rise and fall came to 126 real pixels
+   spread over 865, which reads as a gentle curve whatever the numbers do. Height is
+   half of why a day now looks like a day; graphRange() is the other half. Keep the
+   two in step with graphCursor, which repeats H and would float off the line. */
+function dayGraph(vals,R,label,hue){
+var W=720,H=320,P=14,top=16,bot=H-26,span=bot-top;
+var rng=(R.c-R.f)||1;
+var x=function(i){return P+i*(W-P*2)/23},y=function(v){return bot-((v-R.f)/rng)*span};
 var runs=[],cur=[];
 for(var i=0;i<24;i++){if(vals[i]==null){if(cur.length)runs.push(cur);cur=[]}else cur.push(i)}
 if(cur.length)runs.push(cur);
@@ -2055,7 +2070,7 @@ if(r.length>1)wash+=d+' L'+x(r[r.length-1]).toFixed(1)+' '+bot+' L'+x(r[0]).toFi
 r.forEach(function(i){dots+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(vals[i]).toFixed(1)+
 '" r="3.5" fill="var(--'+hue+')"/>'})});
 return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+label+'" '+
-'tabindex="0" data-max="'+(max||1)+'">'+
+'tabindex="0">'+
 '<defs><linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">'+
 '<stop offset="0" stop-color="var(--'+hue+')" stop-opacity=".42"/>'+
 '<stop offset="1" stop-color="var(--'+hue+')" stop-opacity=".02"/></linearGradient></defs>'+
@@ -2070,16 +2085,17 @@ return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+la
 /* Lets people drag or click along a graph to read off any hour. Works with a mouse,
    a finger, and the arrow keys, and falls back to doing nothing if the browser
    cannot measure the svg. The readout element is optional. */
-function graphCursor(svg,out,vals,max){
+function graphCursor(svg,out,vals,R){
 if(!svg)return;
-var W=720,H=250,P=14,top=16,bot=H-26,span=bot-top;
+/* H must match dayGraph's, or the crosshair floats off the line. */
+var W=720,H=320,P=14,top=16,bot=H-26,span=bot-top,rng=(R.c-R.f)||1;
 var g=svg.querySelector('.cursor'),line=g.querySelector('line'),dot=g.querySelector('circle');
 var at=-1;
 function show(i){
 if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;
 if(out)out.textContent='';return}
 at=i;
-var x=P+i*(W-P*2)/23,y=bot-(vals[i]/(max||1))*span;
+var x=P+i*(W-P*2)/23,y=bot-((vals[i]-R.f)/rng)*span;
 line.setAttribute('x1',x);line.setAttribute('x2',x);
 dot.setAttribute('cx',x);dot.setAttribute('cy',y);
 g.setAttribute('opacity','1');
@@ -2228,8 +2244,15 @@ b.setAttribute('aria-pressed',i==d)});
 var lo=null,hi=null;
 for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
 if(!lo||v<lo[1])lo=[h,v];if(!hi||v>hi[1])hi=[h,v]}
-$('bars').innerHTML=dayGraph(L[d],B.max,DAY[d]+': players through the day','acc');
-graphCursor($('bars').querySelector('.graph'),$('readout'),L[d],B.max);
+var R=graphRange(B);
+$('bars').innerHTML=dayGraph(L[d],R,DAY[d]+': players through the day','acc');
+graphCursor($('bars').querySelector('.graph'),$('readout'),L[d],R);
+/* An axis that does not start at zero has to say so, or the shape overstates the
+   swing. The numbers are the game's own quietest and busiest hours of the week. */
+var sn=$('scalenote');
+if(sn)sn.textContent='Drag across the graph, or tap it, to read any hour. '+
+'The scale runs from '+Math.round(R.f).toLocaleString()+' to '+
+Math.round(R.c).toLocaleString()+' players, not from zero, so the shape of the day is easier to see.';
 $('dtxt').textContent=lo?'On '+DAY[d]+' it is quietest around '+fmt(lo[0])+' and busiest around '+fmt(hi[0])+
 '. Hover or tap a bar for numbers.':'No player counts for this day yet.'}
 DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
@@ -2517,7 +2540,7 @@ calendar</a>
 <p class="mut small">Adds it to your own calendar, at the right hour for each day you
 picked. No account, and nothing about you is stored.</p></div></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small">Drag across the graph, or tap it, to read any hour.</p>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
 <div class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
