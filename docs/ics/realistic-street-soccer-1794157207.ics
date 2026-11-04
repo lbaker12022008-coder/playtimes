@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-realistic-street-soccer-1794157207@playtime
+DTSTAMP:20261104T052732Z
+DTSTART:20261108T170007Z
+DTEND:20261115T170007Z
+SUMMARY:Realistic Street Soccer: Ranked Mode
+DESCRIPTION:This is an opportunity to prove your skill and show everyone w
+ hat you're made of.\n\n- Level 25+\n- Team up with your squad or solo que
+ ue.\n- Reach the HIGHEST rank you can.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Realistic Street Soccer: Ranked Mode
+END:VALARM
+END:VEVENT
+END:VCALENDAR

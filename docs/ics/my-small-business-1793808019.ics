@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-my-small-business-1793808019@playtime
+DTSTAMP:20261104T052732Z
+DTSTART:20261104T160019Z
+DTEND:20261114T150019Z
+SUMMARY:My Small Business: New Design Tools! 🖌️
+DESCRIPTION:Adding your suggestions\, including:\n- Blur tool\n- Layers\n-
+  Brush types\n- More design slots\n- More fonts\n- New stamps\n- Manage w
+ orkers UI\n- Allowing your friends to earn Coins when you collaborate wit
+ h them\n\nSign up to be notified! 🔔
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:My Small Business: New Design Tools! 🖌️
+END:VALARM
+END:VEVENT
+END:VCALENDAR
