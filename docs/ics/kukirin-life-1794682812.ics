@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-kukirin-life-1794682812@playtime
+DTSTAMP:20261104T221332Z
+DTSTART:20261114T190012Z
+DTEND:20261114T200012Z
+SUMMARY:Kukirin Life: Map Update + Admin Abuse
+DESCRIPTION:This update will bring a rework to the current map and a admin
+  abuse will take place. Will also add some other content.\n\n⚠️ Due t
+ o personal reasons\, we had to make this update smaller to prepare for ou
+ r biggest update yet\, the christmas update ⚠️
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Kukirin Life: Map Update + Admin Abuse
+END:VALARM
+END:VEVENT
+END:VCALENDAR

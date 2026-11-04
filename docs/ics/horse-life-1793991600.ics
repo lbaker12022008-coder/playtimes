@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-horse-life-1793991600@playtime
+DTSTAMP:20261104T221332Z
+DTSTART:20261106T190000Z
+DTEND:20261107T075500Z
+SUMMARY:Horse Life: Semester 5 Releases!
+DESCRIPTION:Our fifth iteration of the Semester Pass begins! Including a n
+ ew pet\, subspecies\, and more-- you certainly don't want to miss out! Al
+ so concludes our Halloween event AND brings in a new tutorial. See you th
+ ere!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Horse Life: Semester 5 Releases!
+END:VALARM
+END:VEVENT
+END:VCALENDAR
