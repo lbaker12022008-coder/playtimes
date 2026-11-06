@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-murderers-vs-sheriffs-1794085248@playtime
+DTSTAMP:20261106T052707Z
+DTSTART:20261107T210048Z
+DTEND:20261114T210048Z
+SUMMARY:Murderers VS Sheriffs: NEW EMOTES+DARKHEART
+DESCRIPTION:🖤 DARKHEART HAS ARRIVED!\nEmbrace the darkness with the lim
+ ited time Darkheart bundle! Wield Darkheart’s Vow Gun and Darkheart’s
+  Promise Knife\, finish your foes with an exclusive kill effect\, and sho
+ w off with included emotes. Grab it before it leaves!\n\n🌌 NEW LIMITED
+  TIME CRATE!\nDiscover your next favorite weapon from this new collection
+ :\n\n✨ Legendary\n• Rebel’s Edge\n• Lunar Charm\n• Skysplitter\
+ n\n💜 Mythic\n• Abyssal Crown\n• Blossom Tempest\n• Sugar Racer\n
+ \n🔥 Ancient\n• Nightshade’s Echo\n• Nightshade’s Thorn\n• As
+ tral Ascendent\n\n🌠 LIMITED STOCK: TWIN NOVA!\nDouble the firepower wi
+ th Twin Nova Dual Wield
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Murderers VS Sheriffs: NEW EMOTES+DARKHEART
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-dubai-rp-1794589240@playtime
+DTSTAMP:20261106T052707Z
+DTSTART:20261113T170040Z
+DTEND:20261116T170040Z
+SUMMARY:Dubai RP: 🎮 Arcade & Minigames 🕹️
+DESCRIPTION:🎮 The Arcade & Minigames Update is here!\n\n🕹️ Playabl
+ e Arcades – Arcade machines now feature real\, interactive minigames!\n
+ \n🎳 Bowling – Head to the arcade and challenge your friends to excit
+ ing bowling matches!\n\n🎱 8 Ball Pool – Challenge your friends to a 
+ game of pool and show off your skills!\n\n📱 Phone Minigames – Play b
+ rand-new minigames directly from your phone\, wherever you are!\n\n🏆 H
+ igh Scores & Leaderboards – Challenge your friends\, beat their scores\
+ , and compete with other players to reach the top!\n\n⭐ Become the Cham
+ pion – Master your favorite games and prove you're the best in Dubai RP
+ !\n\nT
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Dubai RP: 🎮 Arcade & Minigames 🕹️
+END:VALARM
+END:VEVENT
+END:VCALENDAR

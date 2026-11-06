@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-kukirin-life-1795806000@playtime
-DTSTAMP:20261105T052815Z
+DTSTAMP:20261106T052707Z
 DTSTART:20261127T190000Z
 DTEND:20261127T200000Z
 SUMMARY:Kukirin Life: 🎄CHRISTMAS UPDATE🎄
 DESCRIPTION:- Christmas event\n- Christmas pass\n- 6 New scooters\n- 2 New
-  ebikes\n- F2p ebike\n- 1 New special ride (👀)\n- Christmas map\n- Mor
- e tuning options\n- New gameplay possibilities\n- MORE!\n- Admin abuse!
+  ebikes\n- 1 New special ride (👀)\n- Christmas map\n- More tuning opti
+ ons\n- New gameplay possibilities\n- MORE!\n- Admin abuse!
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

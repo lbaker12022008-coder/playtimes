@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-steal-a-pet-and-ride-it-1794142848@playtime
+DTSTAMP:20261106T052707Z
+DTSTART:20261108T130048Z
+DTEND:20261110T130048Z
+SUMMARY:Steal A Pet And Ride It: 🎮MINI GAMES + 2 BIOMES🌍
+DESCRIPTION:MINI GAMES + 2 NEW BIOMES BEFORE WORLD 3! 🎮\n\nRace your pe
+ ts\, dodge giant boss stomps and keep the cage away from everyone else.\n
+ Win tickets and spend them in the new Mini Games Shop!\n\n2 NEW BIOMES in
+  World 2: Some interesting biomes are coming..\nMeet their giant bosses a
+ nd find the new rarity!\n\nJoin the start of the update for a big ADMIN A
+ BUSE! 👑
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Steal A Pet And Ride It: 🎮MINI GAMES + 2 BIOMES🌍
+END:VALARM
+END:VEVENT
+END:VCALENDAR

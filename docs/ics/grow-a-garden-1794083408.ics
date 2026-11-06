@@ -4,15 +4,18 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-grow-a-garden-1794083408@playtime
-DTSTAMP:20261105T052815Z
+DTSTAMP:20261106T052707Z
 DTSTART:20261107T203008Z
 DTEND:20261114T200008Z
-SUMMARY:Grow a Garden: NEXT UPDATE
-DESCRIPTION:Follow the event so you don't miss out...
+SUMMARY:Grow a Garden: ☀️⚱️ANUBIS⚱️☀️
+DESCRIPTION:This update introduces the brand new Anubis Event\, various ac
+ tivities to participate in\, new currency\, new plants\, pets\, gear\, re
+ wards\, QOL\, and lots more to discover!\n\nFollow the event so you don't
+  miss out ⚱️☀️🛕🐫
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Grow a Garden: NEXT UPDATE
+DESCRIPTION:Grow a Garden: ☀️⚱️ANUBIS⚱️☀️
 END:VALARM
 END:VEVENT
 END:VCALENDAR

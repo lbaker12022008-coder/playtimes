@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-berry-avenue-rp-1794160858@playtime
+DTSTAMP:20261106T052707Z
+DTSTART:20261108T180058Z
+DTEND:20261115T180058Z
+SUMMARY:Berry Avenue RP: HOTEL UPDATE
+DESCRIPTION:🏨 Something exciting is checking into Berry Avenue...\n\nPa
+ ck your bags\, Berries! A brand-new hotel is coming to town\, and we can'
+ t wait for you to see what's inside! ✨\n\nWhether you're looking for a 
+ little luxury\, some relaxation\, or a fun stay with your besties\, somet
+ hing special is on the way...\n\nWe're keeping the details under wraps fo
+ r now\, but we promise it'll be worth the wait! 👀\n\n🌴 Get ready to
+  check in soon!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Berry Avenue RP: HOTEL UPDATE
+END:VALARM
+END:VEVENT
+END:VCALENDAR
