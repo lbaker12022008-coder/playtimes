@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-toilet-tower-defense-1794078044@playtime
+DTSTAMP:20261107T051625Z
+DTSTART:20261107T190044Z
+DTEND:20261109T190044Z
+SUMMARY:Toilet Tower Defense: QoL Changes
+DESCRIPTION:-Fixed bugs with MANY units\n-Moved troops manage button to le
+ ft side in match\n-Added keybinds to upgrade/sell troops when selected (o
+ n pc)\n-Further optimized for mobile (less lag!)\n-More!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Toilet Tower Defense: QoL Changes
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-criminal-simulator-1794173427@playtime
+DTSTAMP:20261107T051625Z
+DTSTART:20261108T213027Z
+DTEND:20261108T220027Z
+SUMMARY:Criminal Simulator: Admin Boosts
+DESCRIPTION:ill do pig announcements and give a big boost for everyone onl
+ ine\, cash multipliers\, cut increase\, cash drops\, and xp boosts\nSTART
+ S AT 1:30 PM PST!!!!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Criminal Simulator: Admin Boosts
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-mukbang-game-1794111734@playtime
+DTSTAMP:20261107T051625Z
+DTSTART:20261108T042214Z
+DTEND:20261114T195514Z
+SUMMARY:Mukbang Game: Fufu & Egusi Soup 🫓🍲 :O
+DESCRIPTION:Heya munchers :D\n\nJust a mini update\n\n🫓🍲 We got the 
+ Fufu & Egusi Soup in the Mukbang Menu :3\n🍗 Oh yah and theres also chi
+ cken nuggets in the Chip section inside Snacks Menu :)\n\nWHERE THEY ARE 
+ 🍗🫓🍲:\n\n- Mukbang Menu then Fufu & Egusi 🫓🍲\n- Snacks Menu
+  then Chips and SCROLL ALL THE WAY DOWN 🍗\n\nHope you enjoy the new fo
+ ods and have a spooky yummers day :)
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Mukbang Game: Fufu & Egusi Soup 🫓🍲 :O
+END:VALARM
+END:VEVENT
+END:VCALENDAR

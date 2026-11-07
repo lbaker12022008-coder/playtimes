@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-horse-life-1794072619@playtime
+DTSTAMP:20261107T051625Z
+DTSTART:20261107T173019Z
+DTEND:20261109T080019Z
+SUMMARY:Horse Life: Double Mut Chances!
+DESCRIPTION:That's right! All weekend long\, enjoy a DOUBLE chance of RARE
+  MUTATION spawns! Just in time for the drop of aurora\, bloodmoon\, AND p
+ rismatic! Will you catch these rare new beauties?!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Horse Life: Double Mut Chances!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

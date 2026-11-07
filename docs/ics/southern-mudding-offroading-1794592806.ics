@@ -4,15 +4,15 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-southern-mudding-offroading-1794592806@playtime
-DTSTAMP:20261106T052707Z
+DTSTAMP:20261107T051625Z
 DTSTART:20261113T180006Z
 DTEND:20261120T180006Z
-SUMMARY:Southern Mudding OffRoading: 👀Next Week's Update!👀
+SUMMARY:Southern Mudding OffRoading: 🌪️Tornado Chaser Upd🌪️
 DESCRIPTION:Follow to be notified when the update drops!
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Southern Mudding OffRoading: 👀Next Week's Update!👀
+DESCRIPTION:Southern Mudding OffRoading: 🌪️Tornado Chaser Upd🌪️
 END:VALARM
 END:VEVENT
 END:VCALENDAR

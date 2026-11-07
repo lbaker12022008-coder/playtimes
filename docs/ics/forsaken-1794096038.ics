@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-forsaken-1794096038@playtime
+DTSTAMP:20261107T051625Z
+DTSTART:20261108T000038Z
+DTEND:20261130T000038Z
+SUMMARY:Forsaken: Double Trouble
+DESCRIPTION:2v12 Gamemode\nForsakeween 🎃\n- With 20+ new cosmetics to o
+ btain during the event.\nReworked Yorick's Resting Place\nNew Roblox High
+ school Map\nand more!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Forsaken: Double Trouble
+END:VALARM
+END:VEVENT
+END:VCALENDAR
