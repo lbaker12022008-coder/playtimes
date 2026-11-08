@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-ability-arena-1795712412@playtime
+DTSTAMP:20261108T051951Z
+DTSTART:20261126T170012Z
+DTEND:20261201T040012Z
+SUMMARY:Ability Arena: Update 2 + Thanksgiving
+DESCRIPTION:I'll be delaying the update to the 26th of November (Thanksgiv
+ ing)\n\nThe reason for this is simply because our studio is busy managing
+  2 other projects alongside Ability Arena. So pretty much we need more ti
+ me lol (sorry)\n\nWe will be combining the Thanksgiving update and update
+  2 for Ability Arena\, I am expecting to have atleast 4 new abilities but
+  my aim is more like 4-6+\n\nJust a bit of a longer wait but this update 
+ should have some pretty cool additions!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Ability Arena: Update 2 + Thanksgiving
+END:VALARM
+END:VEVENT
+END:VCALENDAR
