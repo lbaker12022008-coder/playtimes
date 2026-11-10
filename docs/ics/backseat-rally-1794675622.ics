@@ -4,16 +4,21 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-backseat-rally-1794675622@playtime
-DTSTAMP:20261109T053157Z
+DTSTAMP:20261110T052409Z
 DTSTART:20261114T170022Z
-DTEND:20261116T080022Z
-SUMMARY:Backseat Rally: ???
-DESCRIPTION:Something new is coming next Saturday. Hit Notify Me so you're
-  first in when it drops!\n\nBackseat Rally
+DTEND:20261121T170022Z
+SUMMARY:Backseat Rally: UPD + Midnight Rally
+DESCRIPTION:The Midnight Rally update lands Saturday\, with a mountain pas
+ s after dark!\n\n🌙 New map: Col Nocturne\, hairpins and village lights
+  after dark\n🏁 Midnight Rally: a full week event\, earn tokens with ev
+ ery run\n🚗 Two new cars: the Corvo R2 and the tiny Mochi\, unlocked wi
+ th tokens\n🧤 The top 5 win EXCLUSIVE champion gloves\n👥 Double team
+  points all week\n🛒 A travelling merchant\, here for one week only\n\n
+ Grab a co-driver and go for the top spot!\n\nBackseat Rally
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Backseat Rally: ???
+DESCRIPTION:Backseat Rally: UPD + Midnight Rally
 END:VALARM
 END:VEVENT
 END:VCALENDAR

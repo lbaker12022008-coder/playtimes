@@ -4,10 +4,16 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-steal-a-pet-and-ride-it-1794664839@playtime
-DTSTAMP:20261109T053157Z
+DTSTAMP:20261110T052409Z
 DTSTART:20261114T140039Z
 DTEND:20261116T140039Z
 SUMMARY:Steal A Pet And Ride It: WORLD 3 + ADMIN ABUSE
+DESCRIPTION:A NEW WORLD OPENS THIS SATURDAY!\n\nThe White Hole was never t
+ he end.\nSomething is waiting on the other side...\n\n✨ New biomes to e
+ xplore\n🐾 New pets nobody has seen yet\n👹 New bosses to steal from\
+ n🔮 A new way to make your pets even stronger\n\n👑 ADMIN ABUSE when 
+ the update starts!\nJoin on time so you don't miss it.\n\nTrain your Spee
+ d now and be one of the first to go through!
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

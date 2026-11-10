@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-fisch-1797094836@playtime
+DTSTAMP:20261110T052409Z
+DTSTART:20261212T170036Z
+DTEND:20270109T170036Z
+SUMMARY:Fisch: Fischmas
+DESCRIPTION:The Fischmas update returns with a new area located in the Nor
+ th Pole\, now featuring entirely new content\; while keeping what you lov
+ ed last Fischmas!\n\nTravel there via the Northstar Express\, and explore
+  the festive winter! Fish up a huge variety of limited Fischmas fish\, un
+ lock limited-time rods\, and collect a ton of new Christmas rewards!\n\nI
+ t seems that this year\, Santa is up to no good...
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Fisch: Fischmas
+END:VALARM
+END:VEVENT
+END:VCALENDAR
