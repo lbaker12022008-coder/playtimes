@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-horse-life-1795210219@playtime
+DTSTAMP:20261111T052728Z
+DTSTART:20261120T213019Z
+DTEND:20261123T045519Z
+SUMMARY:Horse Life: ALIEN WK2- TERRALING!
+DESCRIPTION:The second week of the alien event kicks off-- not only with m
+ ore to do\, but also with a NEW species! Meet the Terraling\, a horse who
+  has so much to show... both inside and out!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Horse Life: ALIEN WK2- TERRALING!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

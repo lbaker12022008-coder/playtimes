@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-bubble-gum-simulator-infinity-1794596414@playtime
+DTSTAMP:20261111T052728Z
+DTSTART:20261113T190014Z
+DTEND:20261120T190014Z
+SUMMARY:Bubble Gum Simulator INFINITY: ❄️ Winter Part 2!
+DESCRIPTION:❄️ Winter Part 2 is coming!\n\n🥚5 New Secret+ Pets in t
+ he Wintery Egg!\n⛄New Limited Time Frozen Fuse Machine! Use pets from t
+ he Wintery Egg to fuse into better pets!\n🏆 Daily Perk Revamp! Various
+  Daily Perk Days have been updated! XL Luck\, Infinity Luck\, & Secret Lu
+ ck are just some of the new daily buffs!\n🎁D.I.Y Admin Abuse Egg! Spaw
+ ns on Saturday\, and spawns occasionally over the week!\n💎 Super Gum/F
+ lavor! 1 New Flavor & 1 New Gum! One costs the Max Coins\, the other Max 
+ Gems!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Bubble Gum Simulator INFINITY: ❄️ Winter Part 2!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

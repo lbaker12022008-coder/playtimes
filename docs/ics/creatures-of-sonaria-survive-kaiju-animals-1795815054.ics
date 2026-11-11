@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-creatures-of-sonaria-survive-kaiju-animals-1795815054@playtime
+DTSTAMP:20261111T052728Z
+DTSTART:20261127T213054Z
+DTEND:20261201T120054Z
+SUMMARY:Creatures of Sonaria Survive Kaiju Animals: ❄️SEASON TWO✨
+DESCRIPTION:⭐Join us in Creatures of Sonaria for the arrival of SEASON T
+ WO!👀\n\nUnlock 2 amazing new season creatures\, and earn the subspecie
+ s of a winter-creature that hatched in pure darkness... 👁️🧊\n\nMa
+ ny new cosmetics\, skins\, creatures & collectibles to unlock\, complete 
+ daily\, weekly & story missions to progress through the season! 📜\n\n
+ ✨Don't miss out on these awesome new additions! ✨
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Creatures of Sonaria Survive Kaiju Animals: ❄️SEASON TWO
+ ✨
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-horse-life-1795815057@playtime
+DTSTAMP:20261111T052728Z
+DTSTART:20261127T213057Z
+DTEND:20261130T045557Z
+SUMMARY:Horse Life: Alien Event-- FINALE!
+DESCRIPTION:Final week of our Alien Event. Enjoy a new Subspecies and more
+ ! Thank you for joining us on a journey that was truly out of this world!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Horse Life: Alien Event-- FINALE!
+END:VALARM
+END:VEVENT
+END:VCALENDAR
