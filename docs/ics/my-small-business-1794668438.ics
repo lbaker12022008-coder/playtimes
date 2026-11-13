@@ -4,14 +4,19 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-my-small-business-1794668438@playtime
-DTSTAMP:20261112T052920Z
+DTSTAMP:20261113T052809Z
 DTSTART:20261114T150038Z
 DTEND:20261121T150038Z
 SUMMARY:My Small Business: Jewelry! 💍
-DESCRIPTION:💍 Jewelry: Unlock the new jewelry area to design and sell r
- ings\, necklaces\, and bracelets!\n\n🗺️ Global Shipping: Receive ord
- ers from around the world! Unlock an exclusive postage stamp for each of 
- 40+ cities and stick it on your packages!\n\nSign up to be notified! 🔔
+DESCRIPTION:💍 Jewelry: Unlock the new Jewelry Studio to design and sell
+  rings\, necklaces\, and bracelets!\n\n🗺️ Global Shipping: Receive o
+ rders from around the world! Unlock an exclusive postage stamp for each o
+ f the 40+ cities and stick it on your packages!\n\n📦 Packing Customiza
+ tion: Add box dividers\, bubble wrap\, and packing peanuts! Earn extra ti
+ ps for keeping your packages safe!\n\n📒 New Product: Notebooks!\n\n
+ 🐉 Limited Plushie: Limited-stock Starlight Dragon plushie with +75% ti
+ ps!\n\nOther Changes:\n- Added the Goodies Helper\, a worker who restocks
+  your goodies\n- Manage Workers is now its own app on the Phone\n
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

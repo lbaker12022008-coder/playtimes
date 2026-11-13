@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-durian-garden-1795179643@playtime
+DTSTAMP:20261113T052809Z
+DTSTART:20261120T130043Z
+DTEND:20261127T125943Z
+SUMMARY:Durian Garden: SOMETHING IS COMING... 👀
+DESCRIPTION:Something exciting is coming to Durian Garden! 👀\nWe're kee
+ ping the details a secret for now. 🤫\nWhat could it be? You'll find ou
+ t when the update arrives!\nStay tuned! 🌳✨
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Durian Garden: SOMETHING IS COMING... 👀
+END:VALARM
+END:VEVENT
+END:VCALENDAR

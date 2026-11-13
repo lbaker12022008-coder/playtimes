@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-survive-the-killer-1795460443@playtime
+DTSTAMP:20261113T052809Z
+DTSTART:20261123T190043Z
+DTEND:20261211T190043Z
+SUMMARY:Survive the Killer: Thanksgiving Update
+DESCRIPTION:Survive the Killer is getting its first new map of 2026 this T
+ hanksgiving. Be sure to tune in to be the first to check it out!
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Survive the Killer: Thanksgiving Update
+END:VALARM
+END:VEVENT
+END:VCALENDAR
