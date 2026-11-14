@@ -59,7 +59,15 @@ filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
 .banner::after{content:"";position:absolute;inset:0;
 background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
 .shell{position:relative;z-index:1}   /* keep the page content above the artwork */
-.w{max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
+/* width:100% is not spare. .w is a grid item with auto side margins, and an item
+   with auto margins is not stretched to its track - it is sized to its contents
+   and centred in whatever is left. So a page whose contents happened to be narrow
+   drew a narrow column and centred that: /popular.html came out 1024px wide and
+   /trending.html 1001px inside the same 1400px band, each centred on its own, so
+   every one of them started at a different distance from the logo (475px, 464px,
+   446px, 404px at 1920px). Asking for the full width and capping it with max-width
+   makes every page the same width and lines them all up under the header. */
+.w{width:100%;max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
 .w.wide{max-width:min(1400px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
@@ -74,6 +82,16 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
+   .w's own max-width on source order and the reading pages ran the full width of
+   the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
+   across on a 1920px screen, flush to the left edge, while the logo above them
+   sat 280px in. .w.wide was never affected because two classes outrank one, which
+   is why only the reading pages looked wrong. Re-stating both clamps as children
+   of .shell gives them the weight to survive, the same trick the wide pages got
+   for free. Keep them after .shell>*, and keep the min(...,100%) form. */
+.shell>.w{max-width:min(820px,100%)}
+.shell>.w.wide{max-width:min(1400px,100%)}
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
@@ -87,6 +105,14 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 @media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
 .shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+/* With the rails up the middle column is no longer 1400px: the three tracks need
+   1776px between them, so from 1480 to 1776 the middle one shrinks and the band
+   holding the logo has to shrink with it, or the logo drifts left of the words
+   again - 88px out at 1600px. 376px is the two 168px rails plus the two 20px
+   gaps. .wideads is only put on the header when the rails are up AND the page is
+   wide, so this can never reach a reading page (which stays capped at 820px by
+   .hdr.narrow, a selector of exactly the same weight). */
+@media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
 /* The strip along the bottom only exists at all when ads are switched on. */
 @media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
 background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
@@ -149,15 +175,40 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
 /* One slim bar, about 62px tall, holding four things. */
-.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 20px}
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 16px}
+/* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
+   the words below it start, and the phone block already pairs them at 14px. */
+/* The bar's contents sit over the page's contents, so the band holding the logo
+   has to be as wide as the column underneath it - 1400px on the wide pages, 820px
+   on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
+   About, Events, Compare and Plan stood about 290px to the left of the words it
+   was supposed to be sitting above, because an 820px column is centred inside a
+   1400px band. .hdr itself still spans the whole screen; only what is inside it
+   moves, so the bar does not change shape from page to page. */
+.hdr.narrow .in{max-width:min(820px,100%)}
 .hrow{display:flex;align-items:center;gap:12px}
 .hrow .gap{flex:1 1 auto}
-.acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
-.acct form{margin:0}
+/* Signing out is a thing you DO, so it gets a row of its own that looks like the
+   other rows in the panel, not a 12px underlined word tucked after the name. As
+   drawn before, it was fainter than every link beneath it and read as a caption:
+   the one person who needed it could not find it. The name stays a quiet caption
+   above, which is what it actually is.
+   The form is flex:1 0 100% so it always takes a line of its own however long the
+   display name is, and -13px of side margin cancels .dacct's padding so the row
+   reaches the panel edges and its label lines up with "All games" below. */
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
+.acct form{flex:1 0 100%;margin:6px -13px 0}
+/* Width and height are on the tag as well, so the row does not jump when the
+   picture arrives. flex:0 0 auto stops it being squeezed by a long display name. */
+.acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;
+border:1px solid var(--line);background:var(--shade)}
 .acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
-.acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
+.acct .linkish{display:flex;align-items:center;width:100%;padding:11px 13px;border:0;
+border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
+font-size:1rem;text-align:left;cursor:pointer}
+.acct .linkish:hover,.acct .linkish:focus-visible{background:var(--shade)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -536,7 +587,10 @@ PT.ready=function(fn){PT.cbs.push(fn);fn()};
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ptPaint(){var markup=!PT.available?'':PT.name
-?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
+/* alt is empty on purpose: the name is right beside it, and a screen reader
+   announcing it twice is worse than not announcing the picture at all. */
+?(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':'')
++'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
 +'<button class="linkish" type="submit">Sign out</button></form>'
 :'<a class="signin" href="/auth/login">Sign in with Roblox</a>';
 /* Two of these: the one in the header on a wide screen and the one in the phone
@@ -546,6 +600,7 @@ el.innerHTML=markup});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
+PT.pic=d.signedIn?(d.pic||null):null;
 if(d.signedIn){var server=(d.favs||[]).slice(),joined=null;
 /* who is null if an older worker is still answering, which just means we merge again. */
 var who=d.id?String(d.id):null;
@@ -575,7 +630,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button><div class="acct dacct"></div></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular.html">Most popular</a><a href="/trending.html">Trending</a><a href="/growing.html">Growing</a><a href="/shrinking.html">Shrinking</a><a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a><a href="/busiest-hours.html">When is Roblox busiest?</a><a href="/about.html">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation.html">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/anime-dice.html">Anime Dice player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5ab8abd87bf3a7bcec5b380baec68443/256/256/Image/Webp/noFilter" alt="Anime Dice Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Anime Dice update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Anime Dice&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/anime-dice.html">&larr; Anime Dice player count</a><a class="btn" href="https://www.roblox.com/games/113290951185459">Play Anime Dice</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>2 days ago</b> (Thu 12 Nov).</p><ul class="evt"><li class=""><b>🍂Autumn Event🍂</b><span class="d">Coming Soon...</span><span class="d">Sun 8 Nov &middot; 5 days ago</span></li><li class=""><b>❓ UPDATE 11 ❓</b><span class="d">Coming Soon...</span><span class="d">Sun 1 Nov &middot; 12 days ago</span></li><li class=""><b>🎃 PT. 2 + UPDATE 🎃</b><span class="d">Coming Soon...</span><span class="d">Sun 25 Oct &middot; 19 days ago</span></li><li class=""><b>🎃 HALLOWEEN PT. 1 🎃</b><span class="d">Play Now!</span><span class="d">Sun 18 Oct &middot; 26 days ago</span></li><li class=""><b>❓UPDATE 8❓</b><span class="d">Play Now!</span><span class="d">Sun 11 Oct &middot; 1 month ago</span></li><li class=""><b>UPDATE 7 👀</b><span class="d">CLICK TO NOTIFY!</span><span class="d">Sun 4 Oct &middot; 1 month ago</span></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>👀 Update 6</td><td>Sun 27 Sep</td></tr><tr><td>Update 5</td><td>Sat 19 Sep</td></tr><tr><td>✨UPDATE 4</td><td>Sat 12 Sep</td></tr><tr><td>F2P + Quests + Content</td><td>Sat 5 Sep</td></tr><tr><td>Trading + Content</td><td>Sat 29 Aug</td></tr></table></div></details></div><div class="card"><h2>Event calendar</h2><p class="none">Anime Dice has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/anime-dice.html">&larr; Back to Anime Dice</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation.html">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/anime-dice.html">Anime Dice player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5ab8abd87bf3a7bcec5b380baec68443/256/256/Image/Webp/noFilter" alt="Anime Dice Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Anime Dice update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Anime Dice&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/anime-dice.html">&larr; Anime Dice player count</a><a class="btn" href="https://www.roblox.com/games/113290951185459">Play Anime Dice</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>today</b> (Sat 14 Nov).</p><ul class="evt"><li class=""><b>🍂Autumn Event🍂</b><span class="d">Coming Soon...</span><span class="d">Sun 8 Nov &middot; 5 days ago</span></li><li class=""><b>❓ UPDATE 11 ❓</b><span class="d">Coming Soon...</span><span class="d">Sun 1 Nov &middot; 12 days ago</span></li><li class=""><b>🎃 PT. 2 + UPDATE 🎃</b><span class="d">Coming Soon...</span><span class="d">Sun 25 Oct &middot; 19 days ago</span></li><li class=""><b>🎃 HALLOWEEN PT. 1 🎃</b><span class="d">Play Now!</span><span class="d">Sun 18 Oct &middot; 26 days ago</span></li><li class=""><b>❓UPDATE 8❓</b><span class="d">Play Now!</span><span class="d">Sun 11 Oct &middot; 1 month ago</span></li><li class=""><b>UPDATE 7 👀</b><span class="d">CLICK TO NOTIFY!</span><span class="d">Sun 4 Oct &middot; 1 month ago</span></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>👀 Update 6</td><td>Sun 27 Sep</td></tr><tr><td>Update 5</td><td>Sat 19 Sep</td></tr><tr><td>✨UPDATE 4</td><td>Sat 12 Sep</td></tr><tr><td>F2P + Quests + Content</td><td>Sat 5 Sep</td></tr><tr><td>Trading + Content</td><td>Sat 29 Aug</td></tr></table></div></details></div><div class="card"><h2>Event calendar</h2><p class="none">Anime Dice has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/anime-dice.html">&larr; Back to Anime Dice</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
