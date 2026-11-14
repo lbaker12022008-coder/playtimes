@@ -28,25 +28,28 @@ jobs:
       # this job's log if search traffic ever looks wrong.
       - name: Check the built pages for search-engine mistakes
         run: python3 check_seo.py docs || true
-      # main can move while this job is running - someone pushing a second commit
-      # right after the one that triggered the build, say - and a plain `git push` is
-      # then rejected as not-a-fast-forward. The site had already been built and
-      # checked by that point, so the whole thing failed at the last step and the
-      # pages were thrown away. That is how NOINDEX = False built cleanly on 14 Nov
-      # 2026 and never reached anybody.
+      # main moves while this job runs - another session pushing, or the collector -
+      # and the site is already built and checked by the time we get here, so anything
+      # that fails at this step throws a perfectly good site away and leaves the live
+      # one stale with nothing to show for it. That happened twice on 14 Nov 2026:
+      # first a plain `git push` rejected as not-a-fast-forward, then a `git rebase`
+      # that could not replay the commit either (the checkout is shallow, and both
+      # sides touch docs/).
       #
-      # Rebasing is always safe here: this job only ever touches docs/ and the two
-      # generated worker files, and nobody edits those by hand. The retry covers main
-      # moving again while we were rebasing.
+      # So do not replay anything. The working tree already holds exactly the files
+      # this build produced; point the index at whatever main is now and stage them on
+      # top. That cannot conflict, whatever anyone else pushed while we were building.
+      # Only docs/ and the two generated worker files are staged, so a source change
+      # someone else pushed is left exactly as they pushed it.
       - name: Commit the site
         run: |
           git config --global user.name "builder"
           git config --global user.email "builder@users.noreply.github.com"
-          git add -A docs worker/stats.js worker/theme.js   # -A so pages build_site.py pruned are staged as deletions
-          git commit -m "rebuild site" || exit 0
           for try in 1 2 3; do
             git fetch origin main
-            git rebase origin/main || { git rebase --abort; echo "could not rebase onto main"; exit 1; }
+            git reset --mixed origin/main
+            git add -A docs worker/stats.js worker/theme.js   # -A so pages build_site.py pruned are staged as deletions
+            git commit -m "rebuild site" || exit 0
             git push && exit 0
             echo "push rejected because main moved again - retrying ($try of 3)"
             sleep 5
