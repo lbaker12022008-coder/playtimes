@@ -41,15 +41,27 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 `playtimestats.com` is registered and attached to the worker, so the redirect URL Roblox kept
 refusing is now a real address. A **second OAuth app** was made at that point: the live client id
 is `5479373624062556036`, and the old app (`5285601446665495033`) should be deleted. Both secrets
-were re-put with `wrangler secret put`, which takes effect immediately with no deploy. **The
-client secret was pasted into a chat to get there, so it should be regenerated** once sign-in is
-confirmed. Only `https://playtimestats.com/auth/callback` needs registering now: the worker 301s
+were re-put with `wrangler secret put`, which takes effect immediately with no deploy.
+**The client secret was rotated on 14 Nov 2026** and the new one is live; the test below was
+repeated against it and came back `invalid_grant`, so the pair Roblox holds is the pair we hold.
+A secret pasted into a chat ends up in that chat's transcript, so set the next one by running
+`npx wrangler secret put ROBLOX_CLIENT_SECRET` and typing it at the prompt, where it reaches
+Cloudflare without passing through anything else. Only `https://playtimestats.com/auth/callback` needs registering now: the worker 301s
 every `www` request to the bare name before anything else runs, so `/auth/login` is never reached
 on `www` and a second redirect URL would never be used.
 
-**The session cookie is host-only** - no `Domain` attribute - so before that redirect existed,
-signing in on one host and opening a link on the other read as being signed out. If sign-in ever
-starts "forgetting" people again, check what hostnames answer before suspecting the cookie.
+**The session cookie now names the bare domain**, so one sign-in covers the site and its `www`
+alias. It used to be host-only, which is why signing in on one host and opening a link on the
+other read as being signed out. If sign-in ever starts "forgetting" people again, check what
+hostnames answer before suspecting the cookie.
+
+**Signing out clears both forms of the cookie, and must keep doing so.** A cookie set with a
+`Domain` and one set without it are two different cookies to a browser, so the first real
+sign-out deleted the domain one, left the host-only one from before the change in place, and
+sent the person back to the homepage still signed in with no way out but clearing their browser
+data. `clearSession()` returns both lines and `clearedHeaders()` appends them, because a
+`Response` takes only one value per header name in a plain object. Signing in drops the
+host-only form too, so a stale cookie cannot sit in front of a new session.
 
 The history below is kept because it explains why things are shaped this way.
 
@@ -218,7 +230,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
 - **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints on About, Privacy **and** Terms through `contact_html()`, which is why setting it moved `POLICY_DATE` to 13 Nov 2026 - those two documents gained a Contact section. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
-- **Sign in with Roblox is built and credentialed but cannot work yet**, because Roblox rejects `workers.dev` redirect URLs - it is waiting on the domain, not on code. The OAuth app is on the Roblox account `gp_isweird`. Nobody has ever signed in.
+- **Sign in with Roblox works.** The domain unblocked it, the redirect URL is registered, and people have signed in and out for real since 14 Nov 2026 - which is how the sign-out bug above was found. The OAuth app is on the Roblox account `gp_isweird`, client id `5479373624062556036`, secret rotated 14 Nov 2026. **Still to do:** submit the app for review to lift Roblox's 10-user cap (needs a demo video under a minute and a justification for the scopes), and delete the old app `5285601446665495033`.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - **`MIN_SAMPLES` is at its launch value of 200** (set 2 Nov 2026) and **all 140 games clear it now**, so the dip it caused is over: the site builds 140 game pages and every one also passes `index_ok()`, so all 140 are in the sitemap. There is no reason to touch it again - it has stopped being a brake on the existing games and is now only a gate on *new* ones added to `games.txt`, which simply have no page for about a day and a half. Lowering it to 2 is still the undo if design work ever needs every game present.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
