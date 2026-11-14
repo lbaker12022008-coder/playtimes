@@ -3,17 +3,17 @@ VERSION:2.0
 PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
-UID:pte-american-plains-mudding-1794667512@playtime
-DTSTAMP:20261114T052636Z
-DTSTART:20261114T144512Z
-DTEND:20261121T120012Z
-SUMMARY:American Plains Mudding: 🏎️ APM Update 🏎️
+UID:pte-american-plains-mudding-1795877104@playtime
+DTSTAMP:20261114T194422Z
+DTSTART:20261128T144504Z
+DTEND:20261205T120004Z
+SUMMARY:American Plains Mudding: APM Update
 DESCRIPTION:Get notified right when the update drops!
 URL:https://playtimestats.com/game/american-plains-mudding
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:American Plains Mudding: 🏎️ APM Update 🏎️
+DESCRIPTION:American Plains Mudding: APM Update
 END:VALARM
 END:VEVENT
 END:VCALENDAR

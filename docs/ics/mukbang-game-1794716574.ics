@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-mukbang-game-1794716574@playtime
+DTSTAMP:20261114T194422Z
+DTSTART:20261115T042254Z
+DTEND:20261122T042254Z
+SUMMARY:Mukbang Game: Vietnamese Food :D
+DESCRIPTION:Heya again\, munchers! :D\n\nNew foods have been added to the 
+ menu! 🍜🥖🥩🍲\n\nWe've got delicious Vietnamese Soup noodles\, c
+ rispy Vietnam Sandwhich\, and juicy\, flavourful Bone Marrow!\n\nOh yah\,
+  and there's also a special Stone Bowl Hot Pot for you to enjoy! :D\n(Alo
+ ng with the set is also the special premium trays that can be bought with
+  either cash or robux)\n\nWHERE TO FIND THEM 🍜🥪:\n- All the new foo
+ ds can be found in the Cultural Menu → Vietnamese Section!\n\n- Fufu & 
+ Egusi Soup has also moved into the Cultural Menu\, under its very own Sec
+ tion! :3\n\nHope you enjoy the new foods\, and have a yummers day! :
+URL:https://playtimestats.com/game/mukbang-game
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Mukbang Game: Vietnamese Food :D
+END:VALARM
+END:VEVENT
+END:VCALENDAR
