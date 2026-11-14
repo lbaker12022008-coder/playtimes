@@ -127,7 +127,15 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
-@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,1fr) 168px}
+/* The rails belong beside the words, not out at the edges of the screen. A 1fr
+   middle track eats every spare pixel, so on a 2560px monitor the reading column
+   stayed 820px in the middle and the ads sat nearly 700px away from it, reading as
+   two stray boxes rather than a page. Capping the middle track at the width the
+   page actually uses lets justify-content centre all three together instead.
+   minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
+   wide pages instead of scrolling sideways. */
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
 /* The strip along the bottom only exists at all when ads are switched on. */
 @media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
@@ -847,13 +855,14 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 {buttons}</div></div></header>{extras}
-<div class="shell{' ads' if SHOW_RAILS else ''}">{ad_rail('left')}
+<div class="shell{' ads' if SHOW_RAILS else ''}{' wideads' if SHOW_RAILS and wide else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a>
+<a href="/terms.html">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div>{ad_rail('right')}</div>{ad_rail('bottom')}
@@ -3479,7 +3488,8 @@ def main():
         seo_title(f"Terms of Service - {SITE}"), terms_body(),
         f"The rules for using {SITE}, written in plain language: what the site is, what the "
         f"numbers mean, and why they are estimates rather than official Roblox figures.",
-        canon="/terms.html", trail=[("All games", "/"), ("Terms", "/terms.html")]))
+        canon="/terms.html",
+        trail=[("All games", "/"), ("Terms of Service", "/terms.html")]))
 
     # A page for addresses that do not exist. The worker hands this back with a 404
     # status, so a search engine knows the page is really gone instead of guessing.
