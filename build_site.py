@@ -43,7 +43,7 @@ SPIKE = 1.5                # a day this much busier than normal is "likely an up
 #   --acc2 is the supplied secondary, a lighter purple, and it is DECORATIVE:
 #   gradients and the edge of a soon-starting event. It is not a data colour.
 #   --alt is the data colour, a cyan, and it is a different hue ON PURPOSE. It
-#   draws the second game on /compare.html, the second set of bars in the hourly
+#   draws the second game on /compare, the second set of bars in the hourly
 #   chart and the spike dots on the 45-day line, so it has to be tellable from
 #   --acc at a glance. Two purples would make those unreadable, which is exactly
 #   why the second series cannot just be the supplied secondary.
@@ -112,8 +112,8 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 /* width:100% is not spare. .w is a grid item with auto side margins, and an item
    with auto margins is not stretched to its track - it is sized to its contents
    and centred in whatever is left. So a page whose contents happened to be narrow
-   drew a narrow column and centred that: /popular.html came out 1024px wide and
-   /trending.html 1001px inside the same 1400px band, each centred on its own, so
+   drew a narrow column and centred that: /popular came out 1024px wide and
+   /trending 1001px inside the same 1400px band, each centred on its own, so
    every one of them started at a different distance from the logo (475px, 464px,
    446px, 404px at 1920px). Asking for the full width and capping it with max-width
    makes every page the same width and lines them all up under the header. */
@@ -656,7 +656,7 @@ def robots_meta(noindex=False):
 
 
 def abs_url(path="/"):
-    """A full web address for a page, e.g. "/game/doors.html" -> "https://.../game/doors.html".
+    """A full web address for a page, e.g. "/game/doors" -> "https://.../game/doors".
 
     Until DOMAIN is filled in we have no way to know the site's real address, so the
     canonical tag falls back to the path on its own. That is allowed, just weaker.
@@ -763,13 +763,13 @@ HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"tex
 
 # The sections along the top of every page: (key, label, address)
 TABS = [("home", "All games", "/"),
-        ("popular", "Most popular", "/popular.html"),
-        ("trending", "Trending", "/trending.html"),
-        ("growing", "Growing", "/growing.html"),
-        ("shrinking", "Shrinking", "/shrinking.html"),
-        ("events", "Events", "/events.html"),
-        ("compare", "Compare", "/compare.html"),
-        ("plan", "Plan a session", "/plan.html")]
+        ("popular", "Most popular", "/popular"),
+        ("trending", "Trending", "/trending"),
+        ("growing", "Growing", "/growing"),
+        ("shrinking", "Shrinking", "/shrinking"),
+        ("events", "Events", "/events"),
+        ("compare", "Compare", "/compare"),
+        ("plan", "Plan a session", "/plan")]
 
 # Words for the five busy-ness levels, used all over the site.
 WORDS = ["no data", "very quiet", "quiet", "average", "busy", "very busy"]
@@ -827,9 +827,15 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     the page exactly once, and every page works the same way, which is the point.
 
     The search-engine arguments:
-      canon     this page's one true address, e.g. "/game/doors.html". Cloudflare also
-                serves every page without the ".html", so without this Google would see
-                two addresses showing the same thing and have to pick one itself.
+      canon     this page's one true address, e.g. "/game/doors". Addresses have no
+                ".html" on the end: Cloudflare serves the file "game/doors.html" at
+                "/game/doors" and bounces "/game/doors.html" to it with a 307. The
+                page a visitor actually lands on is therefore the one without it, so
+                that is the one the canonical tag, the breadcrumbs, the links and the
+                sitemap all have to name. They used to say ".html", which pointed
+                every canonical tag at an address that redirected somewhere else -
+                conflicting advice to Google on all 304 pages. The file written to
+                disk still keeps its ".html"; only the address drops it.
       image     a picture for when the page is shared on Discord, WhatsApp or X.
       trail     the breadcrumb trail, [(label, address)], ending with this page.
       schema    extra structured data dictionaries for jsonld().
@@ -868,8 +874,8 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<span class="tlab">Dark mode</span></button>'
               f'<div class="acct dacct"></div></div>'
               f'<nav aria-label="Sections">{drawer}'
-              f'<a href="/busiest-hours.html">When is Roblox busiest?</a>'
-              f'<a href="/about.html">About</a></nav></div>'
+              f'<a href="/busiest-hours">When is Roblox busiest?</a>'
+              f'<a href="/about">About</a></nav></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
               f'<div id="qout" class="qout"></div></div></div>')
@@ -892,8 +898,8 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     topnav = ((f'<div class="topnav">{back_link(*back) if back else ""}{crumb_html}</div>')
               if (back or crumb_html) else "")
     blocks = jsonld(*([crumb_data] + list(schema or [])))
-    # Where the page lives. Internal links all end in ".html", so that is the address
-    # we tell Google to use; Cloudflare happily serves the same page without it.
+    # Where the page lives. This is the address a visitor really ends up on (no
+    # ".html"), which is the only one worth telling Google about.
     url = abs_url(canon or "/")
     social = ""
     if image:
@@ -920,11 +926,11 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <div class="shell{' ads' if SHOW_RAILS else ''}{' wideads' if SHOW_RAILS and wide else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a>
-<a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
-<a href="/busiest-hours.html">When is Roblox busiest?</a>
-<a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a>
-<a href="/terms.html">Terms of Service</a></nav>
+<a href="/popular">Most played</a><a href="/trending">Trending</a>
+<a href="/busiest-hours">When is Roblox busiest?</a>
+<a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a>
+<a href="/about">About</a><a href="/privacy">Privacy Policy</a>
+<a href="/terms">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div>{ad_rail('right')}</div>{ad_rail('bottom')}
@@ -1125,7 +1131,7 @@ def tile(c, i=0):
     # that the stylesheet's fallback (the site accent) takes over.
     glow = "" if c.get("hue") is None else f';--glow:{c["hue"]}'
     return (f'<li style="--i:{min(i, 14)}{glow}" data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}">'
-            f'<a class="tile" href="/game/{c["slug"]}.html">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
+            f'<a class="tile" href="/game/{c["slug"]}">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
             f'<span class="tname">{html.escape(c["name"])}</span>'
             f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
             f'{trend_short(c["trend"])}</span></a></li>')
@@ -1537,7 +1543,7 @@ def game_schema(c, a, meta, qa):
     and no review: we do not collect either, and inventing them would be lying to
     Google as well as to visitors.
     """
-    url = abs_url(f'/game/{c["slug"]}.html')
+    url = abs_url(f'/game/{c["slug"]}')
     game = {"@type": "VideoGame", "name": c["name"], "url": url, "gamePlatform": "Roblox",
             "playMode": "MultiPlayer", "applicationCategory": "Game"}
     if c["icon"]:
@@ -1715,7 +1721,7 @@ def write_event_ics(slug, game, events, now):
         write(event_ics_name(slug, e), ics_file(
             f"pte-{slug}-{int(e['start'])}", e["start"],
             e["end"] or e["start"] + 3600, f"{game}: {e['title']}",
-            desc=desc, url=abs_url(f"/game/{slug}.html"), alarm=15))
+            desc=desc, url=abs_url(f"/game/{slug}"), alarm=15))
 
 
 def remind_btn(href, label="Remind me"):
@@ -2049,7 +2055,7 @@ var t=q.value.trim().toLowerCase();
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
 var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
-return '<a href="/game/'+ptEsc(g.s)+'.html">'+(g.i?'<img src="'+ptEsc(g.i)+
+return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
 ptEsc(g.n.charAt(0).toUpperCase())+'</span>')+'<span>'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No game matches that.</p>'}
@@ -2078,7 +2084,7 @@ box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspop
 label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
 var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
 menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
-return '<a href="/game/'+ptEsc(g.s)+'.html">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+return '<a href="/game/'+ptEsc(g.s)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
 function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
 btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
@@ -2536,7 +2542,7 @@ $('out').innerHTML='<span class="mut small">'+(mode==='quiet'?'Quietest':'Busies
 '</span><p>That is '+DAY[(aim.getDay()+6)%7]+' at <b>'+
 fmt(aim.getHours())+'</b> your time &ndash; usually <b>'+W[B.level(p.v)]+'</b> with about '+
 p.v.toLocaleString()+' players, lasting about <b>'+p.len+' hour'+(p.len>1?'s':'')+'</b>.</p>'+
-'<p><a class="btn" href="/game/'+esc(g.s)+'.html">See '+esc(g.n)+'\\u2019s whole week</a></p>'+
+'<p><a class="btn" href="/game/'+esc(g.s)+'">See '+esc(g.n)+'\\u2019s whole week</a></p>'+
 '<h3>The next 12 hours</h3><div class="wrap"><table class="tbl"><tr><th>Your time</th>'+
 '<th>How busy</th></tr>'+rows+'</table></div>'}
 /* Only rewrites the clock, so it can move every second without redoing the maths. */
@@ -2584,9 +2590,9 @@ def span(block, n):
 # from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>
-<div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__.html">&#128221; Game updates</a>
+<div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
-<a class="fav" href="/compare.html?a=__SLUG__">Compare</a></div></div></div>
+<a class="fav" href="/compare?a=__SLUG__">Compare</a></div></div></div>
 __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
@@ -2629,8 +2635,8 @@ __PARENTS__
 __FAQ__
 </div>
 __SIMILAR__
-<p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan.html?g=__SLUG__">Plan a session</a>
-&middot; <a href="/busiest-hours.html">When is Roblox busiest?</a></p>
+<p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan?g=__SLUG__">Plan a session</a>
+&middot; <a href="/busiest-hours">When is Roblox busiest?</a></p>
 <script>window.PT_GAME=__GAMEINFO__;</script>
 <script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>"""
 
@@ -2680,7 +2686,7 @@ Roblox's parental controls.</p>
 <p>{html.escape(SITE)} is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
 Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
 <p>We never ask for your Roblox password. You can sign in with Roblox if you want your saved games on more than
-one device, but everything works without it. See our <a href="/privacy.html">Privacy Policy</a>.</p>
+one device, but everything works without it. See our <a href="/privacy">Privacy Policy</a>.</p>
 {contact_html()}</div>"""
 
 
@@ -2777,7 +2783,7 @@ site at any time, including stopping it altogether.</p>
 <h2>Signing in</h2>
 <p>Signing in with Roblox is optional. You must be 13 or over, which Roblox enforces. Keep your Roblox account
 secure, and remember we never ask for your Roblox password. You can sign out or delete your data whenever you
-like from our <a href="/privacy.html">Privacy Policy</a> page. We may end access for anyone misusing the site.</p>
+like from our <a href="/privacy">Privacy Policy</a> page. We may end access for anyone misusing the site.</p>
 <h2>The numbers are estimates</h2>
 <p>Everything here is an average worked out from samples, so it can be wrong, out of date, or missing. Busy and
 quiet times change. Player counts say nothing about whether a game is good, fair, or suitable for a child.
@@ -2894,7 +2900,7 @@ def item_list(cards, name):
             "itemListOrder": "https://schema.org/ItemListOrderDescending",
             "itemListElement": [
                 {"@type": "ListItem", "position": i + 1, "name": c["name"],
-                 "url": abs_url(f'/game/{c["slug"]}.html')}
+                 "url": abs_url(f'/game/{c["slug"]}')}
                 for i, c in enumerate(cards[:50])]}
 
 
@@ -2934,8 +2940,8 @@ def busy_page(cards, now):
                     'track before this page can say anything. Check back in a few days.</p></div>'
                     '<p><a href="/">&larr; All Roblox player counts</a></p>',
                     "The busiest and quietest hours across the Roblox games we track.",
-                    wide=True, canon="/busiest-hours.html", noindex=True,
-                    trail=[("All games", "/"), ("Busiest hours", "/busiest-hours.html")])
+                    wide=True, canon="/busiest-hours", noindex=True,
+                    trail=[("All games", "/"), ("Busiest hours", "/busiest-hours")])
 
     busy = max(cells, key=lambda c: c[2])
     quiet = min(cells, key=lambda c: c[2])
@@ -3021,8 +3027,8 @@ def busy_page(cards, now):
         + row_head("Busiest games right now",
                    f'<span class="mut small">{len(cards)} games</span>')
         + grid(cards[:12])
-        + '<p><a href="/popular.html">Most played Roblox games</a> &middot; '
-          '<a href="/plan.html">Plan a session</a> &middot; '
+        + '<p><a href="/popular">Most played Roblox games</a> &middot; '
+          '<a href="/plan">Plan a session</a> &middot; '
           '<a href="/">All Roblox player counts</a></p>'
         # Puts the two headline hours on the reader's own clock. Everything above stays
         # exactly as written, so nothing depends on this running.
@@ -3038,15 +3044,15 @@ def busy_page(cards, now):
         clip(f"The busiest hour on Roblox is {DAYS[busy[0]]} around {hour12(busy[1])} UTC and "
              f"the quietest is {DAYS[quiet[0]]} around {hour12(quiet[1])} UTC, across "
              f"{len(cards)} games we track hour by hour."),
-        wide=True, canon="/busiest-hours.html",
-        trail=[("All games", "/"), ("Busiest hours", "/busiest-hours.html")],
+        wide=True, canon="/busiest-hours",
+        trail=[("All games", "/"), ("Busiest hours", "/busiest-hours")],
         modified=iso_day(now),
         schema=[{"@type": "Dataset",
                  "name": "Roblox player activity by hour of the week",
                  "description": ("The share of each game's peak player count reached in "
                                  "every hour of the week, averaged across the Roblox games "
                                  f"{SITE} tracks."),
-                 "url": abs_url("/busiest-hours.html"),
+                 "url": abs_url("/busiest-hours"),
                  "measurementTechnique": "Repeated sampling of public Roblox player counts",
                  "variableMeasured": "Concurrent players as a share of each game's peak",
                  "isAccessibleForFree": True,
@@ -3064,8 +3070,8 @@ def list_page(key, title, h1, lede, cards, desc, extra="", listname=""):
             + table_of(cards)
             + '<p><a href="/">&larr; All Roblox player counts</a></p>')
     write(f"{key}.html", page(
-        title, body, desc, wide=True, nav=key, canon=f"/{key}.html",
-        trail=[("All games", "/"), (h1, f"/{key}.html")],
+        title, body, desc, wide=True, nav=key, canon=f"/{key}",
+        trail=[("All games", "/"), (h1, f"/{key}")],
         schema=[item_list(cards, listname or h1)] if cards else None,
         # A list page with nothing on it yet says so honestly, but there is no reason
         # for Google to hold on to an empty page.
@@ -3083,7 +3089,7 @@ def table_of(cards, limit=60):
     if len(cards) < 3:
         return ""
     rows = "".join(
-        f'<tr><td>{i + 1}</td><td><a href="/game/{c["slug"]}.html">{html.escape(c["name"])}</a></td>'
+        f'<tr><td>{i + 1}</td><td><a href="/game/{c["slug"]}">{html.escape(c["name"])}</a></td>'
         f'<td>{c["avg"]:,}</td><td>{c["a"]["peak"]:,}</td>'
         f'<td>{trend_short(c["trend"]) or "<span class=mut>steady</span>"}</td></tr>'
         for i, c in enumerate(cards[:limit]))
@@ -3172,7 +3178,7 @@ def main():
             all_events.append(dict(e, game=name, slug=s, icon=c["icon"]))
         # The "Remind me" files. Written before the pages that link to them, and
         # for every upcoming event rather than the handful this game's own page
-        # shows, because /events.html lists far more of them.
+        # shows, because /events lists far more of them.
         write_event_ics(s, name, events, now)
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
@@ -3184,7 +3190,7 @@ def main():
         play = (f'<a class="btn" href="https://www.roblox.com/games/{c["place"]}">'
                 f'Play {html.escape(name)}</a>' if c["place"] and c["place"] > 1 else "")
         in_cat = c["genre"] in cats
-        cat = (f' Category: <a href="/category/{slug(c["genre"])}.html">{html.escape(c["genre"])}</a>.'
+        cat = (f' Category: <a href="/category/{slug(c["genre"])}">{html.escape(c["genre"])}</a>.'
                if in_cat else "")
 
         # The opening paragraph. Every number in it comes from our own samples, and the
@@ -3235,11 +3241,11 @@ def main():
                 .replace("__NAME__", html.escape(name)))
         # Back goes to this game's category when it has one, so the button lands
         # somewhere useful even for a visitor who arrived straight from Google.
-        where = ((f'/category/{slug(c["genre"])}.html', f'{c["genre"]} games')
+        where = ((f'/category/{slug(c["genre"])}', f'{c["genre"]} games')
                  if in_cat else ("/", "All games"))
         trail = [("All games", "/")]
         if in_cat:
-            trail.append((f'{c["genre"]} games', f'/category/{slug(c["genre"])}.html'))
+            trail.append((f'{c["genre"]} games', f'/category/{slug(c["genre"])}'))
         thin = not index_ok(c)
 
         # Everything about this game's updates gets its own page, reached from the
@@ -3255,13 +3261,13 @@ def main():
             f'<h1>{html.escape(name)} update history</h1>'
             f'<p class="mut">Every update and event the creators have announced, when they '
             f'landed, and the days {html.escape(name)}&rsquo;s player count jumped.</p>'
-            f'<div class="actions"><a class="fav" href="/game/{s}.html">&larr; '
+            f'<div class="actions"><a class="fav" href="/game/{s}">&larr; '
             f'{html.escape(name)} player count</a>{play}</div></div></div>'
             + (upd or '<div class="card"><p class="none">The creators have not announced any '
                       'updates on Roblox for this game yet, and we have not been watching long '
                       'enough to spot a jump in players. Check back soon.</p></div>')
             + calendar_html(name, events, now)
-            + f'<p><a href="/game/{s}.html">&larr; Back to {html.escape(name)}</a></p>'
+            + f'<p><a href="/game/{s}">&larr; Back to {html.escape(name)}</a></p>'
             + f'<script>{SHARED_JS}</script>'
             + f'<script>var P={jsdata(pattern)};'
             + PATTERN_JS + '</script>'
@@ -3269,9 +3275,9 @@ def main():
             clip(f"When does {name} update? Past updates and events, how often new ones "
                  f"arrive, and the days its player count jumped."),
             wide=True, banner=c["banner"],
-            canon=f"/updates/{s}.html", image=c["banner"] or c["icon"] or "",
-            trail=trail + [(f"{name} player count", f"/game/{s}.html"),
-                           ("Update history", f"/updates/{s}.html")],
+            canon=f"/updates/{s}", image=c["banner"] or c["icon"] or "",
+            trail=trail + [(f"{name} player count", f"/game/{s}"),
+                           ("Update history", f"/updates/{s}")],
             # An update page with nothing on it is a thin page, so we keep it on the
             # site (the button still works) but ask Google not to list it.
             noindex=thin or not upd, modified=iso_day(a["last"])))
@@ -3283,8 +3289,8 @@ def main():
             clip(f"{name} has about {a['avg7']:,} players at a typical moment, and we have "
                  f"seen {a['peak']:,} at once. Its player count history, busiest and quietest "
                  f"hours, and the best time to play."),
-            wide=True, banner=c["banner"], back=where, canon=f"/game/{s}.html",
-            image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}.html")],
+            wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
+            image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
             schema=game_schema(c, a, meta, qa), noindex=thin, modified=iso_day(a["last"])))
 
     print(f"Built {len(cards)} game pages.")
@@ -3311,7 +3317,7 @@ def main():
         cg = [c for c in cards if c["genre"] == g]
         if not cg:
             continue
-        cat_pages.append((g, f"/category/{slug(g)}.html"))
+        cat_pages.append((g, f"/category/{slug(g)}"))
         count = f'{len(cg)} game{"s" if len(cg) != 1 else ""}'
         biggest = cg[0]
         write(f"category/{slug(g)}.html", page(
@@ -3331,9 +3337,9 @@ def main():
             + ask_js(cg),
             clip(f"Player counts for {len(cg)} {g.lower()} games on Roblox, and when each one "
                  f"is busiest and quietest. Updated every night."),
-            wide=True, banner=biggest["banner"], canon=f"/category/{slug(g)}.html",
+            wide=True, banner=biggest["banner"], canon=f"/category/{slug(g)}",
             image=biggest["banner"] or biggest["icon"] or "",
-            trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}.html")],
+            trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}")],
             schema=[item_list(cg, f"{g} Roblox games by player count")]))
     pills = "".join(f'<a href="{u}">{html.escape(g)}</a>' for g, u in cat_pages)
 
@@ -3361,17 +3367,17 @@ def main():
         + grid(cards, "all")
         + ('<h2 style="margin-top:30px">What you can do here</h2>'
            '<div class="card"><ul>'
-           '<li><a href="/popular.html">Most played Roblox games</a> &ndash; every game we '
+           '<li><a href="/popular">Most played Roblox games</a> &ndash; every game we '
            'track, ranked by how many people are in it at a typical moment.</li>'
-           '<li><a href="/trending.html">Trending games</a> &ndash; the biggest gainers and '
+           '<li><a href="/trending">Trending games</a> &ndash; the biggest gainers and '
            'losers this week, from two weeks of player counts.</li>'
-           '<li><a href="/busiest-hours.html">When is Roblox busiest?</a> &ndash; the busiest '
+           '<li><a href="/busiest-hours">When is Roblox busiest?</a> &ndash; the busiest '
            'and quietest hours across every game we watch.</li>'
-           '<li><a href="/compare.html">Compare two games</a> &ndash; put their weeks side by '
+           '<li><a href="/compare">Compare two games</a> &ndash; put their weeks side by '
            'side and see which is less crowded.</li>'
-           '<li><a href="/plan.html">Plan a session</a> &ndash; a countdown to the next quiet '
+           '<li><a href="/plan">Plan a session</a> &ndash; a countdown to the next quiet '
            'or busy stretch for any game.</li>'
-           '<li><a href="/events.html">Event calendar</a> &ndash; what the creators have '
+           '<li><a href="/events">Event calendar</a> &ndash; what the creators have '
            'announced, so you know which hours will be packed.</li>'
            '<li><b>Remind me</b> &ndash; on any game\'s page, tick the days you want and add '
            'them straight to your phone\'s calendar, each one at that day\'s own quiet (or '
@@ -3436,7 +3442,7 @@ def main():
               listname="Roblox games losing players this week")
 
     rows = "".join(
-        f'<tr><td><a href="/game/{c["slug"]}.html">{html.escape(c["name"])}</a></td>'
+        f'<tr><td><a href="/game/{c["slug"]}">{html.escape(c["name"])}</a></td>'
         f'<td>{c["avg"]:,}</td><td>{trend_short(c["trend"]) or "<span class=mut>steady</span>"}</td></tr>'
         for c in up[:10] + down[:10])
     write("trending.html", page(
@@ -3453,8 +3459,8 @@ def main():
         + '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Which Roblox games gained and lost the most players this week, worked out from our "
         "own player count history and updated every night.",
-        wide=True, nav="trending", canon="/trending.html",
-        trail=[("All games", "/"), ("Trending", "/trending.html")],
+        wide=True, nav="trending", canon="/trending",
+        trail=[("All games", "/"), ("Trending", "/trending")],
         schema=[item_list(up[:12], "Roblox games trending up this week")] if up else None,
         noindex=not (up or down), modified=iso_day(now)))
 
@@ -3467,7 +3473,7 @@ def main():
         out = []
         for e in items[:40]:
             out.append(f'<li class="{"live" if e["start"] <= now else "soon"}">'
-                       f'<b><a href="/game/{e["slug"]}.html">{html.escape(e["game"])}</a>: '
+                       f'<b><a href="/game/{e["slug"]}">{html.escape(e["game"])}</a>: '
                        f'{html.escape(e["title"])}</b>'
                        + (f'<span class="d">{html.escape(e["subtitle"])}</span>' if e["subtitle"] else "")
                        + f'<span class="d">'
@@ -3490,8 +3496,8 @@ def main():
         + '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Every upcoming Roblox game event and update we know about, with the dates they run "
         "and the games they belong to.",
-        nav="events", canon="/events.html",
-        trail=[("All games", "/"), ("Events", "/events.html")],
+        nav="events", canon="/events",
+        trail=[("All games", "/"), ("Events", "/events")],
         noindex=not (live or soon), modified=iso_day(now)))
 
     # ---- compare two games
@@ -3513,8 +3519,8 @@ def main():
         + '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Compare two Roblox games hour by hour and see which has more players, and which is "
         "quieter, on any day of the week.",
-        nav="compare", canon="/compare.html",
-        trail=[("All games", "/"), ("Compare", "/compare.html")],
+        nav="compare", canon="/compare",
+        trail=[("All games", "/"), ("Compare", "/compare")],
         tail=f"<script>{SHARED_JS}</script><script>{COMPARE_JS}</script>"))
 
     # ---- plan a session
@@ -3529,12 +3535,12 @@ def main():
         '<button data-m="busy" aria-pressed="false">Busy</button></div>'
         '<div id="out"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
-        '<p><a href="/busiest-hours.html">When is Roblox busiest overall?</a></p>'
+        '<p><a href="/busiest-hours">When is Roblox busiest overall?</a></p>'
         '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Find the next quiet or busy hours for any Roblox game, counted down in your own "
         "timezone from our hour-by-hour player count history.",
-        nav="plan", canon="/plan.html",
-        trail=[("All games", "/"), ("Plan a session", "/plan.html")],
+        nav="plan", canon="/plan",
+        trail=[("All games", "/"), ("Plan a session", "/plan")],
         tail=f"<script>{SHARED_JS}</script><script>{PLAN_JS}</script>"))
 
     # ---- when is Roblox busiest, across everything we watch
@@ -3544,18 +3550,18 @@ def main():
     write("about.html", page(
         seo_title(f"About {SITE}: How We Measure Player Counts"), about_body(),
         f"What {SITE} is, how it measures when Roblox games are busy, and what it does not "
-        f"tell you.", canon="/about.html",
-        trail=[("All games", "/"), ("About", "/about.html")]))
+        f"tell you.", canon="/about",
+        trail=[("All games", "/"), ("About", "/about")]))
     write("privacy.html", page(
         seo_title(f"Privacy Policy - {SITE}"), privacy_body(),
         f"What {SITE} stores, what it never asks for, and how to delete your data.",
-        canon="/privacy.html", trail=[("All games", "/"), ("Privacy Policy", "/privacy.html")]))
+        canon="/privacy", trail=[("All games", "/"), ("Privacy Policy", "/privacy")]))
     write("terms.html", page(
         seo_title(f"Terms of Service - {SITE}"), terms_body(),
         f"The rules for using {SITE}, written in plain language: what the site is, what the "
         f"numbers mean, and why they are estimates rather than official Roblox figures.",
-        canon="/terms.html",
-        trail=[("All games", "/"), ("Terms of Service", "/terms.html")]))
+        canon="/terms",
+        trail=[("All games", "/"), ("Terms of Service", "/terms")]))
 
     # A page for addresses that do not exist. The worker hands this back with a 404
     # status, so a search engine knows the page is really gone instead of guessing.
@@ -3567,7 +3573,7 @@ def main():
         '<p><a class="btn" href="/">See every Roblox player count</a></p>'
         + row_head("Most popular right now") + grid(cards[:12]),
         "That page does not exist. Browse every Roblox game player count we track instead.",
-        wide=True, back=None, canon="/404.html", noindex=True))
+        wide=True, back=None, canon="/404", noindex=True))
 
     # ---- sitemap and robots
     #
@@ -3578,20 +3584,20 @@ def main():
     # this is any use at all.
     base = DOMAIN.rstrip("/")
     today = iso_day(now)
-    pages = [("/", "1.0", today), ("/popular.html", "0.9", today)]
-    for u in [u for _, _, u in TABS if u not in ("/", "/popular.html")]:
+    pages = [("/", "1.0", today), ("/popular", "0.9", today)]
+    for u in [u for _, _, u in TABS if u not in ("/", "/popular")]:
         pages.append((u, "0.7", today))
-    pages.append(("/busiest-hours.html", "0.8", today))
+    pages.append(("/busiest-hours", "0.8", today))
     pages += [(u, "0.7", today) for _, u in cat_pages]
     for c in cards:
         if not index_ok(c):
             continue
         last = iso_day(c["a"]["last"])
-        pages.append((f'/game/{c["slug"]}.html', "0.9", last))
+        pages.append((f'/game/{c["slug"]}', "0.9", last))
         if c.get("has_updates"):
-            pages.append((f'/updates/{c["slug"]}.html', "0.5", last))
-    pages += [("/about.html", "0.3", today),
-              ("/privacy.html", "0.2", today), ("/terms.html", "0.2", today)]
+            pages.append((f'/updates/{c["slug"]}', "0.5", last))
+    pages += [("/about", "0.3", today),
+              ("/privacy", "0.2", today), ("/terms", "0.2", today)]
 
     def entry(u, pri, mod):
         return (f"<url><loc>{html.escape(base + u)}</loc><lastmod>{mod}</lastmod>"

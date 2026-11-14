@@ -117,7 +117,10 @@ def main():
         else:
             canons.setdefault(html_mod.unescape(canon), []).append(name)
             # A canonical that does not point at this very page is nearly always a slip.
-            want = "/" if name == "index.html" else "/" + name
+            # Addresses carry no ".html": Cloudflare serves "game/doors.html" at
+            # "/game/doors" and redirects the ".html" form to it, so the page a
+            # visitor lands on - and the only one worth naming - is the short one.
+            want = "/" if name == "index.html" else "/" + name[:-len(".html")]
             path = urlparse(html_mod.unescape(canon)).path or "/"
             if path != want:
                 fail(name, f"canonical says {path} but the file is at {want}")
@@ -188,7 +191,12 @@ def main():
         listed = set()
         for loc in locs:
             path = urlparse(loc).path or "/"
-            listed.add("index.html" if path == "/" else path.lstrip("/"))
+            # The sitemap names addresses; all_pages holds file names. Put the
+            # ".html" back so the two can be compared.
+            entry = "index.html" if path == "/" else path.lstrip("/").rstrip("/")
+            if entry and not entry.endswith(".html"):
+                entry += ".html"
+            listed.add(entry)
             if not exists(path):
                 fail("sitemap.xml", f"lists a page that is not there: {path}")
             if not loc.startswith("http"):

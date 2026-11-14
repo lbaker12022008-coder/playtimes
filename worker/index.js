@@ -909,12 +909,15 @@ function visitors(d, v, s, byDay) {
   const byCategory = {};
   (s.games || []).forEach(g => {
     if (!g.slug) return;                        // older builds did not record it
-    const row = timeByPath['/game/' + g.slug + '.html'];
+    // Visitors land on /game/<slug> - Cloudflare redirects the .html form - so that
+    // is the path recorded against a page view. Looking one up by '.html' matched
+    // nothing, and this whole section sat empty.
+    const row = timeByPath['/game/' + g.slug];
     if (!row || !row.reads) return;             // nobody has read it yet
     const cat = g.genre || 'Uncategorised';
     (byCategory[cat] = byCategory[cat] || []).push({
       name: g.name, avg: row.seconds / row.reads, reads: row.reads,
-      views: viewsByPath['/game/' + g.slug + '.html'] || 0
+      views: viewsByPath['/game/' + g.slug] || 0
     });
   });
   const catBlocks = Object.keys(byCategory).sort().map(cat => {
