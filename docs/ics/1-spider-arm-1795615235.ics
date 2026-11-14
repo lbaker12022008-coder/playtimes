@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-1-spider-arm-1795615235@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261125T140035Z
 DTEND:20261127T140035Z
 SUMMARY:+1 Spider Arm: Harvest Haul
 DESCRIPTION:Climb autumn towers and deliver baskets for limited rewards!
-URL:https://playtimestats.com/game/1-spider-arm.html
+URL:https://playtimestats.com/game/1-spider-arm
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

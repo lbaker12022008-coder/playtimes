@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-grow-a-garden-1795296644@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261121T213044Z
 DTEND:20261128T210044Z
 SUMMARY:Grow a Garden: NEXT UPDATE
 DESCRIPTION:Follow the event so you don't miss out...
-URL:https://playtimestats.com/game/grow-a-garden.html
+URL:https://playtimestats.com/game/grow-a-garden
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

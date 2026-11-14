@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-steal-an-egg-1794668458@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T150058Z
 DTEND:20261116T170058Z
 SUMMARY:Steal An Egg: Black Market Dealer!
@@ -15,7 +15,7 @@ DESCRIPTION:🕵️ SLICK RICK IS COMING TO TOWN! 💼\n\nA mysterious Bla
  henever he pleases. You never know when he'll show up\, or how long he'll
   stick around.\n\n👀 Keep your eyes peeled... Slick Rick is arriving so
  on!
-URL:https://playtimestats.com/game/steal-an-egg.html
+URL:https://playtimestats.com/game/steal-an-egg
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

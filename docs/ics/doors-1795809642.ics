@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-doors-1795809642@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261127T200042Z
 DTEND:20261130T055542Z
 SUMMARY:DOORS: BLACK FRIDAY WEEKEND
@@ -12,7 +12,7 @@ DESCRIPTION:50% off Item Skins (Knobs only)\, 33% off Admin Panel\, 25% of
  f Stardust\, new Item Skins\, and all Subfloors temporarily unlocked with
  out discovering them! Make sure to check back all weekend for new Item Sk
  ins!\n\nPrices will return to normal after the weekend is over.
-URL:https://playtimestats.com/game/doors.html
+URL:https://playtimestats.com/game/doors
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

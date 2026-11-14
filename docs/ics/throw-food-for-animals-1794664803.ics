@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-throw-food-for-animals-1794664803@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T140003Z
 DTEND:20261114T150003Z
 SUMMARY:Throw Food For Animals: NEXT UPDATE!
 DESCRIPTION:???
-URL:https://playtimestats.com/game/throw-food-for-animals.html
+URL:https://playtimestats.com/game/throw-food-for-animals
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

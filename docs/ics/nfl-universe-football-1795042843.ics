@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-nfl-universe-football-1795042843@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261118T230043Z
 DTEND:20261201T045543Z
 SUMMARY:NFL Universe Football: 🦃 THANKSGIVING EVENT 🦃
 DESCRIPTION:One of the classics! Thanksgiving is back with an all-new adap
  tation of the Turkey Rush\, new fits\, and more fun in Park.
-URL:https://playtimestats.com/game/nfl-universe-football.html
+URL:https://playtimestats.com/game/nfl-universe-football
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

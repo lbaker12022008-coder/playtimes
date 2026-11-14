@@ -4,14 +4,14 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-dubai-rp-1795798832@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261127T170032Z
 DTEND:20261204T170032Z
 SUMMARY:Dubai RP: Pet Update! 🐾
 DESCRIPTION:🐶 Adorable Dogs & Puppies!\n🐱 Cute Cats & Kittens!\n🐾
   NEW Pet Animations & Interactions!\n✨ And much more to discover!\n❤
  ️ Adopt\, play & create unforgettable memories together!
-URL:https://playtimestats.com/game/dubai-rp.html
+URL:https://playtimestats.com/game/dubai-rp
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

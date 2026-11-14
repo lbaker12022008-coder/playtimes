@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-toilet-tower-defense-1794679230@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T180030Z
 DTEND:20261116T180030Z
 SUMMARY:Toilet Tower Defense: THANKSGIVING 2026!!
 DESCRIPTION:Thanksgiving event 2026 is coming to the main place!\n\nLegacy
   mode will have the 2023 thanksgiving update.
-URL:https://playtimestats.com/game/toilet-tower-defense.html
+URL:https://playtimestats.com/game/toilet-tower-defense
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-murderers-vs-sheriffs-1794690043@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T210043Z
 DTEND:20261121T210043Z
 SUMMARY:Murderers VS Sheriffs: RANKED S2 + NIGHTNOVA
@@ -18,7 +18,7 @@ DESCRIPTION:🏆 RANKED SEASON 2 🏆\n\nClimb the ranks\, claim your rewa
  pion.\n\n🌌 NIGHTNOVA SET\nThe Nightnova set is now available! Wield Ni
  ghtnova’s Fang and the Nightnova’s Flight Bow\, featuring cosmic colo
  rs an
-URL:https://playtimestats.com/game/murderers-vs-sheriffs.html
+URL:https://playtimestats.com/game/murderers-vs-sheriffs
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

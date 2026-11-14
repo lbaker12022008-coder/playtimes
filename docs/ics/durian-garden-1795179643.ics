@@ -4,14 +4,14 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-durian-garden-1795179643@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261120T130043Z
 DTEND:20261127T125943Z
 SUMMARY:Durian Garden: SOMETHING IS COMING... 👀
 DESCRIPTION:Something exciting is coming to Durian Garden! 👀\nWe're kee
  ping the details a secret for now. 🤫\nWhat could it be? You'll find ou
  t when the update arrives!\nStay tuned! 🌳✨
-URL:https://playtimestats.com/game/durian-garden.html
+URL:https://playtimestats.com/game/durian-garden
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

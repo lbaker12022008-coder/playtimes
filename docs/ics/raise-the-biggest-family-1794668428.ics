@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-raise-the-biggest-family-1794668428@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T150028Z
 DTEND:20261121T170028Z
 SUMMARY:Raise The Biggest Family: PETS!
@@ -12,7 +12,7 @@ DESCRIPTION:The Adoption Center just opened a brand new pets wing! Puppies
  \, Kittens and Bunnies are waiting for a family to take them home.\n\nPic
  k your favorite\, give it a name and watch it grow up!\n\n🐾 PETS ARE C
  OMING!
-URL:https://playtimestats.com/game/raise-the-biggest-family.html
+URL:https://playtimestats.com/game/raise-the-biggest-family
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

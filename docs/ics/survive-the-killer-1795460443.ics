@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-survive-the-killer-1795460443@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261123T190043Z
 DTEND:20261211T190043Z
 SUMMARY:Survive the Killer: Thanksgiving Update
 DESCRIPTION:Survive the Killer is getting its first new map of 2026 this T
  hanksgiving. Be sure to tune in to be the first to check it out!
-URL:https://playtimestats.com/game/survive-the-killer.html
+URL:https://playtimestats.com/game/survive-the-killer
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

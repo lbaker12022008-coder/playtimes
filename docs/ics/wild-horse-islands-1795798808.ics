@@ -4,14 +4,14 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-wild-horse-islands-1795798808@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261127T170008Z
 DTEND:20261218T160008Z
 SUMMARY:Wild Horse Islands: Dragon's Lair
 DESCRIPTION:Complete activities and minigames to unlock dragon themed rewa
  rds!\n\nYou must be at least level 600 to access this content!\n\nThis is
   a permanent addition to the game.
-URL:https://playtimestats.com/game/wild-horse-islands.html
+URL:https://playtimestats.com/game/wild-horse-islands
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

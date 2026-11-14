@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-wild-horse-islands-1801245624@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20270129T180024Z
 DTEND:20270212T180024Z
 SUMMARY:Wild Horse Islands: Lusitano Horses
 DESCRIPTION:A new Epic breed of horse will be added - the Lusitano!
-URL:https://playtimestats.com/game/wild-horse-islands.html
+URL:https://playtimestats.com/game/wild-horse-islands
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

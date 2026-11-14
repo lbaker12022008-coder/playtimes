@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-welcome-to-bloxburg-1795093236@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261119T130036Z
 DTEND:20261126T125536Z
 SUMMARY:Welcome to Bloxburg: 📱 Electronics 🖥️
@@ -12,7 +12,7 @@ DESCRIPTION:Hej Bloxburgers!! 👋\n\nIt’s not Winter just yet\, but thi
  s update brings you some gift worthy goodies! 🎁\nIt’s time to introd
  uce a range of electronics to Bloxburg! Think phones\, computers\, headse
  ts\, and so much more! 📱\nAre you ready to upgrade your setup? 🖥️
-URL:https://playtimestats.com/game/welcome-to-bloxburg.html
+URL:https://playtimestats.com/game/welcome-to-bloxburg
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

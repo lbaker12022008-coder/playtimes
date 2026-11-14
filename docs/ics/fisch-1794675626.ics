@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-fisch-1794675626@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T170026Z
 DTEND:20261116T170026Z
 SUMMARY:Fisch: Companion Hats
 DESCRIPTION:Dress up your Companions in new hats!
-URL:https://playtimestats.com/game/fisch.html
+URL:https://playtimestats.com/game/fisch
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

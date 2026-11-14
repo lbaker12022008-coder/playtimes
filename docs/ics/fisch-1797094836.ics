@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-fisch-1797094836@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261212T170036Z
 DTEND:20270109T170036Z
 SUMMARY:Fisch: Fischmas
@@ -14,7 +14,7 @@ DESCRIPTION:The Fischmas update returns with a new area located in the Nor
   the festive winter! Fish up a huge variety of limited Fischmas fish\, un
  lock limited-time rods\, and collect a ton of new Christmas rewards!\n\nI
  t seems that this year\, Santa is up to no good...
-URL:https://playtimestats.com/game/fisch.html
+URL:https://playtimestats.com/game/fisch
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-bike-for-egg-1794659402@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T123002Z
 DTEND:20261216T154002Z
 SUMMARY:Bike For Egg: UPDATE!
 DESCRIPTION:💎 Ride into a brand-new zone!\n🥚 Discover and collect ne
  w pets!\n😈 Join us live for Admin Abuse!
-URL:https://playtimestats.com/game/bike-for-egg.html
+URL:https://playtimestats.com/game/bike-for-egg
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-horse-life-1795815057@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261127T213057Z
 DTEND:20261130T045557Z
 SUMMARY:Horse Life: Alien Event-- FINALE!
 DESCRIPTION:Final week of our Alien Event. Enjoy a new Subspecies and more
  ! Thank you for joining us on a journey that was truly out of this world!
-URL:https://playtimestats.com/game/horse-life.html
+URL:https://playtimestats.com/game/horse-life
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

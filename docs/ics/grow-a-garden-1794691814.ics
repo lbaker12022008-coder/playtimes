@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-grow-a-garden-1794691814@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T213014Z
 DTEND:20261121T210014Z
 SUMMARY:Grow a Garden: 🏆⚱️ANUBIS PART 2⚱️🏆
@@ -12,7 +12,7 @@ DESCRIPTION:This update introduces the second part of the Anubis Event\, v
  arious activities to participate in\, new plants\, pets\, fence\, rewards
  \, QOL\, and lots more to discover!\n\nFollow the event so you don't miss
   out ⚱️☀️🐫🏆
-URL:https://playtimestats.com/game/grow-a-garden.html
+URL:https://playtimestats.com/game/grow-a-garden
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

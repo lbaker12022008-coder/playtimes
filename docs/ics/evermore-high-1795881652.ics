@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-evermore-high-1795881652@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261128T160052Z
 DTEND:20261226T010052Z
 SUMMARY:Evermore High: Winter at Swan Lake
 DESCRIPTION:Winter is coming to Evermore High!
-URL:https://playtimestats.com/game/evermore-high.html
+URL:https://playtimestats.com/game/evermore-high
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

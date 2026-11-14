@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-sniper-arena-1794787214@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261116T000014Z
 DTEND:20261216T155514Z
 SUMMARY:Sniper Arena: NEW BATTLEPASS SEASON!
 DESCRIPTION:Battlepass and Rank-Up rewards have been greatly increased! Ea
  rn tons of Dream Cases!
-URL:https://playtimestats.com/game/sniper-arena.html
+URL:https://playtimestats.com/game/sniper-arena
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

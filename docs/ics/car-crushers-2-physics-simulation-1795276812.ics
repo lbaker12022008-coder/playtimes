@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-car-crushers-2-physics-simulation-1795276812@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261121T160012Z
 DTEND:20261205T150012Z
 SUMMARY:Car Crushers 2 - Physics Simulation: Update 92 Countdown ⌛
 DESCRIPTION:Many new cars and a new special feature is on the way. More de
  tails soon
-URL:https://playtimestats.com/game/car-crushers-2-physics-simulation.html
+URL:https://playtimestats.com/game/car-crushers-2-physics-simulation
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

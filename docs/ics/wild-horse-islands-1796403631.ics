@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-wild-horse-islands-1796403631@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261204T170031Z
 DTEND:20261211T170031Z
 SUMMARY:Wild Horse Islands: Winter Resort Island
 DESCRIPTION:Collect tons of limited time items\, accessories\, and horses 
  at Winter Resort Island!
-URL:https://playtimestats.com/game/wild-horse-islands.html
+URL:https://playtimestats.com/game/wild-horse-islands
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

@@ -4,13 +4,13 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-backseat-rally-1795280401@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261121T170001Z
 DTEND:20261123T080001Z
 SUMMARY:Backseat Rally: ???
 DESCRIPTION:Something new is coming next Saturday. Hit Notify Me so you're
   first in when it drops!\n\nBackseat Rally
-URL:https://playtimestats.com/game/backseat-rally.html
+URL:https://playtimestats.com/game/backseat-rally
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

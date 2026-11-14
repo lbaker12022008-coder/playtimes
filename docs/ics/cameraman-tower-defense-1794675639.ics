@@ -4,12 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-cameraman-tower-defense-1794675639@playtime
-DTSTAMP:20261114T052036Z
+DTSTAMP:20261114T052636Z
 DTSTART:20261114T170039Z
 DTEND:20261121T170039Z
 SUMMARY:Cameraman Tower Defense: 100M Visits Event
 DESCRIPTION:More Info will be soon!
-URL:https://playtimestats.com/game/cameraman-tower-defense.html
+URL:https://playtimestats.com/game/cameraman-tower-defense
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
