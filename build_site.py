@@ -238,34 +238,59 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .hdr.narrow .in{max-width:min(820px,100%)}
 .hrow{display:flex;align-items:center;gap:12px}
 .hrow .gap{flex:1 1 auto}
-/* Signing out is a thing you DO, so it gets a row of its own that looks like the
-   other rows in the panel, not a 12px underlined word tucked after the name. As
-   drawn before, it was fainter than every link beneath it and read as a caption:
-   the one person who needed it could not find it. The name stays a quiet caption
-   above, which is what it actually is.
-   The form is flex:1 0 100% so it always takes a line of its own however long the
-   display name is, and -13px of side margin cancels .dacct's padding so the row
-   reaches the panel edges and its label lines up with "All games" below. */
-.acct{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
-.acct form{flex:1 0 100%;margin:6px -13px 0}
-/* Width and height are on the tag as well, so the row does not jump when the
-   picture arrives. flex:0 0 auto stops it being squeezed by a long display name. */
-.acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;
+/* The account lives in the bar, beside the search, rather than inside the panel
+   behind the three lines: it is the one control that says something about the
+   person rather than about the page, and buried in a menu nobody found it.
+   Signed out it is a round button that leads to Roblox; signed in, the person's
+   own picture takes its place and their name and Sign out move into a small menu
+   underneath - the bar has room for a face, not for a name and a verb.
+   From 900px up both forms widen into a pill and say what they are, because an
+   unlabelled person glyph is the one button up here whose meaning cannot be
+   guessed. That rule is written `.acct .acctb` and not `.acctb`: the plain
+   `.iconb` width sits further down the stylesheet and a media query adds no
+   specificity, so one class would simply lose to it and the pill would stay a
+   42px square.
+   :empty is what keeps the bar tidy when the Roblox keys are missing - ptPaint()
+   writes nothing at all then, and an empty div would hold a gap open. */
+.acct{position:relative;flex:none}
+.acct:empty{display:none}
+/* `.acct .acctb` for the same reason as the pill below: .iconb is display:grid and
+   is written further down, so a one-class rule here lost to it and the glyph sat
+   stacked ON TOP of the word instead of beside it. Every .acctb rule carries the
+   wrapper for that reason - do not simplify them back to one class. */
+.acct .acctb{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+/* Width and height are on the tag as well, so the bar does not jump sideways when
+   the picture arrives. flex:0 0 auto stops a long display name squeezing it. */
+.acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
-.acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
-.acct .signin:hover{border-color:var(--acc)}
-.acct .linkish{display:flex;align-items:center;width:100%;padding:11px 13px;border:0;
-border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
-font-size:1rem;text-align:left;cursor:pointer}
+.albl{display:none;max-width:118px;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap;font-size:.9rem;font-weight:700}
+/* Hangs off the right edge, since the button is at the right end of the bar, and
+   borrows .gmenu's box so the header's two menus are plainly the same object.
+   `.acct .amenu`, not `.amenu`: .gmenu sets left:0 for the game picker at the LEFT
+   end of the bar and is written further down the stylesheet, so a single class
+   loses to it and the menu opens rightwards off the screen - measured 252px wide
+   ending at 473px inside a 390px phone. Two classes settle it whatever the order. */
+.acct .amenu{left:auto;right:0;min-width:208px}
+.amenu .who{display:block;margin:1px 10px 7px;font-weight:700;color:var(--ink);
+max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amenu form{margin:0}
+/* Signing out is a thing you DO, so it is a row you can hit rather than a 12px
+   underlined word tucked after the name. As drawn before it was fainter than
+   everything around it and read as a caption: the one person who needed it could
+   not find it. */
+.acct .linkish{display:flex;align-items:center;width:100%;padding:10px;border:0;
+border-radius:10px;background:none;color:var(--ink);font:inherit;font-weight:600;
+font-size:.95rem;text-align:left;cursor:pointer}
 .acct .linkish:hover,.acct .linkish:focus-visible{background:var(--shade)}
+@media(min-width:900px){.acct .acctb{width:auto;padding:0 13px}.albl{display:block}}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-/* Below the width where the row of sections fits, the header is logo, name and
-   game picker on the left and the three-line button on the right. Search, theme
-   and the account are in the panel that button opens, so they are hidden here
-   rather than fighting for the same row. */
+/* The header is logo, name and game picker on the left, then the account, the
+   search magnifier and the three-line button on the right. Light and dark is the
+   one control still kept in the panel that button opens; search joins it below
+   900px, where the bar has no room to offer both. */
 /* the game switcher, top left */
 .gpick{position:relative;min-width:0}
 .gpick>button{display:flex;align-items:center;gap:8px;max-width:240px;min-width:0;padding:8px 13px;border-radius:12px;
@@ -307,7 +332,6 @@ border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600
 text-align:left;cursor:pointer}
 .drow:hover,.drow:focus-visible{background:var(--shade)}
 .drow svg{width:18px;height:18px;flex:none;fill:currentColor}
-.dacct{padding:6px 13px;min-height:0}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -851,13 +875,18 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                      for k, t, u in TABS)
     # The same shape at every width: logo, name, game picker, then the buttons on
-    # the right. Light/dark and the account live inside the panel the three lines
-    # open, on a laptop exactly as on a phone. Search is the one exception: a wide
-    # screen has room for it, so the magnifier sits in the bar there (.deskonly)
-    # and the panel hides its own search row to match. Nothing in the scripts had
-    # to change for the second copy, because they bind every [data-search] and
-    # [data-themebtn] rather than an id - keep it that way.
-    buttons = (f'<button class="iconb deskonly" data-search type="button" '
+    # the right. The account is the first of those buttons, next to the search, at
+    # every width - it is about the person rather than about the page, and while it
+    # sat inside the panel it went unfound. It is written EMPTY here: ptPaint() in
+    # FAVJS fills it once /api/me has answered, because only the worker knows
+    # whether anybody is signed in and a built page is the same file for everyone.
+    # Light/dark stays in the panel. Search is in both: a wide screen has room, so
+    # the magnifier sits in the bar from 900px up (.deskonly) and the panel hides
+    # its own search row to match. Nothing in the scripts had to change for that
+    # second copy, because they bind every [data-search] and [data-themebtn]
+    # rather than an id - keep it that way.
+    buttons = (f'<div class="acct"></div>'
+               f'<button class="iconb deskonly" data-search type="button" '
                f'aria-label="Search for a game">{ICON_SEARCH}</button>'
                f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
                f'aria-controls="drawer" aria-label="Menu">{ICON_MENU}</button>')
@@ -871,8 +900,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
               f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
-              f'<span class="tlab">Dark mode</span></button>'
-              f'<div class="acct dacct"></div></div>'
+              f'<span class="tlab">Dark mode</span></button></div>'
               f'<nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours">When is Roblox busiest?</a>'
               f'<a href="/about">About</a></nav></div>'
@@ -1936,6 +1964,7 @@ def parents_html(passes, icons):
 # Saved games. Signed out, the list lives only in this browser. Signed in with
 # Roblox, it also follows the person to their other devices.
 FAVJS = """var PT={name:null,available:false,favs:null,cbs:[]};
+var PTPERSON='__PERSON__';
 var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
@@ -1946,15 +1975,26 @@ body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+/* Signed out, one button that leads to Roblox. Signed in, the person's own
+   picture takes that same button's place, and their name and Sign out move into a
+   menu under it. Not available at all - no Roblox keys set - and this writes
+   nothing, so the empty .acct collapses and the bar reads as though sign-in had
+   never existed.
+   alt is empty on purpose: the name is right beside the picture, and a screen
+   reader announcing it twice is worse than not announcing it at all. */
 function ptPaint(){var markup=!PT.available?'':PT.name
-/* alt is empty on purpose: the name is right beside it, and a screen reader
-   announcing it twice is worse than not announcing the picture at all. */
-?(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':'')
-+'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
-+'<button class="linkish" type="submit">Sign out</button></form>'
-:'<a class="signin" href="/auth/login">Sign in with Roblox</a>';
-/* Two of these: the one in the header on a wide screen and the one in the phone
-   panel. Whichever is hidden costs nothing, and neither can go stale. */
+?'<button class="iconb acctb" id="acctbtn" type="button" aria-haspopup="true" '
++'aria-expanded="false" aria-controls="amenu" aria-label="Your account">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
++'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
++'<div class="gmenu amenu" id="amenu" hidden><p>Signed in as</p>'
++'<span class="who">'+ptEsc(PT.name)+'</span>'
++'<form method="POST" action="/auth/logout">'
++'<button class="linkish" type="submit">Sign out</button></form></div>'
+:'<a class="iconb acctb" href="/auth/login" aria-label="Sign in with Roblox">'
++PTPERSON+'<span class="albl">Sign in</span></a>';
+/* One of these now, in the header bar. Still found by class rather than by id,
+   so a second copy anywhere would need no new code. */
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=markup});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
@@ -1985,6 +2025,12 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});"""
+
+# The account button in the header draws the same person glyph the player counts
+# use, so it is dropped in rather than drawn a second time by hand. PERSON quotes
+# its attributes with " and holds no ', which is what makes it safe inside the
+# single-quoted JavaScript string above.
+FAVJS = FAVJS.replace("__PERSON__", PERSON)
 
 FAV_GAME = """
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
@@ -2040,7 +2086,7 @@ if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
 mb=document.getElementById('menubtn');
 if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
+if(mb)mb.setAttribute('aria-expanded','false');ashut();shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
@@ -2071,6 +2117,29 @@ GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Pl
 q.oninput=draw;
 sheet.onclick=function(e){if(e.target===sheet)shut()}}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
+
+/* The account menu, under the picture in the bar. ptPaint() rewrites that markup
+   whenever /api/me answers, which can happen after this script has run and happens
+   again on every repaint, so the button is reached by delegation from the document
+   rather than held in a variable: a handler put on the button itself would be
+   thrown away with the old markup and the menu would quietly stop opening.
+   e.target.closest is guarded because on iOS a click that has bubbled this far can
+   arrive at a text node, which has no closest and would throw - the same thing that
+   once stopped the reminder links working. ashut() is declared here but called from
+   shut() above; a function declaration is hoisted to the top of this IIFE, so the
+   order on the page does not matter. */
+function ashut(){var m=document.getElementById('amenu'),
+b=document.getElementById('acctbtn');
+if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
+document.addEventListener('click',function(e){
+var m=document.getElementById('amenu');if(!m)return;
+if(e.target.closest&&e.target.closest('#acctbtn')){
+var show=m.hidden;shut();m.hidden=!show;
+var b=document.getElementById('acctbtn');
+if(b)b.setAttribute('aria-expanded',show?'true':'false');return}
+/* A click anywhere else shuts it, except inside the menu itself - Sign out is a
+   form in there and has to get its own click. */
+if(!(e.target.closest&&e.target.closest('#amenu')))ashut()});
 
 var box=document.getElementById('gpick');if(!box)return;
 function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
