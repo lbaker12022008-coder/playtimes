@@ -202,6 +202,32 @@ async function deleteEverything(request, env, userId) {
 
 /* -------------------------------------------------------------- the router */
 
+/**
+ * The person's own Roblox headshot, for the account menu.
+ *
+ * Fetched rather than stored, on purpose. An avatar changes every time somebody
+ * changes their outfit, so a copy in our database would be wrong within a week, and
+ * it would be one more thing held about a person for no gain. This way the users
+ * table still holds only an id and a display name.
+ *
+ * Cached at Cloudflare for a day, so a visitor opening twenty pages costs Roblox one
+ * call. If the endpoint is down or the avatar is still rendering, it returns null and
+ * the menu simply shows the name on its own.
+ */
+async function headshot(userId) {
+  try {
+    const res = await fetch(
+      "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" +
+      encodeURIComponent(userId) + "&size=48x48&format=Png&isCircular=true",
+      { cf: { cacheTtl: 86400, cacheEverything: true } });
+    if (!res.ok) return null;
+    const one = ((await res.json()).data || [])[0];
+    return one && one.state === "Completed" && one.imageUrl ? one.imageUrl : null;
+  } catch (err) {
+    return null;
+  }
+}
+
 /** Returns a Response for anything auth-related, or null to let other code handle it. */
 export async function handleAuth(request, env, path) {
   if (path === "/api/me") {
@@ -212,9 +238,10 @@ export async function handleAuth(request, env, path) {
     // id lets the page tell "this device has already handed its saved games to this
     // account" from "a different account just signed in here". Without it, removing a
     // game on one device gets undone by another device's older list.
+    const [favs, pic] = await Promise.all([readFavourites(env, userId), headshot(userId)]);
     return json({
       signedIn: true, available: true, id: userId,
-      name: row?.name || "Roblox user", favs: await readFavourites(env, userId)
+      name: row?.name || "Roblox user", pic, favs
     });
   }
 

@@ -200,10 +200,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
 /* One slim bar, about 62px tall, holding four things. */
 .hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 20px}
+/* The bar's contents sit over the page's contents, so the band holding the logo
+   has to be as wide as the column underneath it - 1400px on the wide pages, 820px
+   on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
+   About, Events, Compare and Plan stood about 290px to the left of the words it
+   was supposed to be sitting above, because an 820px column is centred inside a
+   1400px band. .hdr itself still spans the whole screen; only what is inside it
+   moves, so the bar does not change shape from page to page. */
+.hdr.narrow .in{max-width:min(820px,100%)}
 .hrow{display:flex;align-items:center;gap:12px}
 .hrow .gap{flex:1 1 auto}
 .acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
 .acct form{margin:0}
+/* Width and height are on the tag as well, so the row does not jump when the
+   picture arrives. flex:0 0 auto stops it being squeezed by a long display name. */
+.acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;
+border:1px solid var(--line);background:var(--shade)}
 .acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
@@ -851,7 +863,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
-{banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
+{banner_html(banner)}<header class="hdr{'' if wide else ' narrow'}"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 {buttons}</div></div></header>{extras}
@@ -1879,7 +1891,10 @@ PT.ready=function(fn){PT.cbs.push(fn);fn()};
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ptPaint(){var markup=!PT.available?'':PT.name
-?'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
+/* alt is empty on purpose: the name is right beside it, and a screen reader
+   announcing it twice is worse than not announcing the picture at all. */
+?(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':'')
++'<span class="who">'+ptEsc(PT.name)+'</span><form method="POST" action="/auth/logout">'
 +'<button class="linkish" type="submit">Sign out</button></form>'
 :'<a class="signin" href="/auth/login">Sign in with Roblox</a>';
 /* Two of these: the one in the header on a wide screen and the one in the phone
@@ -1889,6 +1904,7 @@ el.innerHTML=markup});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
+PT.pic=d.signedIn?(d.pic||null):null;
 if(d.signedIn){var server=(d.favs||[]).slice(),joined=null;
 /* who is null if an older worker is still answering, which just means we merge again. */
 var who=d.id?String(d.id):null;

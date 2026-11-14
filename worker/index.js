@@ -27,6 +27,18 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
+
+    // One address, one session. The sign-in cookie carries no Domain, so it belongs
+    // to the exact host it was set on: someone who signed in on playtimestats.com and
+    // then opened a www link arrived with no cookie at all and read as signed out,
+    // which looked like being logged out at random. Sending www to the bare name
+    // before anything else means there is only ever one host to be signed in on, and
+    // it is the one every canonical tag and the whole sitemap already name.
+    if (url.hostname.startsWith("www.")) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
+
     try {
       if (path === "/api/hit" && request.method === "POST") return await recordHit(request, env);
       if (path === "/api/time" && request.method === "POST") return await recordTime(request, env);
