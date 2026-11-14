@@ -1,6 +1,6 @@
 // Written by build_site.py on every build. Do not edit by hand.
 export default {
- "built_at": "2026-11-14T19:49:31Z",
+ "built_at": "2026-11-14T20:00:30Z",
  "site": {
   "noindex": false,
   "min_samples": 200,
@@ -14,7 +14,7 @@ export default {
   "samples": 136509,
   "trend_ready": 100,
   "with_events": 130,
-  "upcoming_events": 156
+  "upcoming_events": 155
  },
  "games": [
   {
@@ -847,7 +847,7 @@ export default {
    "trend": -3.3,
    "verdict": "Getting quieter",
    "events": 10,
-   "upcoming": 2
+   "upcoming": 1
   },
   {
    "id": "10769384180",
