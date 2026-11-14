@@ -37,7 +37,22 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 - `MAX_FAVS` in `worker/auth.js` and `MAXFAVS` in `FAVJS` must stay equal.
 - Saved-game merging: the first time a device signs in to an account it hands over anything saved locally, and records that account's id in `pt_joined`. After that the server wins, so un-saving a game on one device is not undone by another device's older list.
 
-### Sign-in is wired up but BLOCKED until the site has its own domain (Nov 2026)
+### Unblocked by the domain, 13 Nov 2026
+`playtimestats.com` is registered and attached to the worker, so the redirect URL Roblox kept
+refusing is now a real address. A **second OAuth app** was made at that point: the live client id
+is `5479373624062556036`, and the old app (`5285601446665495033`) should be deleted. Both secrets
+were re-put with `wrangler secret put`, which takes effect immediately with no deploy. **The
+client secret was pasted into a chat to get there, so it should be regenerated** once sign-in is
+confirmed. Only `https://playtimestats.com/auth/callback` needs registering now: the worker 301s
+every `www` request to the bare name before anything else runs, so `/auth/login` is never reached
+on `www` and a second redirect URL would never be used.
+
+**The session cookie is host-only** - no `Domain` attribute - so before that redirect existed,
+signing in on one host and opening a link on the other read as being signed out. If sign-in ever
+starts "forgetting" people again, check what hostnames answer before suspecting the cookie.
+
+The history below is kept because it explains why things are shaped this way.
+
 **Roblox will not accept a `workers.dev` address as a redirect URL.** The Creator Hub refuses to
 save it ("the link is invalid"), and an authorize attempt against an app without it saved ends on
 Roblox's own red "Authorization Error - Redirect URI is invalid for this application" page.
@@ -90,7 +105,7 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
 - `BOOT` runs in the head before anything is drawn, so neither the theme nor the view flashes the wrong way round.
 - **Game switcher** (top left, `CHROME_JS`): the last 8 games viewed, kept in `pt_recent`. Each game page sets `window.PT_GAME` near the end of its body, which must stay *before* the `CHROME_JS` tag at the end of the page. `CHROME_JS` is on every page, so it may only use helpers from `FAVJS` (which is in the head) such as `ptEsc` - not `esc` from `SHARED_JS`, which only chart pages load.
 - **Ads**: `ad_rail()` gives a left rail, a right rail and a sticky bottom strip, sized but empty, with ids `ad-left`, `ad-right`, `ad-bottom`. The AdSense loader belongs in `ADS` and goes in the page head **once**; the rails must never repeat it. `SHOW_RAILS` means the slots show dashed outlines in previews and are left out of the live site until `ADS` is filled in, so visitors never see empty grey boxes. Rails need 1480px of screen, the bottom strip 900px, so phones stay clean. **The middle track is capped at the width the page actually uses** - 820px, or 1400px when `page()` adds `wideads` alongside `ads` - rather than `1fr`. A `1fr` middle track swallows every spare pixel, so on a 2560px monitor the reading column stayed 820px in the centre while the ads sat nearly 700px out at the edges, reading as two stray boxes instead of a page; capping it lets `justify-content:center` centre all three together. It must stay `minmax(0,Npx)` and never a flat width, or a screen between 1480 and 1776px scrolls sideways on the wide pages.
-- Content is 1400px wide (`.w.wide`), 820px for reading pages.
+- Content is 1400px wide (`.w.wide`), 820px for reading pages, and **the header's own band is written to match** - `.hdr.narrow` on a reading page, `.hdr.wideads` to follow the middle track when the ad rails squeeze it. The logo is supposed to sit exactly above the first word under it; both use the same 16px side padding, which is what makes that land on the pixel. **The 820px cap has to out-rank `.shell>*{max-width:100%}`**, which is also one class and comes later in the stylesheet: a plain `.w` lost to it and every reading page (Privacy, Terms, About, Events, Compare, Plan) ran the full width of the window - measured 1920px across on a 1920px screen, flush left, with the logo 280px further in. `.w.wide` was never affected, because two classes beat one, so only the reading pages looked wrong. They are re-stated as `.shell>.w` and `.shell>.w.wide` for the weight.
 - **Phones**: the mobile stylesheet is `@media(max-width:620px)`. The site used to scroll sideways on a phone, and these rules are what stop it. **Measure before changing any of them** (see the note below): every one was found by measuring, and several things that looked like the cause were not.
   - **A sideways-scrolling strip must be `display:block` + `white-space:nowrap`, never a `flex-wrap:nowrap` flex row.** A nowrap flex container reports the total width of its items as its max-content width and its parent grows to fit, even though the strip has `overflow-x:auto` and scrolls. The category pills (1347px of them) dragged the whole homepage to 1094px inside a 390px phone. `.tabs` and `.pills` are both written this way now; `.wrap` is fine because it is a plain block.
   - **Any design width is written `max-width:min(Npx,100%)`**, never a bare `max-width:Npx`. `.w.wide`'s `max-width:1400px` beat `.shell>*{max-width:100%}` on specificity, so the clamp has to live on the width itself. Same for `.hdr .in`.
