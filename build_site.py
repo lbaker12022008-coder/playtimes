@@ -109,7 +109,15 @@ filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
 .banner::after{content:"";position:absolute;inset:0;
 background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
 .shell{position:relative;z-index:1}   /* keep the page content above the artwork */
-.w{max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
+/* width:100% is not spare. .w is a grid item with auto side margins, and an item
+   with auto margins is not stretched to its track - it is sized to its contents
+   and centred in whatever is left. So a page whose contents happened to be narrow
+   drew a narrow column and centred that: /popular.html came out 1024px wide and
+   /trending.html 1001px inside the same 1400px band, each centred on its own, so
+   every one of them started at a different distance from the logo (475px, 464px,
+   446px, 404px at 1920px). Asking for the full width and capping it with max-width
+   makes every page the same width and lines them all up under the header. */
+.w{width:100%;max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
 .w.wide{max-width:min(1400px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
@@ -124,6 +132,16 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
+   .w's own max-width on source order and the reading pages ran the full width of
+   the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
+   across on a 1920px screen, flush to the left edge, while the logo above them
+   sat 280px in. .w.wide was never affected because two classes outrank one, which
+   is why only the reading pages looked wrong. Re-stating both clamps as children
+   of .shell gives them the weight to survive, the same trick the wide pages got
+   for free. Keep them after .shell>*, and keep the min(...,100%) form. */
+.shell>.w{max-width:min(820px,100%)}
+.shell>.w.wide{max-width:min(1400px,100%)}
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
@@ -137,6 +155,14 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 @media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
 .shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+/* With the rails up the middle column is no longer 1400px: the three tracks need
+   1776px between them, so from 1480 to 1776 the middle one shrinks and the band
+   holding the logo has to shrink with it, or the logo drifts left of the words
+   again - 88px out at 1600px. 376px is the two 168px rails plus the two 20px
+   gaps. .wideads is only put on the header when the rails are up AND the page is
+   wide, so this can never reach a reading page (which stays capped at 820px by
+   .hdr.narrow, a selector of exactly the same weight). */
+@media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
 /* The strip along the bottom only exists at all when ads are switched on. */
 @media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
 background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
@@ -199,7 +225,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
 /* One slim bar, about 62px tall, holding four things. */
-.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 20px}
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 16px}
+/* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
+   the words below it start, and the phone block already pairs them at 14px. */
 /* The bar's contents sit over the page's contents, so the band holding the logo
    has to be as wide as the column underneath it - 1400px on the wide pages, 820px
    on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
@@ -210,8 +238,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .hdr.narrow .in{max-width:min(820px,100%)}
 .hrow{display:flex;align-items:center;gap:12px}
 .hrow .gap{flex:1 1 auto}
-.acct{display:flex;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
-.acct form{margin:0}
+/* Signing out is a thing you DO, so it gets a row of its own that looks like the
+   other rows in the panel, not a 12px underlined word tucked after the name. As
+   drawn before, it was fainter than every link beneath it and read as a caption:
+   the one person who needed it could not find it. The name stays a quiet caption
+   above, which is what it actually is.
+   The form is flex:1 0 100% so it always takes a line of its own however long the
+   display name is, and -13px of side margin cancels .dacct's padding so the row
+   reaches the panel edges and its label lines up with "All games" below. */
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.88rem;min-height:30px}
+.acct form{flex:1 0 100%;margin:6px -13px 0}
 /* Width and height are on the tag as well, so the row does not jump when the
    picture arrives. flex:0 0 auto stops it being squeezed by a long display name. */
 .acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;
@@ -219,7 +255,10 @@ border:1px solid var(--line);background:var(--shade)}
 .acct .who{color:var(--mut);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct .signin{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .acct .signin:hover{border-color:var(--acc)}
-.acct .linkish{font:inherit;background:none;border:0;color:var(--mut);cursor:pointer;text-decoration:underline;padding:4px}
+.acct .linkish{display:flex;align-items:center;width:100%;padding:11px 13px;border:0;
+border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
+font-size:1rem;text-align:left;cursor:pointer}
+.acct .linkish:hover,.acct .linkish:focus-visible{background:var(--shade)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -834,6 +873,17 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
               f'<div id="qout" class="qout"></div></div></div>')
+    # The band holding the logo has to be as wide as the column of words below it, or
+    # the logo does not sit above what it belongs to. A reading page is 820px, a wide
+    # page 1400px, and a wide page with the ad rails up is narrower still between 1480
+    # and 1776px, because the rails and the gaps take 376px of the width. The
+    # stylesheet does each of those; this just says which one this page is.
+    if not wide:
+        band = " narrow"                              # 820px, the reading pages
+    elif SHOW_RAILS:
+        band = " wideads"                             # 1400px, shrinking with the rails
+    else:
+        band = ""                                     # 1400px flat
     crumb_html, crumb_data = crumbs(trail or [])
     # Back and the trail are both "where am I and how do I leave", so they share one
     # line instead of taking a line each. The trail is the one that goes on a phone:
@@ -863,7 +913,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
-{banner_html(banner)}<header class="hdr{'' if wide else ' narrow'}"><div class="in"><div class="hrow">
+{banner_html(banner)}<header class="hdr{band}"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 {buttons}</div></div></header>{extras}
