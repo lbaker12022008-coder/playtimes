@@ -31,6 +31,20 @@ EVENT_API = "https://apis.roblox.com/virtual-events/v1/universes/{}/virtual-even
 HOUR = 3600
 DAY = 24 * HOUR
 
+# How long a game's own artwork may be remembered. Creators repaint an icon to
+# advertise an update - often a countdown ("12 HOURS") that is wrong by teatime -
+# and on 14 Nov 2026 34 of the 140 icons on the live site had changed within half a
+# day of the build that fetched them. A week was far too long for something that
+# moves this fast: it is the difference between a stale picture and a stale picture
+# that is also visibly counting down to a moment that has passed.
+#
+# The build server has no cache at all (.cache/ is gitignored and the runner starts
+# empty), so this only binds local and preview builds. That is exactly why it
+# matters: without it those builds quietly disagree with the live site, and anyone
+# who later caches .cache/ to speed the build up would freeze every picture for a
+# week without noticing.
+ARTWORK = DAY
+
 
 def get_json(url, tries=3):
     req = urllib.request.Request(url, headers=HEADERS)
@@ -95,7 +109,7 @@ def fetch_icons(ids):
     out = {}
     for i in range(0, len(ids), 50):
         batch = ids[i:i + 50]
-        out.update(cached("icons:" + ",".join(map(str, batch)), 7 * DAY, lambda b=batch: pull(b)))
+        out.update(cached("icons:" + ",".join(map(str, batch)), ARTWORK, lambda b=batch: pull(b)))
     return {int(k): v for k, v in out.items()}
 
 
@@ -116,7 +130,7 @@ def fetch_banners(ids):
     out = {}
     for i in range(0, len(ids), 50):
         batch = ids[i:i + 50]
-        out.update(cached("banners:" + ",".join(map(str, batch)), 7 * DAY, lambda b=batch: pull(b)))
+        out.update(cached("banners:" + ",".join(map(str, batch)), ARTWORK, lambda b=batch: pull(b)))
     return {int(k): v for k, v in out.items()}
 
 
@@ -367,7 +381,7 @@ def fetch_icon_hues(ids):
     urls = {}
     for i in range(0, len(ids), 50):
         batch = ids[i:i + 50]
-        urls.update(cached("pngicons:" + ",".join(map(str, batch)), 7 * DAY,
+        urls.update(cached("pngicons:" + ",".join(map(str, batch)), ARTWORK,
                            lambda b=batch: pull(b)))
     out = {}
     for uid, url in urls.items():
