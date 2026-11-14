@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-my-small-business-1794668438@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T150038Z
 DTEND:20261121T150038Z
 SUMMARY:My Small Business: Jewelry! 💍
@@ -17,6 +17,7 @@ DESCRIPTION:💍 Jewelry: Unlock the new Jewelry Studio to design and sell
  🐉 Limited Plushie: Limited-stock Starlight Dragon plushie with +75% ti
  ps!\n\nOther Changes:\n- Added the Goodies Helper\, a worker who restocks
   your goodies\n- Manage Workers is now its own app on the Phone\n
+URL:https://playtimestats.com/game/my-small-business.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

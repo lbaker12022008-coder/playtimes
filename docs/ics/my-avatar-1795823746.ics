@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-my-avatar-1795823746@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261127T235546Z
 DTEND:20261128T235546Z
 SUMMARY:My Avatar: Black Friday
@@ -15,6 +15,7 @@ DESCRIPTION:Every hour for 24 hours\, a new item drops in the Point Store
  \nOpen the Black Friday tab in the Point Store to preview upcoming items 
  and see when each one releases.\n\nTurn on notifications for this event s
  o you don't miss the item you want.
+URL:https://playtimestats.com/game/my-avatar.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

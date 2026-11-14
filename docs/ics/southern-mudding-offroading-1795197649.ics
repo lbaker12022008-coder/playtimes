@@ -4,15 +4,16 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-southern-mudding-offroading-1795197649@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261120T180049Z
 DTEND:20261127T180049Z
-SUMMARY:Southern Mudding OffRoading: 👀Next Week's Update!👀
+SUMMARY:Southern Mudding OffRoading: 👀Lifted ATVs!👀
 DESCRIPTION:Follow to be notified when the update drops!
+URL:https://playtimestats.com/game/southern-mudding-offroading.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Southern Mudding OffRoading: 👀Next Week's Update!👀
+DESCRIPTION:Southern Mudding OffRoading: 👀Lifted ATVs!👀
 END:VALARM
 END:VEVENT
 END:VCALENDAR

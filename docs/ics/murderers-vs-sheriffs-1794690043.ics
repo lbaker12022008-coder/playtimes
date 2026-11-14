@@ -4,14 +4,25 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-murderers-vs-sheriffs-1794690043@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T210043Z
 DTEND:20261121T210043Z
-SUMMARY:Murderers VS Sheriffs: ????????
+SUMMARY:Murderers VS Sheriffs: RANKED S2 + NIGHTNOVA
+DESCRIPTION:🏆 RANKED SEASON 2 🏆\n\nClimb the ranks\, claim your rewa
+ rds\, and take the throne!\n\n⚔️ NEW RANKED PASS\nProgress through 10
+  rewards\, including the Legendary Cloudpiercer Knife\, Mythic Starfall D
+ eath Effect\, Mythic Take the Throne Emote\, and the ultimate prize: the 
+ Ancient Hellscale Knife!\n\n✨ RANK BASED REWARDS\nEarn the Ascendent li
+ ne weapons as rank based rewards\, unlocking variations as you climb:\nBr
+ onze → Silver → Gold → Diamond → Emerald → Grandmaster → Cham
+ pion.\n\n🌌 NIGHTNOVA SET\nThe Nightnova set is now available! Wield Ni
+ ghtnova’s Fang and the Nightnova’s Flight Bow\, featuring cosmic colo
+ rs an
+URL:https://playtimestats.com/game/murderers-vs-sheriffs.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Murderers VS Sheriffs: ????????
+DESCRIPTION:Murderers VS Sheriffs: RANKED S2 + NIGHTNOVA
 END:VALARM
 END:VEVENT
 END:VCALENDAR

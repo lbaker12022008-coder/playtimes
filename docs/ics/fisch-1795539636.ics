@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-fisch-1795539636@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261124T170036Z
 DTEND:20261201T170036Z
 SUMMARY:Fisch: Fischgiving
@@ -12,6 +12,7 @@ DESCRIPTION:The feast is almost ready\, but Pilgrim needs some company! Di
  ve into Fischgiving 3 starting November 24th to help scattered families c
  elebrate\, unlock global goals\, and make sure everyone has a place at th
  e dinner table!\n\nLook out for The Great Turkey...
+URL:https://playtimestats.com/game/fisch.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

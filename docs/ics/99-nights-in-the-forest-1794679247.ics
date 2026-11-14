@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-99-nights-in-the-forest-1794679247@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T180047Z
 DTEND:20261121T105547Z
 SUMMARY:99 Nights in the Forest: Halloween is Over
@@ -17,6 +17,7 @@ DESCRIPTION:Halloween is over\, this week removes all of the Halloween con
  ably after whistling\n-Kids drop when you leave the game (if you had them
   in inventory)\n-Mobs sometimes stuttering in caves fixed\n-Chests lookin
  g closed when you've already opened th
+URL:https://playtimestats.com/game/99-nights-in-the-forest.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

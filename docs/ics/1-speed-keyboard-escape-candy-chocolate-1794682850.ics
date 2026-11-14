@@ -4,10 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-1-speed-keyboard-escape-candy-chocolate-1794682850@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T190050Z
 DTEND:20261115T200050Z
 SUMMARY:+1 Speed Keyboard Escape | Candy & Chocolate: ADMIN ABUSE + UPDATE
+URL:https://playtimestats.com/game/1-speed-keyboard-escape-candy-chocolate
+ .html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

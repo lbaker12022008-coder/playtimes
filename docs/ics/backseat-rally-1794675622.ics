@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-backseat-rally-1794675622@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T170022Z
 DTEND:20261121T170022Z
 SUMMARY:Backseat Rally: UPD + Midnight Rally
@@ -15,6 +15,7 @@ DESCRIPTION:The Midnight Rally update lands Saturday\, with a mountain pas
  th tokens\n🧤 The top 5 win EXCLUSIVE champion gloves\n👥 Double team
   points all week\n🛒 A travelling merchant\, here for one week only\n\n
  Grab a co-driver and go for the top spot!\n\nBackseat Rally
+URL:https://playtimestats.com/game/backseat-rally.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

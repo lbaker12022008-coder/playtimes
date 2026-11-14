@@ -4,13 +4,14 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-untitled-boxing-game-4102430423@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20991231T200023Z
 DTEND:20991231T205923Z
 SUMMARY:untitled boxing game: RANKED V2
 DESCRIPTION:Ranked V2 is in development:\n- Every gamepass will be DROPPAB
  LE and TRADEABLE (for free)\n- Ring entrances for all matches\n- Exclusiv
  e Pick a Shiny reward\n- All new ELO + matchmaking system
+URL:https://playtimestats.com/game/untitled-boxing-game.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

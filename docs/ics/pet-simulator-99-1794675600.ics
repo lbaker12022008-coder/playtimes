@@ -4,13 +4,14 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-pet-simulator-99-1794675600@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T170000Z
 DTEND:20261121T170000Z
 SUMMARY:Pet Simulator 99: 🎃 ??? 🎃
 DESCRIPTION:🎃 Something BIG is growing.. 🍂\n\n🏡 Your very own ISL
  AND!\n🌈 The rarer it is.. the BIGGER it gets!\n👀 And that's not eve
  n all!\n\n🔔 Follow event for more news! 📰
+URL:https://playtimestats.com/game/pet-simulator-99.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

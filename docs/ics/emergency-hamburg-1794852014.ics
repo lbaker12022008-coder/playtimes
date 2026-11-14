@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-emergency-hamburg-1794852014@playtime
+DTSTAMP:20261114T015133Z
+DTSTART:20261116T180014Z
+DTEND:20261123T180014Z
+SUMMARY:Emergency Hamburg: ???
+DESCRIPTION:Something is happening in Emergency Hamburg. What will it be?
+URL:https://playtimestats.com/game/emergency-hamburg.html
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Emergency Hamburg: ???
+END:VALARM
+END:VEVENT
+END:VCALENDAR

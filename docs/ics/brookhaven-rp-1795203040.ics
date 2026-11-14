@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-brookhaven-rp-1795203040@playtime
+DTSTAMP:20261114T015133Z
+DTSTART:20261120T193040Z
+DTEND:20261127T180040Z
+SUMMARY:Brookhaven RP: BUILD A LEGO® HOUSE!
+DESCRIPTION:You've laid the foundations... now it's time to BUILD! Week 2 
+ of the LEGO® Construction Event is HERE!\n\nIt's time to grab that hard 
+ hat again\, gather your tools\, and get ready to build the ultimate LEGO
+ ® house!
+URL:https://playtimestats.com/game/brookhaven-rp.html
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Brookhaven RP: BUILD A LEGO® HOUSE!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

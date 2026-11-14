@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-wild-horse-islands-1797613231@playtime
+DTSTAMP:20261114T015133Z
+DTSTART:20261218T170031Z
+DTEND:20270108T170031Z
+SUMMARY:Wild Horse Islands: Holiday Village
+DESCRIPTION:Collect tons of limited time holiday themed items\, accessorie
+ s\, & horses at the Holiday Village!
+URL:https://playtimestats.com/game/wild-horse-islands.html
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Wild Horse Islands: Holiday Village
+END:VALARM
+END:VEVENT
+END:VCALENDAR

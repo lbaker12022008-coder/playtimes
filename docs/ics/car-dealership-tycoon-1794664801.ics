@@ -4,7 +4,7 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-car-dealership-tycoon-1794664801@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20261114T140001Z
 DTEND:20261212T140001Z
 SUMMARY:Car Dealership Tycoon: MONSTER JAM IS COMING!
@@ -13,7 +13,8 @@ DESCRIPTION:Get ready for massive trucks\, epic jumps\, and exclusive holi
  holiday event featuring Car Dealership Tycoon\, Twilight Daycare\, Easy O
  bby\, Easy Teamwork Obby\, Teen Stepmon Run\, and Untitled Fling Game to 
  work towards unlocking a festive Megalodon truck!\n\nMonster Jam arrives 
- November 14! Sign up now!
+ November 14! Sign up now!\n\n© 2026 Feld Motor Sports\, Inc.
+URL:https://playtimestats.com/game/car-dealership-tycoon.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

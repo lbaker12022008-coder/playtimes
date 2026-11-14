@@ -4,11 +4,12 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-wild-horse-islands-1799431224@playtime
-DTSTAMP:20261113T052809Z
+DTSTAMP:20261114T015133Z
 DTSTART:20270108T180024Z
 DTEND:20270129T180024Z
 SUMMARY:Wild Horse Islands: Magical Forest Part 2
 DESCRIPTION:Explore the dark side of The Magical Forest.
+URL:https://playtimestats.com/game/wild-horse-islands.html
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M

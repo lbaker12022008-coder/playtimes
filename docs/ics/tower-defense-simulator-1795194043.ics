@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-tower-defense-simulator-1795194043@playtime
+DTSTAMP:20261114T015133Z
+DTSTART:20261120T170043Z
+DTEND:20261127T170043Z
+SUMMARY:Tower Defense Simulator: Militant Refresh
+DESCRIPTION:Militant is back\, and better than ever. An intermediate tower
+ \, that compensates his low damage with fast firerate\, and strong\, cost
+ -efficient potential. Take control of the early game with cheap hidden & 
+ flying detection\, but be warned\; Militant’s downfall is large crowds!
+URL:https://playtimestats.com/game/tower-defense-simulator.html
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Tower Defense Simulator: Militant Refresh
+END:VALARM
+END:VEVENT
+END:VCALENDAR
