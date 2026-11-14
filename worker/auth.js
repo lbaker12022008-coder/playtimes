@@ -63,11 +63,31 @@ const redirectUri = request => new URL(request.url).origin + "/auth/callback";
 
 /* -------------------------------------------------------------- the session */
 
-async function makeSession(env, userId) {
+/**
+ * Which hosts the session belongs to.
+ *
+ * The redirect in index.js is not enough on its own: Cloudflare serves a static
+ * page straight out of the assets without ever running this worker, so an ordinary
+ * page view on www is never seen here and never redirected. A cookie with no Domain
+ * belongs to the single host that set it, which is what made signing in on
+ * playtimestats.com and then opening a www link read as signed out.
+ *
+ * Naming the bare domain lets one session cover the site and its www alias both.
+ * Derived from the request rather than written down, so a workers.dev deployment
+ * names itself and nothing has to be edited if the domain ever changes - and it can
+ * never name a public suffix like workers.dev, which a browser would refuse.
+ */
+function cookieDomain(request) {
+  const host = new URL(request.url).hostname;
+  return `Domain=${host.startsWith("www.") ? host.slice(4) : host}; `;
+}
+
+async function makeSession(env, userId, request) {
   const expires = Date.now() + SESSION_DAYS * 86400e3;
   const body = `${expires}.${userId}`;
   const value = `${body}.${await hmac(env.SESSION_SECRET, body)}`;
-  return `${USER_COOKIE}=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}`;
+  return `${USER_COOKIE}=${value}; HttpOnly; Secure; SameSite=Lax; ${cookieDomain(request)}` +
+    `Path=/; Max-Age=${SESSION_DAYS * 86400}`;
 }
 
 /** The signed-in person's Roblox ID, or null. */
@@ -83,7 +103,10 @@ export async function currentUserId(request, env) {
   return (await sameSecret(signature, await hmac(env.SESSION_SECRET, `${expires}.${userId}`))) ? userId : null;
 }
 
-const clearSession = `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+/* Signing out has to name the same Domain the session was set with, or the browser
+   keeps the original cookie and the person stays signed in. */
+const clearSession = request =>
+  `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; ${cookieDomain(request)}Path=/; Max-Age=0`;
 
 /* ----------------------------------------------------------------- the flow */
 
@@ -147,7 +170,7 @@ async function finishLogin(request, env) {
   ).bind(userId, name, now).run();
 
   const headers = new Headers({ location: "/?signedin=1", "cache-control": "no-store" });
-  headers.append("set-cookie", await makeSession(env, userId));
+  headers.append("set-cookie", await makeSession(env, userId, request));
   headers.append("set-cookie", `${STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=0`);
   return new Response(null, { status: 303, headers });
 }
@@ -196,7 +219,7 @@ async function deleteEverything(request, env, userId) {
   ]);
   return new Response(JSON.stringify({ deleted: true }), {
     status: 200,
-    headers: { "content-type": "application/json", "cache-control": "no-store", "set-cookie": clearSession }
+    headers: { "content-type": "application/json", "cache-control": "no-store", "set-cookie": clearSession(request) }
   });
 }
 
@@ -255,7 +278,7 @@ export async function handleAuth(request, env, path) {
   if (path === "/auth/callback" && request.method === "GET") return finishLogin(request, env);
   if (path === "/auth/logout" && request.method === "POST") {
     if (!sameSite(request)) return json({ error: "Blocked" }, 403);
-    return new Response(null, { status: 303, headers: { location: "/", "set-cookie": clearSession, "cache-control": "no-store" } });
+    return new Response(null, { status: 303, headers: { location: "/", "set-cookie": clearSession(request), "cache-control": "no-store" } });
   }
 
   if (path === "/api/favs" || path === "/api/delete-me") {
