@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Epic Minigames Update History and Patch Notes | PlayTime</title>
 <meta name="description" content="When does Epic Minigames update? Past updates and events, how often new ones arrive, and the days its player count jumped."><meta name="theme-color" content="#A855F7">
-<meta name="robots" content="noindex,nofollow"><link rel="canonical" href="https://playtimestats.com/updates/epic-minigames.html">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/epic-minigames.html">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Epic Minigames Update History and Patch Notes | PlayTime">
 <meta property="og:description" content="When does Epic Minigames update? Past updates and events, how often new ones arrive, and the days its player count jumped.">
@@ -77,7 +77,15 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
-@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,1fr) 168px}
+/* The rails belong beside the words, not out at the edges of the screen. A 1fr
+   middle track eats every spare pixel, so on a 2560px monitor the reading column
+   stayed 820px in the middle and the ads sat nearly 700px away from it, reading as
+   two stray boxes rather than a page. Capping the middle track at the width the
+   page actually uses lets justify-content centre all three together instead.
+   minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
+   wide pages instead of scrolling sideways. */
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
 /* The strip along the bottom only exists at all when ads are switched on. */
 @media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
@@ -583,7 +591,7 @@ Trampoline Acrobat - Forest (by Gleamity)</p></li><li class=""><b>5 new maps</b>
 Downhill Roll - Atlantis
 Hard-Pressed - Arctic
 Lava Forecast - Digsite
-Train Trouble - Blossom</p></li><li class=""><b>New boss!</b><span class="d">Prepare to fight</span><span class="d">Fri 1 May &middot; 6 months ago</span><p>Graahken&#x27;Hulk is now ready to be fought in the Monster Melee minigame!</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>Easter Update! 🐰</td><td>Sat 28 Mar</td></tr><tr><td>Map update</td><td>Sun 1 Mar</td></tr><tr><td>Valentine&#x27;s Update</td><td>Fri 13 Feb</td></tr><tr><td>Christmas Update!</td><td>Fri 12 Dec 2025</td></tr><tr><td>5 new maps!</td><td>Sat 22 Nov 2025</td></tr><tr><td>Halloween Spotlight</td><td>Thu 23 Oct 2025</td></tr><tr><td>Halloween Update (Part 1)</td><td>Fri 17 Oct 2025</td></tr><tr><td>🎉 10 Year Anniversary 🎉</td><td>Fri 12 Sep 2025</td></tr><tr><td>Map update!</td><td>Fri 1 Aug 2025</td></tr><tr><td>Colour Our World!</td><td>Sat 5 Jul 2025</td></tr><tr><td>Squid Game Update!</td><td>Thu 19 Jun 2025</td></tr><tr><td>Summer season</td><td>Sun 1 Jun 2025</td></tr><tr><td>5 new maps!</td><td>Mon 5 May 2025</td></tr><tr><td>Hen Plushie!</td><td>Fri 18 Apr 2025</td></tr><tr><td>Epic Egg Hunt!</td><td>Fri 11 Apr 2025</td></tr><tr><td>Valentine&#x27;s Update! ❤️</td><td>Sun 9 Feb 2025</td></tr><tr><td>Epic Christmas! 🎄</td><td>Sat 14 Dec 2024</td></tr><tr><td>Halloween Update!</td><td>Sat 19 Oct 2024</td></tr><tr><td>New Lobby!</td><td>Fri 11 Oct 2024</td></tr></table></div></details></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>5 new maps!</b><span class="d">Take to the stars</span><span class="d">Happening now &middot; ends Fri 20 Nov</span><p>Backstreet Brawl - Cyberpunk
+Train Trouble - Blossom</p></li><li class=""><b>New boss!</b><span class="d">Prepare to fight</span><span class="d">Fri 1 May &middot; 6 months ago</span><p>Graahken&#x27;Hulk is now ready to be fought in the Monster Melee minigame!</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>Easter Update! 🐰</td><td>Sat 28 Mar</td></tr><tr><td>Map update</td><td>Sun 1 Mar</td></tr><tr><td>Valentine&#x27;s Update</td><td>Fri 13 Feb</td></tr><tr><td>Christmas Update!</td><td>Fri 12 Dec 2025</td></tr><tr><td>5 new maps!</td><td>Sat 22 Nov 2025</td></tr><tr><td>Halloween Spotlight</td><td>Thu 23 Oct 2025</td></tr><tr><td>Halloween Update (Part 1)</td><td>Fri 17 Oct 2025</td></tr><tr><td>🎉 10 Year Anniversary 🎉</td><td>Fri 12 Sep 2025</td></tr><tr><td>Map update!</td><td>Fri 1 Aug 2025</td></tr><tr><td>Colour Our World!</td><td>Sat 5 Jul 2025</td></tr><tr><td>Squid Game Update!</td><td>Thu 19 Jun 2025</td></tr><tr><td>Summer season</td><td>Sun 1 Jun 2025</td></tr><tr><td>5 new maps!</td><td>Mon 5 May 2025</td></tr><tr><td>Hen Plushie!</td><td>Fri 18 Apr 2025</td></tr><tr><td>Epic Egg Hunt!</td><td>Fri 11 Apr 2025</td></tr><tr><td>Valentine&#x27;s Update! ❤️</td><td>Sun 9 Feb 2025</td></tr><tr><td>Epic Christmas! 🎄</td><td>Sat 14 Dec 2024</td></tr><tr><td>Halloween Update!</td><td>Sat 19 Oct 2024</td></tr><tr><td>New Lobby!</td><td>Fri 11 Oct 2024</td></tr></table></div></details><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 14 Nov</td><td>1.5&times; busier &ndash; lines up with &ldquo;5 new maps!&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>5 new maps!</b><span class="d">Take to the stars</span><span class="d">Happening now &middot; ends Fri 20 Nov</span><p>Backstreet Brawl - Cyberpunk
 Deadly Dogfight - Space Ring
 Robot Rampage - Cardboard
 Rowing Rush - Fairylands
@@ -719,7 +727,7 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var P={"wd":4,"hour":16,"every":27,"n":26};if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
+return ss+'s'}</script><script>var P={"wd":4,"hour":16,"every":27,"n":27};if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
 ', about every '+P.every+' day'+(P.every>1?'s':''):'';
 if(ph!=null){var pt=ph+tzOff();
 while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
@@ -731,7 +739,8 @@ else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+eve
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a>
+<a href="/terms.html">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div></div>

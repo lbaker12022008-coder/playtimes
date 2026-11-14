@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Practical Basketball Update History and Patch Notes | PlayTime</title>
 <meta name="description" content="When does Practical Basketball update? Past updates and events, how often new ones arrive, and the days its player count jumped."><meta name="theme-color" content="#A855F7">
-<meta name="robots" content="noindex,nofollow"><link rel="canonical" href="https://playtimestats.com/updates/practical-basketball.html">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/practical-basketball.html">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Practical Basketball Update History and Patch Notes | PlayTime">
 <meta property="og:description" content="When does Practical Basketball update? Past updates and events, how often new ones arrive, and the days its player count jumped.">
@@ -77,7 +77,15 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 .rail{display:none}
 .railb{display:none}
 .shell.ads{gap:20px}
-@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,1fr) 168px}
+/* The rails belong beside the words, not out at the edges of the screen. A 1fr
+   middle track eats every spare pixel, so on a 2560px monitor the reading column
+   stayed 820px in the middle and the ads sat nearly 700px away from it, reading as
+   two stray boxes rather than a page. Capping the middle track at the width the
+   page actually uses lets justify-content centre all three together instead.
+   minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
+   wide pages instead of scrolling sideways. */
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
 /* The strip along the bottom only exists at all when ads are switched on. */
 @media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
@@ -576,7 +584,7 @@ What&#x27;s new since the last stress test:
 • Reputation, Build Progression &amp; Rewards
 • Gym Customization &amp; Mascots
 • New Jumpshots, Dribble Moves &amp; Dunks
-• New Shot Meters, Green Effects &amp;…</p></li><li class=""><b>🏀 Stress Test #3</b><span class="d">Final Stress Test</span><span class="d">Wed 29 Jul &middot; 3 months ago</span><p>Experience the biggest Practical Basketball update yet! Stress Test #3 is our final testing phase before launch, featuring the Plaza, Park, Rec Center, League Mode, Blacktop, PlayNow, Private Gyms, tutorials, and more. Help us identify bugs, test performance, and provide feedback so we can deliver the best possible experience on release. Thank you for supporting Practical Basketball—we&#x27;ll see you on the court! 🏀</p></li></ul><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 14 Nov</td><td>2.0&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><p class="none">Practical Basketball has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/practical-basketball.html">&larr; Back to Practical Basketball</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+• New Shot Meters, Green Effects &amp;…</p></li><li class=""><b>🏀 Stress Test #3</b><span class="d">Final Stress Test</span><span class="d">Wed 29 Jul &middot; 3 months ago</span><p>Experience the biggest Practical Basketball update yet! Stress Test #3 is our final testing phase before launch, featuring the Plaza, Park, Rec Center, League Mode, Blacktop, PlayNow, Private Gyms, tutorials, and more. Help us identify bugs, test performance, and provide feedback so we can deliver the best possible experience on release. Thank you for supporting Practical Basketball—we&#x27;ll see you on the court! 🏀</p></li></ul><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 14 Nov</td><td>2.1&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><p class="none">Practical Basketball has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/practical-basketball.html">&larr; Back to Practical Basketball</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -720,7 +728,8 @@ else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+eve
 <a href="/popular.html">Most played</a><a href="/trending.html">Trending</a>
 <a href="/busiest-hours.html">When is Roblox busiest?</a>
 <a href="/events.html">Events</a><a href="/compare.html">Compare</a><a href="/plan.html">Plan a session</a>
-<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></nav>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a>
+<a href="/terms.html">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
 </div></div>
