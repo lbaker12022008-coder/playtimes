@@ -23,7 +23,7 @@ MIN_SAMPLES = 200          # how many player counts a game needs before it gets 
 # come straight back on the next build - nothing is lost, the readings live on the
 # data branch. Each game gains about 71 a day at the current collection rate.
 ADS = ""                   # paste your AdSense <script> here
-NOINDEX = True             # True = ask Google NOT to list the site (set False when you launch)
+NOINDEX = False            # True = ask Google NOT to list the site (set False when you launch)
 OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site into
 DOMAIN = "https://playtimestats.com"   # no slash on the end; this is what makes the sitemap real
 ROBUX_USD = 0.0125         # rough dollars per Robux (800 Robux costs $9.99)
