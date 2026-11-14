@@ -27,8 +27,8 @@ NOINDEX = True             # True = ask Google NOT to list the site (set False w
 OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site into
 DOMAIN = "https://playtimestats.com"   # no slash on the end; this is what makes the sitemap real
 ROBUX_USD = 0.0125         # rough dollars per Robux (800 Robux costs $9.99)
-CONTACT = "hello@playtimestats.com"    # forwarded to the owner by Cloudflare Email Routing
-POLICY_DATE = "October 31, 2026"   # change this whenever you edit the Privacy Policy
+CONTACT = "contact@playtimestats.com"  # forwarded to the owner by Cloudflare Email Routing
+POLICY_DATE = "November 13, 2026"  # change this whenever you edit the Privacy Policy
 
 SPIKE = 1.5                # a day this much busier than normal is "likely an update or event"
 
