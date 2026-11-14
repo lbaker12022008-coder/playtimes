@@ -104,9 +104,28 @@ export async function currentUserId(request, env) {
 }
 
 /* Signing out has to name the same Domain the session was set with, or the browser
-   keeps the original cookie and the person stays signed in. */
-const clearSession = request =>
-  `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; ${cookieDomain(request)}Path=/; Max-Age=0`;
+   keeps the original cookie and the person stays signed in.
+
+   It clears BOTH forms, because to a browser a cookie set with a Domain and one set
+   without it are two different cookies that happen to share a name. Every session
+   handed out before the Domain was added is host-only, so a sign-out that named only
+   the Domain form deleted a cookie the browser might not even have and left the real
+   one in place: the person was sent back to the homepage still signed in, with no way
+   out except clearing their browser data. Both are named here, so whichever a browser
+   is holding - or both at once - it goes. */
+const clearSession = request => [
+  `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; ${cookieDomain(request)}Path=/; Max-Age=0`,
+  `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
+];
+
+/** Headers that clear the session, in every form a browser might be holding it.
+    A Response takes one value per header name in a plain object, and this needs two
+    set-cookie lines, so they have to be appended to a Headers object instead. */
+function clearedHeaders(request, extra) {
+  const headers = new Headers(extra);
+  for (const cookie of clearSession(request)) headers.append("set-cookie", cookie);
+  return headers;
+}
 
 /* ----------------------------------------------------------------- the flow */
 
@@ -171,6 +190,10 @@ async function finishLogin(request, env) {
 
   const headers = new Headers({ location: "/?signedin=1", "cache-control": "no-store" });
   headers.append("set-cookie", await makeSession(env, userId, request));
+  // ...and drop any host-only cookie left from before the Domain existed, so an old
+  // one cannot sit in front of the new session and answer for it. Different Domain,
+  // so this deletes the stale cookie rather than cancelling the line above.
+  headers.append("set-cookie", `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
   headers.append("set-cookie", `${STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=0`);
   return new Response(null, { status: 303, headers });
 }
@@ -219,7 +242,7 @@ async function deleteEverything(request, env, userId) {
   ]);
   return new Response(JSON.stringify({ deleted: true }), {
     status: 200,
-    headers: { "content-type": "application/json", "cache-control": "no-store", "set-cookie": clearSession(request) }
+    headers: clearedHeaders(request, { "content-type": "application/json", "cache-control": "no-store" })
   });
 }
 
@@ -278,7 +301,8 @@ export async function handleAuth(request, env, path) {
   if (path === "/auth/callback" && request.method === "GET") return finishLogin(request, env);
   if (path === "/auth/logout" && request.method === "POST") {
     if (!sameSite(request)) return json({ error: "Blocked" }, 403);
-    return new Response(null, { status: 303, headers: { location: "/", "set-cookie": clearSession(request), "cache-control": "no-store" } });
+    return new Response(null, { status: 303,
+      headers: clearedHeaders(request, { location: "/", "cache-control": "no-store" }) });
   }
 
   if (path === "/api/favs" || path === "/api/delete-me") {
