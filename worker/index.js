@@ -786,8 +786,11 @@ function overview(d, v, s, t, site, live, todos, dayVal, sumBack) {
   // Only real problems, each with the one thing to do about it. When the list is
   // empty that is worth saying too, so the panel never looks broken.
   const todo = [];
-  if (builtHours > 26) todo.push(['warn', 'The site has not rebuilt for ' + Math.round(builtHours) +
-    ' hours', 'It should rebuild every night. Check the Actions tab on GitHub for a failed build.']);
+  // Builds run every six hours, so eight is a late one rather than a missed one.
+  // Keep this in step with the cron in .github/workflows/build.yml: set it too low
+  // and the panel cries wolf every day, too high and a dead build sits unnoticed.
+  if (builtHours > 8) todo.push(['warn', 'The site has not rebuilt for ' + Math.round(builtHours) +
+    ' hours', 'It should rebuild every six hours. Check the Actions tab on GitHub for a failed build.']);
   if (live && live.updated && (Date.now() / 1000 - live.updated) > 7200)
     todo.push(['warn', 'The collector last saved player counts ' + agoSecs(live.updated),
       'It normally runs every 30 minutes. Check the collect workflow on GitHub.']);

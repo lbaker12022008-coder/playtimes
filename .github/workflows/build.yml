@@ -1,7 +1,15 @@
 name: build site
 on:
   schedule:
-    - cron: "30 4 * * *"
+    # Four times a day, six hours apart. It was once a night, and that was too slow
+    # for one thing in particular: a game's picture. Creators repaint an icon to
+    # advertise an update, often a countdown ("12 HOURS") that is wrong by teatime,
+    # and on 14 Nov 2026 34 of the 140 icons on the live site had changed within half
+    # a day of the build that fetched them - two more changed in the half hour after
+    # the next build. Six hours is the cap on how wrong a picture can be; it cannot be
+    # zero while the site is built as files rather than fetched per visitor.
+    # The player counts come along for the ride and are fresher for it.
+    - cron: "30 4,10,16,22 * * *"
   workflow_dispatch:
   push:
     branches: [main]
