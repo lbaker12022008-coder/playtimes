@@ -1602,6 +1602,14 @@ def game_schema(c, a, meta, qa):
             "measurementTechnique": "Repeated sampling of the public Roblox player count",
             "variableMeasured": "Concurrent players",
             "isAccessibleForFree": True,
+            # Google asks every Dataset for a license and warns when one is missing
+            # (Search Console, 14 Nov 2026, non-critical). It is our own Terms page
+            # rather than an open licence such as CC BY, because Terms says personal
+            # use and asks people not to copy the site wholesale - publishing a
+            # licence that contradicts our own terms would be worse than the warning.
+            # If the numbers are ever meant to be reusable, change BOTH Datasets and
+            # the "Using the site" section of terms_page() together.
+            "license": abs_url("/terms"),
             "creator": {"@type": "Organization", "name": SITE}}
     out = [game, data]
     if qa:
@@ -3125,6 +3133,7 @@ def busy_page(cards, now):
                  "measurementTechnique": "Repeated sampling of public Roblox player counts",
                  "variableMeasured": "Concurrent players as a share of each game's peak",
                  "isAccessibleForFree": True,
+                 "license": abs_url("/terms"),   # see the note in game_schema()
                  "creator": {"@type": "Organization", "name": SITE}}])
 
 
