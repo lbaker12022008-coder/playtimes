@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-practical-basketball-1795215600@playtime
+DTSTAMP:20261115T230155Z
+DTSTART:20261120T230000Z
+DTEND:20261130T045900Z
+SUMMARY:Practical Basketball: Thanksgiving Update
+DESCRIPTION:The Old Park is closing for good. Be there Friday at 6PM ET fo
+ r its last day\, live\, in game.\n\nSomething's been off with the park's 
+ old power system for a while. On Friday it finally gives out\, and you'll
+  want to be there when it does. Save what you can before it's gone\, and 
+ you might walk away with an exclusive reward.\n\nWhen it's over\, the New
+  Park opens for everyone\, decked out for Thanksgiving.\n\nComing with it
+ :\n- The New Park\n- Thanksgiving loot boxes packed with new gear\n- New 
+ clothing\, accessories\, banners\, trails and titles\n- Super rare Mythic
+  mascots\n- Thanksgiving decorations all over t
+URL:https://playtimestats.com/game/practical-basketball
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Practical Basketball: Thanksgiving Update
+END:VALARM
+END:VEVENT
+END:VCALENDAR
