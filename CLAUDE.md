@@ -330,12 +330,24 @@ browser is woken about fifteen minutes before that game's next best hour.
   its subscription to the `applicationServerKey` it was given, so a new pair silently
   orphans every existing subscription and each person has to turn notifications on
   again. Rotating cost nothing on day one because nobody had subscribed yet.
-- **What is still unproven is the private key's own correctness**, because only an
-  actual send exercises the signing, and that needs a real signed-in browser. The
-  pair was self-tested (sign then verify) before being stored and the public half
-  came back from Cloudflare byte-identical, so the piping is known to be lossless.
-  Turning notifications on sends a test automatically, so the first real use proves
-  it either way.
+- **Proven end to end on 16 Nov 2026**: a real notification reached a real Chrome on
+  Windows, so the stored private key signs correctly and the whole chain works. The
+  first attempt looked like a failure and was not - Google answered **201** and the
+  computer simply did not show the notification, which is why the status is now
+  recorded (below).
+- **"It said it sent one and nothing appeared" is the complaint to expect, and
+  `fails` cannot answer it** - it counts failures only, so it stays 0 both when the
+  send succeeded and when it was never attempted. `push_subs.last_status` and
+  `last_try` are written on every attempt for exactly this: 0 means the message could
+  not be built, -1 means the push service was unreachable, anything else is its real
+  HTTP status, and **201 is a normal success**. Read it with
+  `npx wrangler d1 execute playtime-admin --remote --command "SELECT fails, last_status, last_try FROM push_subs;"`
+  before suspecting the code. Accepted sends are logged as well as refused ones.
+- **Before suspecting the encryption, cross-check it against the reference.** The
+  `web-push` npm package will not run in a Worker but runs fine in Node: have it
+  encrypt a message and decrypt that with our own test's browser-side code, then
+  compare the byte layout, headers and JWT claims. Done 16 Nov 2026 and they agree
+  exactly, which is what ruled the crypto out in minutes.
 - **Reach is capped at 10 people until the Roblox app passes review**, since
   notifications need sign-in. That review is still item 3 on the launch checklist.
 - Tests live in the scratchpad, not the repo: crypto round-trip, 27 timezone offsets,
