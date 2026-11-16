@@ -2953,9 +2953,9 @@ say('<div class="days" id="nbtns"><button data-n="quiet" aria-pressed="true">Qui
 +'<button data-n="busy" aria-pressed="false">Busy</button></div>'
 +'<button class="remind" id="notifon" type="button">&#128276; Notify me before '
 +ptEsc(name)+' gets quiet</button>'
-+'<p class="mut small">About 15 minutes before, on this device. We keep your device\'s '
-+'notification address and which games you follow, and nothing else. Turn it off here '
-+'any time.</p>'+msg)}
++'<p class="mut small">About 15 minutes before, on this device. We keep the '
++'notification address your browser gives us, and which games you follow. Nothing '
++'else. Turn it off here any time.</p>'+msg)}
 else{
 say('<p><b>Notifications are on</b> for '+ptEsc(name)+', before it gets '
 +(on.mode==='busy'?'busy':'quiet')+'.</p>'
