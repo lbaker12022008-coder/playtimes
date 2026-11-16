@@ -177,10 +177,10 @@ https://playtimestats.com/game/bloxstrike
 https://playtimestats.com/updates/bloxstrike
 https://playtimestats.com/game/bug-evolution
 https://playtimestats.com/updates/bug-evolution
-https://playtimestats.com/game/fake-an-egg
-https://playtimestats.com/updates/fake-an-egg
 https://playtimestats.com/game/3008
 https://playtimestats.com/updates/3008
+https://playtimestats.com/game/fake-an-egg
+https://playtimestats.com/updates/fake-an-egg
 https://playtimestats.com/game/emergency-hamburg
 https://playtimestats.com/updates/emergency-hamburg
 https://playtimestats.com/game/ball-vs-ball
@@ -300,5 +300,6 @@ https://playtimestats.com/updates/vehicle-legends-cars
 https://playtimestats.com/game/the-hollow
 https://playtimestats.com/updates/the-hollow
 https://playtimestats.com/about
+https://playtimestats.com/install
 https://playtimestats.com/privacy
 https://playtimestats.com/terms
