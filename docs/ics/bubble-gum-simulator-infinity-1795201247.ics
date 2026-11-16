@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlayTime//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:pte-bubble-gum-simulator-infinity-1795201247@playtime
+DTSTAMP:20261116T054818Z
+DTSTART:20261120T190047Z
+DTEND:20261128T190047Z
+SUMMARY:Bubble Gum Simulator INFINITY: 🦃 Thanksgiving Event!
+DESCRIPTION:🦃 The Thanksgiving Event is coming to BGSI!\n\n🦃 New Tha
+ nksgiving Min-Area!\n🔮 Turkey Leg Currency! Hatch the new egg to obtai
+ n!\n🥚 New Thanksgiving 2026 Egg!\n🏆 The Super Rainbow Season Pass!\
+ n🌽 Thanksgiving Wheel Spin & Shop!\n\nThe Thanksgiving Event only last
+ s for 1 week! Next week is The Christmas Event!
+URL:https://playtimestats.com/game/bubble-gum-simulator-infinity
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Bubble Gum Simulator INFINITY: 🦃 Thanksgiving Event!
+END:VALARM
+END:VEVENT
+END:VCALENDAR
