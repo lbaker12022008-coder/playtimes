@@ -3704,9 +3704,16 @@ def main():
     write("favicon.svg", FAVICON)
     # data.json and games.json are left crawlable on purpose: the Compare and Plan
     # pages fetch them, and a search engine that cannot read them sees those two
-    # pages as empty. /admin is the only thing shut out.
+    # pages as empty.
+    # /auth/ is shut out alongside /admin and /api/, because everything under it is
+    # a door rather than a page. Search Console caught Googlebot crawling
+    # /auth/login on 14 Nov 2026 and filing it under "Page with redirect", which is
+    # exactly what it is: a 302 off to Roblox. Googlebot runs our JavaScript, so the
+    # sign-in button ptPaint() draws is a real link to it and being absent from the
+    # served HTML protects nothing. Nothing under /auth/ belongs in an index, and a
+    # crawler walking in also starts OAuth handshakes that nobody ever finishes.
     write("robots.txt", "User-agent: *\nDisallow: /\n" if NOINDEX else
-          "User-agent: *\nDisallow: /admin\nDisallow: /api/\nAllow: /\n\n"
+          "User-agent: *\nDisallow: /admin\nDisallow: /api/\nDisallow: /auth/\nAllow: /\n\n"
           + (f"Sitemap: {base}/sitemap.xml\n" if base else
              "# Sitemap: set DOMAIN in build_site.py and this line appears\n"))
 
