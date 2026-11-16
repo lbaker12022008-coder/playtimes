@@ -231,10 +231,10 @@ https://playtimestats.com/game/feed-a-mosquito
 https://playtimestats.com/updates/feed-a-mosquito
 https://playtimestats.com/game/durian-garden
 https://playtimestats.com/updates/durian-garden
-https://playtimestats.com/game/piggy
-https://playtimestats.com/updates/piggy
 https://playtimestats.com/game/warrior-cats-ultimate-edition
 https://playtimestats.com/updates/warrior-cats-ultimate-edition
+https://playtimestats.com/game/piggy
+https://playtimestats.com/updates/piggy
 https://playtimestats.com/game/prison-life
 https://playtimestats.com/updates/prison-life
 https://playtimestats.com/game/say-cheese
