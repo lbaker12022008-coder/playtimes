@@ -253,16 +253,32 @@ def confirm(candidates, limit=MAX_ADD):
 
 
 def append_ids(path, ids):
-    """Adds IDs to the end of games.txt, one per line, leaving the rest untouched."""
-    existing = ""
+    """Adds IDs to the end of games.txt without touching a single existing byte.
+
+    Done in binary, appending, and that is not fussiness. games.txt is checked in with
+    mixed line endings (111 CRLF lines and 29 LF ones as of 15 Nov 2026, which is what
+    a file edited on Windows and on the server for a year looks like). Reading it as
+    text and writing it back turns every line into whichever ending Python picks, so
+    adding 10 games produced a diff of 121 insertions and 111 deletions - the ten new
+    IDs completely hidden among 111 lines that only changed their invisible ending, and
+    a fight with git's autocrlf on every single run.
+
+    So: append only, and give the new lines whichever ending the file mostly already
+    uses, so it does not get more mixed than it already is.
+    """
+    if not ids:
+        return
+    raw = b""
     if os.path.exists(path):
-        with open(path, encoding="utf-8") as f:
-            existing = f.read()
-    if existing and not existing.endswith("\n"):
-        existing += "\n"
-    # newline="" so a run here and a run on the server produce the same bytes.
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(existing + "".join(str(i) + "\n" for i in ids))
+        with open(path, "rb") as f:
+            raw = f.read()
+    crlf = raw.count(b"\r\n")
+    eol = b"\r\n" if crlf * 2 >= raw.count(b"\n") else b"\n"
+    # A file not ending in a newline would otherwise join its last ID to our first.
+    pad = b"" if (not raw or raw.endswith(b"\n")) else eol
+    blob = pad + b"".join(str(int(i)).encode() + eol for i in ids)
+    with open(path, "ab") as f:
+        f.write(blob)
 
 
 # ----------------------------------------------------------------- reporting
