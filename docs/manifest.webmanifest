@@ -1,0 +1,28 @@
+{
+ "name": "PlayTime - when Roblox games are busiest",
+ "short_name": "PlayTime",
+ "description": "See when popular Roblox games are busiest and quietest.",
+ "start_url": "/?from=app",
+ "scope": "/",
+ "display": "standalone",
+ "background_color": "#0A0A0F",
+ "theme_color": "#0A0A0F",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

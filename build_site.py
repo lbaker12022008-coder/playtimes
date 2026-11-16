@@ -11,7 +11,7 @@ Preview your changes without touching the live site:
     python -m http.server
 Then open http://localhost:8000
 """
-import html, json, math, os, re, sqlite3, statistics, time
+import html, json, math, os, re, sqlite3, statistics, struct, time, zlib
 from datetime import datetime, timedelta, timezone
 
 import roblox_api
@@ -28,7 +28,7 @@ OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site in
 DOMAIN = "https://playtimestats.com"   # no slash on the end; this is what makes the sitemap real
 ROBUX_USD = 0.0125         # rough dollars per Robux (800 Robux costs $9.99)
 CONTACT = "contact@playtimestats.com"  # forwarded to the owner by Cloudflare Email Routing
-POLICY_DATE = "November 13, 2026"  # change this whenever you edit the Privacy Policy
+POLICY_DATE = "November 16, 2026"  # change this whenever you edit the Privacy Policy
 
 SPIKE = 1.5                # a day this much busier than normal is "likely an update or event"
 
@@ -747,6 +747,161 @@ def logo_svg(cls="mark", ident="lg"):
 FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
            + logo_svg(cls="", ident="f").split(">", 1)[1])
 
+
+# ----------------------------------------------------------------- app icons
+# The same logo drawn as PNG, for the three jobs an SVG cannot do: the icon a phone
+# shows when the site is added to its home screen, the one Android puts on a splash
+# screen, and the one that rides along with a notification.
+#
+# Drawn here with zlib rather than by installing Pillow, for the same reason
+# roblox_api.py reads PNGs by hand: the build server installs nothing. It is also
+# why the icons are generated instead of being checked in as binaries - the logo is
+# defined once, in logo_svg(), and these cannot drift away from it.
+#
+# A notification icon especially has to be a PNG. Android draws it at about 24px and
+# ignores an SVG entirely, so without this a notification would carry a blank square.
+
+def _png(width, height, pixels):
+    """Writes a PNG. pixels is RGBA bytes, width*height*4 of them.
+
+    Colour type 6 is RGBA at 8 bits. Each row is preceded by a zero byte, which is
+    PNG's way of saying "this row is stored as-is" rather than as a difference from
+    the row above; the pictures are small and simple enough that filtering them
+    properly would save little and is one more thing to get wrong.
+    """
+    def chunk(tag, data):
+        return (struct.pack(">I", len(data)) + tag + data +
+                struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+
+    rows = b"".join(b"\x00" + bytes(pixels[y * width * 4:(y + 1) * width * 4])
+                    for y in range(height))
+    return (b"\x89PNG\r\n\x1a\x0a" +
+            chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)) +
+            chunk(b"IDAT", zlib.compress(rows, 9)) +
+            chunk(b"IEND", b""))
+
+
+# The ring is an arc, not a full circle: logo_svg draws it with a dash of 52 over a
+# circumference of about 69, starting at the top, which comes to roughly 271 degrees
+# and is what makes it read as a timer running down.
+_ARC = 360.0 * 52.0 / (2 * math.pi * 11.0)
+_TRI = ((13.4, 11.2), (21.6, 16.0), (13.4, 20.8))
+
+
+def _inside_triangle(x, y):
+    (ax, ay), (bx, by), (cx, cy) = _TRI
+    d1 = (x - bx) * (ay - by) - (ax - bx) * (y - by)
+    d2 = (x - cx) * (by - cy) - (bx - cx) * (y - cy)
+    d3 = (x - ax) * (cy - ay) - (cx - ax) * (y - ay)
+    return (d1 <= 0 and d2 <= 0 and d3 <= 0) or (d1 >= 0 and d2 >= 0 and d3 >= 0)
+
+
+def app_icon(size, supersample=3):
+    """The logo as a square PNG of the given size.
+
+    Full-bleed rather than a circle on transparency: both iOS and Android mask the
+    icon to their own shape, and a transparent corner under that mask shows up as a
+    grey notch. Edges are smoothed by sampling each pixel several times across,
+    which is all the anti-aliasing a shape this simple needs.
+    """
+    scale = 32.0 / size
+    step = 1.0 / (supersample + 1)
+    offsets = [(i + 1) * step for i in range(supersample)]
+    pixels = bytearray(size * size * 4)
+    at = 0
+    for py in range(size):
+        for px in range(size):
+            r = g = b = 0.0
+            for oy in offsets:
+                v = (py + oy) * scale
+                dy = v - 16.0
+                for ox in offsets:
+                    u = (px + ox) * scale
+                    dx = u - 16.0
+                    # The background gradient, corner to corner, as in logo_svg.
+                    t = (u + v) / 64.0
+                    cr = 216 + (168 - 216) * t
+                    cg = 180 + (85 - 180) * t
+                    cb = 254 + (247 - 254) * t
+                    if _inside_triangle(u, v):
+                        cr = cg = 10.0
+                        cb = 15.0
+                    else:
+                        dist = math.hypot(dx, dy)
+                        if abs(dist - 11.0) <= 1.0:
+                            ang = (math.degrees(math.atan2(dy, dx)) + 90.0) % 360.0
+                            if ang <= _ARC:
+                                # #0A0A0F at 45%, over whatever is behind it.
+                                cr += (10 - cr) * 0.45
+                                cg += (10 - cg) * 0.45
+                                cb += (15 - cb) * 0.45
+                    r += cr
+                    g += cg
+                    b += cb
+            n = float(len(offsets) ** 2)
+            pixels[at] = int(r / n + 0.5)
+            pixels[at + 1] = int(g / n + 0.5)
+            pixels[at + 2] = int(b / n + 0.5)
+            pixels[at + 3] = 255
+            at += 4
+    return _png(size, size, pixels)
+
+
+# ------------------------------------------------------- the home-screen manifest
+# What lets a phone add the site to its home screen and open it without browser
+# furniture. On an iPhone or iPad that is not a nicety: Apple only allows web
+# notifications for a site that has been added to the home screen, so without this
+# file notifications could never work on an Apple device at all.
+def manifest_json():
+    return json.dumps({
+        "name": SITE + " - when Roblox games are busiest",
+        "short_name": SITE,
+        "description": "See when popular Roblox games are busiest and quietest.",
+        "start_url": "/?from=app",
+        "scope": "/",
+        "display": "standalone",
+        # Matches the dark palette, because that is what the splash screen uses and a
+        # white flash before a near-black page is the one thing people notice.
+        "background_color": "#0A0A0F",
+        "theme_color": "#0A0A0F",
+        "icons": [
+            {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+            {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"},
+            {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png",
+             "purpose": "maskable"}
+        ]
+    }, indent=1)
+
+
+# ---------------------------------------------------------------- service worker
+# The small script a browser keeps even when the site is closed. It is the only way
+# a notification can be shown at all: the page itself is long gone by the time one
+# arrives.
+#
+# Deliberately NOT a cache or an offline mode. A service worker that serves pages
+# from its own copy would hand people yesterday's player counts, which on this site
+# is the one thing that must never happen. This one only listens for notifications.
+PUSH_SW = """/* PlayTime notifications. Nothing is cached: a cached page here would
+   mean stale player counts, which is worse than no page. */
+self.addEventListener('install',function(e){self.skipWaiting()});
+self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim())});
+self.addEventListener('push',function(e){
+var d={};try{d=e.data.json()}catch(err){}
+e.waitUntil(self.registration.showNotification(d.title||'PlayTime',{
+body:d.body||'',icon:'/icon-192.png',badge:'/icon-192.png',
+tag:d.tag||'playtime',data:{url:d.url||'/'}}))});
+/* Tapping it should land on the game's page, and should re-use a tab that is
+   already open on it rather than piling up windows. */
+self.addEventListener('notificationclick',function(e){
+e.notification.close();
+var want=(e.notification.data&&e.notification.data.url)||'/';
+e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true})
+.then(function(list){
+for(var i=0;i<list.length;i++){
+if(list[i].url.indexOf(want)>-1&&'focus' in list[i])return list[i].focus()}
+if(self.clients.openWindow)return self.clients.openWindow(want)}))});
+"""
+
 SUN = ('<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/>'
        '<path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1'
        'M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" '
@@ -945,6 +1100,9 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <meta property="og:url" content="{html.escape(url)}">{social}
 {f'<meta property="article:modified_time" content="{modified}">' if modified else ''}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="{html.escape(SITE)}">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
 {banner_html(banner)}<header class="hdr{band}"><div class="in"><div class="hrow">
@@ -2696,7 +2854,8 @@ __DAYBOXES__</fieldset>
 href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add quiet times to my
 calendar</a>
 <p class="mut small">Adds it to your own calendar, at the right hour for each day you
-picked. No account, and nothing about you is stored.</p></div></div>
+picked. No account, and nothing about you is stored.</p></div>
+__NOTIFY__</div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -2715,7 +2874,158 @@ __SIMILAR__
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan?g=__SLUG__">Plan a session</a>
 &middot; <a href="/busiest-hours">When is Roblox busiest?</a></p>
 <script>window.PT_GAME=__GAMEINFO__;</script>
-<script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>"""
+<script>__SHARED__</script><script>__JS__</script><script>__FAVJS__</script>
+<script>__PUSHJS__</script>"""
+
+
+# The notification controls. Written into every game page but hidden, because a
+# built page is the same file for everyone and only the worker knows whether anybody
+# is signed in - the same reason the account button in the header starts empty.
+# ptNotify() in PUSH_JS fills it in and unhides it, and on most visits it stays
+# hidden and the card looks exactly as it did before this feature existed.
+NOTIFY_HTML = """<div class="notif" id="notif" hidden>
+<p class="mut small">Or get a notification</p><div id="notifbody"></div></div>"""
+
+
+# The browser half of notifications. Only on game pages, since that is the only
+# place there is a game to follow.
+#
+# Three things here are not obvious and all three were deliberate:
+#  - It asks the worker what is possible (/api/push/state) rather than deciding for
+#    itself, because whether notifications exist at all depends on secrets that only
+#    the worker can see.
+#  - Permission is requested from the click, never on load. A browser only grants it
+#    in response to a real gesture, and a site that asks the moment you arrive is the
+#    reason browsers now hide the prompt entirely.
+#  - On an iPhone or iPad it explains Add to Home Screen instead of offering a button
+#    that cannot work. Apple only allows notifications for an installed site, so the
+#    button would fail silently and look broken.
+PUSH_JS = """(function(){
+var box=document.getElementById('notif');
+if(!box||!window.PT_GAME)return;
+var body=document.getElementById('notifbody'),S=null,busy=false;
+var slug=PT_GAME.s,name=PT_GAME.n;
+/* Standalone means it was opened from the home screen, which is the only way an
+   Apple device allows notifications. Android and desktop never need it. */
+var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+var installed=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches
+||navigator.standalone===true;
+var canPush='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+
+function urlKey(text){
+var pad=text.replace(/-/g,'+').replace(/_/g,'/');
+pad=pad+'='.repeat((4-pad.length%4)%4);
+var raw=atob(pad),out=new Uint8Array(raw.length);
+for(var i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
+
+function say(markup){body.innerHTML=markup;box.hidden=false}
+
+function post(where,data){return fetch('/api/push/'+where,{method:'POST',
+headers:{'content-type':'application/json'},body:JSON.stringify(data||{})})
+.then(function(r){return r.json().then(function(j){
+if(!r.ok)throw new Error(j&&j.error||'that did not work');return j})})}
+
+function mine(){for(var i=0;i<(S.watching||[]).length;i++)
+if(S.watching[i].slug===slug)return S.watching[i];return null}
+
+/* Everything the panel can say, in one place so the states cannot disagree. */
+function draw(note){
+if(!S||!S.available){box.hidden=true;return}
+if(!S.signedIn){
+say('<p class="mut small">Notifications need you to be signed in with Roblox, because '
++'we have to remember your device to send one. Roblox does not let under-13s sign in '
++'to other sites, so this part of PlayTime is 13 and over.</p>'
++'<a class="fav" href="/auth/login">Sign in with Roblox</a>');return}
+if(!canPush||(ios&&!installed)){
+say('<p class="mut small">'+(ios
+?'On an iPhone or iPad, notifications only work once PlayTime is on your home '
++'screen. Tap the Share button, then <b>Add to Home Screen</b>, and open PlayTime '
++'from there - this panel will have a button in it.'
+:'This browser cannot do notifications. The calendar reminder above works everywhere.')
++'</p>');return}
+if(Notification.permission==='denied'){
+say('<p class="mut small">Your browser is blocking notifications for this site. You can '
++'allow them again in its site settings, next to the address bar.</p>');return}
+var on=mine(),msg=note?'<p class="mut small" id="notifsay">'+ptEsc(note)+'</p>':'';
+if(!on){
+say('<div class="days" id="nbtns"><button data-n="quiet" aria-pressed="true">Quiet</button>'
++'<button data-n="busy" aria-pressed="false">Busy</button></div>'
++'<button class="remind" id="notifon" type="button">&#128276; Notify me before '
++ptEsc(name)+' gets quiet</button>'
++'<p class="mut small">About 15 minutes before, on this device. We keep your device\'s '
++'notification address and which games you follow, and nothing else. Turn it off here '
++'any time.</p>'+msg)}
+else{
+say('<p><b>Notifications are on</b> for '+ptEsc(name)+', before it gets '
++(on.mode==='busy'?'busy':'quiet')+'.</p>'
++'<button class="remind" id="notifoff" type="button">Turn these off</button> '
++'<button class="fav" id="notiftest" type="button">Send me a test</button>'
++'<p class="mut small">You can follow up to '+(S.maxGames||20)+' games. '
++'Signing out stops them.</p>'+msg)}}
+
+function refresh(note){return fetch('/api/push/state').then(function(r){return r.json()})
+.then(function(d){S=d;draw(note)}).catch(function(){box.hidden=true})}
+
+/* Delegated from the panel rather than bound to the buttons, because draw() replaces
+   them every time it runs - a handler on the button itself would be thrown away with
+   the old markup, exactly as it would in the header's account menu. */
+box.addEventListener('click',function(e){
+var t=e.target.closest&&e.target.closest('button');
+if(!t||busy)return;
+if(t.dataset.n){
+Array.prototype.forEach.call(box.querySelectorAll('#nbtns button'),function(b){
+b.setAttribute('aria-pressed',b===t?'true':'false')});
+var on=box.querySelector('#notifon');
+if(on)on.innerHTML='&#128276; Notify me before '+ptEsc(name)+' gets '+t.dataset.n;
+return}
+if(t.id==='notifon')return turnOn(t);
+if(t.id==='notifoff')return turnOff(t);
+if(t.id==='notiftest')return test(t)});
+
+function working(btn,word){busy=true;btn.disabled=true;btn.dataset.was=btn.innerHTML;
+btn.innerHTML=word}
+function finished(){busy=false}
+
+function turnOn(btn){
+var pick=box.querySelector('#nbtns button[aria-pressed=true]');
+var mode=pick&&pick.dataset.n==='busy'?'busy':'quiet';
+working(btn,'Just a moment...');
+Notification.requestPermission().then(function(answer){
+if(answer!=='granted'){finished();return refresh(
+'Your browser did not allow notifications, so nothing was turned on.')}
+return navigator.serviceWorker.register('/sw.js')
+.then(function(){return navigator.serviceWorker.ready})
+.then(function(reg){return reg.pushManager.getSubscription().then(function(have){
+return have||reg.pushManager.subscribe({userVisibleOnly:true,
+applicationServerKey:urlKey(S.key)})})})
+.then(function(sub){var j=sub.toJSON();
+return post('subscribe',{endpoint:j.endpoint,keys:j.keys,
+tz:-new Date().getTimezoneOffset()/60})})
+.then(function(){return post('watch',{slug:slug,mode:mode,lead:15})})
+.then(function(){finished();return refresh('That is on. We will send one test now so '
++'you can see what it looks like.')})
+.then(function(){return post('test',{}).catch(function(){})})})
+.catch(function(err){finished();refresh('Could not turn notifications on: '
++(err&&err.message||'something went wrong')+'.')})}
+
+function turnOff(btn){
+working(btn,'Turning off...');
+post('watch',{slug:slug,on:false}).then(function(){finished();
+return refresh('Turned off. You will not get notifications about '+name+'.')})
+.catch(function(){finished();refresh('Could not turn that off. Please try again.')})}
+
+function test(btn){
+working(btn,'Sending...');
+post('test',{}).then(function(){finished();
+refresh('Sent. It should appear in a moment.')})
+.catch(function(err){finished();
+refresh(err&&err.message||'That did not work.')})}
+
+/* PT.ready runs this now and again once /api/me has answered, so the panel settles
+   as soon as the page knows whether anybody is signed in. */
+PT.ready(function(){refresh()});
+})();"""
 
 
 def about_body():
@@ -2804,8 +3114,20 @@ collect personal information from children under 13. If you believe a child has,
 If you are not signed in, it stays there and is never sent to us. Clearing your browser data removes it.</p>
 <p>If you tap <b>Remind me</b>, your device downloads a small calendar file from this site, the same way it
 downloads a page. We do not store anything about you when you do, you do not need an account, and the reminder
-belongs to your own calendar app afterwards, not to this site. We never send notifications and never ask for
-permission to.</p>
+belongs to your own calendar app afterwards, not to this site.</p>
+<h2>Browser notifications</h2>
+<p>If you are signed in with Roblox, you can ask us to send a notification shortly before a game you follow
+usually gets quiet or busy. This is <b>off unless you turn it on</b>, your browser asks your permission first,
+and you can turn it off on the game's page at any time.</p>
+<p>If you turn it on, we store the notification address your browser gives us for that device, the two keys
+needed to lock the message so only your device can read it, how many hours ahead of UTC you are so a message
+can name the right time, and which games you chose. We do not store the notifications themselves, and we
+cannot read anything on your device.</p>
+<p>We only offer this to people signed in with Roblox, and the reason is this page's whole point: a notification
+address identifies a particular device, and we will not keep one for a visitor who has not signed in and might
+be a child. Roblox does not let under-13s sign in to other sites, so everyone who can turn this on is 13 or
+over. <b>Delete my data</b> below removes your notification settings along with everything else, and so does
+signing out of Roblox on your account.</p>
 <h2>Cookies</h2>
 <p>If you never sign in, <b>we give you no cookies at all</b>. Nothing we store recognises you, and we cannot
 tell one visitor from another. (Cloudflare, who host the site, may set its own security cookie to block
@@ -2886,6 +3208,14 @@ def write(path, text):
     os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
     with open(f"{OUT}/{path}", "w", encoding="utf-8", newline="") as f:
         f.write(text)
+    WRITTEN.add(path.replace("\\", "/"))
+
+
+def write_bytes(path, data):
+    """Same as write(), for a file that is not text (the PNG app icons)."""
+    os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
+    with open(f"{OUT}/{path}", "wb") as f:
+        f.write(data)
     WRITTEN.add(path.replace("\\", "/"))
 
 
@@ -3314,6 +3644,8 @@ def main():
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
                 .replace("__FAVJS__", FAV_GAME)
+                .replace("__NOTIFY__", NOTIFY_HTML)
+                .replace("__PUSHJS__", PUSH_JS)
                 .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"])))
                 # __NAME__ last: it appears inside several of the blocks above.
                 .replace("__NAME__", html.escape(name)))
@@ -3702,6 +4034,13 @@ def main():
          for c in sorted(cards, key=lambda c: c["name"].lower())],
         separators=(",", ":")))
     write("favicon.svg", FAVICON)
+    write("manifest.webmanifest", manifest_json())
+    write("sw.js", PUSH_SW)
+    # The icons are the same drawing at three sizes: two for the manifest, one for
+    # Apple, which ignores SVG. Deterministic, so a rebuild leaves git alone.
+    write_bytes("icon-192.png", app_icon(192))
+    write_bytes("icon-512.png", app_icon(512, supersample=2))
+    write_bytes("apple-touch-icon.png", app_icon(180))
     # data.json and games.json are left crawlable on purpose: the Compare and Plan
     # pages fetch them, and a search engine that cannot read them sees those two
     # pages as empty.

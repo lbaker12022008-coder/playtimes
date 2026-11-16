@@ -234,9 +234,19 @@ async function writeFavourites(request, env, userId) {
   return json({ favs: clean });
 }
 
+/* "Everything" has to mean everything, including the notification tables, or the
+   Privacy Policy is telling people something untrue. The three push tables are
+   listed here rather than left to push.js because this is the one place that
+   promises to erase a person, and a feature added later must not quietly escape it.
+   The deletes are harmless on a database where the push tables do not exist yet,
+   because D1 runs a batch as one statement list and these tables are created by
+   schema_push.sql before notifications can be switched on at all. */
 async function deleteEverything(request, env, userId) {
   if (!sameSite(request)) return json({ error: "Blocked" }, 403);
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM push_sent WHERE rbx_id = ?1").bind(userId),
+    env.DB.prepare("DELETE FROM push_watch WHERE rbx_id = ?1").bind(userId),
+    env.DB.prepare("DELETE FROM push_subs WHERE rbx_id = ?1").bind(userId),
     env.DB.prepare("DELETE FROM favourites WHERE rbx_id = ?1").bind(userId),
     env.DB.prepare("DELETE FROM users WHERE rbx_id = ?1").bind(userId)
   ]);

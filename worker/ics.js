@@ -71,8 +71,13 @@ function nextAt(utcDay, utcHour) {
  * Our numbers are in UTC and the page shifts them by the visitor's offset to show
  * them, so this undoes that shift to look the hour up: the visitor's Saturday
  * evening may well be Sunday morning in UTC.
+ *
+ * Exported because push.js answers the same question for a notification. It is
+ * shared rather than copied on purpose: two versions of this would drift, and a
+ * notification that named a different hour from the calendar file for the same game
+ * would be worse than either on its own.
  */
-function bestHour(week, day, mode, z) {
+export function bestHour(week, day, mode, z) {
   const at = (localHour) => {
     const i = (((day * 24 + localHour - z) % 168) + 168) % 168;
     return week[Math.floor(i / 24)][i % 24];

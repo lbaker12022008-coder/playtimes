@@ -16,6 +16,7 @@ import STATS from "./stats.js";
 import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
 import { handleIcs } from "./ics.js";
+import { handlePush, runPushCron } from "./push.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -49,6 +50,8 @@ export default {
       if (path === "/admin/data") return await adminData(request, env);
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
+      const notify = await handlePush(request, env, path);
+      if (notify) return notify;
       const reminder = await handleIcs(request, env, path);
       if (reminder) return reminder;
     } catch (err) {
@@ -58,6 +61,28 @@ export default {
       return text("Something went wrong. Please try again.", 500);
     }
     return await notFound(request, env);
+  },
+
+  /**
+   * The notification job, run by the cron in wrangler.jsonc.
+   *
+   * A scheduled run has no request to take an origin from, and the ASSETS binding
+   * needs an absolute address to look /data.json up by, so the site's own name is
+   * used. SITE_ORIGIN can override it, which is what makes this testable against a
+   * local `wrangler dev` without editing code.
+   *
+   * It never throws: an error here would be retried by Cloudflare and logged as a
+   * failure, and a notification missed by ten minutes is not worth that. The detail
+   * goes to the log instead, where observability will show it.
+   */
+  async scheduled(event, env, ctx) {
+    try {
+      const origin = env.SITE_ORIGIN || "https://playtimestats.com";
+      const out = await runPushCron(env, origin);
+      console.log("notification run", JSON.stringify(out));
+    } catch (err) {
+      console.error("notification run failed", err && err.stack || err);
+    }
   }
 };
 

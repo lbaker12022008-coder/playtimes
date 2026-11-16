@@ -13,6 +13,13 @@
   // the worker would never run, which would break /admin, /api/* and sign-in.
   "assets": { "directory": "./docs", "binding": "ASSETS" },
   "observability": { "enabled": true },
+  // Browser notifications. Every ten minutes the worker looks for a game somebody is
+  // following that is about to get quiet or busy, and wakes their browser up. The
+  // ten must stay level with CRON_MINUTES in worker/push.js: that is how long a run
+  // allows for the previous one having been late, and if the two disagree a
+  // notification is either sent twice or skipped. Cron times are always UTC, and a
+  // change to this line can take up to 15 minutes to take effect.
+  "triggers": { "crons": ["*/10 * * * *"] },
   "d1_databases": [
     {
       "binding": "DB",

@@ -260,10 +260,76 @@ quietest hour of a Tuesday is rarely the quietest hour of a Saturday.
   than none.
 - `check_seo.py` skips `/reminder.ics`, `/admin` and `/api/*`: the worker answers
   those, so there is no file to find.
-- Deliberately not built: web push. It needs a stored per-device identifier, which
-  is personal information under COPPA, and this site holds nothing about a visitor
-  who has not signed in. If it is ever wanted, offer it **only to people signed in
-  with Roblox**, who are 13+ by Roblox's own rule.
+- Web push **is now built**, on exactly the terms this note set out - signed-in only.
+  See "Browser notifications" below. The reasoning here is still the reasoning: a
+  push subscription is a per-device identifier, so it may never be offered to a
+  signed-out visitor.
+
+## Browser notifications ("tell me when to get on")
+Built 16 Nov 2026. A signed-in person follows a game, picks quiet or busy, and their
+browser is woken about fifteen minutes before that game's next best hour.
+
+- **Signed-in only, and that is not negotiable.** A push subscription is a permanent
+  per-device identifier. Keeping one for a visitor who has not signed in would be
+  holding personal data about someone who might be nine. Roblox blocks under-13s from
+  authorising outside apps, so everyone who can turn this on is 13+. `worker/push.js`
+  enforces it in `handlePush()`, not merely by hiding the button.
+- **`worker/push.js`** serves `/api/push/state|subscribe|unsubscribe|watch|test` and
+  exports `runPushCron()`. `worker/index.js` calls `handlePush()` and has a
+  `scheduled()` handler; `wrangler.jsonc` runs it every ten minutes. **`CRON_MINUTES`
+  in `push.js` must stay level with that cron**: the send window is the person's lead
+  time *plus one interval*, so a late run still fires, and if the two disagree a
+  notification is sent twice or skipped.
+- **Two standards, both implemented by hand with WebCrypto**, because Node's
+  `web-push` package does not run on Workers. VAPID (RFC 8292) is an ES256 JWT whose
+  `aud` must be the push service's **origin**; WebCrypto's ECDSA signature is already
+  the raw `r||s` a JWT wants. Message encryption (RFC 8291, `aes128gcm`) keeps the body
+  from Google's and Mozilla's relays: body is
+  `salt(16) | record size(4) | key length(1) | our public key(65) | ciphertext`, and the
+  plaintext must end in a `0x02` delimiter or browsers reject it. **There is a test
+  that plays the browser and decrypts our own output** - run it if you touch
+  `encrypt()`, because a browser that cannot decrypt a message simply ignores it and
+  nothing anywhere reports an error.
+- **`push_sent` is keyed on the DEVICE, not the person,** and that was a bug found by
+  testing: keyed on the person, somebody with a phone and a laptop had the phone claim
+  the hour and the laptop skip silently, so half their devices never rang. A success
+  must also **reset `fails` to 0** - devices are retired after five *consecutive*
+  failures, and without the reset one that blipped monthly would be deleted after five
+  good months.
+- **A failed send takes its `push_sent` claim back** so the next run retries, rather
+  than losing the day to one blip. A 404 or 410 means that subscription is dead for
+  good and the row is deleted instead of retried for ever.
+- **`nextWindow()` shares `bestHour()` with `ics.js`** rather than copying it, so a
+  notification can never name a different hour from the calendar file for the same
+  game. There are tests for all 27 timezone offsets checking that the local hour the
+  message names is really the local hour of the moment it was aimed at - get that
+  backwards and every notification is an hour or a day out for half the world.
+- **`/api/delete-me` deletes the three push tables too** (`worker/auth.js`). The
+  Privacy Policy promises it, so the promise has to be true; the deletes are listed
+  there rather than in `push.js` because that is the one place that promises to erase
+  a person, and a feature added later must not escape it.
+- **Apple only allows web push for an installed site.** A visitor in a Safari tab
+  cannot subscribe at all, so the site now ships a **web app manifest** and the panel
+  explains Share then Add to Home Screen instead of offering a button that cannot
+  work. `manifest_json()`, and `app_icon()` draws **PNG** icons with `zlib` - no
+  Pillow, same rule as `roblox_api.py`, since the build server installs nothing. They
+  are generated rather than checked in so they cannot drift from `logo_svg()`; Android
+  draws a notification icon at about 24px and ignores an SVG entirely.
+- **`docs/sw.js` deliberately caches nothing.** A service worker serving pages from
+  its own copy would hand people yesterday's player counts, which is the one thing
+  this site must never do. It only listens for notifications.
+- **The owner must do three things before it works** (nothing breaks meanwhile -
+  `pushReady()` is false, `/api/push/state` answers `available:false`, and the panel
+  draws nothing): run `node worker/make_vapid_keys.mjs`, put both keys in with
+  `wrangler secret put`, and run `schema_push.sql` against D1.
+- **Reach is capped at 10 people until the Roblox app passes review**, since
+  notifications need sign-in. That review is still item 3 on the launch checklist.
+- Tests live in the scratchpad, not the repo: crypto round-trip, 27 timezone offsets,
+  the cron's decisions against real SQLite, and the HTTP routes against
+  `wrangler dev`. 147 checks. **If `wrangler dev` seems to ignore `.dev.vars`, look
+  for a stale `workerd`**: `TaskStop` kills wrangler's parent but leaves `workerd`
+  holding the port, and the old process then hot-reloads new code with its old
+  environment - which looks exactly like the secrets being wrong.
 
 ## Search engines (SEO)
 All of this lives in `build_site.py`. Nothing here is a trick: every number a page claims is one it worked out from our own samples, and nothing is hidden from visitors to feed Google something different.
@@ -289,6 +355,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - `check_seo.py`: reads a built site and reports search-engine mistakes. Changes nothing.
 - `discover.py`: finds newly popular games and appends them to `games.txt`. See "Finding new games" below.
 - `worker/theme.js`: the site's two palettes, written by `build_site.py` so the admin dashboard matches the public site. Do not edit by hand; change `LIGHT` or `DARK` in `build_site.py`.
+- `worker/push.js`, `worker/schema_push.sql`, `worker/make_vapid_keys.mjs`: browser notifications. See "Browser notifications" above.
 - `build_site.py` ends by pruning `docs/game/` and `docs/category/`: any page this build did not write is deleted, so a renamed game, an ID removed from `games.txt`, or a game dropping below `MIN_SAMPLES` cannot leave an orphan page live for ever. It runs last, so a build that fails part way deletes nothing, and it never touches top-level files you add by hand (`ads.txt`, a favicon, `CNAME`). The build job uses `git add -A docs` so those deletions are committed.
 - Browser code lives in `build_site.py` as `SHARED_JS` (timezone shifting, busy-ness bands, "next good block", escaping) plus one block per page. Anything that puts a game name into HTML in the browser must pass it through `esc()`: names come from Roblox and can contain quotes and angle brackets.
 
