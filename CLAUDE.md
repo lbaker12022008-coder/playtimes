@@ -13,6 +13,61 @@ A website called **PlayTime** that shows when popular Roblox games are busiest a
 4. `.github/workflows/build.yml` runs **four times a day (04:30, 10:30, 16:30 and 22:30 UTC)**, by hand, and automatically on any push to `main` that changes `build_site.py`, `roblox_api.py`, `cloud/build_cloud.py`, `collector.py` or `games.txt`. It commits `docs/`. **It was once a night, and the thing that moved it was a game's own picture**: creators repaint an icon to advertise an update, often a countdown that is wrong within hours, and on 14 Nov 2026 34 of the 140 icons on the live site had changed within half a day of the build that fetched them - two more within the half hour after the next build. Six hours is the cap on how wrong a picture can be, and it cannot be zero while the site is built as files rather than fetched per visitor. The admin dashboard's "has not rebuilt" warning is tuned to the same number (8 hours, in `worker/index.js`) and must move with it. **Its last step stages the built pages onto whatever `main` is now rather than replaying anything, and that matters**: `main` moves while a build is running - a second commit right after the one that triggered it is enough - and a plain `git push` is then rejected as not-a-fast-forward, while a rebase cannot replay the commit either (the checkout is shallow and both sides touch `docs/`). The site is already built and checked by then, so anything that fails at that step throws a perfectly good site away with no sign on the site that anything happened. That is exactly how `NOINDEX = False` built cleanly on 14 Nov 2026 and never reached anybody. **Changing the workflow file does not trigger a build** (it is not in `paths`), so after editing it, start one by hand: GitHub -> Actions -> "build site" -> Run workflow. **If a change to `build_site.py` ever seems not to have reached the site, check Actions before touching the code** - the build failing is far likelier than the code being wrong.
 5. Cloudflare Workers (project `playtimes`) auto-deploys from `main` within seconds of each push. Its deploy command must be plain `npx wrangler deploy`; settings now come from `wrangler.jsonc`.
 
+## Finding new games (`discover.py`)
+Roblox's front page turns over in weeks. A game can go from nothing to 50,000 players
+in days, and nobody searching for its quiet hours would find us. `discover.py` reads
+Roblox's own charts once a day and appends what is missing to `games.txt`, so the site
+keeps up without anyone remembering to check.
+
+- **The charts endpoint is `apis.roblox.com/explore-api/v1/get-sorts?sessionId=<uuid>`**,
+  and like omni-search it returns nothing at all without a `sessionId`. Page one holds
+  Top Trending, Up-and-Coming, Top Playing Now, Fun with Friends and Top Revisited;
+  `nextSortsPageToken` leads to Top Earning, Top Rated and Most Popular. Two pages is
+  about 540 unique games. Each game arrives with `universeId`, `playerCount`,
+  `genreL1` **and `contentMaturity`**, so one call does most of the work. Every sort on
+  the page is used rather than a chosen few, so a sort Roblox adds later is picked up
+  with no change here.
+- **Three gates, and silence always counts as no.** A game must be labelled `minimal`
+  or `mild`, have at least `MIN_PLAYERS` (2,000, which is where the quietest games
+  already on the site sit), and be answered for by the player-count API. The maturity
+  label is then **read a second time** from the endpoint the rule is written against
+  (`experience-guidelines/get-age-recommendation`, under
+  `ageRecommendationDetails.summary.ageRecommendation.contentMaturity`) rather than
+  trusted from the charts. The two agreed on all 15 games spot-checked on 15 Nov 2026,
+  including Murder Mystery 2, Dead Rails and BlockSpin all coming back `moderate` as
+  the notes above say they should - but a lookup that *fails* returns `None` and the
+  game is skipped, because the one thing this script must never do is add a game it
+  could not check. There are tests for every one of those gates.
+- **`MAX_ADD` (10) paces it and `MAX_TOTAL` (400) bounds it.** There were about 180
+  eligible games waiting the day this was written, and adding them at once would more
+  than double the site in one build with every new page saying "too new to say". The
+  ceiling exists because nothing else limits the total: both jobs scale with the game
+  count (a cold build is ~40s per 51 games), so an unattended job that only ever adds
+  needs a stop.
+- **It only ever adds.** Removing a game deletes its page through `prune()` and kills
+  every link to it, so that stays a human decision.
+- **A new ID has no page for about a day and a half**, until the collector reaches
+  `MIN_SAMPLES`. That is `index_ok()` working, not a fault, so do not go looking for a
+  bug on the day you add one.
+- `.github/workflows/discover.yml` runs it at **04:00 UTC**, half an hour before the
+  04:30 build. **Its commit message ends with `[skip ci]` on purpose**: `games.txt` is
+  in `build.yml`'s `paths`, but a game added at 04:00 has no samples yet, so that
+  build would produce a byte-identical site. The 04:30 build picks the IDs up anyway.
+- **A run started by hand defaults to a dry run** (the `dry_run` input is `true`), so
+  pressing the button cannot change the site by accident; the daily schedule passes no
+  inputs and so runs for real. `python discover.py --dry-run` does the same locally.
+- **Game names are untrusted and are treated as such.** They are written by Roblox
+  creators, and the workflow puts them in a commit message, so `safe_name()` reduces a
+  name to letters, digits and simple punctuation before it is written to
+  `GITHUB_OUTPUT` - a newline there would let a name pose as another workflow output -
+  and the workflow passes it through an environment variable in double quotes instead
+  of letting the template paste it into the script.
+- The push can be rejected if `main` moved, so the step retries with
+  `git pull --rebase` (and the checkout uses `fetch-depth: 0`, since a shallow one
+  cannot rebase). Unlike `build.yml`, a failure here costs nothing - no stale site,
+  and tomorrow's run finds the same games - which is why it does not need that job's
+  more careful dance.
+
 ## Admin dashboard (owner only)
 - `worker/ics.js` builds the "Remind me" calendar files. See "Reminders" below.
 - `worker/index.js` is a Cloudflare Worker deployed alongside the static site. It serves `/admin` (behind an admin code) and `POST /api/hit` (counts page views). Everything else is still plain files from `docs/`.
@@ -230,8 +285,9 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - `roblox_api.py`: every Roblox call made while building (icons, descriptions, game passes, events, and the colour each icon reads as). It reads PNGs itself, with the `zlib` that comes with Python, rather than pulling in Pillow: the build server installs nothing, so it must stay dependency-free. Icons are asked for as PNG only for the colour; the pages still use the WebP ones. Answers are cached in `.cache/` (gitignored) so a rebuild is instant; a cold build takes about 40 seconds for 51 games. If an endpoint dies, the function returns `None` and the page quietly leaves that section out.
 - `collector.py`, `cloud/collector_cloud.py`, `cloud/build_cloud.py`: data pipeline. They import each other, so change them together.
 - `seed_demo.py`: invents player counts for local previews, using the real IDs in `games.txt` so names, pictures, descriptions and events are real. It refuses to run if `SITE_OUT=docs`.
-- `games.txt`: one universe ID per line (not place IDs). **Every game in it is Roblox maturity "Minimal" or "Mild", and that is a rule, not a coincidence** - much of the audience is children. Before adding a game, read its label back from Roblox rather than judging it by the name: `POST https://apis.roblox.com/experience-guidelines-api/experience-guidelines/get-age-recommendation` with `{"universeId": N}` answers `contentMaturity`. Several of the biggest games on Roblox are "Moderate" (Murder Mystery 2, Dead Rails, BlockSpin, Da Hood, Deepwoken, Pressure), so the gap is not an oversight. To find a game's universe ID by name, `https://apis.roblox.com/search-api/omni-search?searchQuery=<name>&pageToken=&sessionId=<any uuid>&pageType=all` - it returns nothing at all without a `sessionId`.
+- `games.txt`: one universe ID per line (not place IDs), **and nothing else - no comments**. All four readers (`collector.py`, `cloud/collector_cloud.py`, `build_site.py`, `seed_demo.py`, and now `discover.py`) parse it as `open(...).read().split()` filtered by `isdigit()`, so *any* bare number in the file is read as a game ID: a line reading `# 140 games` would quietly become a request for universe 140. `discover.py` appends to it on a schedule (see "Finding new games"). **Every game in it is Roblox maturity "Minimal" or "Mild", and that is a rule, not a coincidence** - much of the audience is children. Before adding a game, read its label back from Roblox rather than judging it by the name: `POST https://apis.roblox.com/experience-guidelines-api/experience-guidelines/get-age-recommendation` with `{"universeId": N}` answers `contentMaturity`. Several of the biggest games on Roblox are "Moderate" (Murder Mystery 2, Dead Rails, BlockSpin, Da Hood, Deepwoken, Pressure), so the gap is not an oversight. To find a game's universe ID by name, `https://apis.roblox.com/search-api/omni-search?searchQuery=<name>&pageToken=&sessionId=<any uuid>&pageType=all` - it returns nothing at all without a `sessionId`.
 - `check_seo.py`: reads a built site and reports search-engine mistakes. Changes nothing.
+- `discover.py`: finds newly popular games and appends them to `games.txt`. See "Finding new games" below.
 - `worker/theme.js`: the site's two palettes, written by `build_site.py` so the admin dashboard matches the public site. Do not edit by hand; change `LIGHT` or `DARK` in `build_site.py`.
 - `build_site.py` ends by pruning `docs/game/` and `docs/category/`: any page this build did not write is deleted, so a renamed game, an ID removed from `games.txt`, or a game dropping below `MIN_SAMPLES` cannot leave an orphan page live for ever. It runs last, so a build that fails part way deletes nothing, and it never touches top-level files you add by hand (`ads.txt`, a favicon, `CNAME`). The build job uses `git add -A docs` so those deletions are committed.
 - Browser code lives in `build_site.py` as `SHARED_JS` (timezone shifting, busy-ness bands, "next good block", escaping) plus one block per page. Anything that puts a game name into HTML in the browser must pass it through `esc()`: names come from Roblox and can contain quotes and angle brackets.

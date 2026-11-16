@@ -1,0 +1,72 @@
+name: find new games
+on:
+  # Once a day, half an hour before the 04:30 build. Roblox's charts move over days,
+  # not minutes, and a game added here cannot have a page for about a day and a half
+  # anyway (the collector has to reach MIN_SAMPLES first), so checking more often
+  # would only add commits.
+  schedule:
+    - cron: "0 4 * * *"
+  # Run it by hand from the Actions tab any time: GitHub -> Actions -> "find new
+  # games" -> Run workflow. Leave "dry run" ticked to see what it would add without
+  # changing anything.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run - just show what it would add, change nothing"
+        type: boolean
+        default: true
+      max:
+        description: "Most games to add in this run"
+        default: "10"
+permissions:
+  contents: write
+concurrency:
+  group: discover
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # fetch-depth: 0 because the commit step may need to rebase onto a main that
+      # moved while this was running, and a shallow checkout cannot rebase.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # On the daily schedule there are no inputs, so dry_run is empty and it runs
+      # for real. A run started by hand defaults to a dry run instead, so poking at
+      # the button cannot change the site by accident.
+      - name: Look for newly popular games
+        id: find
+        env:
+          MAXADD: ${{ inputs.max || '10' }}
+        run: |
+          python3 discover.py ${{ inputs.dry_run && '--dry-run' || '' }} --max "$MAXADD"
+
+      # Only runs if games were actually added. The commit message ends with
+      # [skip ci], which stops GitHub starting a site build for this push: games.txt
+      # is in build.yml's paths, but a game added now has no player counts yet, so
+      # that build would produce a site identical to the current one. The regular
+      # 04:30 build half an hour later picks the new IDs up properly.
+      #
+      # NAMES comes from Roblox, so it is passed in as an environment variable and
+      # quoted rather than pasted into the script by the template - a game name is
+      # written by its creator and is not ours to trust. discover.py strips it down
+      # to letters, digits and simple punctuation before it ever gets here.
+      - name: Add them to games.txt
+        if: steps.find.outputs.added != '0' && steps.find.outputs.added != ''
+        env:
+          COUNT: ${{ steps.find.outputs.added }}
+          NAMES: ${{ steps.find.outputs.names }}
+        run: |
+          git config --global user.name "game finder"
+          git config --global user.email "game-finder@users.noreply.github.com"
+          git add games.txt
+          git commit -m "Add $COUNT game(s) from the Roblox charts: $NAMES [skip ci]" || exit 0
+          for try in 1 2 3; do
+            git push && exit 0
+            echo "main moved while this was running - rebasing and trying again ($try of 3)"
+            git pull --rebase origin main || { echo "could not rebase onto main"; exit 1; }
+          done
+          echo "gave up after 3 tries - nothing is lost, tomorrow's run finds the same games"
+          exit 1
