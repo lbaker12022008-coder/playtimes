@@ -10,6 +10,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PlayTime">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 <script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');if(t)d.setAttribute('data-theme',t);d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}catch(e){document.documentElement.setAttribute('data-view','grid')}</script><style>:root{--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;--mut:#595068;
@@ -285,6 +286,8 @@ border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600
 text-align:left;cursor:pointer}
 .drow:hover,.drow:focus-visible{background:var(--shade)}
 .drow svg{width:18px;height:18px;flex:none;fill:currentColor}
+.dhelp{margin:0 13px 8px;font-size:.85rem;line-height:1.5;color:var(--mut)}
+.dhelp[hidden]{display:none}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -612,6 +615,25 @@ try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
 if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
 body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
+/* Is this page running as an installed app, and is this an Apple device? Both
+   questions are asked in two places - the Install option in the header panel, and
+   the notification panel on a game page - so they are answered here rather than
+   written twice and left to drift. It is also the only place they can live: this
+   block is in the head and CHROME_JS may use nothing else.
+   iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad. */
+function ptIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||
+(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+function ptInstalled(){try{return (window.matchMedia&&
+window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+catch(e){return false}}
+/* A browser offers to install the site once per page load, and it does so before
+   CHROME_JS has run - so the offer has to be caught up here and kept. Calling
+   preventDefault stops the browser showing its own bar across the page, which means
+   the option in the panel is the only place it is ever offered, rather than a second
+   thing appearing over the games. */
+PT.prompt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();
+PT.prompt=e;if(PT.onprompt)try{PT.onprompt()}catch(err){}});
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 /* Signed out, one button that leads to Roblox. Signed in, the person's own
@@ -667,7 +689,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <header class="hdr narrow"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<div class="acct"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="acct"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button><button class="drow" data-install type="button" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Install app</span></button><p class="dhelp" data-installhelp hidden>Tap the Share button in Safari, then <b>Add to Home Screen</b>. PlayTime then opens like an app, and on an iPhone or iPad that is also the only way notifications can work.</p></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
 <div class="w"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Terms of Service</span></nav></div><div class="doc"><h1>Terms of Service</h1>
 <p class="mut">Last updated: November 16, 2026</p>
@@ -821,4 +843,39 @@ function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'fa
 btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
 document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();
+
+/* The Install app option. Its own function because the block above gives up early on
+   any page without the game switcher, and this is on every page.
+
+   Two quite different things behind one row. On Chrome, Edge and Android the browser
+   has handed us a real offer and pressing the row opens the browser's own install
+   box. On an iPhone or iPad no such offer exists - Apple provides no way to ask - so
+   the row reveals where Apple hides its own button instead. Anywhere that can do
+   neither, the row never appears, which is better than a button that does nothing. */
+(function(){
+var rows=document.querySelectorAll('[data-install]');
+if(!rows.length)return;
+var help=document.querySelector('[data-installhelp]');
+function paint(){
+var show=!ptInstalled()&&(PT.prompt||ptIOS());
+Array.prototype.forEach.call(rows,function(b){b.hidden=!show});
+if(help&&!show)help.hidden=true}
+/* Called again if the browser makes its offer after this has already run. */
+PT.onprompt=paint;
+paint();
+/* Delegated, because paint may hide and show these rows at any time and because a
+   tap on iOS can arrive at a text node, which has no closest. */
+document.addEventListener('click',function(e){
+var b=e.target.closest&&e.target.closest('[data-install]');
+if(!b)return;
+if(PT.prompt){
+/* An offer can only be used once, so it is taken rather than copied. */
+var offer=PT.prompt;PT.prompt=null;
+offer.prompt();
+if(offer.userChoice)offer.userChoice.then(paint,paint);
+return}
+if(help)help.hidden=!help.hidden});
+/* Installed while the page was open: the option has nothing left to offer. */
+window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
 })();</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
