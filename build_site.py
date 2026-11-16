@@ -332,6 +332,8 @@ border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600
 text-align:left;cursor:pointer}
 .drow:hover,.drow:focus-visible{background:var(--shade)}
 .drow svg{width:18px;height:18px;flex:none;fill:currentColor}
+.dhelp{margin:0 13px 8px;font-size:.85rem;line-height:1.5;color:var(--mut)}
+.dhelp[hidden]{display:none}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -915,6 +917,11 @@ ICON_SEARCH = ('<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 
 ICON_GRID = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/>'
              '<rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/>'
              '<rect x="9" y="9" width="6" height="6" rx="1.6"/></svg>')
+# An arrow coming down onto a tray: the one glyph every app store and download
+# button has settled on, so it needs no label to be understood.
+ICON_INSTALL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
+                '<path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/>'
+                '<path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg>')
 ICON_LIST = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/>'
              '<rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg>')
 
@@ -1055,7 +1062,16 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
               f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
-              f'<span class="tlab">Dark mode</span></button></div>'
+              f'<span class="tlab">Dark mode</span></button>'
+              # Hidden unless it can actually do something: a browser that has offered
+              # to install the site, or an Apple device, which never offers and has to
+              # be told where its own button is. Already installed and it stays hidden.
+              f'<button class="drow" data-install type="button" hidden>{ICON_INSTALL}'
+              f'<span>Install app</span></button>'
+              f'<p class="dhelp" data-installhelp hidden>Tap the Share button in '
+              f'Safari, then <b>Add to Home Screen</b>. {html.escape(SITE)} then opens '
+              f'like an app, and on an iPhone or iPad that is also the only way '
+              f'notifications can work.</p></div>'
               f'<nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours">When is Roblox busiest?</a>'
               f'<a href="/about">About</a></nav></div>'
@@ -1102,6 +1118,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{html.escape(SITE)}">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
@@ -2139,6 +2156,25 @@ try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
 if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
 body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
+/* Is this page running as an installed app, and is this an Apple device? Both
+   questions are asked in two places - the Install option in the header panel, and
+   the notification panel on a game page - so they are answered here rather than
+   written twice and left to drift. It is also the only place they can live: this
+   block is in the head and CHROME_JS may use nothing else.
+   iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad. */
+function ptIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||
+(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+function ptInstalled(){try{return (window.matchMedia&&
+window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+catch(e){return false}}
+/* A browser offers to install the site once per page load, and it does so before
+   CHROME_JS has run - so the offer has to be caught up here and kept. Calling
+   preventDefault stops the browser showing its own bar across the page, which means
+   the option in the panel is the only place it is ever offered, rather than a second
+   thing appearing over the games. */
+PT.prompt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();
+PT.prompt=e;if(PT.onprompt)try{PT.onprompt()}catch(err){}});
 function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
 return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 /* Signed out, one button that leads to Roblox. Signed in, the person's own
@@ -2325,6 +2361,41 @@ function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'fa
 btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
 document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();
+
+/* The Install app option. Its own function because the block above gives up early on
+   any page without the game switcher, and this is on every page.
+
+   Two quite different things behind one row. On Chrome, Edge and Android the browser
+   has handed us a real offer and pressing the row opens the browser's own install
+   box. On an iPhone or iPad no such offer exists - Apple provides no way to ask - so
+   the row reveals where Apple hides its own button instead. Anywhere that can do
+   neither, the row never appears, which is better than a button that does nothing. */
+(function(){
+var rows=document.querySelectorAll('[data-install]');
+if(!rows.length)return;
+var help=document.querySelector('[data-installhelp]');
+function paint(){
+var show=!ptInstalled()&&(PT.prompt||ptIOS());
+Array.prototype.forEach.call(rows,function(b){b.hidden=!show});
+if(help&&!show)help.hidden=true}
+/* Called again if the browser makes its offer after this has already run. */
+PT.onprompt=paint;
+paint();
+/* Delegated, because paint may hide and show these rows at any time and because a
+   tap on iOS can arrive at a text node, which has no closest. */
+document.addEventListener('click',function(e){
+var b=e.target.closest&&e.target.closest('[data-install]');
+if(!b)return;
+if(PT.prompt){
+/* An offer can only be used once, so it is taken rather than copied. */
+var offer=PT.prompt;PT.prompt=null;
+offer.prompt();
+if(offer.userChoice)offer.userChoice.then(paint,paint);
+return}
+if(help)help.hidden=!help.hidden});
+/* Installed while the page was open: the option has nothing left to offer. */
+window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
 })();"""
 
 # Shared by every page that draws a week of player counts.
@@ -2905,12 +2976,10 @@ var box=document.getElementById('notif');
 if(!box||!window.PT_GAME)return;
 var body=document.getElementById('notifbody'),S=null,busy=false;
 var slug=PT_GAME.s,name=PT_GAME.n;
-/* Standalone means it was opened from the home screen, which is the only way an
-   Apple device allows notifications. Android and desktop never need it. */
-var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||
-(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-var installed=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches
-||navigator.standalone===true;
+/* Being installed is the only way an Apple device allows notifications; Android and
+   desktop never need it. Both answers come from FAVJS, which the Install option in
+   the header panel also uses, so the two cannot disagree about what is installed. */
+var ios=ptIOS(),installed=ptInstalled();
 var canPush='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
 
 function urlKey(text){
