@@ -204,7 +204,9 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 .bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
 /* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
    or long word inside a card could otherwise force the whole grid wider. */
-.bento>*{grid-column:1/-1;margin:0;min-width:0}   /* full width by default; the grid owns the spacing */
+/* scroll-margin-top keeps a jumped-to heading clear of the sticky header,
+   which is about 65px tall here and 57px on a phone. */
+.bento>*{grid-column:1/-1;margin:0;min-width:0;scroll-margin-top:78px}   /* full width by default; the grid owns the spacing */
 /* Two short cards sharing one column, so the tall card beside them has something
    to sit against. The grid cannot do this by itself: its rows are rigid, so a card
    shorter than the one next to it simply leaves the space under it empty - "The
@@ -214,7 +216,7 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
    arbitrary gap BETWEEN the two cards instead of closing it. Its gap has to be
    kept level with the bento's own, both here and in the wide block above. */
 .lstack{display:flex;flex-direction:column;gap:14px}
-.lstack>.card{margin:0;min-width:0}
+.lstack>.card{margin:0;min-width:0;scroll-margin-top:78px}
 .mut{color:var(--mut)}.small{font-size:.9rem}
 .up{color:var(--up)}.down{color:var(--down)}
 .wrap{overflow-x:auto}
@@ -294,6 +296,15 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* The events tickbox in the notification panel. A real checkbox rather than a third
    pill beside Quiet and Busy: those two are a choice between one and the other, and
    this is an extra on top of whichever was picked. */
+/* The numbered steps on /install, each with a screenshot under it. The picture is
+   capped well below its own width: these are phone screenshots, tall and narrow, and
+   at full size one step would fill the screen and hide the fact that there are four.
+   width and height are on the tag so the page does not jump as each one loads. */
+.shots{padding-left:22px}
+.shots>li{margin:0 0 22px}
+.shots>li>p{margin:0 0 10px}
+.shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
+border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
 font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
 .nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
@@ -404,6 +415,20 @@ border:1px solid var(--line);border-radius:13px}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem;transition:border-color .12s,box-shadow .18s}
 .pills a:hover{border-color:var(--acc)}
+/* The "On this page" row borrows .pills outright - the pill shape, the shared
+   --rim glow, and below 620px the sideways-scrolling strip - so a palette change
+   reaches it and there is only one kind of strip that could ever widen a phone.
+   Written .pills.jump and never .jump: ".pills a" is one class and sits earlier
+   in this stylesheet, so a single-class rule of ours would simply lose to it. */
+.pills.jump{margin:10px 0 16px;gap:7px;align-items:center}
+.pills.jump>b{font-size:.8rem;color:var(--mut);font-weight:700}
+.pills.jump a{padding:5px 12px;font-size:.85rem}
+/* The bento pulls its first row 30px up under whatever is above it. The jump row
+   sits above the description drawer, so on a game that has a description nothing
+   changes and the cards still tuck under the drawer. On a game with no
+   description the row lands directly before the grid, and the pull would then
+   drag the cards over the pills - which is the only case this cancels. */
+.pills.jump+.bento{margin-top:0}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
@@ -626,6 +651,7 @@ h2{font-size:1.06rem}
 .pills::-webkit-scrollbar{display:none}
 .pills a{display:inline-block;margin-right:8px}
 .pills a:last-child{margin-right:0}
+.bento>*,.lstack>.card{scroll-margin-top:68px}
 /* all seven days fit across, so the chart below does not jump when you change day */
 .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
 .days button{padding:6px 0;font-size:.82rem}
@@ -2866,6 +2892,31 @@ def span(block, n):
     return block.replace('<div class="card', f'<div class="sp{n} card', 1) if block else ""
 
 
+def anchor(block, sid):
+    """Gives a section's own card an id, so the "On this page" row can link to it.
+
+    Runs after span(), which is why it keys on the opening tag rather than on the
+    class list. A section that decided it had nothing to say stays empty, and
+    jump_html() then offers no link to it either."""
+    return block.replace("<div ", f'<div id="{sid}" ', 1) if block else ""
+
+
+def jump_html(items):
+    """The "On this page" row under the heading panel.
+
+    Only the sections this page really has are listed: a game whose creators have
+    announced no events, or that sells nothing, would otherwise offer a link to an
+    id that is not on the page. Plain anchors and no JavaScript, so the jumps work
+    before the page has finished loading, and Google can follow them to offer the
+    same list of sections under our own search result. Below three links it is not
+    worth the row and nothing is drawn."""
+    if len(items) < 3:
+        return ""
+    links = "".join(f'<a href="#{i}">{html.escape(t)}</a>' for i, t in items)
+    return ('<nav class="pills jump" aria-label="Sections of this page">'
+            f'<b>On this page</b>{links}</nav>')
+
+
 # The order here is the order a visitor reads in, and the grid never reorders it.
 # Sections are paired by how tall they are, not just by subject: the short answer
 # next to the session planner, the hourly graph next to the numbers it is drawn
@@ -2875,17 +2926,18 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and bes
 <div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 <a class="fav" href="/compare?a=__SLUG__">Compare</a></div></div></div>
+__JUMP__
 __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
-<div class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
+<div id="answer" class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p>
 <p class="mut small">The times above are in UTC until the page loads, then they switch to your
 own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
-<div class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
+<div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div></div>
-<div class="sp5 card rise3"><h2>Plan my session</h2>
+<div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
@@ -2895,11 +2947,11 @@ __NOTIFY__
 <a class="remind" href="/install" data-installlink>&#128241; Get __SITE__ as an app</a>
 <p class="mut small">Puts it on your home screen, and on an iPhone or iPad it is the
 only way notifications can work.</p></div>
-<div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
+<div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
-<div class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
-<div class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
+<div id="stats" class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
+<div id="week" class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
@@ -3119,11 +3171,24 @@ an app store, and it takes no space worth worrying about.</p>
 <li><b>On an iPhone or iPad it is the only way notifications can work.</b> Apple only
 allows a website to send notifications once it has been added to the home screen.</li></ul>
 <h2>On an iPhone or iPad</h2>
-<p>This has to be done in <b>Safari</b>. Other browsers on an iPhone cannot add it.</p>
-<ol><li>Open <b>{site}</b> in Safari.</li>
-<li>Tap the <b>Share</b> button &mdash; the square with an arrow pointing up out of it.</li>
-<li>Scroll down the list and tap <b>Add to Home Screen</b>.</li>
-<li>Tap <b>Add</b> in the top corner.</li></ol>
+<p>This has to be done in <b>Safari</b>. Other browsers on an iPhone cannot add it.
+Each picture below shows what to tap, with a red arrow on it.</p>
+<ol class="shots">
+<li><p>Open <b>{site}</b> in Safari and tap the <b>three lines</b> at the left-hand end
+of the address bar, at the bottom of the screen.</p>
+<img src="/img/install/step1.webp" width="520" height="1049" loading="lazy"
+alt="A game page in Safari, with a red arrow pointing at the three-lines button at the left of the address bar."></li>
+<li><p>Tap <b>Share</b>.</p>
+<img src="/img/install/step2.webp" width="520" height="1127" loading="lazy"
+alt="The Safari menu open, with a red arrow pointing at Share."></li>
+<li><p>Scroll down the list and tap <b>Add to Home Screen</b>.</p>
+<img src="/img/install/step3.webp" width="520" height="1127" loading="lazy"
+alt="The share sheet, with a red arrow pointing at Add to Home Screen."></li>
+<li><p>Tap <b>Add</b> in the top right. Leave <b>Open as Web App</b> switched on
+&mdash; that is the part that makes notifications work.</p>
+<img src="/img/install/step4.webp" width="520" height="421" loading="lazy"
+alt="The Add to Home Screen box, with a red arrow pointing at the Add button in the top right."></li>
+</ol>
 <p>The icon appears on your home screen. Open {site} from there from now on, and the
 notification button on any game page will work.</p>
 <h2>On an Android phone</h2>
@@ -3733,14 +3798,31 @@ def main():
                      f'&ldquo;{html.escape(full)}&rdquo;.</span>')
 
         faq, qa = faq_html(c, a, facts, meta, pattern)
+        # The sections that can be missing are built before the page, so the
+        # "On this page" row can list only the ones that are really there.
+        hist_b = anchor(history_html(name, a), "history")
+        cal_b = anchor(span(calendar_html(name, events, now), 6), "events")
+        par_b = anchor(span(parents_html(passes, pass_icons), 6), "costs")
+        faq_b = anchor(faq, "questions")
+        # In reading order, which is also the order the grid keeps.
+        jump = [("answer", "Short answer"), ("dead", "Is it dead?"),
+                ("session", "Plan a session"), ("byhour", "Hour by hour"),
+                ("stats", "Statistics"), ("week", "Whole week")]
+        for sid, label, block in (("history", "Player history", hist_b),
+                                  ("events", "Events", cal_b),
+                                  ("costs", "What it costs", par_b),
+                                  ("questions", "Questions", faq_b)):
+            if block:
+                jump.append((sid, label))
         body = (GAME.replace("__ICON__", thumb(name, c["icon"], icon_alt(name), eager=True))
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
                 .replace("__QUIET__", quiet_txt)
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
-                .replace("__HISTORY__", history_html(name, a))
-                .replace("__FAQ__", faq)
+                .replace("__HISTORY__", hist_b)
+                .replace("__FAQ__", faq_b)
+                .replace("__JUMP__", jump_html(jump))
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
@@ -3748,9 +3830,9 @@ def main():
                 .replace("__SITE__", html.escape(SITE))
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__CALENDAR__", span(calendar_html(name, events, now), 6))
+                .replace("__CALENDAR__", cal_b)
                 .replace("__ABOUT__", about_game_html(name, meta))
-                .replace("__PARENTS__", span(parents_html(passes, pass_icons), 6))
+                .replace("__PARENTS__", par_b)
                 .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
@@ -4166,6 +4248,16 @@ def main():
     write("events.json", json.dumps({"built": int(now), "games": coming},
                                     separators=(",", ":")))
     write("favicon.svg", FAVICON)
+    # The annotated screenshots for /install. Kept in brand/ and copied out as they
+    # are: they were drawn on once, by hand, and nothing about them changes from
+    # build to build, so the build needs no image library and the rule that the
+    # build server installs nothing stays intact.
+    shots = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brand", "install")
+    if os.path.isdir(shots):
+        for name in sorted(os.listdir(shots)):
+            if name.endswith(".webp"):
+                with open(os.path.join(shots, name), "rb") as f:
+                    write_bytes(f"img/install/{name}", f.read())
     write("manifest.webmanifest", manifest_json())
     write("sw.js", PUSH_SW)
     # The icons are the same drawing at three sizes: two for the manifest, one for
