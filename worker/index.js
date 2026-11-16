@@ -430,6 +430,18 @@ border-top:1px solid var(--line);cursor:pointer}
 .todo input{margin:3px 0 0;width:19px;height:19px;flex:none;accent-color:var(--acc);cursor:pointer}
 .todo i{display:block;font-style:normal;margin-top:2px}
 .todo.done b{text-decoration:line-through;color:var(--mut);font-weight:600}
+/* Finished work is folded away rather than deleted: the list is for what is
+   LEFT, but "did I ever do Search Console?" is a real question months later and
+   the answer should still be here. The summary keeps the browser's own triangle
+   and gets no custom marker: a CSS content escape starts with a backslash, and a
+   backslash followed by a digit, inside the template literal this whole dashboard
+   lives in, is read as an octal escape - a syntax error in a module, which takes
+   the entire worker down. Writing that warning out WITH an example is what caused
+   it the first time. Say it in words here, never in symbols. */
+.donelist{margin-top:12px;border-top:1px solid var(--line)}
+.donelist>summary{cursor:pointer;padding:11px 2px;color:var(--mut);font-size:.9rem}
+.donelist>summary:hover{color:var(--ink)}
+.donelist .todo:first-of-type{border-top:0}
 
 /* ---- the login form */
 input[type=password]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
@@ -839,10 +851,13 @@ function overview(d, v, s, t, site, live, todos, dayVal, sumBack) {
 
     '<div class="pair">',
     '<div class="card"><h2>Launch checklist</h2>',
+    /* Wrapped in an id so ticking a box on the other tab can repaint it. Both
+       rings used to be drawn once and then go quietly stale until a reload. */
+    '<div id="ring-ov">',
     ring(todos.length - left, todos.length, 'done'),
     '<p class="mut small" style="text-align:center;margin:8px 0 0">',
     left ? plural(left, 'thing') + ' left. See the Launch checklist tab.' : 'All ticked off.',
-    '</p></div>',
+    '</p></div></div>',
     '<div class="card"><h2>How long people stay</h2>',
     '<p style="font-size:2rem;margin:.1em 0;letter-spacing:-.02em">',
     (v.time && v.time.week_reads) ? mins(v.time.week_seconds / v.time.week_reads) : '&ndash;',
@@ -1114,12 +1129,22 @@ function launch(d, t, site, todos) {
     (done ? '&#10003; ' : '') + label + '</b>' + (note ? '<i>' + note + '</i>' : '') +
     '</span></div>';
   const left = todos.filter(x => !x.done).length;
+  /* Two lists off one array. The order inside each is still the sort column, so
+     the steps stay in the order they are meant to be done in. */
+  const open = todos.filter(x => !x.done);
+  const finished = todos.filter(x => x.done);
+  const allDone = 'Everything is ticked off.';
+  const row = x => '<label class="todo' + (x.done ? ' done' : '') + '">' +
+    '<input type="checkbox" data-key="' + esc(x.key) + '"' + (x.done ? ' checked' : '') + '>' +
+    '<span><b>' + esc(x.label) + '</b>' +
+    (x.note ? '<i class="mut small">' + esc(x.note) + '</i>' : '') + '</span></label>';
 
   document.getElementById('p-launch').innerHTML = [
     '<div class="pair"><div class="card"><h2>How far through</h2>',
+    '<div id="ring-launch">',
     ring(todos.length - left, todos.length, 'done'),
     '<p class="mut small" style="text-align:center;margin:8px 0 0">',
-    left ? plural(left, 'thing') + ' left to do.' : 'Everything is ticked off.', '</p></div>',
+    left ? plural(left, 'thing') + ' left to do.' : 'Everything is ticked off.', '</p></div></div>',
     '<div class="card"><h2>Settings the site checks itself</h2>',
     '<p class="mut small">Read from the last build, so these are the real settings.</p>',
     '<div class="alerts">',
@@ -1135,13 +1160,17 @@ function launch(d, t, site, todos) {
     '</div></div></div>',
 
     '<div class="card"><h2>Your checklist</h2>',
-    '<p class="mut small">Tick these off as you go. Saved here, so it looks the same on ',
-    'any device you sign in from.</p>',
-    todos.map(x => '<label class="todo' + (x.done ? ' done' : '') + '">' +
-      '<input type="checkbox" data-key="' + esc(x.key) + '"' + (x.done ? ' checked' : '') + '>' +
-      '<span><b>' + esc(x.label) + '</b>' +
-      (x.note ? '<i class="mut small">' + esc(x.note) + '</i>' : '') + '</span></label>').join('') ||
-      '<p class="mut small">Nothing on the list.</p>',
+    '<p class="mut small">Only what is still to do. Ticked items fold away below. ',
+    'Saved here, so it looks the same on any device you sign in from.</p>',
+    '<div id="todo-open">',
+    open.map(row).join('') || '<p class="mut small" id="todo-none">' + allDone + '</p>',
+    '</div>',
+    finished.length
+      ? '<details class="donelist"><summary><span id="todo-done-n">' +
+        plural(finished.length, 'finished item') + '</span></summary>' +
+        '<div id="todo-done">' + finished.map(row).join('') + '</div></details>'
+      : '<details class="donelist" hidden><summary><span id="todo-done-n"></span></summary>' +
+        '<div id="todo-done"></div></details>',
     '</div>'
   ].join('');
 }
@@ -1166,7 +1195,11 @@ function wireTabs() {
   open(document.getElementById('p-' + saved) ? saved : 'overview');
 }
 
-/* Ticking a box saves straight away, and puts itself back if the save fails. */
+/* Ticking a box saves straight away, and puts itself back if the save fails.
+   A saved tick also moves the row into the folded-away list (and an untick moves
+   it back), so the page matches what a reload would draw. The move happens only
+   AFTER the save lands: a row that jumped before the server agreed would have to
+   jump back on failure, which reads as the page glitching. */
 function wireTodos() {
   Array.prototype.forEach.call(document.querySelectorAll('.todo input'), box => {
     box.onchange = () => {
@@ -1175,13 +1208,56 @@ function wireTodos() {
       fetch('/admin/todo', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ key: box.dataset.key, done: box.checked })
-      }).then(r => { if (!r.ok) throw 0; }).catch(() => {
+      }).then(r => { if (!r.ok) throw 0; settleTodo(row, box.checked); }).catch(() => {
         box.checked = !box.checked;
         row.classList.toggle('done', box.checked);
         alert('Could not save that. Check your connection and try again.');
       });
     };
   });
+}
+
+/* Moves one row between the two lists and keeps the counts honest. */
+function settleTodo(row, done) {
+  const openList = document.getElementById('todo-open');
+  const doneList = document.getElementById('todo-done');
+  const fold = doneList && doneList.closest('.donelist');
+  const count = document.getElementById('todo-done-n');
+  if (!openList || !doneList || !fold || !count) return;
+  (done ? doneList : openList).appendChild(row);
+  const n = doneList.children.length;
+  fold.hidden = !n;
+  count.textContent = plural(n, 'finished item');
+  /* The "nothing left" line appears and disappears with the open list. */
+  const none = document.getElementById('todo-none');
+  if (openList.children.length === 0 && !none) {
+    const p = document.createElement('p');
+    p.className = 'mut small';
+    p.id = 'todo-none';
+    p.textContent = 'Everything is ticked off.';
+    openList.appendChild(p);
+  } else if (openList.children.length > 1 && none) {
+    none.remove();
+  }
+  paintRings();
+}
+
+/* Redraws both progress rings from what is on the page now. Without this the
+   ring sat at its load-time number while the list beside it moved, which reads
+   as the page being broken rather than as one number being a moment behind. */
+function paintRings() {
+  const total = document.querySelectorAll('#p-launch .todo').length;
+  const doneN = document.querySelectorAll('#todo-done .todo').length;
+  const left = total - doneN;
+  const caption = (id, text) => {
+    const box = document.getElementById(id);
+    if (!box) return;
+    box.innerHTML = ring(doneN, total, 'done') +
+      '<p class="mut small" style="text-align:center;margin:8px 0 0">' + text + '</p>';
+  };
+  caption('ring-launch', left ? plural(left, 'thing') + ' left to do.' : 'Everything is ticked off.');
+  caption('ring-ov', left ? plural(left, 'thing') + ' left. See the Launch checklist tab.'
+                          : 'All ticked off.');
 }
 </script>` + TAIL;
 }
