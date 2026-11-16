@@ -3015,10 +3015,16 @@ post('watch',{slug:slug,on:false}).then(function(){finished();
 return refresh('Turned off. You will not get notifications about '+name+'.')})
 .catch(function(){finished();refresh('Could not turn that off. Please try again.')})}
 
+/* On success this says where to look if nothing appears, because the commonest
+   outcome is not a failure at all: the push service accepted it and the computer
+   did not show it. Telling someone "Sent" and leaving them staring at an empty
+   screen is the least useful thing this panel could do. */
 function test(btn){
 working(btn,'Sending...');
 post('test',{}).then(function(){finished();
-refresh('Sent. It should appear in a moment.')})
+refresh('Sent. If nothing appears within a few seconds, your computer is hiding '
++'it rather than this site failing: check your notification centre, and that '
++'notifications are allowed for your browser in your system settings.')})
 .catch(function(err){finished();
 refresh(err&&err.message||'That did not work.')})}
 

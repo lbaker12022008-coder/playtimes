@@ -197,12 +197,29 @@ export async function encrypt(plaintext, p256dh, authSecret) {
  * ten minutes for ever is both useless and rude to the push service.
  */
 async function sendOne(env, sub, message) {
+  /* Every attempt records what the push service said, because the hard part of
+     diagnosing this feature is that a push which is accepted and then not shown
+     looks exactly like one that was never sent. `fails` alone cannot tell those
+     apart: it stays 0 in both cases. 0 here means we could not even build the
+     message and -1 means the push service could not be reached; anything else is
+     its real HTTP status. */
+  const record = async status => {
+    try {
+      await env.DB.prepare(
+        "UPDATE push_subs SET last_status = ?1, last_try = ?2 WHERE id = ?3"
+      ).bind(status, Date.now(), sub.id).run();
+    } catch (err) {
+      // Never let bookkeeping sink the send itself.
+    }
+  };
+
   let body, auth;
   try {
     body = await encrypt(enc(JSON.stringify(message)), sub.p256dh, sub.auth);
     auth = await vapidAuth(env, sub.endpoint);
   } catch (err) {
     console.error("could not build a notification", err && err.stack || err);
+    await record(0);
     return "failed";
   }
   let res;
@@ -220,13 +237,19 @@ async function sendOne(env, sub, message) {
     });
   } catch (err) {
     console.error("push service unreachable", err && err.stack || err);
+    await record(-1);
     return "failed";
   }
+  await record(res.status);
   if (res.status === 404 || res.status === 410) return "gone";
   if (!res.ok) {
     console.error("push service refused", res.status, (await res.text().catch(() => "")).slice(0, 200));
     return "failed";
   }
+  // Logged on success too: "it was accepted and still did not appear" is the
+  // commonest complaint, and without this there is no way to tell it apart from
+  // "it was never sent".
+  console.log("push accepted", res.status, new URL(sub.endpoint).host);
   return "ok";
 }
 

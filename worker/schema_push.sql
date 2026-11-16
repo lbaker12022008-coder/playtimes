@@ -19,7 +19,14 @@ CREATE TABLE IF NOT EXISTS push_subs (
   auth     TEXT    NOT NULL,           -- the browser's shared secret, same purpose
   tz       INTEGER NOT NULL DEFAULT 0, -- hours ahead of UTC, so a message can name a local time
   created  INTEGER NOT NULL,
-  fails    INTEGER NOT NULL DEFAULT 0  -- consecutive send failures; the row is dropped at 5
+  fails    INTEGER NOT NULL DEFAULT 0, -- consecutive send failures; the row is dropped at 5
+  -- What the push service said last time, and when. `fails` cannot answer the
+  -- question that actually comes up - "it said it sent one and nothing appeared" -
+  -- because it stays 0 both when the send succeeded and when it was never tried.
+  -- 0 means we could not build the message, -1 means the service was unreachable,
+  -- anything else is its real HTTP status (201 is a normal success).
+  last_status INTEGER,
+  last_try    INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_push_user ON push_subs (rbx_id);
 
