@@ -318,10 +318,24 @@ browser is woken about fifteen minutes before that game's next best hour.
 - **`docs/sw.js` deliberately caches nothing.** A service worker serving pages from
   its own copy would hand people yesterday's player counts, which is the one thing
   this site must never do. It only listens for notifications.
-- **The owner must do three things before it works** (nothing breaks meanwhile -
-  `pushReady()` is false, `/api/push/state` answers `available:false`, and the panel
-  draws nothing): run `node worker/make_vapid_keys.mjs`, put both keys in with
-  `wrangler secret put`, and run `schema_push.sql` against D1.
+- **Set up and live since 16 Nov 2026.** `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`
+  are in Cloudflare and the three tables exist in D1, so `/api/push/state` answers
+  `available:true` and the panel renders. The pair was generated and piped straight
+  into `wrangler secret put` through its stdin, so the private key never went through
+  a file, a command line or a chat - the same rule the Roblox client secret follows,
+  kept by piping rather than by typing at a prompt. The public key is **not** secret:
+  it is handed to every browser that subscribes, and `/api/push/state` returns it.
+  `worker/make_vapid_keys.mjs` remains for generating a fresh pair by hand.
+- **Rotating the VAPID key is not free once people have subscribed.** A browser ties
+  its subscription to the `applicationServerKey` it was given, so a new pair silently
+  orphans every existing subscription and each person has to turn notifications on
+  again. Rotating cost nothing on day one because nobody had subscribed yet.
+- **What is still unproven is the private key's own correctness**, because only an
+  actual send exercises the signing, and that needs a real signed-in browser. The
+  pair was self-tested (sign then verify) before being stored and the public half
+  came back from Cloudflare byte-identical, so the piping is known to be lossless.
+  Turning notifications on sends a test automatically, so the first real use proves
+  it either way.
 - **Reach is capped at 10 people until the Roblox app passes review**, since
   notifications need sign-in. That review is still item 3 on the launch checklist.
 - Tests live in the scratchpad, not the repo: crypto round-trip, 27 timezone offsets,
@@ -371,6 +385,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
 - **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints on About, Privacy **and** Terms through `contact_html()`, which is why setting it moved `POLICY_DATE` to 13 Nov 2026 - those two documents gained a Contact section. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
+- **Browser notifications are live** (16 Nov 2026): VAPID keys set in Cloudflare, the three push tables created in D1, and the panel renders on every game page. Reach is capped at Roblox's 10 signed-in users until the app review passes. See "Browser notifications" above.
 - **Sign in with Roblox works.** The domain unblocked it, the redirect URL is registered, and people have signed in and out for real since 14 Nov 2026 - which is how the sign-out bug above was found. The OAuth app is on the Roblox account `gp_isweird`, client id `5479373624062556036`, secret rotated 14 Nov 2026. **Still to do:** submit the app for review to lift Roblox's 10-user cap (needs a demo video under a minute and a justification for the scopes), and delete the old app `5285601446665495033`.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - **`MIN_SAMPLES` is at its launch value of 200** (set 2 Nov 2026) and **all 140 games clear it now**, so the dip it caused is over: the site builds 140 game pages and every one also passes `index_ok()`, so all 140 are in the sitemap. There is no reason to touch it again - it has stopped being a brake on the existing games and is now only a gate on *new* ones added to `games.txt`, which simply have no page for about a day and a half. Lowering it to 2 is still the undo if design work ever needs every game present.
