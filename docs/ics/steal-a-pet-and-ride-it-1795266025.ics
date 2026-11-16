@@ -4,16 +4,20 @@ PRODID:-//PlayTime//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:pte-steal-a-pet-and-ride-it-1795266025@playtime
-DTSTAMP:20261116T114332Z
+DTSTAMP:20261116T173903Z
 DTSTART:20261121T130025Z
 DTEND:20261128T131225Z
-SUMMARY:Steal A Pet And Ride It: ???
-DESCRIPTION:???
+SUMMARY:Steal A Pet And Ride It: 🌸 NEW BIOME + TRADING 🤝
+DESCRIPTION:🌸 A new biome is coming to World 3!\nA new boss is waiting 
+ there\, with new pets and a new cage.\nCan you get past it?\n\n🤝 TRADI
+ NG IS HERE!\nTrade pets\, cages\, potions and talismans with other player
+ s.\nYou can even trade shop items!\n\n👑 Admin abuse at the start of th
+ e update!\nJoin the event so you don't miss it.
 URL:https://playtimestats.com/game/steal-a-pet-and-ride-it
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT15M
-DESCRIPTION:Steal A Pet And Ride It: ???
+DESCRIPTION:Steal A Pet And Ride It: 🌸 NEW BIOME + TRADING 🤝
 END:VALARM
 END:VEVENT
 END:VCALENDAR
