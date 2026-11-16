@@ -17,7 +17,7 @@ It looks for:
   * two pages sharing the same title or description, which makes Google pick one
   * headings that skip a level, or a page with no <h1> or more than one
   * pictures with no alt text
-  * structured data that is not valid JSON
+  * structured data that is not valid JSON, or has no "@context"
   * addresses in sitemap.xml that do not exist, or pages missing from it
   * pages asking to be left out of Google, so you can see they are the ones you meant
 
@@ -152,9 +152,16 @@ def main():
         for blob in re.findall(r'<script type="application/ld\+json">(.*?)</script>',
                                doc, re.S):
             try:
-                json.loads(blob.replace("<\\/", "</"))
+                data = json.loads(blob.replace("<\\/", "</"))
             except ValueError as e:
                 fail(name, f"structured data is not valid JSON: {e}")
+                continue
+            # Valid JSON is not enough. Without "@context" naming schema.org this is
+            # a plain object that happens to use schema.org words, and Google ignores
+            # the whole script without complaining - which is exactly how 147 pages
+            # quietly lost their structured data, the homepage included.
+            if isinstance(data, dict) and "@context" not in data:
+                fail(name, 'structured data has no "@context", so Google ignores it')
 
         # ---- links
         for href in re.findall(r'<a\b[^>]*\bhref="([^"]+)"', body, re.I):
@@ -162,7 +169,7 @@ def main():
                 continue
             # Addresses the worker answers rather than files in the folder. There is
             # nothing on disk to find, so looking for one would fail every time.
-            if href.split("?")[0] in ("/reminder.ics", "/admin") or href.startswith("/api/"):
+            if href.split("?")[0] == "/admin" or href.startswith("/api/"):
                 continue
             if not exists(href):
                 fail(name, f"link to a page that is not there: {href}")

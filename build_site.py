@@ -245,45 +245,63 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    own picture takes its place and their name and Sign out move into a small menu
    underneath - the bar has room for a face, not for a name and a verb.
    From 900px up both forms widen into a pill and say what they are, because an
-   unlabelled person glyph is the one button up here whose meaning cannot be
-   guessed. That rule is written `.acct .acctb` and not `.acctb`: the plain
-   `.iconb` width sits further down the stylesheet and a media query adds no
-   specificity, so one class would simply lose to it and the pill would stay a
-   42px square.
+   unlabelled glyph is the one kind of button up here whose meaning cannot be
+   guessed, which is why the bell is the only thing in the bar that is new: it is
+   drawn for signed-in people, who have already met notifications on a game page.
    :empty is what keeps the bar tidy when the Roblox keys are missing - ptPaint()
    writes nothing at all then, and an empty div would hold a gap open. */
-.acct{position:relative;flex:none}
+/* THE ACCOUNT IS IN THE PANEL, NOT THE BAR. It was moved into the bar in Nov 2026
+   on the grounds that a face is easier to find than a menu item, and moved back out
+   in Nov 2026 when the owner wanted the bar down to icons so the notification bell
+   could live there. The name and Sign out were already in a menu hanging off the
+   bar, so this is the same two things in a place with room for them.
+   :empty is what keeps the panel tidy when the Roblox keys are missing - ptPaint()
+   writes nothing at all then, and an empty div would hold a gap open. */
+.acct{display:flex;flex-direction:column;gap:2px;margin-bottom:8px;padding-bottom:8px;
+border-bottom:1px solid var(--line)}
 .acct:empty{display:none}
-/* `.acct .acctb` for the same reason as the pill below: .iconb is display:grid and
-   is written further down, so a one-class rule here lost to it and the glyph sat
-   stacked ON TOP of the word instead of beside it. Every .acctb rule carries the
-   wrapper for that reason - do not simplify them back to one class. */
-.acct .acctb{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
-/* Width and height are on the tag as well, so the bar does not jump sideways when
-   the picture arrives. flex:0 0 auto stops a long display name squeezing it. */
-.acct .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
+.acct form{margin:0}
+.acct .drow{text-decoration:none}
+.acct svg{width:18px;height:18px;flex:none;fill:currentColor}
+/* Picture, name, and a quiet line saying where the name came from. */
+.awho{display:flex;align-items:center;gap:11px;padding:9px 13px}
+.awho>span{display:flex;flex-direction:column;min-width:0}
+.awho b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.awho i{font-style:normal}
+/* Width and height are on the tag too, so the panel does not jump when the picture
+   arrives. flex:0 0 auto stops a long display name squeezing it. */
+.acct .pfp{width:34px;height:34px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
-.albl{display:none;max-width:118px;overflow:hidden;text-overflow:ellipsis;
-white-space:nowrap;font-size:.9rem;font-weight:700}
-/* Hangs off the right edge, since the button is at the right end of the bar, and
-   borrows .gmenu's box so the header's two menus are plainly the same object.
-   `.acct .amenu`, not `.amenu`: .gmenu sets left:0 for the game picker at the LEFT
-   end of the bar and is written further down the stylesheet, so a single class
-   loses to it and the menu opens rightwards off the screen - measured 252px wide
-   ending at 473px inside a 390px phone. Two classes settle it whatever the order. */
-.acct .amenu{left:auto;right:0;min-width:208px}
-.amenu .who{display:block;margin:1px 10px 7px;font-weight:700;color:var(--ink);
-max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.amenu form{margin:0}
-/* Signing out is a thing you DO, so it is a row you can hit rather than a 12px
-   underlined word tucked after the name. As drawn before it was fainter than
-   everything around it and read as a caption: the one person who needed it could
-   not find it. */
-.acct .linkish{display:flex;align-items:center;width:100%;padding:10px;border:0;
-border-radius:10px;background:none;color:var(--ink);font:inherit;font-weight:600;
-font-size:.95rem;text-align:left;cursor:pointer}
-.acct .linkish:hover,.acct .linkish:focus-visible{background:var(--shade)}
-@media(min-width:900px){.acct .acctb{width:auto;padding:0 13px}.albl{display:block}}
+
+/* The notification bell, at the right end of the bar, and the list it opens.
+   Drawn only for somebody signed in: notifications are only offered to signed-in
+   people, so for anybody else there is nothing it could ever list. */
+.nots{position:relative;flex:none}
+.nots:empty{display:none}
+/* `.nots .nmenu` and not `.nmenu`, for the same reason the account menu needed two
+   classes: .gmenu sets left:0 for the game picker at the OTHER end of the bar and is
+   written further down this stylesheet, so a single class loses to it and this menu
+   opens rightwards off the edge of a phone. Assume a later one-class rule wins. */
+.nots .nmenu{left:auto;right:0;width:min(300px,calc(100vw - 24px))}
+.nrow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px}
+.nrow:hover{background:var(--shade)}
+.nrow>a{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0;
+text-decoration:none;color:var(--ink)}
+.nrow img{width:28px;height:28px;border-radius:8px;flex:none;object-fit:cover}
+.nrow>a span{flex:1 1 auto;min-width:0;font-weight:600;font-size:.92rem;
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nrow i{font-style:normal;font-size:.76rem;color:var(--mut);flex:none}
+/* The events tickbox in the notification panel. A real checkbox rather than a third
+   pill beside Quiet and Busy: those two are a choice between one and the other, and
+   this is an extra on top of whichever was picked. */
+.nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
+font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
+.nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
+.noff{padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:none;
+color:var(--mut);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;flex:none}
+.noff:hover,.noff:focus-visible{color:var(--ink);border-color:var(--acc)}
+.nnone{margin:2px 10px 8px;font-size:.88rem;color:var(--mut);line-height:1.5}
+.nnone a{color:var(--acc)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -332,8 +350,6 @@ border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600
 text-align:left;cursor:pointer}
 .drow:hover,.drow:focus-visible{background:var(--shade)}
 .drow svg{width:18px;height:18px;flex:none;fill:currentColor}
-.dhelp{margin:0 13px 8px;font-size:.85rem;line-height:1.5;color:var(--mut)}
-.dhelp[hidden]{display:none}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
@@ -526,19 +542,11 @@ details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
    different browsers - and the labels flow as inline blocks instead. */
 /* The reminder is its own question, so it is ruled off from the countdown above it
    rather than running on from it. */
+/* Kept: the notification panel sits in this same spot under the countdown, where
+   the calendar day-picker used to be. */
 .rem{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
 .rem>p:first-child{margin:0 0 8px}
 .rem .days{margin:0}
-.daypick{border:0;padding:0;margin:12px 0 4px;display:block}
-.daypick legend{padding:0;margin-bottom:6px}
-.daypick label{cursor:pointer;display:inline-block;margin:0 6px 6px 0}
-.daypick input{position:absolute;opacity:0;width:0;height:0}
-.daypick span{display:inline-flex;align-items:center;justify-content:center;min-width:46px;
-min-height:38px;padding:0 10px;border-radius:999px;border:1px solid var(--line);
-background:var(--card);color:var(--mut);font-size:.84rem;font-weight:600}
-.daypick input:checked+span{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
-.daypick input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
-.remind[aria-disabled=true]{opacity:.5;pointer-events:none}
 .remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
 font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
 background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}
@@ -702,10 +710,17 @@ def jsonld(*blocks):
     items = [b for b in blocks if b]
     if not items:
         return ""
-    data = items[0] if len(items) == 1 else {"@context": "https://schema.org", "@graph": items}
-    if len(items) > 1:
-        for b in items:
-            b.pop("@context", None)
+    # Every block needs "@context", including a lone one. Without it this is just a
+    # JSON object that happens to use schema.org words, and Google ignores the whole
+    # script - it parses as valid JSON, so nothing anywhere complains. A single block
+    # used to be written out bare, which silently threw away the structured data on
+    # 147 pages, the homepage among them. That is the page carrying the WebSite block
+    # Google reads a site's NAME from, which is why results said "playtimestats.com"
+    # where other sites show their name. check_seo.py now fails a page missing it.
+    for b in items:
+        b.pop("@context", None)
+    data = ({"@context": "https://schema.org", **items[0]} if len(items) == 1
+            else {"@context": "https://schema.org", "@graph": items})
     return ('<script type="application/ld+json">'
             + json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
             + "</script>")
@@ -919,6 +934,10 @@ ICON_GRID = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" widt
              '<rect x="9" y="9" width="6" height="6" rx="1.6"/></svg>')
 # An arrow coming down onto a tray: the one glyph every app store and download
 # button has settled on, so it needs no label to be understood.
+ICON_BELL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
+             '<path d="M8 1.3a4.2 4.2 0 0 0-4.2 4.2v2.3L2.4 10a1 1 0 0 0 .85 1.5h9.5A1 1 0 0 0 '
+             '13.6 10l-1.4-2.2V5.5A4.2 4.2 0 0 0 8 1.3z"/>'
+             '<path d="M6.2 12.6a1.9 1.9 0 0 0 3.6 0z"/></svg>')
 ICON_INSTALL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
                 '<path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/>'
                 '<path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg>')
@@ -1047,7 +1066,12 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # its own search row to match. Nothing in the scripts had to change for that
     # second copy, because they bind every [data-search] and [data-themebtn]
     # rather than an id - keep it that way.
-    buttons = (f'<div class="acct"></div>'
+    # The account used to be here and is now the first thing in the panel: the owner
+    # wanted the bar down to icons so the notification bell could have a place in it.
+    # Both are written EMPTY - ptPaint() fills them once /api/me has answered, because
+    # a built page is the same file for everyone and only the worker knows who is
+    # signed in. :empty collapses whichever of them has nothing to say.
+    buttons = (f'<div class="nots"></div>'
                f'<button class="iconb deskonly" data-search type="button" '
                f'aria-label="Search for a game">{ICON_SEARCH}</button>'
                f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
@@ -1059,19 +1083,12 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # than the page. They sit after </header> as siblings instead.
     extras = (f'<div class="drawer" id="drawer" hidden>'
               f'<div class="dtop">'
+              f'<div class="acct"></div>'
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
               f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
               f'<span class="tlab">Dark mode</span></button>'
-              # Hidden unless it can actually do something: a browser that has offered
-              # to install the site, or an Apple device, which never offers and has to
-              # be told where its own button is. Already installed and it stays hidden.
-              f'<button class="drow" data-install type="button" hidden>{ICON_INSTALL}'
-              f'<span>Install app</span></button>'
-              f'<p class="dhelp" data-installhelp hidden>Tap the Share button in '
-              f'Safari, then <b>Add to Home Screen</b>. {html.escape(SITE)} then opens '
-              f'like an app, and on an iPhone or iPad that is also the only way '
-              f'notifications can work.</p></div>'
+              f'</div>'
               f'<nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours">When is Roblox busiest?</a>'
               f'<a href="/about">About</a></nav></div>'
@@ -1132,7 +1149,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/busiest-hours">When is Roblox busiest?</a>
 <a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a>
-<a href="/about">About</a><a href="/privacy">Privacy Policy</a>
+<a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
 <a href="/terms">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
 shows when people play, not whether a game is good or safe.</p></footer>
@@ -1845,7 +1862,7 @@ def about_game_html(name, meta):
             f'<p class="mut small">Description written by the game\'s own creators and shown on Roblox.</p></div></details>')
 
 
-def event_item(e, now, cls="", gslug=""):
+def event_item(e, now, cls=""):
     """One event in a list: title, when it runs, and what the creators said about it."""
     live = e["start"] <= now <= (e["end"] or e["start"] + 86400)
     soon = e["start"] > now
@@ -1861,15 +1878,17 @@ def event_item(e, now, cls="", gslug=""):
         desc = desc[:420].rsplit(" ", 1)[0] + "…"
     sub = f'<span class="d">{html.escape(e["subtitle"])}</span>' if e.get("subtitle") else ""
     body = f"<p>{html.escape(desc)}</p>" if desc else ""
-    bell = remind_btn("/" + event_ics_name(gslug, e)) if (soon and gslug) else ""
     return (f'<li class="{klass}"><b>{html.escape(e["title"])}</b>{sub}'
-            f'<span class="d">{label}</span>{body}{bell}</li>')
+            f'<span class="d">{label}</span>{body}</li>')
 
 
-# ----------------------------------------------------------------- reminders
-# "Remind me" hands the visitor a calendar file. The files are written here, at
-# build time, and served like any other file on the site: a link to one gets iOS's
-# own "Add to Calendar" screen, and a file built inside the page never does.
+# ----------------------------------------------------------------- notifications
+# The site used to hand out calendar files - a day-picker that built a .ics, plus one
+# file per upcoming event. Both are gone: the only reminders now are app and browser
+# notifications (see worker/push.js), which is what the owner asked for.
+#
+# The .ics files themselves are deleted by prune() on the next build, because it
+# still covers the ics/ folder and nothing writes into it any more.
 #
 # The format is iCalendar (RFC 5545), and it is picky in three ways that lose the
 # whole file rather than one line: every line ends CRLF, text escapes \ ; , and
@@ -1881,76 +1900,16 @@ def ics_text(value):
             .replace(",", "\\,").replace("\r\n", "\\n").replace("\n", "\\n"))
 
 
-def ics_fold(line):
-    out, run = [], 0
-    for ch in line:
-        n = len(ch.encode("utf-8"))
-        if run + n > 74:
-            out.append("\r\n ")
-            run = 1
-        out.append(ch)
-        run += n
-    return "".join(out)
-
 
 def ics_stamp(ts):
     return datetime.fromtimestamp(int(ts), timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
-def ics_file(uid, start, end, title, desc="", url="", rrule="", alarm=10):
-    """One calendar file, as text. Times are UTC, so it carries no timezone of its
-    own and the reader's calendar shows them on their own clock."""
-    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PlayTime//EN",
-             "CALSCALE:GREGORIAN", "BEGIN:VEVENT", f"UID:{uid}@playtime",
-             f"DTSTAMP:{ics_stamp(BUILT)}", f"DTSTART:{ics_stamp(start)}",
-             f"DTEND:{ics_stamp(end)}"]
-    if rrule:
-        lines.append("RRULE:" + rrule)
-    lines.append("SUMMARY:" + ics_text(title))
-    if desc:
-        lines.append("DESCRIPTION:" + ics_text(desc))
-    # Only a full web address belongs here. Until DOMAIN is set abs_url() gives a
-    # path, and a path on its own is not a valid URL for a calendar to follow.
-    if url.startswith("http"):
-        lines.append("URL:" + ics_text(url))
-    lines += ["BEGIN:VALARM", "ACTION:DISPLAY", f"TRIGGER:-PT{int(alarm)}M",
-              "DESCRIPTION:" + ics_text(title), "END:VALARM", "END:VEVENT",
-              "END:VCALENDAR"]
-    return "\r\n".join(ics_fold(l) for l in lines) + "\r\n"
 
 
-def event_ics_name(slug, event):
-    return f"ics/{slug}-{int(event['start'])}.ics"
 
 
-def write_event_ics(slug, game, events, now):
-    """A calendar file for every event of this game that has not happened yet."""
-    for e in events or []:
-        if e["start"] <= now:
-            continue
-        desc = clean_desc(e.get("description") or "")[:600]
-        write(event_ics_name(slug, e), ics_file(
-            f"pte-{slug}-{int(e['start'])}", e["start"],
-            e["end"] or e["start"] + 3600, f"{game}: {e['title']}",
-            desc=desc, url=abs_url(f"/game/{slug}"), alarm=15))
-
-
-def remind_btn(href, label="Remind me"):
-    """A link to one of the calendar files written above.
-
-    A plain link on purpose. The browser version of this did the work in the page
-    and never ran on an iPhone, where a click arrives at a text node rather than at
-    the button; a real address also gets iOS's own "Add to Calendar" screen. There
-    is no "download" attribute for the same reason: letting Safari open the file is
-    what produces that screen, while desktop browsers save it either way.
-    """
-    if not href:
-        return ""
-    return (f'<a class="remind" href="{html.escape(href)}" type="text/calendar">'
-            f'&#128276; {html.escape(label)}</a>')
-
-
-def calendar_html(name, events, now, gslug=""):
+def calendar_html(name, events, now):
     """Upcoming and currently running events for one game."""
     if events is None:
         return ""
@@ -1959,7 +1918,7 @@ def calendar_html(name, events, now, gslug=""):
     if not soon:
         return (f'<div class="card"><h2>Event calendar</h2><p class="none">{html.escape(name)} has no '
                 f'events planned on Roblox right now. When the creators announce one it will show up here.</p></div>')
-    items = "".join(event_item(e, now, gslug=gslug) for e in soon[:8])
+    items = "".join(event_item(e, now) for e in soon[:8])
     return (f'<div class="card"><h2>Event calendar</h2>'
             f'<p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p>'
             f'<ul class="evt">{items}</ul></div>')
@@ -2148,6 +2107,7 @@ def parents_html(passes, icons):
 # Roblox, it also follows the person to their other devices.
 FAVJS = """var PT={name:null,available:false,favs:null,cbs:[]};
 var PTPERSON='__PERSON__';
+var PTBELL='__BELL__';
 var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
@@ -2184,21 +2144,35 @@ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
    never existed.
    alt is empty on purpose: the name is right beside the picture, and a screen
    reader announcing it twice is worse than not announcing it at all. */
-function ptPaint(){var markup=!PT.available?'':PT.name
-?'<button class="iconb acctb" id="acctbtn" type="button" aria-haspopup="true" '
-+'aria-expanded="false" aria-controls="amenu" aria-label="Your account">'
-+(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
-+'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
-+'<div class="gmenu amenu" id="amenu" hidden><p>Signed in as</p>'
-+'<span class="who">'+ptEsc(PT.name)+'</span>'
+function ptPaint(){
+/* The account, in the panel behind the three lines. Nothing at all when the Roblox
+   keys are missing, so .acct:empty collapses and the panel reads as though signing
+   in had never existed. */
+var acct=!PT.available?'':PT.name
+?'<div class="awho">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="34" height="34">':PTPERSON)
++'<span><b>'+ptEsc(PT.name)+'</b>'
++'<i class="mut small">Signed in with Roblox</i></span></div>'
 +'<form method="POST" action="/auth/logout">'
-+'<button class="linkish" type="submit">Sign out</button></form></div>'
-:'<a class="iconb acctb" href="/auth/login" aria-label="Sign in with Roblox">'
-+PTPERSON+'<span class="albl">Sign in</span></a>';
-/* One of these now, in the header bar. Still found by class rather than by id,
-   so a second copy anywhere would need no new code. */
++'<button class="drow" type="submit">Sign out</button></form>'
+:'<a class="drow" href="/auth/login">'+PTPERSON
++'<span>Sign in with Roblox</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
-el.innerHTML=markup});
+el.innerHTML=acct});
+/* The bell, in the bar. Only for somebody signed in: notifications are offered to
+   signed-in people only, so for anybody else it would open on an explanation of why
+   it is empty, which is not worth a button in the bar. The list inside is left
+   empty and filled when it is first opened, so a visitor who never presses it costs
+   no extra requests. */
+var bell=(PT.available&&PT.name)
+?'<button class="iconb" id="notbtn" type="button" aria-haspopup="true" '
++'aria-expanded="false" aria-controls="nmenu" aria-label="Your notifications">'
++PTBELL+'</button>'
++'<div class="gmenu nmenu" id="nmenu" hidden><p>Your notifications</p>'
++'<div id="nlist"></div></div>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
+el.innerHTML=bell});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
@@ -2232,7 +2206,7 @@ e.preventDefault();history.back()}});"""
 # use, so it is dropped in rather than drawn a second time by hand. PERSON quotes
 # its attributes with " and holds no ', which is what makes it safe inside the
 # single-quoted JavaScript string above.
-FAVJS = FAVJS.replace("__PERSON__", PERSON)
+FAVJS = FAVJS.replace("__PERSON__", PERSON).replace("__BELL__", ICON_BELL)
 
 FAV_GAME = """
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
@@ -2288,7 +2262,7 @@ if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
 mb=document.getElementById('menubtn');
 if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');ashut();shade(false)}
+if(mb)mb.setAttribute('aria-expanded','false');nshut();shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
@@ -2327,21 +2301,64 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
    thrown away with the old markup and the menu would quietly stop opening.
    e.target.closest is guarded because on iOS a click that has bubbled this far can
    arrive at a text node, which has no closest and would throw - the same thing that
-   once stopped the reminder links working. ashut() is declared here but called from
-   shut() above; a function declaration is hoisted to the top of this IIFE, so the
-   order on the page does not matter. */
-function ashut(){var m=document.getElementById('amenu'),
-b=document.getElementById('acctbtn');
+   once stopped the calendar links working. */
+function nshut(){var m=document.getElementById('nmenu'),
+b=document.getElementById('notbtn');
 if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
+/* Filled the first time it is opened rather than on every page load, the same way
+   the search panel waits for /games.json. Two requests: what this person follows,
+   and the names and pictures to show for it. /games.json is already in the
+   browser cache on most visits because search uses it too. */
+var nloaded=false;
+function nfill(){
+var list=document.getElementById('nlist');if(!list)return;
+list.innerHTML='<p class="nnone">Loading&hellip;</p>';
+Promise.all([
+fetch('/api/push/state').then(function(r){return r.json()}).catch(function(){return null}),
+fetch('/games.json').then(function(r){return r.json()}).catch(function(){return[]})
+]).then(function(got){
+var st=got[0],all=got[1]||[];
+if(!st||!st.available){
+list.innerHTML='<p class="nnone">Notifications are not switched on for this site yet.</p>';return}
+if(!st.signedIn){
+list.innerHTML='<p class="nnone">Sign in with Roblox to get notifications.</p>';return}
+var w=st.watching||[];
+if(!w.length){list.innerHTML='<p class="nnone">You are not getting notifications for '
++'any games yet. Open a game you play and press <b>Notify me</b> on it.</p>';return}
+var by={};all.forEach(function(g){by[g.s]=g});
+list.innerHTML=w.map(function(x){
+var g=by[x.slug]||{n:x.slug,i:''};
+var kinds=[x.mode==='busy'?'busy':'quiet'];
+if(x.events)kinds.push('events');
+return '<div class="nrow">'
++'<a href="/game/'+ptEsc(x.slug)+'">'
++(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="28" height="28">':'')
++'<span>'+ptEsc(g.n)+'</span></a>'
++'<i>'+kinds.join(' + ')+'</i>'
++'<button class="noff" type="button" data-off="'+ptEsc(x.slug)+'">Off</button>'
++'</div>'}).join('')}).catch(function(){
+list.innerHTML='<p class="nnone">Could not read your notifications. Please try again.</p>'})}
+/* Delegated from the document, never bound to the button: ptPaint() replaces this
+   markup whenever /api/me answers, so a handler on the button itself would be thrown
+   away with the old markup and the menu would quietly stop opening. e.target.closest
+   is guarded because on iOS a click that has bubbled this far can arrive at a text
+   node, which has no closest and would throw. nshut() is declared here and called
+   from shut() above; a function declaration is hoisted to the top of this IIFE, so
+   the order on the page does not matter. */
 document.addEventListener('click',function(e){
-var m=document.getElementById('amenu');if(!m)return;
-if(e.target.closest&&e.target.closest('#acctbtn')){
+if(!e.target.closest)return;
+var b=e.target.closest('#notbtn');
+if(b){var m=document.getElementById('nmenu');if(!m)return;
 var show=m.hidden;shut();m.hidden=!show;
-var b=document.getElementById('acctbtn');
-if(b)b.setAttribute('aria-expanded',show?'true':'false');return}
-/* A click anywhere else shuts it, except inside the menu itself - Sign out is a
-   form in there and has to get its own click. */
-if(!(e.target.closest&&e.target.closest('#amenu')))ashut()});
+b.setAttribute('aria-expanded',show?'true':'false');
+if(show&&!nloaded){nloaded=true;nfill()}return}
+var off=e.target.closest('[data-off]');
+if(off){off.disabled=true;off.textContent='\u2026';
+fetch('/api/push/watch',{method:'POST',headers:{'content-type':'application/json'},
+body:JSON.stringify({slug:off.dataset.off,on:false})})
+.then(function(r){if(!r.ok)throw 0;nfill()})
+.catch(function(){off.disabled=false;off.textContent='Off'});return}
+if(!e.target.closest('#nmenu'))nshut()});
 
 var box=document.getElementById('gpick');if(!box)return;
 function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
@@ -2363,38 +2380,38 @@ document.addEventListener('click',function(e){if(!box.contains(e.target))open(fa
 document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
 })();
 
-/* The Install app option. Its own function because the block above gives up early on
-   any page without the game switcher, and this is on every page.
+/* The Install app parts. Its own function because the block above gives up early on
+   any page without the game switcher, and these are on other pages.
 
-   Two quite different things behind one row. On Chrome, Edge and Android the browser
-   has handed us a real offer and pressing the row opens the browser's own install
-   box. On an iPhone or iPad no such offer exists - Apple provides no way to ask - so
-   the row reveals where Apple hides its own button instead. Anywhere that can do
-   neither, the row never appears, which is better than a button that does nothing. */
+   Two things, and neither is the old panel row:
+     [data-install]     a real install button, shown ONLY where the browser has
+                        actually offered. It lives on /install, which explains the
+                        steps in words for every browser that never offers - so
+                        there is no longer any need to hide instructions behind a
+                        toggle, and nothing to show where nothing can be done.
+     [data-installlink] the link to /install from a game page, hidden once the site
+                        IS installed, because there is nothing left to explain. */
 (function(){
-var rows=document.querySelectorAll('[data-install]');
-if(!rows.length)return;
-var help=document.querySelector('[data-installhelp]');
+var btns=document.querySelectorAll('[data-install]');
+var links=document.querySelectorAll('[data-installlink]');
+if(!btns.length&&!links.length)return;
 function paint(){
-var show=!ptInstalled()&&(PT.prompt||ptIOS());
-Array.prototype.forEach.call(rows,function(b){b.hidden=!show});
-if(help&&!show)help.hidden=true}
+var inst=ptInstalled();
+Array.prototype.forEach.call(btns,function(b){b.hidden=inst||!PT.prompt});
+Array.prototype.forEach.call(links,function(a){a.hidden=inst})}
 /* Called again if the browser makes its offer after this has already run. */
 PT.onprompt=paint;
 paint();
-/* Delegated, because paint may hide and show these rows at any time and because a
-   tap on iOS can arrive at a text node, which has no closest. */
+/* Delegated, because paint may hide and show these at any time and because a tap on
+   iOS can arrive at a text node, which has no closest. */
 document.addEventListener('click',function(e){
 var b=e.target.closest&&e.target.closest('[data-install]');
-if(!b)return;
-if(PT.prompt){
+if(!b||!PT.prompt)return;
 /* An offer can only be used once, so it is taken rather than copied. */
 var offer=PT.prompt;PT.prompt=null;
 offer.prompt();
-if(offer.userChoice)offer.userChoice.then(paint,paint);
-return}
-if(help)help.hidden=!help.hidden});
-/* Installed while the page was open: the option has nothing left to offer. */
+if(offer.userChoice)offer.userChoice.then(paint,paint)});
+/* Installed while the page was open: there is nothing left to offer or explain. */
 window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
 })();"""
 
@@ -2575,47 +2592,6 @@ p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
 ' hour'+(p.len>1?'s':'')+'</b>.';
 $('cdw').hidden=false;tick()}
 
-/* The reminder. Each day of the week has its own best hour - the quietest hour of a
-   Tuesday is rarely the quietest hour of a Saturday - so this shows the hour for
-   every day that is ticked and points the link at a file holding exactly those.
-   L is already in the visitor's own timezone, and tzOff() goes with the address so
-   the file is built around the same days they are looking at. Only the link's
-   address is touched: tapping it is then an ordinary link, which is the one thing
-   an iPhone was certain to get right. */
-/* The reminder keeps its own quiet-or-busy choice, separate from the countdown's
-   above. They were one control, and nobody could tell: the buttons sat at the top
-   of the card under "What do you want?" and the reminder was at the bottom, so it
-   read as being about quiet hours and nothing else. Two questions asked in two
-   places now answer themselves, and changing your mind about the countdown no
-   longer quietly changes what you are about to put in your calendar. */
-var rmode='quiet';
-function days(){
-var picked=[],shown=[];
-Array.prototype.forEach.call(document.querySelectorAll('#rbtns button'),function(b){
-b.setAttribute('aria-pressed',b.dataset.r===rmode)});
-Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
-if(b.checked)picked.push(+b.value)});
-picked.forEach(function(d){
-var at=null,v=null;
-for(var h=0;h<24;h++){var x=L[d][h];if(x==null)continue;
-if(v==null||(rmode==='quiet'?x<v:x>v)){at=h;v=x}}
-if(at!=null)shown.push(DAY[d].slice(0,3)+' '+fmt(at))});
-var rb=$('remind');
-if(rb)rb.innerHTML='&#128276; Add '+rmode+' times to my calendar';
-/* A day can be ticked and still have nothing to say, if we have no readings for it
-   yet. Saying so is better than offering a calendar file with holes in it. */
-if(!shown.length){$('daylist').textContent=picked.length
-?'We have not got enough player counts for those days yet.':'Tick at least one day.';
-if(rb){rb.setAttribute('aria-disabled','true');rb.removeAttribute('href')}return}
-$('daylist').textContent=(rmode==='quiet'?'Quietest':'Busiest')+': '+shown.join('  \u00b7  ');
-if(rb&&window.PT_GAME){rb.setAttribute('aria-disabled','false');
-rb.href='/reminder.ics?g='+encodeURIComponent(PT_GAME.s)+'&m='+rmode+
-'&z='+tzOff()+'&d='+picked.join(',')}}
-Array.prototype.forEach.call(document.querySelectorAll('#daypick input'),function(b){
-b.onchange=days});
-Array.prototype.forEach.call(document.querySelectorAll('#rbtns button'),function(b){
-b.onclick=function(){rmode=b.dataset.r;days()}});
-days();
 function tick(){if(!aim)return;
 var ms=aim-new Date();
 if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
@@ -2915,18 +2891,10 @@ __SPARK__</div></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-<div class="rem"><p class="mut small">Remind me when it is</p>
-<div class="days" id="rbtns"><button data-r="quiet" aria-pressed="true">Quiet</button>
-<button data-r="busy" aria-pressed="false">Busy</button></div>
-<fieldset class="daypick" id="daypick"><legend class="mut small">on these days</legend>
-__DAYBOXES__</fieldset>
-<p class="mut small" id="daylist"></p>
-<a class="remind" id="remind" type="text/calendar"
-href="/reminder.ics?g=__SLUG__&amp;m=quiet&amp;d=0,1,2,3,4,5,6">&#128276; Add quiet times to my
-calendar</a>
-<p class="mut small">Adds it to your own calendar, at the right hour for each day you
-picked. No account, and nothing about you is stored.</p></div>
-__NOTIFY__</div>
+__NOTIFY__
+<a class="remind" href="/install" data-installlink>&#128241; Get __SITE__ as an app</a>
+<p class="mut small">Puts it on your home screen, and on an iPhone or iPad it is the
+only way notifications can work.</p></div>
 <div class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -3020,6 +2988,8 @@ var on=mine(),msg=note?'<p class="mut small" id="notifsay">'+ptEsc(note)+'</p>':
 if(!on){
 say('<div class="days" id="nbtns"><button data-n="quiet" aria-pressed="true">Quiet</button>'
 +'<button data-n="busy" aria-pressed="false">Busy</button></div>'
++'<label class="nevt"><input type="checkbox" id="notifevt"> '
++'<span>Also tell me when an event starts</span></label>'
 +'<button class="remind" id="notifon" type="button">&#128276; Notify me before '
 +ptEsc(name)+' gets quiet</button>'
 +'<p class="mut small">About 15 minutes before, on this device. We keep the '
@@ -3028,6 +2998,9 @@ say('<div class="days" id="nbtns"><button data-n="quiet" aria-pressed="true">Qui
 else{
 say('<p><b>Notifications are on</b> for '+ptEsc(name)+', before it gets '
 +(on.mode==='busy'?'busy':'quiet')+'.</p>'
++'<label class="nevt"><input type="checkbox" id="notifevt"'
++(on.events?' checked':'')+'> '
++'<span>Also tell me when an event starts</span></label>'
 +'<button class="remind" id="notifoff" type="button">Turn these off</button> '
 +'<button class="fav" id="notiftest" type="button">Send me a test</button>'
 +'<p class="mut small">You can follow up to '+(S.maxGames||20)+' games. '
@@ -3040,7 +3013,13 @@ function refresh(note){return fetch('/api/push/state').then(function(r){return r
    them every time it runs - a handler on the button itself would be thrown away with
    the old markup, exactly as it would in the header's account menu. */
 box.addEventListener('click',function(e){
-var t=e.target.closest&&e.target.closest('button');
+if(!e.target.closest)return;
+/* The events tickbox. Before notifications are on it is only a choice that turnOn
+   reads; once they are on, ticking it saves straight away, because there is no
+   other button left to press that would. */
+var cb=e.target.closest('#notifevt');
+if(cb){if(mine()&&!busy)saveEvents(cb);return}
+var t=e.target.closest('button');
 if(!t||busy)return;
 if(t.dataset.n){
 Array.prototype.forEach.call(box.querySelectorAll('#nbtns button'),function(b){
@@ -3056,9 +3035,24 @@ function working(btn,word){busy=true;btn.disabled=true;btn.dataset.was=btn.inner
 btn.innerHTML=word}
 function finished(){busy=false}
 
+/* Changing the events choice while notifications are already on. The mode and the
+   warning time are sent back as they are, because /api/push/watch replaces the whole
+   row - leaving them out would silently reset them to the defaults. */
+function saveEvents(cb){
+var on=mine();if(!on)return;
+busy=true;cb.disabled=true;
+post('watch',{slug:slug,mode:on.mode,lead:on.lead,events:cb.checked})
+.then(function(){busy=false;return refresh(cb.checked
+?'Event notifications are on for '+name+'.'
+:'Event notifications are off. You will still get the quiet or busy one.')})
+.catch(function(){busy=false;cb.disabled=false;cb.checked=!cb.checked;
+refresh('Could not save that. Please try again.')})}
+
 function turnOn(btn){
 var pick=box.querySelector('#nbtns button[aria-pressed=true]');
 var mode=pick&&pick.dataset.n==='busy'?'busy':'quiet';
+var evt=box.querySelector('#notifevt');
+var wantEvents=!!(evt&&evt.checked);
 working(btn,'Just a moment...');
 Notification.requestPermission().then(function(answer){
 if(answer!=='granted'){finished();return refresh(
@@ -3071,7 +3065,7 @@ applicationServerKey:urlKey(S.key)})})})
 .then(function(sub){var j=sub.toJSON();
 return post('subscribe',{endpoint:j.endpoint,keys:j.keys,
 tz:-new Date().getTimezoneOffset()/60})})
-.then(function(){return post('watch',{slug:slug,mode:mode,lead:15})})
+.then(function(){return post('watch',{slug:slug,mode:mode,lead:15,events:wantEvents})})
 .then(function(){finished();return refresh('That is on. We will send one test now so '
 +'you can see what it looks like.')})
 .then(function(){return post('test',{}).catch(function(){})})})
@@ -3103,6 +3097,51 @@ PT.ready(function(){refresh()});
 })();"""
 
 
+def install_body():
+    """How to add the site to a phone or computer.
+
+    A page rather than a line of help in a menu, because the steps differ on every
+    platform and Apple's are the ones people cannot guess: there is no API that lets
+    a website install itself on an iPhone, so the only thing that can be offered
+    there is clear instructions. Browsers that CAN do it get a real button at the
+    top, drawn by CHROME_JS only when the browser has actually offered.
+    """
+    site = html.escape(SITE)
+    return f"""<div class="doc"><h1>Get {site} as an app</h1>
+<p>{site} can sit on your home screen with its own icon and open like an app, with no
+browser bar around it. It is the same website &mdash; there is nothing to download from
+an app store, and it takes no space worth worrying about.</p>
+<button class="remind" data-install type="button" hidden>&#128229; Install it now</button>
+<p class="mut small" data-install hidden>One tap. Your browser will ask you to confirm.</p>
+<h2>Why bother</h2>
+<ul><li>It opens from your home screen instead of you having to find the address.</li>
+<li>It fills the whole screen, so there is more room for the charts.</li>
+<li><b>On an iPhone or iPad it is the only way notifications can work.</b> Apple only
+allows a website to send notifications once it has been added to the home screen.</li></ul>
+<h2>On an iPhone or iPad</h2>
+<p>This has to be done in <b>Safari</b>. Other browsers on an iPhone cannot add it.</p>
+<ol><li>Open <b>{site}</b> in Safari.</li>
+<li>Tap the <b>Share</b> button &mdash; the square with an arrow pointing up out of it.</li>
+<li>Scroll down the list and tap <b>Add to Home Screen</b>.</li>
+<li>Tap <b>Add</b> in the top corner.</li></ol>
+<p>The icon appears on your home screen. Open {site} from there from now on, and the
+notification button on any game page will work.</p>
+<h2>On an Android phone</h2>
+<ol><li>Open <b>{site}</b> in Chrome.</li>
+<li>Tap the <b>menu</b> button &mdash; three lines or three dots, depending on your browser.</li>
+<li>Tap <b>Install app</b>, or <b>Add to Home screen</b> if that is what it says.</li>
+<li>Confirm.</li></ol>
+<h2>On a computer</h2>
+<ol><li>Open <b>{site}</b> in Chrome or Edge.</li>
+<li>Look for the small <b>install</b> icon at the right-hand end of the address bar, or
+open the browser <b>menu</b> and choose <b>Install</b>.</li>
+<li>Confirm.</li></ol>
+<h2>Getting rid of it</h2>
+<p>Hold the icon and remove it, the same as any other app. Nothing is left behind on
+your device, and nothing about you is kept here &mdash; see our
+<a href="/privacy">Privacy Policy</a>.</p></div>"""
+
+
 def about_body():
     return f"""<div class="doc"><h1>About {html.escape(SITE)}</h1>
 <p>{html.escape(SITE)} shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
@@ -3113,12 +3152,15 @@ Times are shown in your own timezone.</p>
 <h2>Why use it?</h2>
 <ul><li><b>Quiet hours</b> are good for shorter queues, less lag, claiming event items, and learning a game without a crowd.</li>
 <li><b>Busy hours</b> are good for full servers, trading, and events.</li></ul>
-<h2>Reminders</h2>
-<p>Every game page has a <b>Remind me</b> button. Tick the days you want, choose quiet or busy, and your
-device adds them to its own calendar &mdash; each day at that day's own best hour, because the quietest hour
-of a Tuesday is rarely the quietest hour of a Saturday. There is no account, no notification to switch on,
-and nothing about you is stored. Reminders stop after about three months, because by then a game's pattern
-will have moved and a reminder that is quietly wrong is worse than none.</p>
+<h2>Notifications</h2>
+<p>If you sign in with Roblox, any game page can send you a notification shortly before that game usually
+gets quiet or busy, and before its events start. It is off until you turn it on, your browser asks your
+permission first, and you can turn it off again on the same page at any time. On an iPhone or iPad you
+have to add {html.escape(SITE)} to your home screen first &mdash; <a href="/install">here is how</a> &mdash;
+because Apple only allows notifications for a site that has been added.</p>
+<p>We only offer this to people signed in with Roblox. A notification has to be sent to a particular
+device, which means remembering that device, and we will not keep that for a visitor who has not signed
+in. Roblox does not let under-13s sign in to other sites, so everyone who can turn it on is 13 or over.</p>
 <h2>Which games are on here</h2>
 <p>We only list games that Roblox itself labels <b>Minimal</b> or <b>Mild</b> for content, and we read that
 label back from Roblox before adding a game rather than guessing from its name. That is why some of the
@@ -3187,9 +3229,6 @@ collect personal information from children under 13. If you believe a child has,
 <p>To show times in your timezone, the page reads your device's clock. That happens only in your browser and is never sent to us.</p>
 <p>If you tap <b>Save</b> on a game, the list of games you saved is kept in your browser's storage on your device.
 If you are not signed in, it stays there and is never sent to us. Clearing your browser data removes it.</p>
-<p>If you tap <b>Remind me</b>, your device downloads a small calendar file from this site, the same way it
-downloads a page. We do not store anything about you when you do, you do not need an account, and the reminder
-belongs to your own calendar app afterwards, not to this site.</p>
 <h2>Browser notifications</h2>
 <p>If you are signed in with Roblox, you can ask us to send a notification shortly before a game you follow
 usually gets quiet or busy. This is <b>off unless you turn it on</b>, your browser asks your permission first,
@@ -3662,7 +3701,6 @@ def main():
         # The "Remind me" files. Written before the pages that link to them, and
         # for every upcoming event rather than the handful this game's own page
         # shows, because /events lists far more of them.
-        write_event_ics(s, name, events, now)
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
         vlabel, vcol, vtext = verdict(a)
         pattern = update_pattern(events, a["spikes"], now)
@@ -3706,13 +3744,11 @@ def main():
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
-                .replace("__DAYBOXES__", "".join(
-                    f'<label><input type="checkbox" value="{i}" checked>'
-                    f'<span>{d[:3]}</span></label>' for i, d in enumerate(DAYS)))
                 .replace("__SLUG__", s)
+                .replace("__SITE__", html.escape(SITE))
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__CALENDAR__", span(calendar_html(name, events, now, gslug=s), 6))
+                .replace("__CALENDAR__", span(calendar_html(name, events, now), 6))
                 .replace("__ABOUT__", about_game_html(name, meta))
                 .replace("__PARENTS__", span(parents_html(passes, pass_icons), 6))
                 .replace("__SIMILAR__", similar_html(c, cards))
@@ -3821,7 +3857,7 @@ def main():
             + '<p><a href="/">&larr; All Roblox player counts</a></p>'
             + ask_js(cg),
             clip(f"Player counts for {len(cg)} {g.lower()} games on Roblox, and when each one "
-                 f"is busiest and quietest. Updated every night."),
+                 f"is busiest and quietest. Updated four times a day."),
             wide=True, banner=biggest["banner"], canon=f"/category/{slug(g)}",
             image=biggest["banner"] or biggest["icon"] or "",
             trail=[("All games", "/"), (f"{g} games", f"/category/{slug(g)}")],
@@ -3888,7 +3924,7 @@ def main():
         image=top["icon"] if top else "",
         schema=[{"@type": "WebSite", "name": SITE, "url": abs_url("/"),
                  "description": ("Player counts and best times to play for popular Roblox "
-                                 "games, updated every night."),
+                                 "games, updated four times a day."),
                  "inLanguage": "en",
                  "publisher": {"@type": "Organization", "name": SITE, "url": abs_url("/")}}],
         modified=iso_day(now)))   # nowhere to go back to
@@ -3904,15 +3940,15 @@ def main():
     list_page("popular", seo_title("Most Played Roblox Games by Player Count"),
               "Most played Roblox games right now",
               f"All {len(cards)} games we track, ranked by how many people are in the game at a "
-              f"typical moment over the last 7 days. Rebuilt every night.",
+              f"typical moment over the last 7 days. Rebuilt four times a day.",
               cards,
               "Roblox game rankings by live player count: the most played games we track, "
-              "with typical and peak players for each. Updated every night.",
+              "with typical and peak players for each. Updated four times a day.",
               listname="Most played Roblox games by typical player count")
     list_page("growing", seo_title("Roblox Games Growing Fastest This Week"),
               "Roblox games that are growing",
               "These games have more players than they did a week ago. We compare the last "
-              "7 days of player counts with the 7 days before, every night.",
+              "7 days of player counts with the 7 days before, four times a day.",
               up,
               "Which Roblox games are gaining players this week, measured from our own "
               "player count history.",
@@ -3943,7 +3979,7 @@ def main():
            if rows else "")
         + '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Which Roblox games gained and lost the most players this week, worked out from our "
-        "own player count history and updated every night.",
+        "own player count history and updated four times a day.",
         wide=True, nav="trending", canon="/trending",
         trail=[("All games", "/"), ("Trending", "/trending")],
         schema=[item_list(up[:12], "Roblox games trending up this week")] if up else None,
@@ -3965,8 +4001,6 @@ def main():
                        + (f'Happening now, ends {when(e["end"] or e["start"])}' if e["start"] <= now
                           else f'Starts {when(e["start"])}')
                        + '</span>'
-                       + ("" if e["start"] <= now else
-                          remind_btn("/" + event_ics_name(e["slug"], e)))
                        + '</li>')
         return f'<ul class="evt">{"".join(out)}</ul>' if out else ""
 
@@ -4037,6 +4071,11 @@ def main():
         f"What {SITE} is, how it measures when Roblox games are busy, and what it does not "
         f"tell you.", canon="/about",
         trail=[("All games", "/"), ("About", "/about")]))
+    write("install.html", page(
+        seo_title(f"Get {SITE} as an app on your phone"), install_body(),
+        f"How to add {SITE} to your home screen on an iPhone, iPad, Android phone or "
+        f"computer, and why notifications need it.", canon="/install",
+        trail=[("All games", "/"), ("Get the app", "/install")]))
     write("privacy.html", page(
         seo_title(f"Privacy Policy - {SITE}"), privacy_body(),
         f"What {SITE} stores, what it never asks for, and how to delete your data.",
@@ -4081,7 +4120,7 @@ def main():
         pages.append((f'/game/{c["slug"]}', "0.9", last))
         if c.get("has_updates"):
             pages.append((f'/updates/{c["slug"]}', "0.5", last))
-    pages += [("/about", "0.3", today),
+    pages += [("/about", "0.3", today), ("/install", "0.3", today),
               ("/privacy", "0.2", today), ("/terms", "0.2", today)]
 
     def entry(u, pri, mod):
@@ -4108,6 +4147,24 @@ def main():
         [{"s": c["slug"], "n": c["name"], "i": c["icon"] or ""}
          for c in sorted(cards, key=lambda c: c["name"].lower())],
         separators=(",", ":")))
+    # The events the worker needs to send event notifications. It cannot call Roblox
+    # itself - that is a build-time job - and data.json holds a whole week of player
+    # counts per game and is fetched by visitors on two pages, so this is its own
+    # small file instead of being bolted onto that one. Only events that have not
+    # started yet, since a notification about a finished event is noise.
+    #
+    # Freshness is a build apart (up to six hours). Creators announce events days
+    # ahead, so that is comfortably enough; an event announced and starting inside
+    # six hours is the one case this will miss.
+    coming = {}
+    for e in sorted(all_events, key=lambda e: e["start"]):
+        if e["start"] <= now:
+            continue
+        coming.setdefault(e["slug"], [])
+        if len(coming[e["slug"]]) < 12:
+            coming[e["slug"]].append({"t": e["title"][:80], "s": int(e["start"])})
+    write("events.json", json.dumps({"built": int(now), "games": coming},
+                                    separators=(",", ":")))
     write("favicon.svg", FAVICON)
     write("manifest.webmanifest", manifest_json())
     write("sw.js", PUSH_SW)

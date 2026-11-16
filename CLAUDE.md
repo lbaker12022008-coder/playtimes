@@ -69,7 +69,6 @@ keeps up without anyone remembering to check.
   more careful dance.
 
 ## Admin dashboard (owner only)
-- `worker/ics.js` builds the "Remind me" calendar files. See "Reminders" below.
 - `worker/index.js` is a Cloudflare Worker deployed alongside the static site. It serves `/admin` (behind an admin code) and `POST /api/hit` (counts page views). Everything else is still plain files from `docs/`.
 - Secrets live in Cloudflare, never in the repo: `ADMIN_CODE` and `SESSION_SECRET` (set with `npx wrangler secret put NAME`).
 - Analytics are stored in the D1 database `playtime-admin` (`worker/schema.sql`). Page views only: path + date, no cookies, no IPs. Login attempts store a salted one-way hash for rate limiting and are deleted after 24h.
@@ -196,13 +195,16 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
   - `.grid` clips sideways (`overflow-x:clip`, `overflow-y:visible`) because `.tile::before` is meant to spill 25% past each tile. Clip, not hidden, and x only, so the hover lift still shows.
   - `body{overflow-x:clip}` is the net under all of it. **Clip, not hidden**: `hidden` would make the body a scrolling box and the sticky header would stop sticking.
   - On a phone `.ghead` puts the picture on its own line (`.ghead>div{flex:1 1 100%}`) so the words get the full width, and `h1` drops to 1.5rem.
-- **One header, at every width**: logo, the PlayTime wordmark, the game picker, then the account, the search magnifier and the three-line button on the right. The panel that button opens holds light/dark and **Install app** (`.dtop`, above the section links); see the Install bullet below. **Search is the one thing that differs**: a wide screen has room for it, so from 900px up a magnifier sits in the bar (`.iconb.deskonly`, hidden by default and shown only inside the `@media(min-width:900px)` block) and the panel hides its own search row so the same control is not offered twice. **The row of section pills under the header is gone**: it was a second navigation that only ever showed on a wide screen, and the panel holds the same links plus two more. The footer still lists them as plain visible links, so none of the site's navigation is hidden from a search engine. Every control is bound by attribute, not id (`[data-search]`, `[data-themebtn]`), and the scripts bind **every** match - that is why the second magnifier needed no JavaScript at all, and why any further copy will not either. `ptPaint()` fills every `.acct` for the same reason, and `paintTheme()` keeps each labelled so a control cannot offer "Dark mode" on an already dark page. The sun/moon swap is keyed off `.themeic`. The bar is about 65px tall, 57px on a phone.
-- **"Install app" in the panel** (`[data-install]`, `ICON_INSTALL`, wired in `CHROME_JS`): adds the site to a phone's home screen or installs it on a computer. **It is one row doing two unrelated things.** Chrome, Edge and Android hand the page a real offer, which `FAVJS` catches as `PT.prompt` and `preventDefault()`s so the browser does not also throw up its own bar across the page; pressing the row then opens the browser's own install box. Apple provides **no way whatsoever to ask**, so on an iPhone or iPad the row instead reveals `[data-installhelp]`, which says where Apple hides Add to Home Screen. **A browser that can do neither never shows the row at all**, and nor does one that has already installed it - a button that does nothing is worse than no button.
-  - **The offer arrives before `CHROME_JS` runs**, which is why it is caught in `FAVJS` (in the head) and kept on `PT`; `CHROME_JS` sets `PT.onprompt` so it can repaint if the offer lands later. An offer may be used **once**, so pressing the row takes it (`PT.prompt = null`) rather than copying it.
+- **One header, at every width**: logo, the PlayTime wordmark, the game picker, then the notifications bell, the search magnifier and the three-line button on the right. The panel that button opens holds the account, search and light/dark (`.dtop`, above the section links). **Search is the one thing that differs**: a wide screen has room for it, so from 900px up a magnifier sits in the bar (`.iconb.deskonly`, hidden by default and shown only inside the `@media(min-width:900px)` block) and the panel hides its own search row so the same control is not offered twice. **The row of section pills under the header is gone**: it was a second navigation that only ever showed on a wide screen, and the panel holds the same links plus two more. The footer still lists them as plain visible links, so none of the site's navigation is hidden from a search engine. Every control is bound by attribute, not id (`[data-search]`, `[data-themebtn]`), and the scripts bind **every** match - that is why the second magnifier needed no JavaScript at all, and why any further copy will not either. `ptPaint()` fills every `.acct` for the same reason, and `paintTheme()` keeps each labelled so a control cannot offer "Dark mode" on an already dark page. The sun/moon swap is keyed off `.themeic`. The bar is about 65px tall, 57px on a phone.
+- **Installing the site is a page, `/install`** (`install_body()`), not a row in a menu. Every game page links to it under the notification panel (`[data-installlink]`, hidden by `CHROME_JS` once `ptInstalled()` is true, since there is then nothing left to explain), and the footer links to it so it is not hidden from a search engine. It is a page because the steps differ on every platform and **Apple's cannot be automated at all** - no API lets a website install itself on an iPhone - so the only thing that works there is clear instructions, and instructions do not belong behind a toggle in a menu.
+  - `/install` also carries `[data-install]`, a **real** install button that `CHROME_JS` reveals only where the browser has actually offered. **The offer arrives before `CHROME_JS` runs**, which is why it is caught in `FAVJS` (in the head) and kept on `PT.prompt`, with `preventDefault()` so the browser does not also throw its own bar across the page; `CHROME_JS` sets `PT.onprompt` so it can repaint if the offer lands later. An offer may be used **once**, so pressing the button takes it (`PT.prompt = null`) rather than copying it.
+  - **The owner is sending screenshots for this page.** The written steps are in place per platform; pictures slot in under each `<h2>`.
   - `ptIOS()` and `ptInstalled()` live in `FAVJS` because both this and the notification panel on game pages ask the same two questions, and two copies would drift. iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
-- **The account is in the bar, not in the panel** (moved there Nov 2026). It is the one control that is about the person rather than about the page, and while it sat inside the panel behind the three lines it went unfound. `page()` writes an **empty** `<div class="acct">` into the bar; `ptPaint()` in `FAVJS` fills it once `/api/me` has answered, because a built page is the same file for everyone and only the worker knows who is signed in. Three states: **no Roblox keys** and it writes nothing, so `.acct:empty{display:none}` collapses it and the bar reads as though sign-in never existed; **signed out**, one round button to `/auth/login`; **signed in**, the person's own picture takes that same button's place and their name and Sign out move into `#amenu` under it, because the bar has room for a face but not for a name and a verb. From 900px up both forms widen into a pill and say "Sign in" or the person's name, since an unlabelled person glyph is the one button up there nobody can guess. The menu borrows `.gmenu`'s box so the header's two menus are the same object, and `shut()` closes it alongside the drawer and the search sheet.
+- **The account is in the panel, and the bell is in the bar** (16 Nov 2026). The account spent two weeks in the bar on the grounds that a face is easier to find than a menu item; the owner wanted the bar down to icons so the notifications bell could live there, and the name and Sign out were already in a menu hanging off the bar, so this is the same two things in a place with room for them. **Both are written EMPTY** - `<div class="acct">` in the panel and `<div class="nots">` in the bar - and `ptPaint()` in `FAVJS` fills them once `/api/me` has answered, because a built page is the same file for everyone and only the worker knows who is signed in. `:empty{display:none}` on each is what stops an unfilled one holding a gap open, which is also the whole behaviour when the Roblox keys are missing: nothing is written and the header reads as though sign-in never existed.
+- **The bell is drawn only for somebody signed in.** Notifications are offered to signed-in people only, so for anybody else it would open on an explanation of why it is empty, which is not worth a button in the bar. Its list is **filled on first open, not on page load** (`nfill()` in `CHROME_JS`), so a visitor who never presses it costs no extra requests; it reads `/api/push/state` for what they follow and `/games.json` for the names and pictures, the same file search already uses. Each row has an **Off** button that posts `on:false` and refills the list. `shut()` closes it alongside the drawer and the search sheet.
+- **`.nots .nmenu` is written with two classes, and that is not tidiness.** `.gmenu` sets `left:0` for the game picker at the *other* end of the bar and is written further down the stylesheet, so a one-class rule loses to it and this menu opens rightwards off the edge of a phone - exactly what happened to the account menu before it. **In this stylesheet, assume a later single-class rule will beat yours.**
 - **Every `.acctb` rule is written `.acct .acctb`, and that is not tidiness.** `.iconb` sets `display:grid` and `width:42px` and is written *further down* the same stylesheet, and `.gmenu` sets `left:0` for the game picker at the other end of the bar. A media query adds no specificity, so each one-class rule simply lost to the later one: the pill came out as a 42px square with the glyph stacked **on top of** the word, and the menu opened rightwards off the screen (measured 252px wide ending at 473px inside a 390px phone). Two classes settle all three whatever the order. This is the same trap as `.w` vs `.shell>*` above - **in this stylesheet, assume a later single-class rule will beat yours.**
 - **The account button is bound by delegation from `document`, never directly.** `ptPaint()` replaces that markup every time it runs, so a handler put on the button itself is thrown away with the old markup and the menu quietly stops opening. `e.target.closest` is guarded (`e.target.closest&&...`) because on iOS a click that has bubbled to the document can arrive at a text node, which has no `closest` - the same thing that once stopped the reminder links working.
 - **`.drawer` and `.sheet` are written after `</header>`, not inside it, and must stay there.** Both are `position:fixed`, and `.hdr` has `backdrop-filter`, which makes the header the containing block for any fixed descendant. Inside the header the side menu was 88px tall instead of the height of the screen, and the search panel was pinned to the header's own box, so it read as sitting under the game picker. **Anything `position:fixed` that should cover the page belongs outside any element with `backdrop-filter`, `filter` or `transform`.**
@@ -218,57 +220,27 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
 - **Game passes** (`pass_card`, `parents_html`, `roblox_api.fetch_passes` with `passView=Full`): picture, name, what the creators say it contains, and the price in Robux and dollars. The only labels are ones the data supports: `Cheapest`, `Newest` and `On sale now` (Roblox's own `priceDiscountDetails`). **Never add a "recommended" or "best" badge**: the game-pass API returns no sales, ratings or popularity of any kind, so a ranking would be invented, and the people reading it are often children about to spend real money. The page says so in as many words.
 - **Game artwork behind the heading** (`banner_html`, `roblox_api.fetch_banners`): the wide 768x432 picture from Roblox's `multiget/thumbnails`, blurred and faded into the page colour behind the top 360px. Game pages use their own, category pages use their biggest game's, and the homepage has none on purpose (picking one game there would read as an endorsement). It is decorative, so it is `aria-hidden` and simply absent when Roblox has no picture. Opacity is `--bannerop`, weaker in light mode (.17) than dark (.3), because dark heading text on a light page needs the art to stay faint. The banner is the first thing in `<body>` at `z-index:0` with `.shell` above it at `z-index:1`; the sticky header is see-through, so it picks the colour up.
 
-## Reminders ("Remind me")
-The whole notification feature, and it holds nothing about anybody. A visitor ticks
-which days they want and whether they mean quiet or busy, and gets a calendar file
-with **one event per day, each at that day's own predicted hour**, because the
-quietest hour of a Tuesday is rarely the quietest hour of a Saturday.
+## Calendar reminders: removed 16 Nov 2026
+The site used to hand out calendar files - a day-picker on each game page that built
+a `.ics` for the days you ticked, plus one file per upcoming event. **All of it is
+gone**, at the owner's instruction: "I only want the app and browser notifications,
+none that you have to go and add it to your calendar."
 
-- **`worker/ics.js` builds it**, at `/reminder.ics?g=<slug>&m=quiet|busy&d=0,5,6&z=1`
-  (`d` is Monday-first, `z` is the visitor's hours ahead of UTC). It reads the same
-  `/data.json` the compare page loads, through the `ASSETS` binding. It has to be
-  built per request because seven days and two kinds of hour make **256 combinations
-  per game**, which is not something to write out as files.
-- **Events are still real files**, `ics/<slug>-<start>.ics`, written by
-  `write_event_ics` for every upcoming event (not just the handful a game page
-  shows, since `/events.html` lists far more). `prune()` covers `ics/` too.
-- **The day a visitor picks is their day, not UTC.** `z` goes with the address and
-  `bestHour()` undoes the shift to look the hour up, so a Tokyo Saturday is found in
-  the right UTC squares. Get this backwards and every reminder is out by a day for
-  half the world. There are tests for seven offsets.
-- **The reminder has its own Quiet/Busy buttons** (`#rbtns`, `rmode`), separate from
-  the countdown's `#planbtns`/`mode` above it in the same card. They used to be one
-  control and nobody could tell: the buttons sat at the top under "What do you
-  want?" and the reminder was at the bottom, so it read as being about quiet hours
-  only. **Do not re-join them** - changing your mind about the countdown should not
-  quietly change what you are about to put in your calendar.
-- **No JavaScript is needed to use it.** The link's own address covers all seven
-  days at UTC; the page only rewrites the address as the boxes are ticked. That
-  matters: the first version built the file in the page from a click handler and
-  **never ran on an iPhone**, where a click that has bubbled up to the document
-  arrives at a text node, so `e.target.closest` was undefined and it died in silence.
-  Tapping a plain link is the one thing every phone gets right.
-- **No `download` attribute**, and the worker sends `content-disposition: inline`:
-  that is what gets iOS's own "Add to Calendar" screen. Desktop browsers save it.
-- The day pills use **`input:checked + span`, never `:has()`** - a lot of this
-  audience is on a handed-down iPad, and `:has` needs Safari 15.4.
-- **`write()` passes `newline=""`.** Without it Python turns the CRLF iCalendar
-  requires into CR CR LF when built on Windows, and every calendar app refuses the
-  file. It also makes a build here byte-identical to one on the server.
-- **iCalendar (RFC 5545) loses the whole file over one bad line**: CRLF endings,
-  `\ ; ,` and newlines escaped, no line over **75 octets**, folded by bytes rather
-  than characters (a tenth of these titles carry an emoji, which is four octets, and
-  JavaScript stores one as two halves that must never be split).
-- `UID`s are steady, so adding the same reminder twice updates it rather than
-  leaving two. `COUNT=13` stops it after about three months, by which time the
-  game's pattern will have moved and a reminder that is quietly wrong is worse
-  than none.
-- `check_seo.py` skips `/reminder.ics`, `/admin` and `/api/*`: the worker answers
-  those, so there is no file to find.
-- Web push **is now built**, on exactly the terms this note set out - signed-in only.
-  See "Browser notifications" below. The reasoning here is still the reasoning: a
-  push subscription is a per-device identifier, so it may never be offered to a
-  signed-out visitor.
+What went: the `Remind me` block, `/reminder.ics`, `worker/ics.js`, the `ics/` folder,
+`write_event_ics`, `remind_btn`, `ics_file`, `ics_fold` and the day-picker styling and
+JavaScript. `prune()` still covers `ics/`, which is what deleted the 88 stale files on
+the next build; leave it covering that folder.
+
+`bestHour()` **survived and moved into `worker/push.js`**, because notifications ask
+the same question the calendar files did. The `.rem` and `.remind` CSS also survived:
+the notification panel sits in the same place under the countdown and uses the same
+button styling.
+
+Worth keeping in mind rather than regretting: the calendar worked for **everyone**,
+with no account and nothing stored, while notifications reach only signed-in people -
+capped at 10 until the Roblox app review passes - and need an install first on Apple
+devices. That was the owner's call, made with the trade spelled out. If reminders for
+signed-out visitors are ever wanted again, this is in the git history.
 
 ## Browser notifications ("tell me when to get on")
 Built 16 Nov 2026. A signed-in person follows a game, picks quiet or busy, and their
@@ -304,11 +276,12 @@ browser is woken about fifteen minutes before that game's next best hour.
 - **A failed send takes its `push_sent` claim back** so the next run retries, rather
   than losing the day to one blip. A 404 or 410 means that subscription is dead for
   good and the row is deleted instead of retried for ever.
-- **`nextWindow()` shares `bestHour()` with `ics.js`** rather than copying it, so a
-  notification can never name a different hour from the calendar file for the same
-  game. There are tests for all 27 timezone offsets checking that the local hour the
-  message names is really the local hour of the moment it was aimed at - get that
-  backwards and every notification is an hour or a day out for half the world.
+- **`nextWindow()` and `bestHour()` now both live in `push.js`.** `bestHour()` was in
+  `worker/ics.js` and shared with the calendar files; those are gone, so it moved to
+  the one place left that asks the question. There are tests for all 27 timezone
+  offsets checking that the local hour the message names is really the local hour of
+  the moment it was aimed at - get that backwards and every notification is an hour or
+  a day out for half the world.
 - **`/api/delete-me` deletes the three push tables too** (`worker/auth.js`). The
   Privacy Policy promises it, so the promise has to be true; the deletes are listed
   there rather than in `push.js` because that is the one place that promises to erase
@@ -353,6 +326,24 @@ browser is woken about fifteen minutes before that game's next best hour.
   encrypt a message and decrypt that with our own test's browser-side code, then
   compare the byte layout, headers and JWT claims. Done 16 Nov 2026 and they agree
   exactly, which is what ruled the crypto out in minutes.
+- **Event notifications** (16 Nov 2026) are a separate yes/no from quiet-or-busy, and
+  deliberately so: one is about the crowd, the other about something the creators have
+  announced, and plenty of people want one without the other. `push_watch.events` holds
+  it, a tickbox in the panel sets it, and **`/api/push/watch` replaces the whole row**,
+  so anything editing it must send `mode` and `lead` back as they are or they silently
+  reset to the defaults.
+  - The worker cannot call Roblox, so `build_site.py` writes **`docs/events.json`**
+    (`{games: {slug: [{t, s}]}}`, upcoming only, 12 per game) from the `all_events` it
+    already collects. Its own small file rather than part of `data.json`, which carries
+    a week of player counts per game and is downloaded by visitors on two pages. About
+    6KB. Freshness is one build (up to six hours), which is fine for events announced
+    days ahead; an event announced *and* starting inside six hours is the one case this
+    misses.
+  - **The dedupe slot is the event's own start time** (`evt<unix>`), not the hour, so
+    two events in the same hour are two notifications and neither silences the other.
+    There is a test for exactly that.
+  - `claimAndSend()` holds the claim-send-and-tidy bookkeeping that the window path and
+    the event path both need, so the two cannot drift.
 - **Reach is capped at 10 people until the Roblox app passes review**, since
   notifications need sign-in. That review is still item 3 on the launch checklist.
 - Tests live in the scratchpad, not the repo: crypto round-trip, 27 timezone offsets,
@@ -375,7 +366,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **`/busiest-hours.html`** (`busy_page()`) answers "when is Roblox busiest?" across every game at once. Each game counts as a share of its own peak hour, so one huge game cannot drown out forty small ones. It is linked from the footer, the homepage and every game page, not from `TABS`, which is already full.
 - **`sitemap.xml`** is the real sitemap, with `lastmod` per page. `sitemap.txt` is still written so an address already given to Google keeps working. **Sitemaps need full web addresses**, so they are useless until `DOMAIN` is set; the build prints a warning when it is empty.
 - **`docs/404.html`** is a real page, and `worker/index.js` hands it back with a 404 status through the `ASSETS` binding in `wrangler.jsonc`. Do **not** set `not_found_handling` in `wrangler.jsonc`: Cloudflare would then answer every unmatched address itself and the worker would never run, breaking `/admin`, `/api/*` and sign-in.
-- **`check_seo.py`** reads a built folder and reports broken links, missing or duplicated titles and descriptions, a canonical that points at the wrong page, skipped heading levels, pictures with no alt text, structured data that is not valid JSON, and sitemap entries that do not exist. `python check_seo.py preview` after a preview build, `python check_seo.py docs` after a real one. The build workflow runs it and prints the report, but never fails the build on it.
+- **`check_seo.py`** skips `/admin` and `/api/*`, because the worker answers those and there is no file to find. It reads a built folder and reports broken links, missing or duplicated titles and descriptions, a canonical that points at the wrong page, skipped heading levels, pictures with no alt text, structured data that is not valid JSON, and sitemap entries that do not exist. `python check_seo.py preview` after a preview build, `python check_seo.py docs` after a real one. The build workflow runs it and prints the report, but never fails the build on it.
 
 ## Files
 - `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT` (reads `SITE_OUT`), `DOMAIN`, `CONTACT`, `SPIKE`.
@@ -386,7 +377,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - `check_seo.py`: reads a built site and reports search-engine mistakes. Changes nothing.
 - `discover.py`: finds newly popular games and appends them to `games.txt`. See "Finding new games" below.
 - `worker/theme.js`: the site's two palettes, written by `build_site.py` so the admin dashboard matches the public site. Do not edit by hand; change `LIGHT` or `DARK` in `build_site.py`.
-- `worker/push.js`, `worker/schema_push.sql`, `worker/make_vapid_keys.mjs`: browser notifications. See "Browser notifications" above.
+- `worker/push.js`, `worker/schema_push.sql`, `worker/make_vapid_keys.mjs`: browser notifications. See "Browser notifications" above. `worker/ics.js` is **gone** (16 Nov 2026) along with the calendar files; `bestHour()` moved into `push.js`.
 - `build_site.py` ends by pruning `docs/game/` and `docs/category/`: any page this build did not write is deleted, so a renamed game, an ID removed from `games.txt`, or a game dropping below `MIN_SAMPLES` cannot leave an orphan page live for ever. It runs last, so a build that fails part way deletes nothing, and it never touches top-level files you add by hand (`ads.txt`, a favicon, `CNAME`). The build job uses `git add -A docs` so those deletions are committed.
 - Browser code lives in `build_site.py` as `SHARED_JS` (timezone shifting, busy-ness bands, "next good block", escaping) plus one block per page. Anything that puts a game name into HTML in the browser must pass it through `esc()`: names come from Roblox and can contain quotes and angle brackets.
 - **Never write a backslash escape in those JavaScript blocks.** They are ordinary (non-raw) Python triple-quoted strings, so Python eats the backslash before the browser ever sees it: `'your device\'s '` reached the page as `'your device's '`, which ends the JavaScript string early and threw "missing ) after argument list" on every game page. Reword to avoid the apostrophe rather than doubling the backslash - `\\'` works but reads as a typo and the next person will "tidy" it. The escapes Python interprets are `\' \" \n \t \r \b \f \0 \x \u \U \N` and `\\`. **Checking this needs a browser, not a reading**: `PUSH_JS`'s *source* in the file looks correct, and extracting it with a regex also looks correct - only the built page has the value Python actually produced, which is why `notifui.js` loads real pages and collects `pageerror`. This is the same family of trap as the backtick and octal-escape rules in `worker/index.js`.

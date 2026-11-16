@@ -34,7 +34,6 @@
  * `web-push` package does not run on Workers. There is a round-trip test that
  * decrypts our own output; if you change encrypt(), run it.
  */
-import { bestHour } from "./ics.js";
 import { currentUserId } from "./auth.js";
 
 const MAX_WATCH = 20;             // games one person may follow; bounds the cron's work
@@ -283,6 +282,41 @@ const HOURS = ["12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", 
   "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"];
 
 /**
+ * The best hour of one day of somebody's own week, and how long it stays that way.
+ *
+ * Our player counts are in UTC and a page shifts them by the reader's offset to show
+ * them, so this undoes that shift to look the hour up: somebody's Saturday evening
+ * may well be Sunday morning in UTC. Get it backwards and every notification is out
+ * by a day for half the world, which is why there are tests for all 27 offsets.
+ *
+ * This used to live in worker/ics.js and was shared with the calendar files. Those
+ * are gone - the site offers notifications only now - so it has moved here, to the
+ * one place left that asks the question.
+ */
+export function bestHour(week, day, mode, z) {
+  const at = (localHour) => {
+    const i = (((day * 24 + localHour - z) % 168) + 168) % 168;
+    return week[Math.floor(i / 24)][i % 24];
+  };
+  let hour = null, value = null;
+  for (let h = 0; h < 24; h++) {
+    const v = at(h);
+    if (v == null) continue;
+    if (value == null || (mode === "quiet" ? v < value : v > value)) { hour = h; value = v; }
+  }
+  if (hour == null) return null;
+  // How long it stays that way, counted the way the countdown on the page counts it.
+  let length = 1;
+  for (let step = 1; step < 6; step++) {
+    const v = at((hour + step) % 24);
+    if (v == null || (mode === "quiet" ? v > value * 1.25 : v < value * 0.8)) break;
+    length++;
+  }
+  const i = (((day * 24 + hour - z) % 168) + 168) % 168;
+  return { hour, value, length, utcDay: Math.floor(i / 24), utcHour: i % 24 };
+}
+
+/**
  * The next time this game is at its best, as a moment in UTC.
  *
  * Walks forward hour by hour and asks, for each one, whether it is the chosen hour of
@@ -325,11 +359,92 @@ function wording(game, mode, win, minutes) {
   };
 }
 
+/**
+ * What to say about an event that is about to start.
+ *
+ * The title is written by the game's creators, so it is somebody else's words in our
+ * notification. It is capped to 80 characters where events.json is written, and it
+ * only ever goes into a notification's text - never into HTML - so there is nothing
+ * it can do beyond read oddly.
+ */
+function eventWording(game, ev, minutes, tz) {
+  const local = new Date(ev.s * 1000 + tz * 3600000);
+  const soon = minutes <= 1 ? "is starting now" : "starts in about " + minutes + " minutes";
+  return {
+    title: game.n + ": an event " + soon,
+    body: ev.t + " - around " + HOURS[local.getUTCHours()] + " your time.",
+    url: "/game/" + game.s,
+    tag: "pt-event-" + game.s
+  };
+}
+
 /** The games and their hours, from the same file the compare page already loads. */
 async function loadGames(env, origin) {
   const res = await env.ASSETS.fetch(new URL("/data.json", origin));
   if (!res.ok) return [];
   return (await res.json()).games || [];
+}
+
+/**
+ * The creators' upcoming events, per game slug, written by build_site.py.
+ *
+ * Its own small file rather than part of data.json, which carries a whole week of
+ * player counts for every game and is downloaded by visitors on two pages. Returns
+ * an empty object on any failure, so a missing file means no event notifications
+ * rather than no notifications at all.
+ */
+async function loadEvents(env, origin) {
+  try {
+    const res = await env.ASSETS.fetch(new URL("/events.json", origin));
+    if (!res.ok) return {};
+    return (await res.json()).games || {};
+  } catch (err) {
+    return {};
+  }
+}
+
+/**
+ * Claims one notification and sends it. Returns what happened.
+ *
+ * The claim comes first and is taken back if the send fails, so a blip costs a retry
+ * next run rather than the whole window. Claimed per DEVICE, not per person: keyed on
+ * the person, somebody with a phone and a laptop had the phone take the hour and the
+ * laptop skip it silently.
+ *
+ * Shared by the quiet/busy window and the event paths, because the bookkeeping either
+ * one needs is identical and two copies of it would drift.
+ */
+async function claimAndSend(env, sub, rbxId, slug, slot, message, now) {
+  const claim = await env.DB.prepare(
+    "INSERT OR IGNORE INTO push_sent (sub_id, rbx_id, slug, slot, at) " +
+    "VALUES (?1, ?2, ?3, ?4, ?5)"
+  ).bind(sub.id, rbxId, slug, slot, now).run();
+  // Nothing inserted means this device was already told about this one.
+  if (!claim.meta || claim.meta.changes === 0) return "already";
+
+  const how = await sendOne(env, sub, message);
+  if (how === "ok") {
+    // Consecutive failures are what retire a device, so a success clears the count.
+    if (sub.fails) {
+      await env.DB.prepare("UPDATE push_subs SET fails = 0 WHERE id = ?1").bind(sub.id).run();
+      sub.fails = 0;
+    }
+    return "sent";
+  }
+  if (how === "gone") {
+    await env.DB.prepare("DELETE FROM push_subs WHERE id = ?1").bind(sub.id).run();
+    return "gone";
+  }
+  // Let it be tried again next run rather than losing it to one blip.
+  await env.DB.prepare("DELETE FROM push_sent WHERE sub_id = ?1 AND slug = ?2 AND slot = ?3")
+    .bind(sub.id, slug, slot).run();
+  if (sub.fails + 1 >= MAX_FAILS) {
+    await env.DB.prepare("DELETE FROM push_subs WHERE id = ?1").bind(sub.id).run();
+  } else {
+    await env.DB.prepare("UPDATE push_subs SET fails = fails + 1 WHERE id = ?1").bind(sub.id).run();
+    sub.fails++;
+  }
+  return "failed";
 }
 
 /* ------------------------------------------------------------------ the cron job */
@@ -346,15 +461,17 @@ async function loadGames(env, origin) {
 export async function runPushCron(env, origin) {
   if (!pushReady(env)) return { skipped: "no VAPID keys" };
   const { results } = await env.DB.prepare(
-    "SELECT w.rbx_id, w.slug, w.mode, w.lead FROM push_watch w " +
+    "SELECT w.rbx_id, w.slug, w.mode, w.lead, w.events FROM push_watch w " +
     "WHERE EXISTS (SELECT 1 FROM push_subs s WHERE s.rbx_id = w.rbx_id)").all();
   const watches = results || [];
   if (!watches.length) return { watches: 0, sent: 0 };
 
-  const games = await loadGames(env, origin);
+  const [games, events] = await Promise.all([
+    loadGames(env, origin), loadEvents(env, origin)
+  ]);
   const byslug = new Map(games.map(g => [g.s, g]));
   const now = Date.now();
-  let sent = 0, considered = 0;
+  let sent = 0, considered = 0, eventsSent = 0;
 
   // Devices are read once per person rather than once per game: somebody following
   // ten games on two devices would otherwise be twenty of the same query.
@@ -375,51 +492,39 @@ export async function runPushCron(env, origin) {
     // Each device may be in a different timezone, so the window is worked out per
     // device. Usually that is one device and one answer.
     for (const sub of subs) {
-      const win = nextWindow(game.m, w.mode, sub.tz || 0);
-      if (!win) continue;
-      const minutes = Math.round((win.at.getTime() - now) / 60000);
-      if (minutes < 0 || minutes > w.lead + CRON_MINUTES) continue;
+      const tz = sub.tz || 0;
 
-      const slot = win.at.toISOString().slice(0, 13);
-      // Claimed per DEVICE. Claiming it per person meant somebody with a phone and a
-      // laptop had the phone take the hour and the laptop skip it silently, so only
-      // one of their devices ever rang.
-      const claim = await env.DB.prepare(
-        "INSERT OR IGNORE INTO push_sent (sub_id, rbx_id, slug, slot, at) " +
-        "VALUES (?1, ?2, ?3, ?4, ?5)"
-      ).bind(sub.id, w.rbx_id, w.slug, slot, now).run();
-      // Nothing inserted means this device was already told about this window, on an
-      // earlier run, so say nothing.
-      if (!claim.meta || claim.meta.changes === 0) continue;
-
-      const how = await sendOne(env, sub, wording(game, w.mode, win, minutes));
-      if (how === "ok") {
-        sent++;
-        // Consecutive failures are what retire a device, so a success has to clear
-        // the count. Without this a device that blipped once a month would be
-        // deleted after five good months.
-        if (sub.fails) {
-          await env.DB.prepare("UPDATE push_subs SET fails = 0 WHERE id = ?1").bind(sub.id).run();
-          sub.fails = 0;
+      // 1. The quiet or busy window this person asked about.
+      const win = nextWindow(game.m, w.mode, tz);
+      if (win) {
+        const minutes = Math.round((win.at.getTime() - now) / 60000);
+        if (minutes >= 0 && minutes <= w.lead + CRON_MINUTES) {
+          const how = await claimAndSend(env, sub, w.rbx_id, w.slug,
+            win.at.toISOString().slice(0, 13),
+            wording(game, w.mode, win, minutes), now);
+          if (how === "sent") sent++;
+          if (how === "gone") continue;        // that device is gone; skip its events
         }
       }
-      else if (how === "gone") await env.DB.prepare("DELETE FROM push_subs WHERE id = ?1").bind(sub.id).run();
-      else {
-        // Let it be tried again next run rather than losing the day to a blip.
-        await env.DB.prepare("DELETE FROM push_sent WHERE sub_id = ?1 AND slug = ?2 AND slot = ?3")
-          .bind(sub.id, w.slug, slot).run();
-        if (sub.fails + 1 >= MAX_FAILS) {
-          await env.DB.prepare("DELETE FROM push_subs WHERE id = ?1").bind(sub.id).run();
-        } else {
-          await env.DB.prepare("UPDATE push_subs SET fails = fails + 1 WHERE id = ?1").bind(sub.id).run();
-        }
+
+      // 2. The creators' own events, if they asked for those as well. Keyed on the
+      //    event's start time rather than an hour, so two events in the same hour
+      //    are two notifications and neither silences the other.
+      if (!w.events) continue;
+      for (const ev of (events[w.slug] || [])) {
+        const minutes = Math.round((ev.s * 1000 - now) / 60000);
+        if (minutes < 0 || minutes > w.lead + CRON_MINUTES) continue;
+        const how = await claimAndSend(env, sub, w.rbx_id, w.slug, "evt" + ev.s,
+          eventWording(game, ev, minutes, tz), now);
+        if (how === "sent") { sent++; eventsSent++; }
+        if (how === "gone") break;
       }
     }
   }
 
   // Two days is well past any window still worth remembering.
   await env.DB.prepare("DELETE FROM push_sent WHERE at < ?1").bind(now - 2 * 86400e3).run();
-  return { watches: watches.length, considered, sent };
+  return { watches: watches.length, considered, sent, events: eventsSent };
 }
 
 /* -------------------------------------------------------------------- the router */
@@ -487,16 +592,20 @@ async function setWatch(request, env, userId) {
   }
   const mode = body?.mode === "busy" ? "busy" : "quiet";
   const lead = Math.max(5, Math.min(120, Math.round(Number(body?.lead) || DEFAULT_LEAD)));
+  // Events are a separate yes/no from quiet-or-busy: one is about the crowd, the
+  // other about something the creators announced, and people want them separately.
+  const events = body?.events ? 1 : 0;
   const have = await env.DB.prepare(
     "SELECT COUNT(*) AS n FROM push_watch WHERE rbx_id = ?1 AND slug <> ?2").bind(userId, slug).first();
   if ((have?.n || 0) >= MAX_WATCH) {
     return json({ error: "That is as many games as one account can follow." }, 409);
   }
   await env.DB.prepare(
-    "INSERT INTO push_watch (rbx_id, slug, mode, lead, added) VALUES (?1, ?2, ?3, ?4, ?5) " +
-    "ON CONFLICT (rbx_id, slug) DO UPDATE SET mode = ?3, lead = ?4"
-  ).bind(userId, slug, mode, lead, Date.now()).run();
-  return json({ watching: true, slug, mode, lead });
+    "INSERT INTO push_watch (rbx_id, slug, mode, lead, events, added) " +
+    "VALUES (?1, ?2, ?3, ?4, ?5, ?6) " +
+    "ON CONFLICT (rbx_id, slug) DO UPDATE SET mode = ?3, lead = ?4, events = ?5"
+  ).bind(userId, slug, mode, lead, events, Date.now()).run();
+  return json({ watching: true, slug, mode, lead, events });
 }
 
 /**
@@ -520,7 +629,7 @@ async function sendTest(request, env, userId) {
 async function state(request, env, userId) {
   const [subs, watch] = await Promise.all([
     env.DB.prepare("SELECT COUNT(*) AS n FROM push_subs WHERE rbx_id = ?1").bind(userId).first(),
-    env.DB.prepare("SELECT slug, mode, lead FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
+    env.DB.prepare("SELECT slug, mode, lead, events FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
       .bind(userId).all()
   ]);
   return json({

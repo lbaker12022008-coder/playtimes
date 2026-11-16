@@ -38,6 +38,12 @@ CREATE TABLE IF NOT EXISTS push_watch (
   slug    TEXT    NOT NULL,            -- the game page, e.g. blox-fruits
   mode    TEXT    NOT NULL,            -- 'quiet' or 'busy'
   lead    INTEGER NOT NULL DEFAULT 15, -- how many minutes before the window to say so
+  -- Also tell them when one of the creators' own events is about to start. Separate
+  -- from mode because it answers a different question: mode is about the crowd, this
+  -- is about something the creators have announced, and plenty of people want one
+  -- without the other. The events themselves come from docs/events.json, which
+  -- build_site.py writes - the worker cannot call Roblox itself.
+  events  INTEGER NOT NULL DEFAULT 0,
   added   INTEGER NOT NULL,
   PRIMARY KEY (rbx_id, slug)
 );

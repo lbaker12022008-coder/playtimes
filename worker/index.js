@@ -6,6 +6,7 @@
  *   POST /api/hit  - counts one page view (no cookies, no IP stored)
  *   /admin...      - the owner's dashboard, behind an admin code
  *   /auth, /api/me, /api/favs - Sign in with Roblox (see auth.js)
+ *   /api/push/*    - browser notifications (see push.js), plus a cron that sends them
  *
  * Secrets (set with `wrangler secret put`, never in this repo):
  *   ADMIN_CODE      the code you type to get in
@@ -15,7 +16,6 @@
 import STATS from "./stats.js";
 import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
-import { handleIcs } from "./ics.js";
 import { handlePush, runPushCron } from "./push.js";
 
 const COOKIE = "pt_admin";
@@ -52,8 +52,6 @@ export default {
       if (signIn) return signIn;
       const notify = await handlePush(request, env, path);
       if (notify) return notify;
-      const reminder = await handleIcs(request, env, path);
-      if (reminder) return reminder;
     } catch (err) {
       // Log the detail for us (Cloudflare observability), but never show visitors the
       // internals: these errors now cover sign-in and the database too.
