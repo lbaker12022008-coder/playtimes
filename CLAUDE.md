@@ -50,7 +50,19 @@ Cloudflare without passing through anything else. Only `https://playtimestats.co
 every `www` request to the bare name before anything else runs, so `/auth/login` is never reached
 on `www` and a second redirect URL would never be used.
 
-**The session cookie now names the bare domain**, so one sign-in covers the site and its `www`
+**`www` only redirects for addresses the worker actually answers, and the notes used to claim
+otherwise.** Measured 15 Nov 2026: `www/auth/login`, `www/api/me`, `www/admin` and
+`www/reminder.ics` all 301 to the bare name as intended, but `www/`, `www/privacy`,
+`www/game/doors` and `www/sitemap.xml` answer **200** - a complete live duplicate of the static
+site on a second hostname. The reason is `wrangler.jsonc`: `assets` has no `run_worker_first`, so
+Cloudflare serves any request matching a file in `docs/` straight from the asset layer and the
+worker's redirect never runs. What keeps Google straight is that **every canonical tag names the
+bare domain**, including the ones www itself serves, so do not remove those. If the duplicate is
+ever to be closed properly, a Cloudflare **Redirect Rule** (dashboard, runs ahead of assets) is
+the way; `run_worker_first: true` would also do it but puts every static request through the
+worker. The sign-in half is unaffected either way, since `/auth/login` is a worker route.
+
+**The session cookie names the bare domain**, so one sign-in covers the site and its `www`
 alias. It used to be host-only, which is why signing in on one host and opening a link on the
 other read as being signed out. If sign-in ever starts "forgetting" people again, check what
 hostnames answer before suspecting the cookie.
