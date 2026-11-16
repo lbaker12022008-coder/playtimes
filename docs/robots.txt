@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /admin
 Disallow: /api/
+Disallow: /auth/
 Allow: /
 
 Sitemap: https://playtimestats.com/sitemap.xml
