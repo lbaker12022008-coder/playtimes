@@ -313,6 +313,15 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shots>li>p{margin:0 0 10px}
 .shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The two-line history chart, and the key under it. The key uses a coloured block
+   rather than naming the colours in words: a colour named in text goes stale on the
+   next palette change, which the 45-day caption did once already. */
+.hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+.hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
+.hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
+margin:0 6px 3px 0;vertical-align:middle}
+.hleg .k.acc{background:var(--acc)}
+.hleg .k.alt{background:var(--alt)}
 .nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
 font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
 .nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
@@ -1718,12 +1727,48 @@ def hours_table_html(name, week):
             f'</table></div></details>')
 
 
+def history_lines(pts):
+    """Two lines over the same days: the typical count and the highest seen.
+
+    Drawn here rather than in the browser because it needs no timezone - a day is a
+    day - so a search engine and anybody with JavaScript off see the same picture.
+
+    Both lines share one scale, which is the point of putting them together: the gap
+    between them is how much a game's quiet moments differ from its peak, and two
+    charts each scaled to themselves would hide exactly that.
+    """
+    avgs = [avg for _, avg, _ in pts]
+    his = [hi for _, _, hi in pts]
+    lo, top = min(avgs), max(his)
+    span = (top - lo) or 1
+    w, h = 600, 150
+    x = lambda i: round(i / (len(pts) - 1) * w, 1)
+    y = lambda v: round(h - 8 - (v - lo) / span * (h - 20), 1)
+    hiline = " ".join(f"{x(i)},{y(v)}" for i, v in enumerate(his))
+    avline = " ".join(f"{x(i)},{y(v)}" for i, v in enumerate(avgs))
+    return (f'<svg class="hist" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
+            f'aria-label="Typical and highest player counts for each of the last '
+            f'{len(pts)} days">'
+            # The highest line is drawn first and sits above, so the wash under it
+            # reads as the whole range rather than as a second solid shape.
+            f'<polygon points="0,{h} {hiline} {w},{h}" fill="var(--alt)" opacity=".10"/>'
+            f'<polyline points="{hiline}" fill="none" stroke="var(--alt)" stroke-width="2.5" '
+            f'stroke-linejoin="round" stroke-linecap="round"/>'
+            f'<polyline points="{avline}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
+            f'stroke-linejoin="round" stroke-linecap="round"/></svg>')
+
+
 def history_html(name, a, days=21):
     """The last few weeks day by day: the heart of "player count history".
 
-    Two columns that must not be muddled. The typical count is an average of the
-    samples we took that day, so it is an estimate. The highest is a single number we
-    really saw, so it is an observation.
+    Two numbers that must not be muddled, which is why they are two lines and two
+    columns and never one. The typical count is an average of the samples we took
+    that day, so it is an estimate. The highest is a single number we really saw, so
+    it is an observation.
+
+    The graph is the thing to look at; the table is still written out underneath,
+    inside a <details>, because every number a page claims should be readable as text
+    and a search engine cannot read an SVG.
     """
     pts = a["peaks"][-days:]
     if len(pts) < 3:
@@ -1731,14 +1776,17 @@ def history_html(name, a, days=21):
     rows = "".join(f'<tr><td>{when(day)}</td><td>{avg:,}</td><td>{hi:,}</td></tr>'
                    for day, avg, hi in reversed(pts))
     return (f'<div class="card"><h2>{html.escape(name)} player count history</h2>'
-            f'<p class="mut small">Every day we have been watching, newest first: '
-            f'{when(pts[0][0])} to {when(pts[-1][0])}. &ldquo;Typical&rdquo; is the '
-            f'average of the player counts we took that day. &ldquo;Highest&rdquo; is '
-            f'the largest single count we recorded, so it is something we observed '
-            f'rather than an estimate.</p>'
+            f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}, one point '
+            f'per day.</p>'
+            + history_lines(pts) +
+            f'<p class="hleg"><span class="k acc"></span>Typical &mdash; the average of '
+            f'the counts we took that day. <span class="k alt"></span>Highest &mdash; '
+            f'the largest single count we recorded, so something we saw rather than an '
+            f'estimate.</p>'
+            f'<details><summary>Every day as a table</summary>'
             f'<div class="wrap"><table class="tbl"><thead><tr><th>Day</th>'
             f'<th>Typical players</th><th>Highest seen</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table></div></div>')
+            f'<tbody>{rows}</tbody></table></div></details></div>')
 
 
 def faq_html(c, a, f, meta, pattern):
@@ -2888,10 +2936,7 @@ __SPARK__</div></div>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
-__NOTIFY__
-<a class="remind" href="/install" data-installlink>&#128241; Get __SITE__ as an app</a>
-<p class="mut small">Puts it on your home screen, and on an iPhone or iPad it is the
-only way notifications can work.</p></div>
+__NOTIFY__</div>
 <div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
@@ -3933,10 +3978,14 @@ def main():
     top = cards[0] if cards else None
     body = (
         '<div class="hero rise"><h1>Roblox player counts and the <em>best times</em> to play</h1>'
-        f'<p class="lede">We track the player count of {len(cards)} popular Roblox games about every '
-        f'10 minutes &ndash; {total_samples:,} readings so far &ndash; and turn them into an '
-        'hour-by-hour picture of each game\'s week, in your own timezone. Pick a quiet hour for '
-        'easy claims and no queues, or a busy one for trading and events.</p></div>'
+        # One line, then the numbers underneath in small type. It was a four-line
+        # paragraph that said the same thing three ways; the two numbers are still
+        # here because they are the reason to believe the rest of the site, but they
+        # are not what somebody arriving needs to read first.
+        f'<p class="lede">The quietest and busiest hours for {len(cards)} Roblox games, '
+        f'in your own timezone.</p>'
+        f'<p class="mut small">From {total_samples:,} player counts we have taken '
+        f'ourselves, about every 10 minutes.</p></div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
         + ask_html()
         # The categories used to be a bare row of pills under the chooser, with nothing
