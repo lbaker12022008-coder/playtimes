@@ -353,6 +353,16 @@ font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
    choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
    aria-pressed carries the state, so the styling and the screen reader cannot
    disagree about which are on. */
+/* A bell sits under the heading of the section it belongs to, or in the row of
+   buttons at the top of a game page. Same object in both places. */
+.bellb{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.bellb svg{width:15px;height:15px;flex:none;fill:currentColor}
+.bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.bellb[disabled]{opacity:.55;cursor:default}
+.actions .bellb{margin:0}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -2032,12 +2042,21 @@ def calendar_html(name, events, now):
     soon = [e for e in events if (e["end"] or e["start"] + 86400) >= now]
     soon.sort(key=lambda e: e["start"])
     if not soon:
-        return (f'<div class="card"><h2>Event calendar</h2><p class="none">{html.escape(name)} has no '
+        # The bell belongs here too: "tell me when they announce one" is exactly what
+        # somebody reading an empty calendar wants.
+        return (f'<div class="card"><h2>Event calendar</h2>'
+                f'<span data-bell="events"></span><p class="none">{html.escape(name)} has no '
                 f'events planned on Roblox right now. When the creators announce one it will show up here.</p></div>')
     items = "".join(event_item(e, now) for e in soon[:8])
     return (f'<div class="card"><h2>Event calendar</h2>'
+            f'<span data-bell="events"></span>'
             f'<p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p>'
             f'<ul class="evt">{items}</ul></div>')
+
+
+def updates_bell():
+    """The slot for the Updates bell, filled by PUSH_JS on the updates page."""
+    return '<span data-bell="updates"></span>'
 
 
 def updates_html(name, events, meta, spikes, now):
@@ -2979,7 +2998,7 @@ def jump_html(items):
 # from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>
-<div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
+<div class="actions">__PLAY__<span data-bell="all"></span><a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 __JUMP__</div></div></div>
 __ABOUT__
@@ -2992,7 +3011,7 @@ own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
 <div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div></div>
-<div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
+<div id="session" class="sp5 card rise3"><h2>Plan my session</h2><span data-bell="plan"></span>
 <p class="mut small">What do you want?</p>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div>
@@ -3045,7 +3064,10 @@ NOTIFY_HTML = """<div class="notif" id="notif" hidden></div>"""
 PUSH_JS = """(function(){
 var gameBox=document.getElementById('notif');
 var pageBox=document.getElementById('notifpage');
-if(!gameBox&&!pageBox)return;
+/* Three kinds of page use this: a game page (#notif), the notifications page
+   (#notifpage) and the updates page, which has neither and only a bell. Leaving the
+   bells out of this test is what made the updates page draw an empty slot. */
+if(!gameBox&&!pageBox&&!document.querySelector('[data-bell]'))return;
 var slug=window.PT_GAME?PT_GAME.s:null;
 var S=null,names=null,busy=false,note='',deviceReady=false,told=false;
 
@@ -3129,6 +3151,21 @@ note=(err&&err.message)||'That did not work.';refresh()})}
 function refresh(){return fetch('/api/push/state').then(function(r){return r.json()})
 .then(function(d){S=d;draw()}).catch(function(){if(gameBox)gameBox.hidden=true})}
 
+/* A bell for one section. The same object everywhere: the glyph, a short label and
+   aria-pressed carrying the state, so the styling and a screen reader cannot
+   disagree about whether it is on. */
+function bellBtn(kind,label,on){
+return '<button class="bellb" type="button" data-bk="'+kind+'" '
++'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
++PTBELL+'<span>'+label+'</span></button>'}
+
+/* Which quiet-or-busy window the countdown in this card is showing. The bell beside
+   it means "tell me before THIS window", so it follows that choice rather than
+   keeping a third one of its own. */
+function planKind(){
+var b=document.querySelector('#planbtns button[aria-pressed=true]');
+return (b&&b.dataset.m==='busy')?'busy':'quiet'}
+
 function tog(forSlug,key,label,on){
 return '<button class="tog" type="button" data-s="'+ptEsc(forSlug)+'" data-k="'+key+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'+label+'</button>'}
@@ -3149,7 +3186,28 @@ var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */
+/* The bells, one per section, each filled only when it can do something. A section
+   whose bell cannot work shows nothing at all rather than a button that does not:
+   the one explanation lives in the Plan my session card, which every game page has. */
+function drawBells(){
+if(!slug)return;
+var ok=S&&S.available&&S.signedIn&&usable();
+var w=watchFor(slug)||{};
+Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
+if(!ok){el.innerHTML='';return}
+var kind=el.dataset.bell;
+if(kind==='all'){
+var any=!!(w.quiet||w.busy||w.events||w.updates);
+el.innerHTML=bellBtn('all',any?'Notifications on':'Notify me',any)}
+else if(kind==='plan'){
+var k=planKind();
+el.innerHTML=bellBtn(k,k==='busy'?'Tell me before it gets busy'
+:'Tell me before it goes quiet',w[k])}
+else{el.innerHTML=bellBtn(kind,kind==='events'?'Tell me about events'
+:'Tell me about updates',w[kind])}})}
+
 function drawGame(){
+drawBells();
 if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
@@ -3160,10 +3218,9 @@ html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
 :'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
 else{
-html='<p class="mut small">Notify me when this game is</p>'+switches(slug)
-+(note?'<p class="mut small">'+ptEsc(note)
+html=(note?'<p class="mut small">'+ptEsc(note)
 +' <a href="/install">How to install it</a></p>':'')
-+'<p class="mut small"><a href="/notifications">All your notifications</a></p>'}
++'<p class="mut small"><a href="/notifications">All four kinds</a></p>'}
 gameBox.innerHTML=html;gameBox.hidden=false}
 
 /* ------------------------------------------------- the notifications page */
@@ -3223,6 +3280,24 @@ document.addEventListener('click',function(e){
 if(!e.target.closest||busy)return;
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
+var bb=e.target.closest('.bellb');
+if(bb){
+var on=bb.getAttribute('aria-pressed')!=='true';
+if(bb.dataset.bk==='all'){
+/* The master. Off turns everything off; on turns the quiet one on, which is the
+   one most people want and the least noisy place to start. */
+var w=watchFor(slug)||{};
+if(on)flip(slug,'quiet',true);
+else{busy=true;note='';draw();
+ensureDevice().then(function(){return post('watch',{slug:slug,quiet:false,
+busy:false,events:false,updates:false})})
+.then(function(){busy=false;return refresh()})
+.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';refresh()})}}
+else flip(slug,bb.dataset.bk,on);
+return}
+/* Changing the countdown between quiet and busy changes what the bell beside it is
+   offering, so it has to be redrawn. */
+if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
 if(e.target.closest('#notiftest')){
 busy=true;note='Sending&hellip;';draw();
 post('test',{}).then(function(){busy=false;
@@ -3984,6 +4059,10 @@ def main():
         # Everything about this game's updates gets its own page, reached from the
         # "Game updates" button at the top of the game page.
         upd = updates_html(name, events, meta, a["spikes"], now)
+        if upd:
+            # Right under that page's own heading, where somebody reading about this
+            # game's updates is already looking.
+            upd = upd.replace("</h2>", "</h2>" + updates_bell(), 1)
         # The sitemap only asks Google to look at an updates page that has
         # something on it; an empty one is not worth a visit.
         c["has_updates"] = bool(upd)
@@ -4004,7 +4083,10 @@ def main():
             + f'<script>{SHARED_JS}</script>'
             + f'<script>var P={jsdata(pattern)};'
             + PATTERN_JS + '</script>'
-            + f'<script>window.PT_GAME={jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>',
+            + f'<script>window.PT_GAME={jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>'
+            # The Updates bell lives on this page, so the notification code has to be
+            # here too. PT_GAME above it is what tells it which game it is looking at.
+            + f'<script>{PUSH_JS}</script>',
             clip(f"When does {name} update? Past updates and events, how often new ones "
                  f"arrive, and the days its player count jumped."),
             wide=True, banner=c["banner"],
