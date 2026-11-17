@@ -6,7 +6,7 @@
 <meta property="og:title" content="Ride A Pet Update History and Patch Notes | PlayTime">
 <meta property="og:description" content="When does Ride A Pet update? Past updates and events, how often new ones arrive, and the days its player count jumped.">
 <meta property="og:url" content="https://playtimestats.com/updates/ride-a-pet"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-5261f6b70ec670d030730b86b3b7540c/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-16">
+<meta property="article:modified_time" content="2026-11-17">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -232,21 +232,18 @@ border:1px solid var(--line);background:var(--shade)}
 /* The notification bell, at the right end of the bar, and the list it opens.
    Drawn only for somebody signed in: notifications are only offered to signed-in
    people, so for anybody else there is nothing it could ever list. */
-.nots{position:relative;flex:none}
+.nots{flex:none}
 .nots:empty{display:none}
-/* `.nots .nmenu` and not `.nmenu`, for the same reason the account menu needed two
-   classes: .gmenu sets left:0 for the game picker at the OTHER end of the bar and is
-   written further down this stylesheet, so a single class loses to it and this menu
-   opens rightwards off the edge of a phone. Assume a later one-class rule wins. */
-.nots .nmenu{left:auto;right:0;width:min(300px,calc(100vw - 24px))}
-.nrow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px}
-.nrow:hover{background:var(--shade)}
-.nrow>a{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0;
+/* One game on /notifications: its name, then its three switches. The switches drop
+   onto their own line on a narrow screen rather than squeezing the name out. */
+.nlist{list-style:none;margin:0;padding:0}
+.nrow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;
+padding:12px 0;border-bottom:1px solid var(--line)}
+.nrow>a{display:flex;align-items:center;gap:11px;flex:1 1 170px;min-width:0;
 text-decoration:none;color:var(--ink)}
-.nrow img{width:28px;height:28px;border-radius:8px;flex:none;object-fit:cover}
-.nrow>a span{flex:1 1 auto;min-width:0;font-weight:600;font-size:.92rem;
+.nrow img{width:34px;height:34px;border-radius:9px;flex:none;object-fit:cover}
+.nrow>a span{flex:1 1 auto;min-width:0;font-weight:700;
 overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nrow i{font-style:normal;font-size:.76rem;color:var(--mut);flex:none}
 /* The events tickbox in the notification panel. A real checkbox rather than a third
    pill beside Quiet and Busy: those two are a choice between one and the other, and
    this is an extra on top of whichever was picked. */
@@ -262,11 +259,19 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
 font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
 .nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
-.noff{padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:none;
-color:var(--mut);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;flex:none}
-.noff:hover,.noff:focus-visible{color:var(--ink);border-color:var(--acc)}
-.nnone{margin:2px 10px 8px;font-size:.88rem;color:var(--mut);line-height:1.5}
-.nnone a{color:var(--acc)}
+/* The three switches. Each is on or off by itself - they were one Quiet-or-Busy
+   choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
+   aria-pressed carries the state, so the styling and the screen reader cannot
+   disagree about which are on. */
+.togs{display:flex;gap:7px;flex-wrap:wrap}
+.tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
+background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
+cursor:pointer}
+.tog:hover:not([disabled]),.tog:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.tog[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.tog[disabled]{opacity:.55;cursor:default}
+.saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
+border-radius:12px;background:var(--shade);font-size:.92rem}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -294,6 +299,8 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
+/* The bell is an anchor, so it needs saying that it is not an underlined link. */
+.iconb{text-decoration:none}
 /* Shown only inside the min-width:900px block near the top of this stylesheet. */
 .deskonly{display:none}
 .iconb svg{width:19px;height:19px;fill:currentColor}
@@ -628,6 +635,7 @@ h1{font-size:1.5rem}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Ride A Pet player count","item":"https://playtimestats.com/game/ride-a-pet"},{"@type":"ListItem","position":4,"name":"Update history","item":"https://playtimestats.com/updates/ride-a-pet"}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 var PTPERSON='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>';
 var PTBELL='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.3a4.2 4.2 0 0 0-4.2 4.2v2.3L2.4 10a1 1 0 0 0 .85 1.5h9.5A1 1 0 0 0 13.6 10l-1.4-2.2V5.5A4.2 4.2 0 0 0 8 1.3z"/><path d="M6.2 12.6a1.9 1.9 0 0 0 3.6 0z"/></svg>';
+var PTSITE='PlayTime';
 var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
@@ -684,12 +692,12 @@ el.innerHTML=acct});
    it is empty, which is not worth a button in the bar. The list inside is left
    empty and filled when it is first opened, so a visitor who never presses it costs
    no extra requests. */
+/* A link to a page, not a menu that opens in the bar. There are three switches
+   per game and a device to turn on, which is more than a dropdown off the corner
+   of a phone screen can hold without becoming its own little application. */
 var bell=(PT.available&&PT.name)
-?'<button class="iconb" id="notbtn" type="button" aria-haspopup="true" '
-+'aria-expanded="false" aria-controls="nmenu" aria-label="Your notifications">'
-+PTBELL+'</button>'
-+'<div class="gmenu nmenu" id="nmenu" hidden><p>Your notifications</p>'
-+'<div id="nlist"></div></div>'
+?'<a class="iconb" href="/notifications" aria-label="Your notifications">'
++PTBELL+'</a>'
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
 el.innerHTML=bell});
@@ -920,7 +928,7 @@ if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
 mb=document.getElementById('menubtn');
 if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');nshut();shade(false)}
+if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
@@ -960,64 +968,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
    e.target.closest is guarded because on iOS a click that has bubbled this far can
    arrive at a text node, which has no closest and would throw - the same thing that
    once stopped the calendar links working. */
-function nshut(){var m=document.getElementById('nmenu'),
-b=document.getElementById('notbtn');
-if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
-/* Filled the first time it is opened rather than on every page load, the same way
-   the search panel waits for /games.json. Two requests: what this person follows,
-   and the names and pictures to show for it. /games.json is already in the
-   browser cache on most visits because search uses it too. */
-var nloaded=false;
-function nfill(){
-var list=document.getElementById('nlist');if(!list)return;
-list.innerHTML='<p class="nnone">Loading&hellip;</p>';
-Promise.all([
-fetch('/api/push/state').then(function(r){return r.json()}).catch(function(){return null}),
-fetch('/games.json').then(function(r){return r.json()}).catch(function(){return[]})
-]).then(function(got){
-var st=got[0],all=got[1]||[];
-if(!st||!st.available){
-list.innerHTML='<p class="nnone">Notifications are not switched on for this site yet.</p>';return}
-if(!st.signedIn){
-list.innerHTML='<p class="nnone">Sign in with Roblox to get notifications.</p>';return}
-var w=st.watching||[];
-if(!w.length){list.innerHTML='<p class="nnone">You are not getting notifications for '
-+'any games yet. Open a game you play and press <b>Notify me</b> on it.</p>';return}
-var by={};all.forEach(function(g){by[g.s]=g});
-list.innerHTML=w.map(function(x){
-var g=by[x.slug]||{n:x.slug,i:''};
-var kinds=[x.mode==='busy'?'busy':'quiet'];
-if(x.events)kinds.push('events');
-return '<div class="nrow">'
-+'<a href="/game/'+ptEsc(x.slug)+'">'
-+(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="28" height="28">':'')
-+'<span>'+ptEsc(g.n)+'</span></a>'
-+'<i>'+kinds.join(' + ')+'</i>'
-+'<button class="noff" type="button" data-off="'+ptEsc(x.slug)+'">Off</button>'
-+'</div>'}).join('')}).catch(function(){
-list.innerHTML='<p class="nnone">Could not read your notifications. Please try again.</p>'})}
-/* Delegated from the document, never bound to the button: ptPaint() replaces this
-   markup whenever /api/me answers, so a handler on the button itself would be thrown
-   away with the old markup and the menu would quietly stop opening. e.target.closest
-   is guarded because on iOS a click that has bubbled this far can arrive at a text
-   node, which has no closest and would throw. nshut() is declared here and called
-   from shut() above; a function declaration is hoisted to the top of this IIFE, so
-   the order on the page does not matter. */
-document.addEventListener('click',function(e){
-if(!e.target.closest)return;
-var b=e.target.closest('#notbtn');
-if(b){var m=document.getElementById('nmenu');if(!m)return;
-var show=m.hidden;shut();m.hidden=!show;
-b.setAttribute('aria-expanded',show?'true':'false');
-if(show&&!nloaded){nloaded=true;nfill()}return}
-var off=e.target.closest('[data-off]');
-if(off){off.disabled=true;off.textContent='…';
-fetch('/api/push/watch',{method:'POST',headers:{'content-type':'application/json'},
-body:JSON.stringify({slug:off.dataset.off,on:false})})
-.then(function(r){if(!r.ok)throw 0;nfill()})
-.catch(function(){off.disabled=false;off.textContent='Off'});return}
-if(!e.target.closest('#nmenu'))nshut()});
-
 var box=document.getElementById('gpick');if(!box)return;
 function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
 :'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
