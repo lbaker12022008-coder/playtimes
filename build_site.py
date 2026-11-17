@@ -611,7 +611,7 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
-.fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
 .fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#10131c}
@@ -2098,6 +2098,20 @@ def about_game_html(name, meta):
             f'<p class="mut small">Description written by the game\'s own creators and shown on Roblox.</p></div></details>')
 
 
+def says_something(t):
+    """Is there any actual word in this, or is it a row of punctuation?
+
+    Roblox creators use the subtitle as a hype line, and a good number of them
+    are '????' or '!!!!!!!!' or a string of emoji. Measured 16 Nov 2026: 95 of
+    the 985 subtitles on the site had no letter or digit anywhere in them, and
+    they read as broken encoding rather than as something a person wrote.
+
+    `isalnum()` per character rather than a Latin range on purpose, so a
+    subtitle written in Japanese or Cyrillic still counts as saying something.
+    """
+    return any(ch.isalnum() for ch in str(t))
+
+
 def event_item(e, now, cls=""):
     """One event in a list: title, when it runs, and what the creators said about it."""
     live = e["start"] <= now <= (e["end"] or e["start"] + 86400)
@@ -2112,8 +2126,9 @@ def event_item(e, now, cls=""):
     desc = clean_desc(e.get("description") or "")
     if len(desc) > 420:
         desc = desc[:420].rsplit(" ", 1)[0] + "…"
-    sub = f'<span class="d">{html.escape(e["subtitle"])}</span>' if e.get("subtitle") else ""
-    body = f"<p>{html.escape(desc)}</p>" if desc else ""
+    sub = (f'<span class="d">{html.escape(e["subtitle"])}</span>'
+           if says_something(e.get("subtitle") or "") else "")
+    body = f"<p>{html.escape(desc)}</p>" if says_something(desc) else ""
     return (f'<li class="{klass}"><b>{html.escape(e["title"])}</b>{sub}'
             f'<span class="d">{label}</span>{body}</li>')
 
@@ -4150,6 +4165,12 @@ def main():
     os.makedirs(OUT + "/game", exist_ok=True)
 
     games = db.execute("SELECT universe_id,name,genre,place_id FROM games").fetchall()
+    # The net under the collectors. Roblox returns a placeholder with id 0 for a
+    # game it will not talk about any more, and both collectors recorded it for a
+    # while, so the data branch already holds a "[TITLE UNAVAILABLE]" with
+    # hundreds of samples that cannot be un-collected. Without this it gets a page
+    # of its own and a line in the sitemap as soon as it passes MIN_SAMPLES.
+    games = [g for g in games if g[0] and (g[1] or "").strip()]
     # Worked out once for all games, because an address has to be unique across the
     # whole site and because it must not depend on the order the pages are built in.
     naming = name_slugs(games)
@@ -4601,7 +4622,8 @@ def main():
             out.append(f'<li class="{"live" if e["start"] <= now else "soon"}">'
                        f'<b><a href="/game/{e["slug"]}">{html.escape(e["game"])}</a>: '
                        f'{html.escape(e["title"])}</b>'
-                       + (f'<span class="d">{html.escape(e["subtitle"])}</span>' if e["subtitle"] else "")
+                       + (f'<span class="d">{html.escape(e["subtitle"])}</span>'
+                          if says_something(e["subtitle"]) else "")
                        + f'<span class="d">'
                        + (f'Happening now, ends {when(e["end"] or e["start"])}' if e["start"] <= now
                           else f'Starts {when(e["start"])}')

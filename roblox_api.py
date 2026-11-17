@@ -80,6 +80,14 @@ def cached(key, ttl, make):
     return value
 
 
+# Roblox launched in 2006, so a date before this is not a date Roblox means -
+# it is .NET's DateTime.MinValue ("0001-01-01T00:00:00Z") standing in for one it
+# does not have. Left alone it becomes a large negative number, which is truthy,
+# so every "do we know when?" test passes and the page claims the creators last
+# touched the game in the year 1.
+ROBLOX_EPOCH = 1041379200          # 1 Jan 2003
+
+
 def _iso(s):
     """Roblox time text -> unix seconds (or None)."""
     if not s:
@@ -89,8 +97,9 @@ def _iso(s):
         if "." in s:                      # trim fractions of a second
             head, _, tail = s.partition(".")
             s = head + ("+" + tail.split("+", 1)[1] if "+" in tail else "+00:00")
-        return int(datetime.fromisoformat(s).timestamp())
-    except ValueError:
+        ts = int(datetime.fromisoformat(s).timestamp())
+        return ts if ts >= ROBLOX_EPOCH else None
+    except (ValueError, OverflowError, OSError):
         return None
 
 

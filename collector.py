@@ -31,6 +31,12 @@ def main():
     now = int(time.time())
     for i in range(0, len(ids), 50):
         for g in fetch(ids[i:i + 50]):
+            # Roblox answers for an id it will not talk about any more with a
+            # placeholder whose id is 0, not by leaving it out. Recording that
+            # builds up a game called "[TITLE UNAVAILABLE]" out of every
+            # deleted game at once. See cloud/collector_cloud.py, same guard.
+            if not g.get("id"):
+                continue
             db.execute("INSERT OR REPLACE INTO games VALUES(?,?,?,?)",
                        (g["id"], g.get("name"), g.get("genre_l1") or g.get("genre"), g.get("rootPlaceId")))
             db.execute("INSERT INTO samples VALUES(?,?,?)", (g["id"], now, g.get("playing", 0)))

@@ -12,6 +12,10 @@ def main(d="datarepo"):
     now = int(time.time()); games, rows = {}, []
     for i in range(0, len(ids), 50):
         for g in fetch(ids[i:i + 50]):
+            # A deleted or private game comes back as a placeholder with id 0
+            # rather than being left out. See collector.py, same guard.
+            if not g.get("id"):
+                continue
             games[str(g["id"])] = [g["id"], g.get("name"), g.get("genre_l1") or g.get("genre"), g.get("rootPlaceId")]
             rows.append([g["id"], now, g.get("playing", 0)])
         time.sleep(1.5)
