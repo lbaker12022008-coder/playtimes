@@ -341,6 +341,16 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
 .hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+/* A build-time chart that can be dragged (scrub() and SCRUB_JS). The dots are HTML
+   rather than SVG circles because these charts stretch to fit with
+   preserveAspectRatio none, which would squash a circle into an oval. */
+.scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+.scrub>svg{margin:0}
+.scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
+pointer-events:none;transform:translateX(-.75px)}
+.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
+border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+.scrub.on .sdot{display:block}
 .hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
 .hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
 margin:0 6px 3px 0;vertical-align:middle}
@@ -1632,6 +1642,35 @@ def verdict(a):
             f"are still there at a typical moment, so it is quiet rather than empty.")
 
 
+def scrub(svg, h, labels, ys, texts, hues):
+    """Wraps a chart drawn here at build time so it can be dragged like the hourly graph.
+
+    The chart itself stays a plain SVG, so a search engine and anybody with
+    JavaScript off still see it. On top go a dashed line and one dot per series,
+    which SCRUB_JS in SHARED_JS slides along as somebody drags, hovers, taps or
+    presses the arrow keys, writing that point's numbers into the readout below.
+
+    Every position is worked out HERE, from the same x()/y() that drew the line,
+    and handed over as percentages of the box - so the browser does no maths of its
+    own and the dot cannot drift off the line the way graphCursor would if its H
+    stopped matching dayGraph's. Percentages also matter because these charts use
+    preserveAspectRatio="none": a circle drawn inside the SVG would be squashed
+    into an oval, so the dots are HTML on top instead.
+
+    labels: one per point. ys: per point, one viewBox y per series. texts: per
+    point, the readout's HTML. hues: one CSS colour name per series ("acc", "alt").
+    """
+    n = len(labels)
+    pts = [[round(i / (n - 1) * 100, 2), [round(y / h * 100, 2) for y in ys[i]], texts[i]]
+           for i in range(n)]
+    dots = "".join(f'<b class="sdot" style="background:var(--{c})"></b>' for c in hues)
+    return (f'<div class="scrub" tabindex="0" role="group" aria-label="Drag across the '
+            f'graph, or use the arrow keys, to read any day" '
+            f'data-scrub="{html.escape(json.dumps(pts, separators=(",", ":")))}">{svg}'
+            f'<i class="sline" hidden></i>{dots}</div>'
+            f'<p class="readout" aria-live="polite"></p>')
+
+
 def sparkline(daily, spikes):
     """A small line chart of the last 45 days, with a dot on each spike day."""
     pts = daily[-45:]
@@ -1648,13 +1687,18 @@ def sparkline(daily, spikes):
     dots = "".join(f'<circle cx="{x(i)}" cy="{y(v)}" r="4" fill="var(--alt)"><title>'
                    f'{when(d)}: about {v:,} players, much busier than usual</title></circle>'
                    for i, (d, v) in enumerate(pts) if d in spike_days)
-    return (f'<svg class="spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
-            f'aria-label="Typical players each day over the last {len(pts)} days">'
-            f'<polygon points="0,{h} {line} {w},{h}" fill="var(--acc)" opacity=".13"/>'
-            f'<polyline points="{line}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
-            f'stroke-linejoin="round" stroke-linecap="round"/>{dots}</svg>'
-            f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}. '
-            f'Each point is a day. The dots mark days that were much busier than usual.</p>')
+    svg = (f'<svg class="spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
+           f'aria-label="Typical players each day over the last {len(pts)} days">'
+           f'<polygon points="0,{h} {line} {w},{h}" fill="var(--acc)" opacity=".13"/>'
+           f'<polyline points="{line}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
+           f'stroke-linejoin="round" stroke-linecap="round"/>{dots}</svg>')
+    texts = [f'<b>{when(d)}</b> &middot; about <b>{v:,}</b> players'
+             + (' &middot; much busier than usual' if d in spike_days else '')
+             for d, v in pts]
+    return (scrub(svg, h, [d for d, _ in pts], [[y(v)] for _, v in pts], texts, ["acc"])
+            + f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}. '
+            f'Each point is a day. The dots mark days that were much busier than usual. '
+            f'Drag across the graph, or tap it, to read any day.</p>')
 
 
 def levels_string(week):
@@ -1808,7 +1852,7 @@ def history_lines(pts):
     y = lambda v: round(h - 8 - (v - lo) / span * (h - 20), 1)
     hiline = " ".join(f"{x(i)},{y(v)}" for i, v in enumerate(his))
     avline = " ".join(f"{x(i)},{y(v)}" for i, v in enumerate(avgs))
-    return (f'<svg class="hist" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
+    svg = (f'<svg class="hist" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" '
             f'aria-label="Typical and highest player counts for each of the last '
             f'{len(pts)} days">'
             # The highest line is drawn first and sits above, so the wash under it
@@ -1818,6 +1862,10 @@ def history_lines(pts):
             f'stroke-linejoin="round" stroke-linecap="round"/>'
             f'<polyline points="{avline}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
             f'stroke-linejoin="round" stroke-linecap="round"/></svg>')
+    texts = [f'<b>{when(d)}</b> &middot; typical <b>{av:,}</b> &middot; highest seen '
+             f'<b>{hi:,}</b>' for d, av, hi in pts]
+    return scrub(svg, h, [d for d, _, _ in pts], [[y(av), y(hi)] for _, av, hi in pts],
+                 texts, ["acc", "alt"])
 
 
 def history_html(name, a, days=21):
@@ -1839,7 +1887,7 @@ def history_html(name, a, days=21):
                    for day, avg, hi in reversed(pts))
     return (f'<div class="card"><h2>{html.escape(name)} player count history</h2>'
             f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}, one point '
-            f'per day.</p>'
+            f'per day. Drag across the graph, or tap it, to read any day.</p>'
             + history_lines(pts) +
             f'<p class="hleg"><span class="k acc"></span>Typical &mdash; the average of '
             f'the counts we took that day. <span class="k alt"></span>Highest &mdash; '
@@ -2733,7 +2781,37 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}"""
+return ss+'s'}
+/* Makes a chart drawn at build time draggable, the way graphCursor does for the
+   hourly graph: drag, hover, tap, touch-drag sideways, or the arrow keys. The
+   positions come ready-made from scrub() in build_site.py as percentages of the
+   box, so nothing here has to repeat the chart's own maths. A sideways drag reads
+   the chart and an up-down one still scrolls the page (touch-action pan-y). */
+function scrubChart(el){
+var P;try{P=JSON.parse(el.getAttribute('data-scrub'))}catch(e){return}
+if(!P||!P.length)return;
+var ln=el.querySelector('.sline'),dots=el.querySelectorAll('.sdot'),
+out=el.nextElementSibling,at=-1,down=false;
+function show(i){
+if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;
+if(out)out.innerHTML='';return}
+at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
+for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
+el.classList.add('on');if(out)out.innerHTML=p[2]}
+function fromX(cx){var r=el.getBoundingClientRect();if(!r.width)return -1;
+return Math.max(0,Math.min(P.length-1,Math.round((cx-r.left)/r.width*(P.length-1))))}
+el.addEventListener('pointerdown',function(e){down=true;show(fromX(e.clientX))});
+el.addEventListener('pointermove',function(e){
+if(down||e.pointerType==='mouse')show(fromX(e.clientX))});
+window.addEventListener('pointerup',function(){down=false});
+el.addEventListener('pointercancel',function(){down=false});
+el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!down)show(-1)});
+el.addEventListener('keydown',function(e){
+if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
+show(at<0?(e.key==='ArrowRight'?0:P.length-1):
+Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
+else if(e.key==='Escape')show(-1)})}
+"""
 
 # Writes the "updates usually arrive on a Friday around 2 PM" line. The page that
 # uses it defines P first, so the same code serves any game.
@@ -2828,7 +2906,8 @@ for(var d=0;d<7;d++){g+='<div>'+DAY[d].slice(0,3)+'</div>';
 for(var h=0;h<24;h++){var v=L[d][h];
 g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+DAY[d]+' '+fmt(h)+': about '+
 (v||0).toLocaleString()+' players" style="background:'+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
-$('hm').innerHTML=g;show(nd);"""
+$('hm').innerHTML=g;show(nd);
+Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);"""
 
 HOME_JS = """var G=__GAMES__;
 /* Each game carries 168 digits: one busy-ness level per hour of the week, in UTC.
