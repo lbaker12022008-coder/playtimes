@@ -143,7 +143,6 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 .shell>.w{max-width:min(820px,100%)}
 .shell>.w.wide{max-width:min(1400px,100%)}
 .rail{display:none}
-.railb{display:none}
 .shell.ads{gap:20px}
 /* The rails belong beside the words, not out at the edges of the screen. A 1fr
    middle track eats every spare pixel, so on a 2560px monitor the reading column
@@ -163,10 +162,22 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    wide, so this can never reach a reading page (which stays capped at 820px by
    .hdr.narrow, a selector of exactly the same weight). */
 @media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
-/* The strip along the bottom only exists at all when ads are switched on. */
-@media(min-width:900px){.railb{display:block;position:sticky;bottom:0;z-index:8;
+/* The strip along the bottom only exists at all when ads are switched on, and it is
+   the ONLY ad slot a phone or a tablet ever sees: the side rails need 1480px. It used
+   to start at 900px, which meant every phone and an iPad held upright showed no ads
+   at all - and this audience is overwhelmingly on phones, so that was most of the
+   site's income switched off. It is deliberately short at 66px (about a 50px banner
+   once the padding and rule are taken off), because a bar on a 844px-tall phone is
+   spending screen the visitor came for; the laptop strip keeps its 98px.
+   z-index 8 is below the header (9), the scrim (25) and the drawer and search sheet
+   (30), so an open menu covers the ad rather than fighting it.
+   position:sticky, not fixed: a sticky element still takes its space at the end of
+   the page, so the footer is never left permanently hidden underneath it - and a
+   fixed one would be trapped by the backdrop-filter above it anyway. */
+.railb{display:block;position:sticky;bottom:0;z-index:8;
 background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
-padding:6px;text-align:center;height:98px}}
+padding:6px;text-align:center;height:66px}
+@media(min-width:900px){.railb{height:98px}}
 .adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
 display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
 a{color:var(--acc)}
@@ -2982,11 +2993,14 @@ ensureDevice()
 .then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
 busy:next.busy,events:next.events,lead:15})})
 .then(function(){busy=false;return refresh()})
-.then(function(){
-/* The first switch anybody turns on sends one notification straight away, so they
-   can see it work. Permission was granted on a different screen and "did that do
-   anything?" is otherwise unanswerable until the small hours. */
-if(on&&!S.tested){S.tested=true;return post('test',{}).catch(function(){})}})
+/* Pressing a switch sends NOTHING. It used to fire a sample notification off the
+   first switch anybody turned on, so they could see what one looked like; the guard
+   for "first" was a flag on S, and refresh() on the line above replaces S with a
+   fresh answer from the server that has no such flag, so it was never true and every
+   single switch sent one. The owner wanted none of them anyway: a notification should
+   arrive at the hour or the event it is about, and nothing else should ever push one.
+   Seeing what one looks like is what the "Send me a test" button on /notifications
+   is for, pressed on purpose. */
 .catch(function(err){busy=false;
 note=(err&&err.message)||'That did not work.';refresh()})}
 
