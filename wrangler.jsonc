@@ -13,6 +13,10 @@
   // the worker would never run, which would break /admin, /api/* and sign-in.
   "assets": { "directory": "./docs", "binding": "ASSETS" },
   "observability": { "enabled": true },
+  // Lets an uploaded-but-not-deployed version answer on its own workers.dev
+  // address. The test copy (.github/workflows/staging.yml) depends on it; the live
+  // site is unaffected, since it only ever serves the deployed version.
+  "preview_urls": true,
   // Browser notifications. Every ten minutes the worker looks for a game somebody is
   // following that is about to get quiet or busy, and wakes their browser up. The
   // ten must stay level with CRON_MINUTES in worker/push.js: that is how long a run

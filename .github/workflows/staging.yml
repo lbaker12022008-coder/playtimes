@@ -1,0 +1,52 @@
+name: test copy
+# A private test copy of the whole site - real player counts, real worker - at
+#   https://staging-playtimes.<your-subdomain>.workers.dev
+# so a change can be looked at before it reaches playtimestats.com.
+#
+# How it is used: changes go to the `staging` branch first. This job builds the site
+# from the real collected data and uploads it to Cloudflare as a *version* of the
+# playtimes worker with the preview alias "staging". A version is not deployed: the
+# live site keeps serving the deployed one, and crons (notifications) never run on
+# an uploaded version. Once it looks right, the same source commits go to main.
+#
+# The built pages are NOT committed to the staging branch; they exist only for the
+# upload. So this job never pushes anything and cannot touch main or the live site.
+#
+# Needs two GitHub secrets, set once:
+#   CLOUDFLARE_API_TOKEN   - a Cloudflare API token from the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_ACCOUNT_ID  - the account id shown on the Cloudflare dashboard
+#
+# What it shares with the live site, worth knowing: the same D1 database (so page
+# views on the test copy are counted in the admin dashboard) and the same secrets.
+# Sign in with Roblox only works there if its /auth/callback address is also
+# registered on the Roblox OAuth app.
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+concurrency:
+  group: staging
+  cancel-in-progress: true
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build site from collected data
+        env:
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          git clone --branch data --single-branch "$REPO_URL" datarepo
+          python3 cloud/build_cloud.py datarepo
+          rm -rf datarepo data.db
+      - name: Check the built pages for search-engine mistakes
+        run: python3 check_seo.py docs || true
+      - name: Upload to Cloudflare as the "staging" preview (not deployed)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4 versions upload --preview-alias staging \
+            --message "test copy from ${GITHUB_SHA::7}" 2>&1 | tee upload.log
+          echo "### Test copy is up" >> "$GITHUB_STEP_SUMMARY"
+          grep -o 'https://[^ ]*workers.dev[^ ]*' upload.log | sort -u | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
