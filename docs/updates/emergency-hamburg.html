@@ -403,6 +403,20 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+.ipop{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;
+background:rgba(0,0,0,.45)}
+.ipop[hidden]{display:none}
+/* --solid, not --card: --card is translucent for the glass look, which is right for
+   a card sitting on the page and wrong for a popup, where the words behind it showed
+   straight through the instructions. */
+.ipop .ibox{position:relative;background:var(--solid);border:1px solid var(--line);
+border-radius:18px;padding:22px 20px 20px;max-width:min(430px,100%);box-shadow:var(--sh)}
+.ipop h2{margin:0 36px 8px 0;font-size:1.15rem}
+.ipop ol{margin:12px 0 20px;padding-left:22px}
+.ipop ol li{margin:7px 0}
+.ipop .ix{position:absolute;top:10px;right:10px;width:34px;height:34px;display:grid;
+place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--bg);
+color:var(--ink);font-size:1.1rem;line-height:1;cursor:pointer}
 .sheetbox{width:min(560px,100%);background:var(--solid);border:1px solid var(--line);
 border-radius:16px;box-shadow:var(--sh);padding:12px}
 .qout{max-height:50vh;overflow-y:auto;margin-top:8px}
@@ -1113,6 +1127,54 @@ if(ptInstalled())return '';
 return 'Notifications work best with ' + PTSITE + ' installed on your device. ';
 }
 
+/* Apple is the one platform where a browser tab cannot do this at all, so it is the
+   one platform that gets a wall. Everywhere else web push works in a tab and the
+   note above is advice rather than a requirement. */
+function needInstall(){return ios&&!ptInstalled()}
+
+/* Built once and kept, because draw() replaces the bells on every change and a popup
+   living inside that markup would be torn down while it was open. Appended to the
+   body so it is not inside anything with backdrop-filter. */
+var pop=null,popFrom=null;
+function buildPop(){
+if(pop)return pop;
+pop=document.createElement('div');
+pop.className='ipop';pop.hidden=true;
+pop.setAttribute('role','dialog');pop.setAttribute('aria-modal','true');
+pop.setAttribute('aria-labelledby','ipoph');
+pop.innerHTML='<div class="ibox"><button class="ix" type="button" data-ipx '
++'aria-label="Close">&times;</button>'
++'<h2 id="ipoph">Add '+ptEsc(PTSITE)+' to your home screen</h2>'
++'<p class="mut small">On an iPhone or iPad, Apple only allows notifications once a '
++'site has been added to the home screen. It takes about ten seconds, and it is '
++'free.</p>'
++'<ol><li>Press the Share button in Safari.</li>'
++'<li>Choose <b>Add to Home Screen</b>.</li>'
++'<li>Press <b>Add</b>.</li>'
++'<li>Open '+ptEsc(PTSITE)+' from your home screen, then turn the bell on there.</li></ol>'
++'<a class="fav" href="/install">See it with pictures</a></div>';
+document.body.appendChild(pop);
+/* Tapping the dark area outside the box closes it, the same as the X. */
+pop.addEventListener('click',function(e){
+if(e.target===pop||(e.target.closest&&e.target.closest('[data-ipx]')))closePop()});
+return pop}
+
+function openPop(from){
+var el=buildPop();popFrom=from||null;
+el.hidden=false;document.documentElement.style.overflow='hidden';
+var x=el.querySelector('[data-ipx]');if(x)x.focus()}
+
+function closePop(){
+if(!pop||pop.hidden)return;
+pop.hidden=true;document.documentElement.style.overflow='';
+/* Back to the bell they pressed, so a keyboard or a screen reader is not dropped at
+   the top of the page. */
+if(popFrom&&popFrom.focus)try{popFrom.focus()}catch(e){}
+popFrom=null}
+
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape'&&pop&&!pop.hidden)closePop()});
+
 function ensureDevice(){
 if(deviceReady)return Promise.resolve();
 return Promise.resolve().then(function(){
@@ -1214,6 +1276,21 @@ var out=S&&S.available&&!S.signedIn;
 var w=watchFor(slug)||{};
 Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
 if(out){el.innerHTML=signBell(el.dataset.bell);return}
+/* On an iPhone or iPad in a tab the bells used to be left EMPTY, which reads as the
+   site being broken rather than as one step away from working. They are drawn as
+   normal now and the click handler opens the install popup instead of switching
+   anything on, because on Apple nothing can be switched on until the site is on the
+   home screen. */
+if(!ok&&needInstall()&&S&&S.signedIn){
+var nw=watchFor(slug)||{};
+var nk=el.dataset.bell;
+if(nk==='all')el.innerHTML=bellBtn('all','Notify me',false);
+else if(nk==='plan'){var pk=planKind();
+el.innerHTML=bellBtn(pk,pk==='busy'?'Tell me before it gets busy'
+:'Tell me before it goes quiet',false)}
+else el.innerHTML=bellBtn(nk,nk==='events'?'Tell me about events'
+:'Tell me about updates',false);
+return}
 if(!ok){el.innerHTML='';return}
 var kind=el.dataset.bell;
 if(kind==='all'){
@@ -1299,6 +1376,14 @@ function draw(){drawGame();drawPage()}
    guarded because on iOS a tap that has bubbled this far can arrive at a text node. */
 document.addEventListener('click',function(e){
 if(!e.target.closest||busy)return;
+/* Before anything else: on an uninstalled Apple device a bell, a switch or the test
+   button cannot do what it says, so pressing one explains how to make it work rather
+   than failing. This covers the notifications page too, where the switches were drawn
+   and clickable and simply threw an error. */
+if(needInstall()){
+var nd=e.target.closest('.tog')||e.target.closest('button.bellb')
+||e.target.closest('#notiftest');
+if(nd){e.preventDefault();openPop(nd);return}}
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
 var bb=e.target.closest('button.bellb');
