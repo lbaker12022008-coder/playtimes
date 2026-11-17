@@ -34,6 +34,15 @@
    then drops its own search row so the same control is not offered twice. */
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
+/* From 900px the bar carries the name, the bell and the magnifier, so the panel
+   stops offering the same two things a second time.
+   Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
+   one-class rule written FURTHER DOWN this stylesheet, and a media query adds no
+   specificity at all, so a single class here simply loses to it and the bar stays
+   empty at every width. Same trap as .w vs .shell>*, and .acctb vs .iconb. */
+.hdr .nots,.hdr .acctbar{display:block}
+.hdr .nots:empty,.hdr .acctbar:empty{display:none}
+.notsrow{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
@@ -243,8 +252,23 @@ border:1px solid var(--line);background:var(--shade)}
 /* The notification bell, at the right end of the bar, and the list it opens.
    Drawn only for somebody signed in: notifications are only offered to signed-in
    people, so for anybody else there is nothing it could ever list. */
-.nots{flex:none}
-.nots:empty{display:none}
+/* Both of these are computer-only. Written as display:none first and turned on
+   inside the 900px block, the same way .deskonly works, so the phone case is the
+   default and a new width cannot accidentally reveal them. */
+.nots,.acctbar{display:none;flex:none}
+.acctb{display:flex;align-items:center;gap:8px;max-width:210px;height:42px;
+padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
+color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+.acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
+.acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
+.acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
+border:1px solid var(--line);background:var(--shade)}
+.albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+font-size:.9rem}
+/* The panel's Notifications row is the other half of the same arrangement: it shows
+   on a phone, where the bell is not in the bar, and hides where the bell is. */
+.notsrow:empty{display:none}
+.notsrow svg{width:18px;height:18px;flex:none;fill:currentColor}
 /* One game on /notifications: its name, then its three switches. The switches drop
    onto their own line on a narrow screen rather than squeezing the name out. */
 .nlist{list-style:none;margin:0;padding:0}
@@ -267,6 +291,15 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shots>li>p{margin:0 0 10px}
 .shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The two-line history chart, and the key under it. The key uses a coloured block
+   rather than naming the colours in words: a colour named in text goes stale on the
+   next palette change, which the 45-day caption did once already. */
+.hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+.hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
+.hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
+margin:0 6px 3px 0;vertical-align:middle}
+.hleg .k.acc{background:var(--acc)}
+.hleg .k.alt{background:var(--alt)}
 .nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
 font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
 .nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
@@ -712,6 +745,23 @@ var bell=(PT.available&&PT.name)
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
 el.innerHTML=bell});
+/* The same two things again, for the other width. The bar pill carries the name and
+   opens the panel rather than a menu of its own: everything it would have held -
+   the name, Sign out - is already in that panel, and a second menu holding the same
+   two things is one more place for them to disagree. */
+var pill=(PT.available&&PT.name)
+?'<button class="acctb" id="acctbar" type="button" aria-controls="drawer" '
++'aria-label="Your account">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
++'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
+el.innerHTML=pill});
+var nrow=(PT.available&&PT.name)
+?'<a class="drow" href="/notifications">'+PTBELL+'<span>Notifications</span></a>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.notsrow'),function(el){
+el.innerHTML=nrow});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
@@ -743,7 +793,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-658e8cf1c403244551e7ca141f05aa85/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
 <div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/1-spider-arm">+1 Spider Arm player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-7bca35328b9929f44d8e1da6db9e69a2/256/256/Image/Webp/noFilter" alt="+1 Spider Arm Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>+1 Spider Arm update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days +1 Spider Arm&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/1-spider-arm">&larr; +1 Spider Arm player count</a><a class="btn" href="https://www.roblox.com/games/117734411290994">Play +1 Spider Arm</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>yesterday</b> (Sun 15 Nov).</p><ul class="evt"><li class=""><b>AA + UPDATE!</b><span class="d">Tune in early!</span><span class="d">Sat 14 Nov &middot; 2 days ago</span></li><li class=""><b>World 2 + Admin Abuse!</b><span class="d">!!!!!!!!</span><span class="d">Sat 7 Nov &middot; 9 days ago</span></li><li class=""><b>Admin Abuse!</b><span class="d">!!!!!!!!</span><span class="d">Sat 31 Oct &middot; 16 days ago</span></li></ul></div><div class="card"><h2>Event calendar</h2><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="soon"><b>Harvest Haul</b><span class="d">Tune in early!</span><span class="d">Starts Wed 25 Nov</span><p>Climb autumn towers and deliver baskets for limited rewards!</p></li><li class="soon"><b>AA + UPDATE!</b><span class="d">Tune in early!</span><span class="d">Starts Sat 5 Dec</span></li><li class="soon"><b>North Pole Delivery</b><span class="d">!!!!!!!!</span><span class="d">Starts Sat 19 Dec</span><p>Deliver presents and climb your way to festive rewards!</p></li><li class="soon"><b>New Year&#x27;s Climb</b><span class="d">Tune in early!</span><span class="d">Starts Sat 26 Dec</span></li></ul></div><p><a href="/game/1-spider-arm">&larr; Back to +1 Spider Arm</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 var W=['no data','very quiet','quiet','average','busy','very busy'];
@@ -944,6 +994,13 @@ var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
 if(show){var a=dr.querySelector('a');if(a)a.focus()}};
+/* The name in the bar opens that same panel, because everything it would have held
+   - the name, Sign out - already lives there, and a second menu holding the same two
+   things is one more place for them to disagree. Delegated from the document, since
+   ptPaint replaces this button every time /api/me answers. */
+document.addEventListener('click',function(e){
+if(!(e.target.closest&&e.target.closest('#acctbar')))return;
+e.stopPropagation();if(mb)mb.click()});
 
 /* Search. The list of games is only fetched the first time it is opened. */
 var sheet=document.getElementById('sheet'),GAMES=null;
