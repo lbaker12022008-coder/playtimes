@@ -397,10 +397,30 @@ async function loadEvents(env, origin) {
   try {
     const res = await env.ASSETS.fetch(new URL("/events.json", origin));
     if (!res.ok) return {};
-    return (await res.json()).games || {};
+    return await res.json();
   } catch (err) {
     return {};
   }
+}
+
+/**
+ * What to say about a game the creators have just changed.
+ *
+ * This one looks backwards. The other three aim at a moment that has not arrived;
+ * an update is already done by the time Roblox reports it, and the site only learns
+ * of it on the next build, so it can be a few hours old. The message says how long
+ * ago rather than pretending it just landed.
+ */
+function updateWording(game, ago) {
+  const hours = Math.round(ago / 3600);
+  const when = hours < 1 ? "just now" : hours === 1 ? "about an hour ago"
+    : "about " + hours + " hours ago";
+  return {
+    title: game.n + " just got an update",
+    body: "The creators changed something " + when + ".",
+    url: "/game/" + game.s,
+    tag: "pt-update-" + game.s
+  };
 }
 
 /**
@@ -461,17 +481,20 @@ async function claimAndSend(env, sub, rbxId, slug, slot, message, now) {
 export async function runPushCron(env, origin) {
   if (!pushReady(env)) return { skipped: "no VAPID keys" };
   const { results } = await env.DB.prepare(
-    "SELECT w.rbx_id, w.slug, w.quiet, w.busy, w.lead, w.events FROM push_watch w " +
+    "SELECT w.rbx_id, w.slug, w.quiet, w.busy, w.lead, w.events, w.updates " +
+    "FROM push_watch w " +
     "WHERE EXISTS (SELECT 1 FROM push_subs s WHERE s.rbx_id = w.rbx_id)").all();
   const watches = results || [];
   if (!watches.length) return { watches: 0, sent: 0 };
 
-  const [games, events] = await Promise.all([
+  const [games, feed] = await Promise.all([
     loadGames(env, origin), loadEvents(env, origin)
   ]);
+  const events = feed.games || {};
+  const changed = feed.updated || {};
   const byslug = new Map(games.map(g => [g.s, g]));
   const now = Date.now();
-  let sent = 0, considered = 0, eventsSent = 0;
+  let sent = 0, considered = 0, eventsSent = 0, updatesSent = 0;
 
   // Devices are read once per person rather than once per game: somebody following
   // ten games on two devices would otherwise be twenty of the same query.
@@ -517,6 +540,22 @@ export async function runPushCron(env, origin) {
       // 2. The creators' own events, if they asked for those as well. Keyed on the
       //    event's start time rather than an hour, so two events in the same hour
       //    are two notifications and neither silences the other.
+      // 3. The creators changing the game. Keyed on the update's own timestamp, so
+      //    each distinct change is announced once however many builds see it.
+      if (w.updates) {
+        const at = changed[w.slug];
+        const old = at ? (now / 1000 - at) : Infinity;
+        // A build is up to six hours apart, so a change can be that stale the first
+        // time we see it. Twelve hours is that with room to spare; past it, a
+        // notification about an update nobody can still call new is just noise.
+        if (at && old >= 0 && old < 12 * 3600) {
+          const how = await claimAndSend(env, sub, w.rbx_id, w.slug, "upd" + at,
+            updateWording(game, old), now);
+          if (how === "sent") { sent++; updatesSent++; }
+          if (how === "gone") continue;
+        }
+      }
+
       if (!w.events) continue;
       for (const ev of (events[w.slug] || [])) {
         const minutes = Math.round((ev.s * 1000 - now) / 60000);
@@ -531,7 +570,8 @@ export async function runPushCron(env, origin) {
 
   // Two days is well past any window still worth remembering.
   await env.DB.prepare("DELETE FROM push_sent WHERE at < ?1").bind(now - 2 * 86400e3).run();
-  return { watches: watches.length, considered, sent, events: eventsSent };
+  return { watches: watches.length, considered, sent, events: eventsSent,
+    updates: updatesSent };
 }
 
 /* -------------------------------------------------------------------- the router */
@@ -602,7 +642,8 @@ async function setWatch(request, env, userId) {
   const quiet = body?.quiet ? 1 : 0;
   const busy = body?.busy ? 1 : 0;
   const events = body?.events ? 1 : 0;
-  if (!quiet && !busy && !events) {
+  const updates = body?.updates ? 1 : 0;
+  if (!quiet && !busy && !events && !updates) {
     await env.DB.prepare("DELETE FROM push_watch WHERE rbx_id = ?1 AND slug = ?2")
       .bind(userId, slug).run();
     return json({ watching: false, slug });
@@ -614,11 +655,12 @@ async function setWatch(request, env, userId) {
     return json({ error: "That is as many games as one account can follow." }, 409);
   }
   await env.DB.prepare(
-    "INSERT INTO push_watch (rbx_id, slug, quiet, busy, events, lead, added) " +
-    "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) " +
-    "ON CONFLICT (rbx_id, slug) DO UPDATE SET quiet = ?3, busy = ?4, events = ?5, lead = ?6"
-  ).bind(userId, slug, quiet, busy, events, lead, Date.now()).run();
-  return json({ watching: true, slug, quiet, busy, events, lead });
+    "INSERT INTO push_watch (rbx_id, slug, quiet, busy, events, updates, lead, added) " +
+    "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) " +
+    "ON CONFLICT (rbx_id, slug) DO UPDATE SET " +
+    "quiet = ?3, busy = ?4, events = ?5, updates = ?6, lead = ?7"
+  ).bind(userId, slug, quiet, busy, events, updates, lead, Date.now()).run();
+  return json({ watching: true, slug, quiet, busy, events, updates, lead });
 }
 
 /**
@@ -642,7 +684,7 @@ async function sendTest(request, env, userId) {
 async function state(request, env, userId) {
   const [subs, watch] = await Promise.all([
     env.DB.prepare("SELECT COUNT(*) AS n FROM push_subs WHERE rbx_id = ?1").bind(userId).first(),
-    env.DB.prepare("SELECT slug, quiet, busy, events, lead FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
+    env.DB.prepare("SELECT slug, quiet, busy, events, updates, lead FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
       .bind(userId).all()
   ]);
   return json({

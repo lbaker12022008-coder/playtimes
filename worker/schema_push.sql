@@ -43,6 +43,10 @@ CREATE TABLE IF NOT EXISTS push_watch (
   -- and all three off means the row is deleted rather than kept as a silent watch.
   quiet   INTEGER NOT NULL DEFAULT 0,  -- before it is usually at its quietest
   busy    INTEGER NOT NULL DEFAULT 0,  -- before it is usually at its busiest
+  -- When the creators change the game. Unlike the other three this one looks
+  -- BACKWARDS: an update has already happened by the time Roblox reports it, so it
+  -- is "this just changed" rather than "this is about to happen".
+  updates INTEGER NOT NULL DEFAULT 0,
   lead    INTEGER NOT NULL DEFAULT 15, -- how many minutes before the window to say so
   -- Also tell them when one of the creators' own events is about to start. Separate
   -- from mode because it answers a different question: mode is about the crowd, this

@@ -3089,12 +3089,12 @@ tz:-new Date().getTimezoneOffset()/60})})
    /api/push/watch replaces the whole row. All three off deletes it. */
 function flip(forSlug,key,on){
 var w=watchFor(forSlug)||{};
-var next={quiet:!!w.quiet,busy:!!w.busy,events:!!w.events};
+var next={quiet:!!w.quiet,busy:!!w.busy,events:!!w.events,updates:!!w.updates};
 next[key]=on;
 busy=true;note='';draw();
 ensureDevice()
 .then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
-busy:next.busy,events:next.events,lead:15})})
+busy:next.busy,events:next.events,updates:next.updates,lead:15})})
 .then(function(){busy=false;return refresh()})
 /* Pressing a switch sends NOTHING. It used to fire a sample notification off the
    first switch anybody turned on, so they could see what one looked like; the guard
@@ -3114,10 +3114,16 @@ function tog(forSlug,key,label,on){
 return '<button class="tog" type="button" data-s="'+ptEsc(forSlug)+'" data-k="'+key+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'+label+'</button>'}
 
-function switches(forSlug){
+/* The four kinds, in the order they are worth having: the two about the crowd,
+   then the two about the creators. KINDS is the only list of them - the game page,
+   the notifications page and the per-section bells all read it, so a fifth would be
+   added here once. */
+var KINDS=[['quiet','Quiet'],['busy','Busy'],['events','Events'],['updates','Updates']];
+function switches(forSlug,only){
 var w=watchFor(forSlug)||{};
-return '<div class="togs">'+tog(forSlug,'quiet','Quiet',w.quiet)
-+tog(forSlug,'busy','Busy',w.busy)+tog(forSlug,'events','Events',w.events)+'</div>'}
+var want=only||KINDS.map(function(k){return k[0]});
+return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
+.map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
 var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
@@ -3220,6 +3226,9 @@ when queues are short and servers are calm.</li>
 trading and events are easiest to find.</li>
 <li><b>Events</b> &mdash; shortly before something the creators have put on the game's
 Roblox calendar starts.</li>
+<li><b>Updates</b> &mdash; when the creators change the game. This one looks backwards:
+an update has already happened by the time Roblox tells anybody, so it can arrive a few
+hours late and the message says how long ago.</li>
 </ul>
 <p>You get about fifteen minutes' warning, and at most one of each per game per day.
 Turning all three off for a game stops it completely.</p>
@@ -3834,6 +3843,7 @@ def main():
 
     # Second pass: the game pages themselves.
     all_events = []
+    last_update = {}
     for c in cards:
         uid, name, s, a = c["uid"], c["name"], c["slug"], c["a"]
         full = c["full"]
@@ -3845,6 +3855,11 @@ def main():
         # not the ones Roblox happens to return first.
         pass_icons = roblox_api.fetch_asset_icons(
             [p.get("icon_id") for p in (passes or [])])
+        # When the creators last changed this game, for the Updates notification.
+        # metas comes from Roblox's own games endpoint, so this is their timestamp
+        # rather than anything we worked out.
+        if meta and meta.get("updated"):
+            last_update[s] = int(meta["updated"])
         upcoming = [e for e in (events or []) if (e["end"] or e["start"] + 86400) >= now]
         for e in upcoming:
             all_events.append(dict(e, game=name, slug=s, icon=c["icon"]))
@@ -4339,8 +4354,12 @@ def main():
         coming.setdefault(e["slug"], [])
         if len(coming[e["slug"]]) < 12:
             coming[e["slug"]].append({"t": e["title"][:80], "s": int(e["start"])})
-    write("events.json", json.dumps({"built": int(now), "games": coming},
-                                    separators=(",", ":")))
+    # `updated` rides along in the same file: it is the same shape of thing (a per
+    # game timestamp the worker cannot look up for itself) and a second request for a
+    # few hundred numbers would be silly.
+    write("events.json", json.dumps(
+        {"built": int(now), "games": coming, "updated": last_update},
+        separators=(",", ":")))
     write("favicon.svg", FAVICON)
     # The annotated screenshots for /install. Kept in brand/ and copied out as they
     # are: they were drawn on once, by hand, and nothing about them changes from
