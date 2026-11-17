@@ -307,6 +307,20 @@ font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
    choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
    aria-pressed carries the state, so the styling and the screen reader cannot
    disagree about which are on. */
+/* A bell sits under the heading of the section it belongs to, or in the row of
+   buttons at the top of a game page. Same object in both places. */
+.bellb{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.bellb svg{width:15px;height:15px;flex:none;fill:currentColor}
+.bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.bellb[disabled]{opacity:.55;cursor:default}
+/* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
+.nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
+.nextline:empty{display:none}
+.nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
+.actions .bellb{margin:0}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -316,6 +330,10 @@ cursor:pointer}
 .tog[disabled]{opacity:.55;cursor:default}
 .saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
 border-radius:12px;background:var(--shade);font-size:.92rem}
+/* A game that is only on this list because it was saved, so the row reads as an
+   offer rather than as something already switched on. */
+.svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
+letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}

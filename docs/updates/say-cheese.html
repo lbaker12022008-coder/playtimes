@@ -307,6 +307,20 @@ font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
    choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
    aria-pressed carries the state, so the styling and the screen reader cannot
    disagree about which are on. */
+/* A bell sits under the heading of the section it belongs to, or in the row of
+   buttons at the top of a game page. Same object in both places. */
+.bellb{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.bellb svg{width:15px;height:15px;flex:none;fill:currentColor}
+.bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.bellb[disabled]{opacity:.55;cursor:default}
+/* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
+.nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
+.nextline:empty{display:none}
+.nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
+.actions .bellb{margin:0}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -316,6 +330,10 @@ cursor:pointer}
 .tog[disabled]{opacity:.55;cursor:default}
 .saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
 border-radius:12px;background:var(--shade);font-size:.92rem}
+/* A game that is only on this list because it was saved, so the row reads as an
+   offer rather than as something already switched on. */
+.svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
+letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -795,7 +813,25 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/adventure">Adventure games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/say-cheese">Say Cheese player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-0c86cb84110cc152e91801fce2e89621/256/256/Image/Webp/noFilter" alt="Say Cheese Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Say Cheese update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Say Cheese&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/say-cheese">&larr; Say Cheese player count</a><a class="btn" href="https://www.roblox.com/games/100453542816833">Play Say Cheese</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>6 days ago</b> (Tue 10 Nov).</p><ul class="evt"><li class=""><b>CHAPTER 2 + MORE ENDINGS</b><span class="d">🔔 Sign up NOW!</span><span class="d">Sat 7 Nov &middot; 9 days ago</span></li></ul><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 7 Nov</td><td>1.8&times; busier &ndash; lines up with &ldquo;CHAPTER 2 + MORE ENDINGS&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><p class="none">Say Cheese has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/say-cheese">&larr; Back to Say Cheese</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/adventure">Adventure games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/say-cheese">Say Cheese player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-0c86cb84110cc152e91801fce2e89621/256/256/Image/Webp/noFilter" alt="Say Cheese Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Say Cheese update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Say Cheese&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/say-cheese">&larr; Say Cheese player count</a><a class="btn" href="https://www.roblox.com/games/100453542816833">Play Say Cheese</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>6 days ago</b> (Tue 10 Nov).</p><ul class="evt"><li class=""><b>CHAPTER 2 + MORE ENDINGS</b><span class="d">🔔 Sign up NOW!</span><span class="d">Sat 7 Nov &middot; 9 days ago</span></li></ul><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 7 Nov</td><td>1.8&times; busier &ndash; lines up with &ldquo;CHAPTER 2 + MORE ENDINGS&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Say Cheese has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/say-cheese">&larr; Back to Say Cheese</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+/* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
+   the next-event and next-update lines; the quiet-window countdown on a game page
+   predates it and keeps its own ticker, because that one also has to work out WHICH
+   hour it is aiming at every five minutes.
+   The elements are looked up on every tick rather than once, because the next-update
+   one does not exist until PATTERN_JS has worked out when that is. */
+function ptCountdowns(){ /* see the note above */
+function gap(s){
+if(s<=0)return null;
+var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60);
+if(d)return d+'d '+h+'h '+m+'m';
+if(h)return h+'h '+m+'m '+(x<10?'0':'')+x+'s';
+return m+'m '+(x<10?'0':'')+x+'s'}
+function tick(){
+Array.prototype.forEach.call(document.querySelectorAll('[data-at]'),function(el){
+var left=gap(+el.dataset.at-Math.floor(Date.now()/1000));
+el.textContent=left?(el.dataset.pre||'')+left:(el.dataset.done||'happening now')})}
+tick();setInterval(tick,1000)}
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -927,14 +963,278 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var P=null;if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
+return ss+'s'}</script><script>var P=null;
+/* When the next update is predicted to land, as a live countdown.
+   P.wd and P.hour are UTC, so the moment is worked out in UTC and the browser shows
+   it in local time by itself - the same rule every other time on this site follows.
+   Only drawn when an hour is known: a prediction of "some time on Friday" is not
+   something to count seconds down to, and saying so would be pretending to a
+   precision the data does not have. */
+if(P&&P.hour!=null&&$('nextupd')){
+var now=new Date();
+var at=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),P.hour,0,0);
+var want=(P.wd+1)%7;
+at+=((want-new Date(at).getUTCDay()+7)%7)*86400000;
+if(at<=now.getTime())at+=7*86400000;
+$('nextupd').innerHTML='Next update expected in <span class="cd" data-at="'+
+Math.floor(at/1000)+'" data-done="any time now"></span>';}
+if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
 ', about every '+P.every+' day'+(P.every>1?'s':''):'';
 if(ph!=null){var pt=ph+tzOff();
 while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
 $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b> around <b>'+fmt(pt)+
 '</b> your time'+every+'. Worked out from the last '+P.n+' updates and busy days.'}
 else $('pattern').innerHTML='Updates usually arrive on a <b>'+DAY[pd]+'</b>'+every+
-'. Worked out from the last '+P.n+' updates and busy days.'}</script><script>window.PT_GAME={"s":"say-cheese","n":"Say Cheese","i":"https://tr.rbxcdn.com/180DAY-0c86cb84110cc152e91801fce2e89621/256/256/Image/Webp/noFilter"};</script>
+'. Worked out from the last '+P.n+' updates and busy days.'}ptCountdowns();</script><script>window.PT_GAME={"s":"say-cheese","n":"Say Cheese","i":"https://tr.rbxcdn.com/180DAY-0c86cb84110cc152e91801fce2e89621/256/256/Image/Webp/noFilter"};</script><script>(function(){
+var gameBox=document.getElementById('notif');
+var pageBox=document.getElementById('notifpage');
+/* Three kinds of page use this: a game page (#notif), the notifications page
+   (#notifpage) and the updates page, which has neither and only a bell. Leaving the
+   bells out of this test is what made the updates page draw an empty slot. */
+if(!gameBox&&!pageBox&&!document.querySelector('[data-bell]'))return;
+var slug=window.PT_GAME?PT_GAME.s:null;
+var S=null,names=null,busy=false,note='',deviceReady=false,told=false;
+
+function urlKey(text){
+var pad=text.replace(/-/g,'+').replace(/_/g,'/');
+pad=pad+'='.repeat((4-pad.length%4)%4);
+var raw=atob(pad),out=new Uint8Array(raw.length);
+for(var i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
+
+function post(where,data){return fetch('/api/push/'+where,{method:'POST',
+headers:{'content-type':'application/json'},body:JSON.stringify(data||{})})
+.then(function(r){return r.json().then(function(j){
+if(!r.ok)throw new Error(j&&j.error||'that did not work');return j})})}
+
+var ios=ptIOS();
+function usable(){return 'serviceWorker' in navigator&&'PushManager' in window
+&&'Notification' in window&&!(ios&&!ptInstalled())}
+
+function watchFor(s){for(var i=0;i<((S&&S.watching)||[]).length;i++)
+if(S.watching[i].slug===s)return S.watching[i];return null}
+
+/* Turning this device on. Safe to call again: an existing subscription is reused and
+   the server upserts, so every switch does not have to know whether it is the first.
+   Asked for only when a switch is actually pressed - a browser only grants permission
+   in response to a real gesture, and a site that asks the moment you arrive is the
+   reason browsers now bury the prompt. */
+/* Said once, the first time somebody switches something on without having installed
+   the site. On an iPhone it is not advice but the whole story - Apple allows no
+   notifications at all to a site in a tab - and drawGame() stops before the switches
+   there for that reason. Everywhere else it is a real improvement rather than a
+   requirement, so it is a note beside the switch and not a wall in front of it. */
+function installNote(){
+if(ptInstalled())return '';
+return 'Notifications work best with ' + PTSITE + ' installed on your device. ';
+}
+
+function ensureDevice(){
+if(deviceReady)return Promise.resolve();
+return Promise.resolve().then(function(){
+if(Notification.permission==='granted')return 'granted';
+return Notification.requestPermission()})
+.then(function(answer){
+if(answer!=='granted')throw new Error('Your browser did not allow notifications.');
+return navigator.serviceWorker.register('/sw.js')})
+.then(function(){return navigator.serviceWorker.ready})
+.then(function(reg){return reg.pushManager.getSubscription().then(function(have){
+return have||reg.pushManager.subscribe({userVisibleOnly:true,
+applicationServerKey:urlKey(S.key)})})})
+.then(function(sub){var j=sub.toJSON();
+return post('subscribe',{endpoint:j.endpoint,keys:j.keys,
+tz:-new Date().getTimezoneOffset()/60})})
+.then(function(){deviceReady=true})}
+
+/* One switch, for one game. The other two are sent back as they are, because
+   /api/push/watch replaces the whole row. All three off deletes it. */
+function flip(forSlug,key,on){
+var w=watchFor(forSlug)||{};
+var next={quiet:!!w.quiet,busy:!!w.busy,events:!!w.events,updates:!!w.updates};
+next[key]=on;
+busy=true;note='';draw();
+ensureDevice()
+.then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
+busy:next.busy,events:next.events,updates:next.updates,lead:15})})
+.then(function(){busy=false;
+/* Said once per page, on the first switch anybody turns on, and only when the site
+   is not installed. It is a note, not a notification: nothing is sent. */
+if(on&&!told&&!ptInstalled()){told=true;
+note=installNote()+'Open the install page for the steps.'}
+return refresh()})
+/* Pressing a switch sends NOTHING. It used to fire a sample notification off the
+   first switch anybody turned on, so they could see what one looked like; the guard
+   for "first" was a flag on S, and refresh() on the line above replaces S with a
+   fresh answer from the server that has no such flag, so it was never true and every
+   single switch sent one. The owner wanted none of them anyway: a notification should
+   arrive at the hour or the event it is about, and nothing else should ever push one.
+   Seeing what one looks like is what the "Send me a test" button on /notifications
+   is for, pressed on purpose. */
+.catch(function(err){busy=false;
+note=(err&&err.message)||'That did not work.';refresh()})}
+
+function refresh(){return fetch('/api/push/state').then(function(r){return r.json()})
+.then(function(d){S=d;draw()}).catch(function(){if(gameBox)gameBox.hidden=true})}
+
+/* A bell for one section. The same object everywhere: the glyph, a short label and
+   aria-pressed carrying the state, so the styling and a screen reader cannot
+   disagree about whether it is on. */
+function bellBtn(kind,label,on){
+return '<button class="bellb" type="button" data-bk="'+kind+'" '
++'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
++PTBELL+'<span>'+label+'</span></button>'}
+
+/* Which quiet-or-busy window the countdown in this card is showing. The bell beside
+   it means "tell me before THIS window", so it follows that choice rather than
+   keeping a third one of its own. */
+function planKind(){
+var b=document.querySelector('#planbtns button[aria-pressed=true]');
+return (b&&b.dataset.m==='busy')?'busy':'quiet'}
+
+function tog(forSlug,key,label,on){
+return '<button class="tog" type="button" data-s="'+ptEsc(forSlug)+'" data-k="'+key+'" '
++'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'+label+'</button>'}
+
+/* The four kinds, in the order they are worth having: the two about the crowd,
+   then the two about the creators. KINDS is the only list of them - the game page,
+   the notifications page and the per-section bells all read it, so a fifth would be
+   added here once. */
+var KINDS=[['quiet','Quiet'],['busy','Busy'],['events','Events'],['updates','Updates']];
+function switches(forSlug,only){
+var w=watchFor(forSlug)||{};
+var want=only||KINDS.map(function(k){return k[0]});
+if(!w.slug)w={};
+return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
+.map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
+
+var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
+var INSTALL='<a class="fav" href="/install">How to install it</a>';
+
+/* ----------------------------------------------------------- the game page */
+/* The bells, one per section, each filled only when it can do something. A section
+   whose bell cannot work shows nothing at all rather than a button that does not:
+   the one explanation lives in the Plan my session card, which every game page has. */
+function drawBells(){
+if(!slug)return;
+var ok=S&&S.available&&S.signedIn&&usable();
+var w=watchFor(slug)||{};
+Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
+if(!ok){el.innerHTML='';return}
+var kind=el.dataset.bell;
+if(kind==='all'){
+var any=!!(w.quiet||w.busy||w.events||w.updates);
+el.innerHTML=bellBtn('all',any?'Notifications on':'Notify me',any)}
+else if(kind==='plan'){
+var k=planKind();
+el.innerHTML=bellBtn(k,k==='busy'?'Tell me before it gets busy'
+:'Tell me before it goes quiet',w[k])}
+else{el.innerHTML=bellBtn(kind,kind==='events'?'Tell me about events'
+:'Tell me about updates',w[kind])}})}
+
+function drawGame(){
+drawBells();
+if(!gameBox)return;
+if(!S||!S.available||!slug){gameBox.hidden=true;return}
+var html;
+if(!S.signedIn){
+html='<p class="mut small">Notifications need a Roblox sign-in. 13+.</p>'+SIGNIN}
+else if(!usable()){
+html='<p class="mut small">'+(ios
+?'Add '+ptEsc(PTSITE)+' to your home screen first.'
+:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
+else{
+html=(note?'<p class="mut small">'+ptEsc(note)
++' <a href="/install">How to install it</a></p>':'')
++'<p class="mut small"><a href="/notifications">All four kinds</a></p>'}
+gameBox.innerHTML=html;gameBox.hidden=false}
+
+/* ------------------------------------------------- the notifications page */
+function row(w){
+var g=(names&&names[w.slug])||{n:w.slug,i:''};
+return '<li class="nrow"><a href="/game/'+ptEsc(w.slug)+'">'
++(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="34" height="34">':'')
++'<span>'+ptEsc(g.n)+(w.saved?'<i class="svd">saved</i>':'')+'</span></a>'
++switches(w.slug)+'</li>'}
+
+/* Every game worth a row: the ones being notified about, then any saved game that
+   is not already there, with all four switches off. Saved games earn their place
+   because saving one is already somebody saying they care about it - having to go
+   and find it again to turn a notification on was a step with no purpose. */
+function listed(){
+var out=(S.watching||[]).slice();
+var have={};out.forEach(function(w){have[w.slug]=true});
+(PT.favs||[]).forEach(function(slug){
+if(!have[slug])out.push({slug:slug,quiet:0,busy:0,events:0,updates:0,saved:true})});
+return out}
+
+function drawPage(){
+if(!pageBox)return;
+if(!S){pageBox.innerHTML='<p class="mut">Loading&hellip;</p>';return}
+if(!S.available){
+pageBox.innerHTML='<p class="mut">Notifications are not switched on for this site yet.</p>';return}
+if(!S.signedIn){
+pageBox.innerHTML='<p>Notifications need you to be signed in with Roblox, because we '
++'have to remember your device to send one. Roblox does not let under-13s sign in to '
++'other sites, so this part of '+ptEsc(PTSITE)+' is 13 and over.</p>'+SIGNIN;return}
+var head='';
+if(!usable()){
+head='<div class="card"><h2>This device cannot receive them</h2><p class="mut small">'
++(ios?'On an iPhone or iPad, notifications only work once '+ptEsc(PTSITE)
++' is on your home screen.':'This browser does not support notifications.')
++'</p>'+(ios?INSTALL:'')+'</div>'}
+else if(Notification.permission==='denied'){
+head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
++'Allow notifications for this site in your browser settings, next to the address '
++'bar, then come back.</p></div>'}
+var list=listed();
+pageBox.innerHTML=head
++(note?'<p class="saidit">'+ptEsc(note)+'</p>':'')
++(list.length
+?'<ul class="nlist">'+list.map(row).join('')+'</ul>'
+:'<p class="mut">Nothing here yet. Save a game, or turn a notification on from a '
++'game page, and it will appear here.</p>')
++(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games can be switched '
++'on. <button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
+
+function draw(){drawGame();drawPage()}
+
+/* Delegated from the document: draw() replaces this markup on every change, so a
+   handler put on a switch itself would be thrown away with it. e.target.closest is
+   guarded because on iOS a tap that has bubbled this far can arrive at a text node. */
+document.addEventListener('click',function(e){
+if(!e.target.closest||busy)return;
+var t=e.target.closest('.tog');
+if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
+var bb=e.target.closest('.bellb');
+if(bb){
+var on=bb.getAttribute('aria-pressed')!=='true';
+if(bb.dataset.bk==='all'){
+/* The master. Off turns everything off; on turns the quiet one on, which is the
+   one most people want and the least noisy place to start. */
+var w=watchFor(slug)||{};
+if(on)flip(slug,'quiet',true);
+else{busy=true;note='';draw();
+ensureDevice().then(function(){return post('watch',{slug:slug,quiet:false,
+busy:false,events:false,updates:false})})
+.then(function(){busy=false;return refresh()})
+.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';refresh()})}}
+else flip(slug,bb.dataset.bk,on);
+return}
+/* Changing the countdown between quiet and busy changes what the bell beside it is
+   offering, so it has to be redrawn. */
+if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
+if(e.target.closest('#notiftest')){
+busy=true;note='Sending&hellip;';draw();
+post('test',{}).then(function(){busy=false;
+note='Sent. If nothing appears, your computer is hiding it rather than this site '
++'failing: check your notification centre and your system settings.';draw()})
+.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';draw()})}});
+
+/* The names and pictures for the list, from the file search already uses. */
+if(pageBox){fetch('/games.json').then(function(r){return r.json()}).then(function(all){
+names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
+
+PT.ready(function(){refresh()});
+})();</script>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/busiest-hours">When is Roblox busiest?</a>

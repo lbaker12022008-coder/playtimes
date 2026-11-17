@@ -307,6 +307,20 @@ font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
    choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
    aria-pressed carries the state, so the styling and the screen reader cannot
    disagree about which are on. */
+/* A bell sits under the heading of the section it belongs to, or in the row of
+   buttons at the top of a game page. Same object in both places. */
+.bellb{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.bellb svg{width:15px;height:15px;flex:none;fill:currentColor}
+.bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.bellb[disabled]{opacity:.55;cursor:default}
+/* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
+.nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
+.nextline:empty{display:none}
+.nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
+.actions .bellb{margin:0}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -316,6 +330,10 @@ cursor:pointer}
 .tog[disabled]{opacity:.55;cursor:default}
 .saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
 border-radius:12px;background:var(--shade);font-size:.92rem}
+/* A game that is only on this list because it was saved, so the row reads as an
+   offer rather than as something already switched on. */
+.svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
+letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -833,9 +851,12 @@ shows when people play, not whether a game is good or safe.</p></footer>
 <script>(function(){
 var gameBox=document.getElementById('notif');
 var pageBox=document.getElementById('notifpage');
-if(!gameBox&&!pageBox)return;
+/* Three kinds of page use this: a game page (#notif), the notifications page
+   (#notifpage) and the updates page, which has neither and only a bell. Leaving the
+   bells out of this test is what made the updates page draw an empty slot. */
+if(!gameBox&&!pageBox&&!document.querySelector('[data-bell]'))return;
 var slug=window.PT_GAME?PT_GAME.s:null;
-var S=null,names=null,busy=false,note='',deviceReady=false;
+var S=null,names=null,busy=false,note='',deviceReady=false,told=false;
 
 function urlKey(text){
 var pad=text.replace(/-/g,'+').replace(/_/g,'/');
@@ -860,6 +881,16 @@ if(S.watching[i].slug===s)return S.watching[i];return null}
    Asked for only when a switch is actually pressed - a browser only grants permission
    in response to a real gesture, and a site that asks the moment you arrive is the
    reason browsers now bury the prompt. */
+/* Said once, the first time somebody switches something on without having installed
+   the site. On an iPhone it is not advice but the whole story - Apple allows no
+   notifications at all to a site in a tab - and drawGame() stops before the switches
+   there for that reason. Everywhere else it is a real improvement rather than a
+   requirement, so it is a note beside the switch and not a wall in front of it. */
+function installNote(){
+if(ptInstalled())return '';
+return 'Notifications work best with ' + PTSITE + ' installed on your device. ';
+}
+
 function ensureDevice(){
 if(deviceReady)return Promise.resolve();
 return Promise.resolve().then(function(){
@@ -887,7 +918,12 @@ busy=true;note='';draw();
 ensureDevice()
 .then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
 busy:next.busy,events:next.events,updates:next.updates,lead:15})})
-.then(function(){busy=false;return refresh()})
+.then(function(){busy=false;
+/* Said once per page, on the first switch anybody turns on, and only when the site
+   is not installed. It is a note, not a notification: nothing is sent. */
+if(on&&!told&&!ptInstalled()){told=true;
+note=installNote()+'Open the install page for the steps.'}
+return refresh()})
 /* Pressing a switch sends NOTHING. It used to fire a sample notification off the
    first switch anybody turned on, so they could see what one looked like; the guard
    for "first" was a flag on S, and refresh() on the line above replaces S with a
@@ -902,6 +938,21 @@ note=(err&&err.message)||'That did not work.';refresh()})}
 function refresh(){return fetch('/api/push/state').then(function(r){return r.json()})
 .then(function(d){S=d;draw()}).catch(function(){if(gameBox)gameBox.hidden=true})}
 
+/* A bell for one section. The same object everywhere: the glyph, a short label and
+   aria-pressed carrying the state, so the styling and a screen reader cannot
+   disagree about whether it is on. */
+function bellBtn(kind,label,on){
+return '<button class="bellb" type="button" data-bk="'+kind+'" '
++'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
++PTBELL+'<span>'+label+'</span></button>'}
+
+/* Which quiet-or-busy window the countdown in this card is showing. The bell beside
+   it means "tell me before THIS window", so it follows that choice rather than
+   keeping a third one of its own. */
+function planKind(){
+var b=document.querySelector('#planbtns button[aria-pressed=true]');
+return (b&&b.dataset.m==='busy')?'busy':'quiet'}
+
 function tog(forSlug,key,label,on){
 return '<button class="tog" type="button" data-s="'+ptEsc(forSlug)+'" data-k="'+key+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'+label+'</button>'}
@@ -914,6 +965,7 @@ var KINDS=[['quiet','Quiet'],['busy','Busy'],['events','Events'],['updates','Upd
 function switches(forSlug,only){
 var w=watchFor(forSlug)||{};
 var want=only||KINDS.map(function(k){return k[0]});
+if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
@@ -921,7 +973,28 @@ var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */
+/* The bells, one per section, each filled only when it can do something. A section
+   whose bell cannot work shows nothing at all rather than a button that does not:
+   the one explanation lives in the Plan my session card, which every game page has. */
+function drawBells(){
+if(!slug)return;
+var ok=S&&S.available&&S.signedIn&&usable();
+var w=watchFor(slug)||{};
+Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
+if(!ok){el.innerHTML='';return}
+var kind=el.dataset.bell;
+if(kind==='all'){
+var any=!!(w.quiet||w.busy||w.events||w.updates);
+el.innerHTML=bellBtn('all',any?'Notifications on':'Notify me',any)}
+else if(kind==='plan'){
+var k=planKind();
+el.innerHTML=bellBtn(k,k==='busy'?'Tell me before it gets busy'
+:'Tell me before it goes quiet',w[k])}
+else{el.innerHTML=bellBtn(kind,kind==='events'?'Tell me about events'
+:'Tell me about updates',w[kind])}})}
+
 function drawGame(){
+drawBells();
 if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
@@ -932,9 +1005,9 @@ html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
 :'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
 else{
-html='<p class="mut small">Notify me when this game is</p>'+switches(slug)
-+(note?'<p class="mut small">'+ptEsc(note)+'</p>':'')
-+'<p class="mut small"><a href="/notifications">All your notifications</a></p>'}
+html=(note?'<p class="mut small">'+ptEsc(note)
++' <a href="/install">How to install it</a></p>':'')
++'<p class="mut small"><a href="/notifications">All four kinds</a></p>'}
 gameBox.innerHTML=html;gameBox.hidden=false}
 
 /* ------------------------------------------------- the notifications page */
@@ -942,7 +1015,19 @@ function row(w){
 var g=(names&&names[w.slug])||{n:w.slug,i:''};
 return '<li class="nrow"><a href="/game/'+ptEsc(w.slug)+'">'
 +(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="34" height="34">':'')
-+'<span>'+ptEsc(g.n)+'</span></a>'+switches(w.slug)+'</li>'}
++'<span>'+ptEsc(g.n)+(w.saved?'<i class="svd">saved</i>':'')+'</span></a>'
++switches(w.slug)+'</li>'}
+
+/* Every game worth a row: the ones being notified about, then any saved game that
+   is not already there, with all four switches off. Saved games earn their place
+   because saving one is already somebody saying they care about it - having to go
+   and find it again to turn a notification on was a step with no purpose. */
+function listed(){
+var out=(S.watching||[]).slice();
+var have={};out.forEach(function(w){have[w.slug]=true});
+(PT.favs||[]).forEach(function(slug){
+if(!have[slug])out.push({slug:slug,quiet:0,busy:0,events:0,updates:0,saved:true})});
+return out}
 
 function drawPage(){
 if(!pageBox)return;
@@ -963,15 +1048,15 @@ else if(Notification.permission==='denied'){
 head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
 +'Allow notifications for this site in your browser settings, next to the address '
 +'bar, then come back.</p></div>'}
-var list=(S.watching||[]);
+var list=listed();
 pageBox.innerHTML=head
 +(note?'<p class="saidit">'+ptEsc(note)+'</p>':'')
 +(list.length
 ?'<ul class="nlist">'+list.map(row).join('')+'</ul>'
-:'<p class="mut">You are not getting notifications for any games yet. Open a game '
-+'you play and turn one on there.</p>')
-+(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games. '
-+'<button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
+:'<p class="mut">Nothing here yet. Save a game, or turn a notification on from a '
++'game page, and it will appear here.</p>')
++(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games can be switched '
++'on. <button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
 
 function draw(){drawGame();drawPage()}
 
@@ -982,6 +1067,24 @@ document.addEventListener('click',function(e){
 if(!e.target.closest||busy)return;
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
+var bb=e.target.closest('.bellb');
+if(bb){
+var on=bb.getAttribute('aria-pressed')!=='true';
+if(bb.dataset.bk==='all'){
+/* The master. Off turns everything off; on turns the quiet one on, which is the
+   one most people want and the least noisy place to start. */
+var w=watchFor(slug)||{};
+if(on)flip(slug,'quiet',true);
+else{busy=true;note='';draw();
+ensureDevice().then(function(){return post('watch',{slug:slug,quiet:false,
+busy:false,events:false,updates:false})})
+.then(function(){busy=false;return refresh()})
+.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';refresh()})}}
+else flip(slug,bb.dataset.bk,on);
+return}
+/* Changing the countdown between quiet and busy changes what the bell beside it is
+   offering, so it has to be redrawn. */
+if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
 if(e.target.closest('#notiftest')){
 busy=true;note='Sending&hellip;';draw();
 post('test',{}).then(function(){busy=false;
