@@ -326,6 +326,7 @@ color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
 .bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
 .bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
 .bellb[disabled]{opacity:.55;cursor:default}
+a.bellb{text-decoration:none}
 /* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
 .nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
 .nextline:empty{display:none}
@@ -705,6 +706,10 @@ h1{font-size:1.5rem}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Shooter games","item":"https://playtimestats.com/category/shooter"}]},{"@type":"ItemList","name":"Shooter Roblox games by player count","numberOfItems":9,"itemListOrder":"https://schema.org/ItemListOrderDescending","itemListElement":[{"@type":"ListItem","position":1,"name":"RIVALS","url":"https://playtimestats.com/game/rivals"},{"@type":"ListItem","position":2,"name":"Hypershot","url":"https://playtimestats.com/game/hypershot"},{"@type":"ListItem","position":3,"name":"Deagle Arena","url":"https://playtimestats.com/game/deagle-arena"},{"@type":"ListItem","position":4,"name":"One Tap","url":"https://playtimestats.com/game/one-tap"},{"@type":"ListItem","position":5,"name":"BloxStrike","url":"https://playtimestats.com/game/bloxstrike"},{"@type":"ListItem","position":6,"name":"Sniper Arena","url":"https://playtimestats.com/game/sniper-arena"},{"@type":"ListItem","position":7,"name":"Murder Duels","url":"https://playtimestats.com/game/murder-duels"},{"@type":"ListItem","position":8,"name":"Arsenal","url":"https://playtimestats.com/game/arsenal"},{"@type":"ListItem","position":9,"name":"Phantom Forces","url":"https://playtimestats.com/game/phantom-forces"}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+/* The sign-in address, carrying the page somebody is on, so Roblox sends them back
+   here rather than to the homepage. worker/auth.js checks it is one of our own
+   paths before it will redirect there. */
+function ptLogin(){return '/auth/login?back='+encodeURIComponent(location.pathname)}
 var PTPERSON='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>';
 var PTBELL='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.3a4.2 4.2 0 0 0-4.2 4.2v2.3L2.4 10a1 1 0 0 0 .85 1.5h9.5A1 1 0 0 0 13.6 10l-1.4-2.2V5.5A4.2 4.2 0 0 0 8 1.3z"/><path d="M6.2 12.6a1.9 1.9 0 0 0 3.6 0z"/></svg>';
 var PTSITE='PlayTime';
@@ -755,7 +760,7 @@ var acct=!PT.available?'':PT.name
 +'<i class="mut small">Signed in with Roblox</i></span></div>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
-:'<a class="drow" href="/auth/login">'+PTPERSON
+:'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
 +'<span>Sign in with Roblox</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});

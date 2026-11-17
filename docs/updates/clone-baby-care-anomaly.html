@@ -5,7 +5,7 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Clone Baby Care (Anomaly) Update History | PlayTime">
 <meta property="og:description" content="When does Clone Baby Care (Anomaly) update? Past updates and events, how often new ones arrive, and the days its player count jumped.">
-<meta property="og:url" content="https://playtimestats.com/updates/clone-baby-care-anomaly"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-6836cd728260a4da071197264e27735e/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://playtimestats.com/updates/clone-baby-care-anomaly"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-e634ca39e53e4ae5624d6715a5dc4515/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-17">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -326,6 +326,7 @@ color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
 .bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
 .bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
 .bellb[disabled]{opacity:.55;cursor:default}
+a.bellb{text-decoration:none}
 /* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
 .nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
 .nextline:empty{display:none}
@@ -705,6 +706,10 @@ h1{font-size:1.5rem}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Survival games","item":"https://playtimestats.com/category/survival"},{"@type":"ListItem","position":3,"name":"Clone Baby Care (Anomaly) player count","item":"https://playtimestats.com/game/clone-baby-care-anomaly"},{"@type":"ListItem","position":4,"name":"Update history","item":"https://playtimestats.com/updates/clone-baby-care-anomaly"}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+/* The sign-in address, carrying the page somebody is on, so Roblox sends them back
+   here rather than to the homepage. worker/auth.js checks it is one of our own
+   paths before it will redirect there. */
+function ptLogin(){return '/auth/login?back='+encodeURIComponent(location.pathname)}
 var PTPERSON='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>';
 var PTBELL='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.3a4.2 4.2 0 0 0-4.2 4.2v2.3L2.4 10a1 1 0 0 0 .85 1.5h9.5A1 1 0 0 0 13.6 10l-1.4-2.2V5.5A4.2 4.2 0 0 0 8 1.3z"/><path d="M6.2 12.6a1.9 1.9 0 0 0 3.6 0z"/></svg>';
 var PTSITE='PlayTime';
@@ -755,7 +760,7 @@ var acct=!PT.available?'':PT.name
 +'<i class="mut small">Signed in with Roblox</i></span></div>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
-:'<a class="drow" href="/auth/login">'+PTPERSON
+:'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
 +'<span>Sign in with Roblox</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});
@@ -818,7 +823,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
-<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-6836cd728260a4da071197264e27735e/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-e634ca39e53e4ae5624d6715a5dc4515/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
@@ -1126,6 +1131,12 @@ function refresh(){return fetch('/api/push/state').then(function(r){return r.jso
 /* A bell for one section. The same object everywhere: the glyph, a short label and
    aria-pressed carrying the state, so the styling and a screen reader cannot
    disagree about whether it is on. */
+function signBell(kind){
+var label=kind==='all'?'Notify me':kind==='events'?'Tell me about events'
+:kind==='updates'?'Tell me about updates':planKind()==='busy'
+?'Tell me before it gets busy':'Tell me before it goes quiet';
+return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get '
++'notifications (13+)">'+PTBELL+'<span>'+label+'</span></a>'}
 function bellBtn(kind,label,on){
 return '<button class="bellb" type="button" data-bk="'+kind+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
@@ -1154,7 +1165,7 @@ if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
-var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
+var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>';
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */
@@ -1164,8 +1175,13 @@ var INSTALL='<a class="fav" href="/install">How to install it</a>';
 function drawBells(){
 if(!slug)return;
 var ok=S&&S.available&&S.signedIn&&usable();
+/* Signed out, the bells are still drawn, as links to sign in: a feature nobody can
+   see is a feature nobody asks for. Nothing is stored and nothing is asked of the
+   browser until they have signed in - the bell is only an address. */
+var out=S&&S.available&&!S.signedIn;
 var w=watchFor(slug)||{};
 Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
+if(out){el.innerHTML=signBell(el.dataset.bell);return}
 if(!ok){el.innerHTML='';return}
 var kind=el.dataset.bell;
 if(kind==='all'){
@@ -1184,7 +1200,8 @@ if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
 if(!S.signedIn){
-html='<p class="mut small">Notifications need a Roblox sign-in. 13+.</p>'+SIGNIN}
+html='<p class="mut small">Sign in with Roblox to get a notification before this '
++'game goes quiet or busy, or when it has an event or an update. 13+.</p>'+SIGNIN}
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
@@ -1252,7 +1269,7 @@ document.addEventListener('click',function(e){
 if(!e.target.closest||busy)return;
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
-var bb=e.target.closest('.bellb');
+var bb=e.target.closest('button.bellb');
 if(bb){
 var on=bb.getAttribute('aria-pressed')!=='true';
 if(bb.dataset.bk==='all'){
