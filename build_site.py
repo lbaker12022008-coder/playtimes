@@ -362,6 +362,10 @@ cursor:pointer}
 .tog[disabled]{opacity:.55;cursor:default}
 .saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
 border-radius:12px;background:var(--shade);font-size:.92rem}
+/* A game that is only on this list because it was saved, so the row reads as an
+   offer rather than as something already switched on. */
+.svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
+letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -3043,7 +3047,7 @@ var gameBox=document.getElementById('notif');
 var pageBox=document.getElementById('notifpage');
 if(!gameBox&&!pageBox)return;
 var slug=window.PT_GAME?PT_GAME.s:null;
-var S=null,names=null,busy=false,note='',deviceReady=false;
+var S=null,names=null,busy=false,note='',deviceReady=false,told=false;
 
 function urlKey(text){
 var pad=text.replace(/-/g,'+').replace(/_/g,'/');
@@ -3068,6 +3072,16 @@ if(S.watching[i].slug===s)return S.watching[i];return null}
    Asked for only when a switch is actually pressed - a browser only grants permission
    in response to a real gesture, and a site that asks the moment you arrive is the
    reason browsers now bury the prompt. */
+/* Said once, the first time somebody switches something on without having installed
+   the site. On an iPhone it is not advice but the whole story - Apple allows no
+   notifications at all to a site in a tab - and drawGame() stops before the switches
+   there for that reason. Everywhere else it is a real improvement rather than a
+   requirement, so it is a note beside the switch and not a wall in front of it. */
+function installNote(){
+if(ptInstalled())return '';
+return 'Notifications work best with ' + PTSITE + ' installed on your device. ';
+}
+
 function ensureDevice(){
 if(deviceReady)return Promise.resolve();
 return Promise.resolve().then(function(){
@@ -3095,7 +3109,12 @@ busy=true;note='';draw();
 ensureDevice()
 .then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
 busy:next.busy,events:next.events,updates:next.updates,lead:15})})
-.then(function(){busy=false;return refresh()})
+.then(function(){busy=false;
+/* Said once per page, on the first switch anybody turns on, and only when the site
+   is not installed. It is a note, not a notification: nothing is sent. */
+if(on&&!told&&!ptInstalled()){told=true;
+note=installNote()+'Open the install page for the steps.'}
+return refresh()})
 /* Pressing a switch sends NOTHING. It used to fire a sample notification off the
    first switch anybody turned on, so they could see what one looked like; the guard
    for "first" was a flag on S, and refresh() on the line above replaces S with a
@@ -3122,6 +3141,7 @@ var KINDS=[['quiet','Quiet'],['busy','Busy'],['events','Events'],['updates','Upd
 function switches(forSlug,only){
 var w=watchFor(forSlug)||{};
 var want=only||KINDS.map(function(k){return k[0]});
+if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
@@ -3141,7 +3161,8 @@ html='<p class="mut small">'+(ios
 :'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
 else{
 html='<p class="mut small">Notify me when this game is</p>'+switches(slug)
-+(note?'<p class="mut small">'+ptEsc(note)+'</p>':'')
++(note?'<p class="mut small">'+ptEsc(note)
++' <a href="/install">How to install it</a></p>':'')
 +'<p class="mut small"><a href="/notifications">All your notifications</a></p>'}
 gameBox.innerHTML=html;gameBox.hidden=false}
 
@@ -3150,7 +3171,19 @@ function row(w){
 var g=(names&&names[w.slug])||{n:w.slug,i:''};
 return '<li class="nrow"><a href="/game/'+ptEsc(w.slug)+'">'
 +(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="34" height="34">':'')
-+'<span>'+ptEsc(g.n)+'</span></a>'+switches(w.slug)+'</li>'}
++'<span>'+ptEsc(g.n)+(w.saved?'<i class="svd">saved</i>':'')+'</span></a>'
++switches(w.slug)+'</li>'}
+
+/* Every game worth a row: the ones being notified about, then any saved game that
+   is not already there, with all four switches off. Saved games earn their place
+   because saving one is already somebody saying they care about it - having to go
+   and find it again to turn a notification on was a step with no purpose. */
+function listed(){
+var out=(S.watching||[]).slice();
+var have={};out.forEach(function(w){have[w.slug]=true});
+(PT.favs||[]).forEach(function(slug){
+if(!have[slug])out.push({slug:slug,quiet:0,busy:0,events:0,updates:0,saved:true})});
+return out}
 
 function drawPage(){
 if(!pageBox)return;
@@ -3171,15 +3204,15 @@ else if(Notification.permission==='denied'){
 head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
 +'Allow notifications for this site in your browser settings, next to the address '
 +'bar, then come back.</p></div>'}
-var list=(S.watching||[]);
+var list=listed();
 pageBox.innerHTML=head
 +(note?'<p class="saidit">'+ptEsc(note)+'</p>':'')
 +(list.length
 ?'<ul class="nlist">'+list.map(row).join('')+'</ul>'
-:'<p class="mut">You are not getting notifications for any games yet. Open a game '
-+'you play and turn one on there.</p>')
-+(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games. '
-+'<button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
+:'<p class="mut">Nothing here yet. Save a game, or turn a notification on from a '
++'game page, and it will appear here.</p>')
++(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games can be switched '
++'on. <button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
 
 function draw(){drawGame();drawPage()}
 
