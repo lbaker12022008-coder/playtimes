@@ -295,6 +295,16 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
 .hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+/* A build-time chart that can be dragged (scrub() and SCRUB_JS). The dots are HTML
+   rather than SVG circles because these charts stretch to fit with
+   preserveAspectRatio none, which would squash a circle into an oval. */
+.scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+.scrub>svg{margin:0}
+.scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
+pointer-events:none;transform:translateX(-.75px)}
+.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
+border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+.scrub.on .sdot{display:block}
 .hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
 .hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
 margin:0 6px 3px 0;vertical-align:middle}

@@ -295,6 +295,16 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
 .hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+/* A build-time chart that can be dragged (scrub() and SCRUB_JS). The dots are HTML
+   rather than SVG circles because these charts stretch to fit with
+   preserveAspectRatio none, which would squash a circle into an oval. */
+.scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+.scrub>svg{margin:0}
+.scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
+pointer-events:none;transform:translateX(-.75px)}
+.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
+border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+.scrub.on .sdot{display:block}
 .hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
 .hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
 margin:0 6px 3px 0;vertical-align:middle}
@@ -963,7 +973,37 @@ if(d)return d+' day'+(d>1?'s':'')+' '+Math.floor(s%86400/3600)+'h';
 var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
-return ss+'s'}</script><script>var P=null;
+return ss+'s'}
+/* Makes a chart drawn at build time draggable, the way graphCursor does for the
+   hourly graph: drag, hover, tap, touch-drag sideways, or the arrow keys. The
+   positions come ready-made from scrub() in build_site.py as percentages of the
+   box, so nothing here has to repeat the chart's own maths. A sideways drag reads
+   the chart and an up-down one still scrolls the page (touch-action pan-y). */
+function scrubChart(el){
+var P;try{P=JSON.parse(el.getAttribute('data-scrub'))}catch(e){return}
+if(!P||!P.length)return;
+var ln=el.querySelector('.sline'),dots=el.querySelectorAll('.sdot'),
+out=el.nextElementSibling,at=-1,down=false;
+function show(i){
+if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;
+if(out)out.innerHTML='';return}
+at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
+for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
+el.classList.add('on');if(out)out.innerHTML=p[2]}
+function fromX(cx){var r=el.getBoundingClientRect();if(!r.width)return -1;
+return Math.max(0,Math.min(P.length-1,Math.round((cx-r.left)/r.width*(P.length-1))))}
+el.addEventListener('pointerdown',function(e){down=true;show(fromX(e.clientX))});
+el.addEventListener('pointermove',function(e){
+if(down||e.pointerType==='mouse')show(fromX(e.clientX))});
+window.addEventListener('pointerup',function(){down=false});
+el.addEventListener('pointercancel',function(){down=false});
+el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!down)show(-1)});
+el.addEventListener('keydown',function(e){
+if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
+show(at<0?(e.key==='ArrowRight'?0:P.length-1):
+Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
+else if(e.key==='Escape')show(-1)})}
+</script><script>var P=null;
 /* When the next update is predicted to land, as a live countdown.
    P.wd and P.hour are UTC, so the moment is worked out in UTC and the browser shows
    it in local time by itself - the same rule every other time on this site follows.
