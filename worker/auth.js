@@ -18,6 +18,18 @@ const USERINFO = "https://apis.roblox.com/oauth/v1/userinfo";
 
 const USER_COOKIE = "pt_user";
 const STATE_COOKIE = "pt_state";
+const BACK_COOKIE = "pt_back";
+
+/* Where to send somebody once they have signed in: the page they pressed Sign in
+   on. Only one of our own plain paths is accepted - a leading slash, then letters,
+   digits, dashes, dots and slashes, and never two slashes at the start, which a
+   browser would read as another website. Anything else falls back to the homepage,
+   so this can never be used to bounce people somewhere we did not mean. */
+function safeBack(p) {
+  if (typeof p !== "string" || p.length > 200) return null;
+  if (!/^\/[A-Za-z0-9._\/-]*$/.test(p) || p.startsWith("//")) return null;
+  return p;
+}
 const SESSION_DAYS = 60;
 const MAX_FAVS = 200;
 const SAFE_SLUG = /^[a-z0-9-]{1,80}$/;
@@ -137,15 +149,12 @@ async function startLogin(request, env) {
   url.searchParams.set("scope", "openid profile");
   url.searchParams.set("response_type", "code");
   url.searchParams.set("state", state);
-  return new Response(null, {
-    status: 302,
-    headers: {
-      location: url.toString(),
-      "cache-control": "no-store",
-      // Short-lived: only needs to survive the trip to Roblox and back.
-      "set-cookie": `${STATE_COOKIE}=${state}; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=600`
-    }
-  });
+  const headers = new Headers({ location: url.toString(), "cache-control": "no-store" });
+  // Short-lived: only needs to survive the trip to Roblox and back.
+  headers.append("set-cookie", `${STATE_COOKIE}=${state}; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=600`);
+  const back = safeBack(new URL(request.url).searchParams.get("back"));
+  if (back) headers.append("set-cookie", `${BACK_COOKIE}=${encodeURIComponent(back)}; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=600`);
+  return new Response(null, { status: 302, headers });
 }
 
 async function finishLogin(request, env) {
@@ -188,13 +197,16 @@ async function finishLogin(request, env) {
     "ON CONFLICT (rbx_id) DO UPDATE SET name = ?2, seen = ?3"
   ).bind(userId, name, now).run();
 
-  const headers = new Headers({ location: "/?signedin=1", "cache-control": "no-store" });
+  let back = null;
+  try { back = safeBack(decodeURIComponent(readCookie(request, BACK_COOKIE) || "")); } catch { back = null; }
+  const headers = new Headers({ location: back || "/?signedin=1", "cache-control": "no-store" });
   headers.append("set-cookie", await makeSession(env, userId, request));
   // ...and drop any host-only cookie left from before the Domain existed, so an old
   // one cannot sit in front of the new session and answer for it. Different Domain,
   // so this deletes the stale cookie rather than cancelling the line above.
   headers.append("set-cookie", `${USER_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
   headers.append("set-cookie", `${STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=0`);
+  headers.append("set-cookie", `${BACK_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/auth; Max-Age=0`);
   return new Response(null, { status: 303, headers });
 }
 
