@@ -203,6 +203,8 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
   - `ptIOS()` and `ptInstalled()` live in `FAVJS` because both this and the notification panel on game pages ask the same two questions, and two copies would drift. iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
+- **The name and the bell are in the bar on a computer only, and nowhere on a phone** (16 Nov 2026). A phone's bar has room for the logo, the game picker and two buttons; a name in there squeezed the picker to a stub. Nothing becomes unreachable: below 900px the panel carries both the account block and a **Notifications** row, and from 900px up the panel drops that row because the bell is in the bar - the same trick the search magnifier already used. **The 900px rules are written `.hdr .nots`, not `.nots`**, because the base `display:none` is a one-class rule further down the stylesheet and a media query adds no specificity; a single class lost to it and the bar stayed empty at every width. That is the third time this trap has bitten here.
+- **The name opens the panel, not a menu of its own.** Everything such a menu would hold - the name, Sign out - already lives in the panel, and a second menu holding the same two things is one more place for them to disagree.
 - **The account is in the panel, and the bell is in the bar** (16 Nov 2026). The account spent two weeks in the bar on the grounds that a face is easier to find than a menu item; the owner wanted the bar down to icons so the notifications bell could live there, and the name and Sign out were already in a menu hanging off the bar, so this is the same two things in a place with room for them. **Both are written EMPTY** - `<div class="acct">` in the panel and `<div class="nots">` in the bar - and `ptPaint()` in `FAVJS` fills them once `/api/me` has answered, because a built page is the same file for everyone and only the worker knows who is signed in. `:empty{display:none}` on each is what stops an unfilled one holding a gap open, which is also the whole behaviour when the Roblox keys are missing: nothing is written and the header reads as though sign-in never existed.
 - **The bell is drawn only for somebody signed in**, because notifications are offered to signed-in people only and for anybody else it would lead to a page explaining why it is empty. **It is a plain link to `/notifications`, not a dropdown** (16 Nov 2026): three switches per game plus a device to turn on outgrew the corner of a phone screen, and a menu that size quietly becomes its own little application. It is an `<a class="iconb">`, which is why `.iconb` carries `text-decoration:none`.
 - **Every `.acctb` rule is written `.acct .acctb`, and that is not tidiness.** `.iconb` sets `display:grid` and `width:42px` and is written *further down* the same stylesheet, and `.gmenu` sets `left:0` for the game picker at the other end of the bar. A media query adds no specificity, so each one-class rule simply lost to the later one: the pill came out as a 42px square with the glyph stacked **on top of** the word, and the menu opened rightwards off the screen (measured 252px wide ending at 473px inside a 390px phone). Two classes settle all three whatever the order. This is the same trap as `.w` vs `.shell>*` above - **in this stylesheet, assume a later single-class rule will beat yours.**
@@ -215,6 +217,19 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
 - **The game heading is a panel** (`.ghead`): a glass card over the game's artwork with the icon lifted out of its top on a negative margin, and the first row of the bento pulled up underneath it (`margin-top:-30px`) so the page opens with layers rather than stacked boxes. `.ghead` carries `z-index:2` to stay above the cards tucking under it; if you remove that, the cards will cover it.
 - **Colours** are the owner's black and neon purple palette. **Dark mode is it exactly, as supplied**: background `#0A0A0F`, cards `#171521`, accent `#A855F7`, secondary `#C084FC`, text `#F5F3FF`. Light mode is the same idea turned over (`#0A0A0F` ink on a faintly purple near-white `#F6F4FB`, accent `#7E22CE`), because the same purple cannot be readable on both a light and a dark page. **`--acc2` is decorative and `--alt` is the data colour, and they are different hues on purpose.** `--acc2` is the supplied secondary purple and only ever appears in gradients and on the edge of a soon-starting event. `--alt` is a cyan, and it draws the second game on `/compare.html`, the second set of bars in the hourly chart, and the spike dots on the 45-day line. Those have to be tellable from `--acc` at a glance, so **never give `--alt` a purple**, or those three stop working. `--btnink` is the text colour on a filled accent button (white light / `#0A0A0F` dark); **a filled button must use `var(--btnink)`, never `#fff`**, since white on `#A855F7` is only 3.96. The logo's ring and play button are drawn in `#0A0A0F` for the same reason. **The heatmap `--l1`..`--l5` means crowding, not depth: green `#A8EBCB` is quiet, amber `#EEA830` is middling, red `#E26D68` is busy.** It is deliberately independent of the site palette, because it is a traffic light, not decoration; a palette change should leave it alone. Hue alone would not carry it, since red-green colourblindness is common and much of this audience is children, so the perceived lightness also falls in even steps (L* 88, 81, 74, 67, 60) and the bands stay tellable apart in greyscale. **If you ever retune a band, re-check both its hue and its lightness.** `verdict()` borrows the same ramp as a good-to-bad scale, which only works while `--l1` is the green end. The heatmap's "right now" marker carries two rings, a dark one for the bands (always light) and a light one for an hour with no samples (transparent, so in dark mode it sits on the near-black page). Every value here was measured against the surface it sits on rather than picked by eye; all body text clears 4.5:1 in both themes. The amber `.ptag.sale` tag also sits outside the palette on purpose. **Do not write a colour's name into page text** (the 45-day chart caption used to say "Purple dots"): it goes stale on every palette change.
 - **The search panel** (`#sheet`, opened from the panel's first row) searches every game. It fetches `/games.json` the first time it is opened, so a visitor who never searches never downloads it. Both it and the side panel guard for their own absence, since `CHROME_JS` runs on every page.
+- **Player count history is a two-line graph** (`history_lines`): the typical count
+  and the highest seen, on **one shared scale**. The shared scale is the point - the
+  gap between the lines is how far a game's quiet moments sit below its peak, and two
+  charts each scaled to themselves would hide exactly that. Drawn at build time, not in
+  the browser, because a day is a day in any timezone. The table is still written
+  underneath inside a `<details>`: every number a page claims should be readable as
+  text, and nothing can read an SVG. **The key uses coloured blocks, never colour
+  names** - a colour named in text goes stale on the next palette change, which the
+  45-day caption did once already.
+- **The homepage lede is one sentence.** It was four lines saying the same thing three
+  ways. The two numbers that make it believable - games tracked and readings taken -
+  are still there, in small type underneath, because they are the reason to trust the
+  rest of the site and not what somebody arriving needs to read first.
 - **Graphs, not bars.** `dayGraph(vals,R,label,hue)` in `SHARED_JS` draws an SVG line with a translucent wash under it, so a visitor sees the shape of a day rather than 24 separate columns. **Two things decide whether a day reads as a day or as a gentle curve, and both were measured.** (1) The box is **720x320**, not 720x250: at 250 it drew 865x300 on a laptop, nearly three times wider than tall, and a day's entire rise and fall came to 126 real pixels spread over 865 - a slope that looks flat however the numbers are scaled. (2) `graphRange(B)` runs the axis from the week's quietest hour to its busiest instead of from zero; across the live site one day's line used only 39% of the height on a zero axis, and about 52% on this one. Together the swing went from 115 to 169 real pixels, about 1.5x. **It is the WEEK's range, not the day's** - scale each day to itself and a quiet Tuesday looks identical to a heaving Saturday, which is the one thing this chart exists to tell apart. **An axis that does not start at zero must say so**, and `#scalenote` under the graph names both end numbers in words. `graphCursor` repeats `H` and the same mapping, so change one and the crosshair floats off the line; there is a test that reads the dot's position back against the path. The line *breaks* where an hour has no samples instead of joining across the gap, which would invent data we never collected. `graphCursor(svg,out,vals,max)` adds the crosshair: drag, click, hover, touch-drag, or arrow keys, and the readout under the graph names the hour and the player count. Touch drags call `preventDefault` so the page does not scroll out from under the finger, and the graph is `tabindex="0"` so a keyboard reaches it.
 - **The row of buttons under the game's heading is the page's navigation** (`.actions`, `jump_html`): Play, Game updates, Save, and then a jump link for each section far enough down the page to be worth one - Events and the common questions. A visitor arriving from Google lands on a long page and the row says where everything is, in one place rather than as a second strip of links. **Compare was removed from it in Nov 2026** to make room; `/compare` is still reached from the panel and the footer, but no longer arrives with this game already chosen. **A jump link is only drawn when its section exists** - `anchor()` puts the id on the card and `jump_html` is handed only the blocks that came back non-empty, so a game whose creators have announced no events cannot offer a link to an id that is not on the page. Plain anchors, no JavaScript, which is also what lets Google offer the same sections underneath our own search result. **`.bento>*` and `.lstack>.card` carry `scroll-margin-top`** (78px, 68px on a phone): the header is sticky and about 65px tall, so without it every jump lands with the heading hidden underneath the bar. Measured on a real emulated phone and at 1024/1440: every jump clears the header by 26px or more and nothing scrolls sideways.
 - **`/updates/<game>.html`** holds everything about one game's updates: the recent-changes list, the update rhythm and the spike days. Game pages link to it with a "Game updates" button near the top rather than carrying the whole section themselves. `prune()` cleans this folder too, and `c["has_updates"]` is what puts the page in the sitemap.
@@ -358,8 +373,44 @@ before whichever of those is next.
   encrypt a message and decrypt that with our own test's browser-side code, then
   compare the byte layout, headers and JWT claims. Done 16 Nov 2026 and they agree
   exactly, which is what ruled the crypto out in minutes.
+- **Four switches, and a bell in each section they belong to.** Quiet, Busy, Events
+  and Updates, all independent. On a game page they are not a row of switches in one
+  card but a **bell per section**: one at the top of the page (a master), one in Plan
+  my session, one on the event calendar, and one on the game's updates page. `KINDS`
+  in `PUSH_JS` is the single list of them, read by the game page, the notifications
+  page and the bells alike, so a fifth would be added in one place.
+  - **The Plan my session bell follows the countdown beside it.** That card already has
+    a Quiet/Busy chooser, and a bell next to it means "tell me before THIS window", so
+    a third opinion of its own would have been one toggle too many in one card.
+  - **The top bell is a master**: on when anything is on, off turns all four off, and
+    pressed from cold it turns on the quiet one only - the least noisy place to start.
+  - **A bell is drawn only where it could work.** Signed out, no keys, or a Safari tab
+    on an iPhone, and the slots stay empty with one explanation in Plan my session,
+    which every game page has.
+  - **`PUSH_JS` gave up on any page without `#notif` or `#notifpage`**, so the updates
+    page - which has neither, only a bell - drew an empty slot until that test learned
+    about `[data-bell]`. Caught by testing the real page rather than the game page
+    twice.
 - **Event notifications** are the third switch: something the creators have put on the
-  game's Roblox calendar is about to start.
+  game's Roblox calendar is about to start. **Updates** is the fourth, and the odd one:
+  it looks *backwards*, because a change has already happened by the time Roblox
+  reports it. `build_site.py` writes each game's last-changed timestamp into
+  `events.json` beside the events, the dedupe key is that timestamp, and a change more
+  than **12 hours** old is left alone - builds are six hours apart, so that is the
+  staleness allowance with room to spare.
+- **Saved games get a row on `/notifications`** with all four switches off, ready to
+  turn on: saving a game is already somebody saying they care about it, and making them
+  find it again to switch something on was a step with no purpose. The row says
+  "saved", so it reads as an offer rather than as something already on.
+- **Pressing a switch sends nothing.** It used to fire a sample notification off the
+  first one anybody turned on; the "only once" guard was a flag on the state object,
+  and `refresh()` replaces that object with a fresh answer from the server moments
+  earlier, so the flag was never there and **every** switch sent one. Seeing what a
+  notification looks like is what the **Send me a test** button on `/notifications` is
+  for, pressed on purpose. There is a test that fails if a switch ever sends one again.
+- **The first switch turned on without the site installed says so once**, with a link
+  to `/install`. A note beside the switch, not a wall in front of it - outside Apple's
+  world installing is an improvement rather than a requirement.
   - The worker cannot call Roblox, so `build_site.py` writes **`docs/events.json`**
     (`{games: {slug: [{t, s}]}}`, upcoming only, 12 per game) from the `all_events` it
     already collects. Its own small file rather than part of `data.json`, which carries
@@ -381,6 +432,30 @@ before whichever of those is next.
   but leaves `workerd` holding the port, and the old process then hot-reloads new code
   with its old environment - which looks exactly like the secrets being wrong. Kill
   the whole `wrangler dev` process tree, not just `workerd`, or it respawns.
+
+## Countdowns, and events Google can read
+- **`ptCountdowns()` in `SHARED_JS`** drives anything carrying `data-at` (a moment in
+  unix seconds): "Next event in 2d 4h 11m" on the event calendar, and "Next update
+  expected in ..." on an updates page. It **re-queries every tick** rather than caching
+  the elements, because the next-update line does not exist until `PATTERN_JS` has
+  worked out when that is.
+- **Under an hour it shows seconds; days out it shows days and hours.** That is why it
+  looks frozen for a minute at a time, and why the test for it injects a target a
+  minute away rather than watching the real one - the first version of that test
+  "failed" against perfectly good code for exactly this reason.
+- **The next-update countdown is only drawn when an hour is known.** `update_pattern`
+  sometimes knows the weekday and not the hour, and "some time on Friday" is not
+  something to count seconds down to; saying otherwise would claim a precision the data
+  does not have.
+- **The quiet-window countdown on a game page keeps its own ticker** and is not part of
+  this, because it also has to re-decide *which* hour it is aiming at every five
+  minutes.
+- **`event_schema()` writes upcoming events as schema.org `Event`**, which is the form
+  Google reads for rich results. Roblox events happen inside a game rather than
+  anywhere on a map, so they are a `VirtualLocation` pointing at the game and the
+  attendance mode says online. Nothing is invented: name, start and end are the
+  creators' own, and an event with no end is left without one rather than given a
+  guess. `iso_moment()` writes the times, always UTC with the Z.
 
 ## Search engines (SEO)
 All of this lives in `build_site.py`. Nothing here is a trick: every number a page claims is one it worked out from our own samples, and nothing is hidden from visitors to feed Google something different.
@@ -430,7 +505,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
 
 ### Done
-- About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only). The About page carries a **Reminders** section and a **"Which games are on here"** section saying we only list games Roblox labels Minimal or Mild and that we read that label back from Roblox rather than guessing - worded as a rule about the label, not a promise about the game, with the caveat kept below it. **Every count on the site is computed** (`len(cards)`, `total_samples`), so adding games to `games.txt` updates the wording on its own; nothing anywhere types a number of games in. The collector runs every 30 minutes and takes three readings ten minutes apart inside each run, so the pages say **"about every 10 minutes"** - the old "every 30 minutes" on About and "every few minutes" on the homepage were both wrong and disagreed with each other.
+- About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only). The About page carries a **Reminders** section and a **"Which games are on here"** section saying we only list games Roblox labels Minimal or Mild and that we read that label back from Roblox rather than guessing - worded as a rule about the label, not a promise about the game, with the caveat kept below it. **Every count on the site is computed** (`len(cards)`, `total_samples`), so adding games to `games.txt` updates the wording on its own; nothing anywhere types a number of games in. **It will not match `games.txt`, and that is correct**: `cards` is games with enough readings to have a page, so a game `discover.py` added yesterday is in the file and not yet in the count. On 16 Nov 2026 the file held 160 and the site said 140, which is twenty games still collecting. Do not "fix" this by counting the file - the site would then claim pages it does not have. The collector runs every 30 minutes and takes three readings ten minutes apart inside each run, so the pages say **"about every 10 minutes"** - the old "every 30 minutes" on About and "every few minutes" on the homepage were both wrong and disagreed with each other.
 - For-parents game-pass section, fetched from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes` (the old `games.roblox.com` one is dead).
 - Category pages from Roblox `genre_l1` (saved in the `genre` column; a category needs 2+ games).
 - `TABS` in `build_site.py` is the site's section list (All games, Most popular, Trending, Growing, Shrinking, Events, Compare, Plan a session). It is rendered into the panel behind the three-line button and into the footer; the row of pills that used to sit across the top of every page was removed in Nov 2026. Genres are pills on the homepage.
