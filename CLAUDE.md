@@ -384,9 +384,18 @@ before whichever of those is next.
     a third opinion of its own would have been one toggle too many in one card.
   - **The top bell is a master**: on when anything is on, off turns all four off, and
     pressed from cold it turns on the quiet one only - the least noisy place to start.
-  - **A bell is drawn only where it could work.** Signed out, no keys, or a Safari tab
-    on an iPhone, and the slots stay empty with one explanation in Plan my session,
-    which every game page has.
+  - **Signed out, a bell is a link into sign-in rather than nothing.** It was an
+    empty slot until 17 Nov 2026, on the grounds that a control that cannot work
+    should not be drawn; a bell is the clearest thing on the page to say what
+    signing in is *for*, so it is now drawn as an `<a>` to
+    `/auth/login?back=<this page>` and the visitor is returned here afterwards. It
+    is never a toggle when signed out: a push subscription is a permanent
+    per-device identifier, and keeping one for somebody who has not signed in
+    would be holding personal data about someone who might be nine. The one
+    explanation in Plan my session stays, since that is the only place with room
+    for the 13+ note.
+  - **With no keys set, or in a Safari tab on an iPhone, the slots do stay empty.**
+    Those are cases where signing in would not help, so there is nothing to offer.
   - **`PUSH_JS` gave up on any page without `#notif` or `#notifpage`**, so the updates
     page - which has neither, only a bell - drew an empty slot until that test learned
     about `[data-bell]`. Caught by testing the real page rather than the game page

@@ -1271,6 +1271,12 @@ EMOJI = re.compile("[\U0001F000-\U0001FAFF\U0001F1E6-\U0001F1FF"
 # Anything in square brackets. On Roblox that is nearly always an advert:
 # [UPD], [ALPHA], [HALLOWEEN PT 3], [X3 LUCK].
 BRACKET = re.compile(r"\[[^\]]*\]")
+# A round bracket group at the START of a name is an advert too:
+# "(TOWING x LIMITED UPDATE Halloween-pumpkin) Drag Drive Simulator". One at the
+# END is usually part of the real name, so it stays - of the five games on the
+# site whose names carry round brackets, four are "BEAR (Alpha)",
+# "Break In (Story)" and two "(Anomaly)"s, and only the leading one is promo.
+LEAD_PAREN = re.compile(r"^\s*(?:\([^)]*\)\s*)+")
 
 
 def clean_name(name):
@@ -1285,11 +1291,24 @@ def clean_name(name):
     creators swap one event banner for the next. The full name is still shown on the
     game's own page.
 
-    Deliberately cautious: only square brackets and symbols go. Round brackets are
-    left alone, because for a lot of games they are part of the real name
-    ("Clone Baby Care (Anomaly)").
+    Deliberately cautious. Square brackets and symbols always go. A round bracket
+    group goes only when it is at the FRONT, where creators put promo tags; one at
+    the end is left alone, because for a lot of games it is part of the real name
+    ("Clone Baby Care (Anomaly)", "BEAR (Alpha)", "Break In (Story)").
+
+    That matters for the address rather than just the heading: while the promo tag
+    was in the name, this game's page lived at
+    /game/towing-x-limited-update-drag-drive-simulator, so the day the creators
+    took the tag off, prune() would delete that page and build a new one at a new
+    address - losing every link to it and its standing in Google. Which is the
+    whole reason this function exists.
     """
     out = EMOJI.sub(" ", BRACKET.sub(" ", name))
+    # Only if there is still a real name left afterwards: a game called nothing
+    # but "(Anomaly)" keeps it rather than ending up blank.
+    lead = LEAD_PAREN.sub("", out)
+    if says_something(lead):
+        out = lead
     out = re.sub(r"\s+", " ", out).strip(" -\u2013\u2014|,:;!.")
     if out:
         return out
