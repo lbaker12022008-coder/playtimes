@@ -278,21 +278,18 @@ border:1px solid var(--line);background:var(--shade)}
 /* The notification bell, at the right end of the bar, and the list it opens.
    Drawn only for somebody signed in: notifications are only offered to signed-in
    people, so for anybody else there is nothing it could ever list. */
-.nots{position:relative;flex:none}
+.nots{flex:none}
 .nots:empty{display:none}
-/* `.nots .nmenu` and not `.nmenu`, for the same reason the account menu needed two
-   classes: .gmenu sets left:0 for the game picker at the OTHER end of the bar and is
-   written further down this stylesheet, so a single class loses to it and this menu
-   opens rightwards off the edge of a phone. Assume a later one-class rule wins. */
-.nots .nmenu{left:auto;right:0;width:min(300px,calc(100vw - 24px))}
-.nrow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px}
-.nrow:hover{background:var(--shade)}
-.nrow>a{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0;
+/* One game on /notifications: its name, then its three switches. The switches drop
+   onto their own line on a narrow screen rather than squeezing the name out. */
+.nlist{list-style:none;margin:0;padding:0}
+.nrow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;
+padding:12px 0;border-bottom:1px solid var(--line)}
+.nrow>a{display:flex;align-items:center;gap:11px;flex:1 1 170px;min-width:0;
 text-decoration:none;color:var(--ink)}
-.nrow img{width:28px;height:28px;border-radius:8px;flex:none;object-fit:cover}
-.nrow>a span{flex:1 1 auto;min-width:0;font-weight:600;font-size:.92rem;
+.nrow img{width:34px;height:34px;border-radius:9px;flex:none;object-fit:cover}
+.nrow>a span{flex:1 1 auto;min-width:0;font-weight:700;
 overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nrow i{font-style:normal;font-size:.76rem;color:var(--mut);flex:none}
 /* The events tickbox in the notification panel. A real checkbox rather than a third
    pill beside Quiet and Busy: those two are a choice between one and the other, and
    this is an extra on top of whichever was picked. */
@@ -308,11 +305,19 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
 font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
 .nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
-.noff{padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:none;
-color:var(--mut);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;flex:none}
-.noff:hover,.noff:focus-visible{color:var(--ink);border-color:var(--acc)}
-.nnone{margin:2px 10px 8px;font-size:.88rem;color:var(--mut);line-height:1.5}
-.nnone a{color:var(--acc)}
+/* The three switches. Each is on or off by itself - they were one Quiet-or-Busy
+   choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
+   aria-pressed carries the state, so the styling and the screen reader cannot
+   disagree about which are on. */
+.togs{display:flex;gap:7px;flex-wrap:wrap}
+.tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
+background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
+cursor:pointer}
+.tog:hover:not([disabled]),.tog:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.tog[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.tog[disabled]{opacity:.55;cursor:default}
+.saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
+border-radius:12px;background:var(--shade);font-size:.92rem}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -340,6 +345,8 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
 .iconb:hover{border-color:var(--acc)}
+/* The bell is an anchor, so it needs saying that it is not an underlined link. */
+.iconb{text-decoration:none}
 /* Shown only inside the min-width:900px block near the top of this stylesheet. */
 .deskonly{display:none}
 .iconb svg{width:19px;height:19px;fill:currentColor}
@@ -2120,6 +2127,7 @@ def parents_html(passes, icons):
 FAVJS = """var PT={name:null,available:false,favs:null,cbs:[]};
 var PTPERSON='__PERSON__';
 var PTBELL='__BELL__';
+var PTSITE='__SITE__';
 var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
 function getFavs(){if(PT.favs)return PT.favs;
 try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
@@ -2176,12 +2184,12 @@ el.innerHTML=acct});
    it is empty, which is not worth a button in the bar. The list inside is left
    empty and filled when it is first opened, so a visitor who never presses it costs
    no extra requests. */
+/* A link to a page, not a menu that opens in the bar. There are three switches
+   per game and a device to turn on, which is more than a dropdown off the corner
+   of a phone screen can hold without becoming its own little application. */
 var bell=(PT.available&&PT.name)
-?'<button class="iconb" id="notbtn" type="button" aria-haspopup="true" '
-+'aria-expanded="false" aria-controls="nmenu" aria-label="Your notifications">'
-+PTBELL+'</button>'
-+'<div class="gmenu nmenu" id="nmenu" hidden><p>Your notifications</p>'
-+'<div id="nlist"></div></div>'
+?'<a class="iconb" href="/notifications" aria-label="Your notifications">'
++PTBELL+'</a>'
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
 el.innerHTML=bell});
@@ -2218,7 +2226,8 @@ e.preventDefault();history.back()}});"""
 # use, so it is dropped in rather than drawn a second time by hand. PERSON quotes
 # its attributes with " and holds no ', which is what makes it safe inside the
 # single-quoted JavaScript string above.
-FAVJS = FAVJS.replace("__PERSON__", PERSON).replace("__BELL__", ICON_BELL)
+FAVJS = (FAVJS.replace("__PERSON__", PERSON).replace("__BELL__", ICON_BELL)
+         .replace("__SITE__", SITE))
 
 FAV_GAME = """
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
@@ -2274,7 +2283,7 @@ if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
 mb=document.getElementById('menubtn');
 if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');nshut();shade(false)}
+if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
@@ -2314,64 +2323,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
    e.target.closest is guarded because on iOS a click that has bubbled this far can
    arrive at a text node, which has no closest and would throw - the same thing that
    once stopped the calendar links working. */
-function nshut(){var m=document.getElementById('nmenu'),
-b=document.getElementById('notbtn');
-if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
-/* Filled the first time it is opened rather than on every page load, the same way
-   the search panel waits for /games.json. Two requests: what this person follows,
-   and the names and pictures to show for it. /games.json is already in the
-   browser cache on most visits because search uses it too. */
-var nloaded=false;
-function nfill(){
-var list=document.getElementById('nlist');if(!list)return;
-list.innerHTML='<p class="nnone">Loading&hellip;</p>';
-Promise.all([
-fetch('/api/push/state').then(function(r){return r.json()}).catch(function(){return null}),
-fetch('/games.json').then(function(r){return r.json()}).catch(function(){return[]})
-]).then(function(got){
-var st=got[0],all=got[1]||[];
-if(!st||!st.available){
-list.innerHTML='<p class="nnone">Notifications are not switched on for this site yet.</p>';return}
-if(!st.signedIn){
-list.innerHTML='<p class="nnone">Sign in with Roblox to get notifications.</p>';return}
-var w=st.watching||[];
-if(!w.length){list.innerHTML='<p class="nnone">You are not getting notifications for '
-+'any games yet. Open a game you play and press <b>Notify me</b> on it.</p>';return}
-var by={};all.forEach(function(g){by[g.s]=g});
-list.innerHTML=w.map(function(x){
-var g=by[x.slug]||{n:x.slug,i:''};
-var kinds=[x.mode==='busy'?'busy':'quiet'];
-if(x.events)kinds.push('events');
-return '<div class="nrow">'
-+'<a href="/game/'+ptEsc(x.slug)+'">'
-+(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="28" height="28">':'')
-+'<span>'+ptEsc(g.n)+'</span></a>'
-+'<i>'+kinds.join(' + ')+'</i>'
-+'<button class="noff" type="button" data-off="'+ptEsc(x.slug)+'">Off</button>'
-+'</div>'}).join('')}).catch(function(){
-list.innerHTML='<p class="nnone">Could not read your notifications. Please try again.</p>'})}
-/* Delegated from the document, never bound to the button: ptPaint() replaces this
-   markup whenever /api/me answers, so a handler on the button itself would be thrown
-   away with the old markup and the menu would quietly stop opening. e.target.closest
-   is guarded because on iOS a click that has bubbled this far can arrive at a text
-   node, which has no closest and would throw. nshut() is declared here and called
-   from shut() above; a function declaration is hoisted to the top of this IIFE, so
-   the order on the page does not matter. */
-document.addEventListener('click',function(e){
-if(!e.target.closest)return;
-var b=e.target.closest('#notbtn');
-if(b){var m=document.getElementById('nmenu');if(!m)return;
-var show=m.hidden;shut();m.hidden=!show;
-b.setAttribute('aria-expanded',show?'true':'false');
-if(show&&!nloaded){nloaded=true;nfill()}return}
-var off=e.target.closest('[data-off]');
-if(off){off.disabled=true;off.textContent='\u2026';
-fetch('/api/push/watch',{method:'POST',headers:{'content-type':'application/json'},
-body:JSON.stringify({slug:off.dataset.off,on:false})})
-.then(function(r){if(!r.ok)throw 0;nfill()})
-.catch(function(){off.disabled=false;off.textContent='Off'});return}
-if(!e.target.closest('#nmenu'))nshut()});
-
 var box=document.getElementById('gpick');if(!box)return;
 function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
 :'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
@@ -2957,8 +2908,7 @@ __SIMILAR__
 # is signed in - the same reason the account button in the header starts empty.
 # ptNotify() in PUSH_JS fills it in and unhides it, and on most visits it stays
 # hidden and the card looks exactly as it did before this feature existed.
-NOTIFY_HTML = """<div class="notif" id="notif" hidden>
-<p class="mut small">Or get a notification</p><div id="notifbody"></div></div>"""
+NOTIFY_HTML = """<div class="notif" id="notif" hidden></div>"""
 
 
 # The browser half of notifications. Only on game pages, since that is the only
@@ -2975,15 +2925,11 @@ NOTIFY_HTML = """<div class="notif" id="notif" hidden>
 #    that cannot work. Apple only allows notifications for an installed site, so the
 #    button would fail silently and look broken.
 PUSH_JS = """(function(){
-var box=document.getElementById('notif');
-if(!box||!window.PT_GAME)return;
-var body=document.getElementById('notifbody'),S=null,busy=false;
-var slug=PT_GAME.s,name=PT_GAME.n;
-/* Being installed is the only way an Apple device allows notifications; Android and
-   desktop never need it. Both answers come from FAVJS, which the Install option in
-   the header panel also uses, so the two cannot disagree about what is installed. */
-var ios=ptIOS(),installed=ptInstalled();
-var canPush='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+var gameBox=document.getElementById('notif');
+var pageBox=document.getElementById('notifpage');
+if(!gameBox&&!pageBox)return;
+var slug=window.PT_GAME?PT_GAME.s:null;
+var S=null,names=null,busy=false,note='',deviceReady=false;
 
 function urlKey(text){
 var pad=text.replace(/-/g,'+').replace(/_/g,'/');
@@ -2991,108 +2937,31 @@ pad=pad+'='.repeat((4-pad.length%4)%4);
 var raw=atob(pad),out=new Uint8Array(raw.length);
 for(var i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
 
-function say(markup){body.innerHTML=markup;box.hidden=false}
-
 function post(where,data){return fetch('/api/push/'+where,{method:'POST',
 headers:{'content-type':'application/json'},body:JSON.stringify(data||{})})
 .then(function(r){return r.json().then(function(j){
 if(!r.ok)throw new Error(j&&j.error||'that did not work');return j})})}
 
-function mine(){for(var i=0;i<(S.watching||[]).length;i++)
-if(S.watching[i].slug===slug)return S.watching[i];return null}
+var ios=ptIOS();
+function usable(){return 'serviceWorker' in navigator&&'PushManager' in window
+&&'Notification' in window&&!(ios&&!ptInstalled())}
 
-/* Everything the panel can say, in one place so the states cannot disagree. */
-function draw(note){
-if(!S||!S.available){box.hidden=true;return}
-if(!S.signedIn){
-say('<p class="mut small">Notifications need you to be signed in with Roblox, because '
-+'we have to remember your device to send one. Roblox does not let under-13s sign in '
-+'to other sites, so this part of PlayTime is 13 and over.</p>'
-+'<a class="fav" href="/auth/login">Sign in with Roblox</a>');return}
-if(!canPush||(ios&&!installed)){
-say('<p class="mut small">'+(ios
-?'On an iPhone or iPad, notifications only work once PlayTime is on your home '
-+'screen. Tap the Share button, then <b>Add to Home Screen</b>, and open PlayTime '
-+'from there - this panel will have a button in it.'
-:'This browser cannot do notifications. The calendar reminder above works everywhere.')
-+'</p>');return}
-if(Notification.permission==='denied'){
-say('<p class="mut small">Your browser is blocking notifications for this site. You can '
-+'allow them again in its site settings, next to the address bar.</p>');return}
-var on=mine(),msg=note?'<p class="mut small" id="notifsay">'+ptEsc(note)+'</p>':'';
-if(!on){
-say('<div class="days" id="nbtns"><button data-n="quiet" aria-pressed="true">Quiet</button>'
-+'<button data-n="busy" aria-pressed="false">Busy</button></div>'
-+'<label class="nevt"><input type="checkbox" id="notifevt"> '
-+'<span>Also tell me when an event starts</span></label>'
-+'<button class="remind" id="notifon" type="button">&#128276; Notify me before '
-+ptEsc(name)+' gets quiet</button>'
-+'<p class="mut small">About 15 minutes before, on this device. We keep the '
-+'notification address your browser gives us, and which games you follow. Nothing '
-+'else. Turn it off here any time.</p>'+msg)}
-else{
-say('<p><b>Notifications are on</b> for '+ptEsc(name)+', before it gets '
-+(on.mode==='busy'?'busy':'quiet')+'.</p>'
-+'<label class="nevt"><input type="checkbox" id="notifevt"'
-+(on.events?' checked':'')+'> '
-+'<span>Also tell me when an event starts</span></label>'
-+'<button class="remind" id="notifoff" type="button">Turn these off</button> '
-+'<button class="fav" id="notiftest" type="button">Send me a test</button>'
-+'<p class="mut small">You can follow up to '+(S.maxGames||20)+' games. '
-+'Signing out stops them.</p>'+msg)}}
+function watchFor(s){for(var i=0;i<((S&&S.watching)||[]).length;i++)
+if(S.watching[i].slug===s)return S.watching[i];return null}
 
-function refresh(note){return fetch('/api/push/state').then(function(r){return r.json()})
-.then(function(d){S=d;draw(note)}).catch(function(){box.hidden=true})}
-
-/* Delegated from the panel rather than bound to the buttons, because draw() replaces
-   them every time it runs - a handler on the button itself would be thrown away with
-   the old markup, exactly as it would in the header's account menu. */
-box.addEventListener('click',function(e){
-if(!e.target.closest)return;
-/* The events tickbox. Before notifications are on it is only a choice that turnOn
-   reads; once they are on, ticking it saves straight away, because there is no
-   other button left to press that would. */
-var cb=e.target.closest('#notifevt');
-if(cb){if(mine()&&!busy)saveEvents(cb);return}
-var t=e.target.closest('button');
-if(!t||busy)return;
-if(t.dataset.n){
-Array.prototype.forEach.call(box.querySelectorAll('#nbtns button'),function(b){
-b.setAttribute('aria-pressed',b===t?'true':'false')});
-var on=box.querySelector('#notifon');
-if(on)on.innerHTML='&#128276; Notify me before '+ptEsc(name)+' gets '+t.dataset.n;
-return}
-if(t.id==='notifon')return turnOn(t);
-if(t.id==='notifoff')return turnOff(t);
-if(t.id==='notiftest')return test(t)});
-
-function working(btn,word){busy=true;btn.disabled=true;btn.dataset.was=btn.innerHTML;
-btn.innerHTML=word}
-function finished(){busy=false}
-
-/* Changing the events choice while notifications are already on. The mode and the
-   warning time are sent back as they are, because /api/push/watch replaces the whole
-   row - leaving them out would silently reset them to the defaults. */
-function saveEvents(cb){
-var on=mine();if(!on)return;
-busy=true;cb.disabled=true;
-post('watch',{slug:slug,mode:on.mode,lead:on.lead,events:cb.checked})
-.then(function(){busy=false;return refresh(cb.checked
-?'Event notifications are on for '+name+'.'
-:'Event notifications are off. You will still get the quiet or busy one.')})
-.catch(function(){busy=false;cb.disabled=false;cb.checked=!cb.checked;
-refresh('Could not save that. Please try again.')})}
-
-function turnOn(btn){
-var pick=box.querySelector('#nbtns button[aria-pressed=true]');
-var mode=pick&&pick.dataset.n==='busy'?'busy':'quiet';
-var evt=box.querySelector('#notifevt');
-var wantEvents=!!(evt&&evt.checked);
-working(btn,'Just a moment...');
-Notification.requestPermission().then(function(answer){
-if(answer!=='granted'){finished();return refresh(
-'Your browser did not allow notifications, so nothing was turned on.')}
-return navigator.serviceWorker.register('/sw.js')
+/* Turning this device on. Safe to call again: an existing subscription is reused and
+   the server upserts, so every switch does not have to know whether it is the first.
+   Asked for only when a switch is actually pressed - a browser only grants permission
+   in response to a real gesture, and a site that asks the moment you arrive is the
+   reason browsers now bury the prompt. */
+function ensureDevice(){
+if(deviceReady)return Promise.resolve();
+return Promise.resolve().then(function(){
+if(Notification.permission==='granted')return 'granted';
+return Notification.requestPermission()})
+.then(function(answer){
+if(answer!=='granted')throw new Error('Your browser did not allow notifications.');
+return navigator.serviceWorker.register('/sw.js')})
 .then(function(){return navigator.serviceWorker.ready})
 .then(function(reg){return reg.pushManager.getSubscription().then(function(have){
 return have||reg.pushManager.subscribe({userVisibleOnly:true,
@@ -3100,36 +2969,152 @@ applicationServerKey:urlKey(S.key)})})})
 .then(function(sub){var j=sub.toJSON();
 return post('subscribe',{endpoint:j.endpoint,keys:j.keys,
 tz:-new Date().getTimezoneOffset()/60})})
-.then(function(){return post('watch',{slug:slug,mode:mode,lead:15,events:wantEvents})})
-.then(function(){finished();return refresh('That is on. We will send one test now so '
-+'you can see what it looks like.')})
-.then(function(){return post('test',{}).catch(function(){})})})
-.catch(function(err){finished();refresh('Could not turn notifications on: '
-+(err&&err.message||'something went wrong')+'.')})}
+.then(function(){deviceReady=true})}
 
-function turnOff(btn){
-working(btn,'Turning off...');
-post('watch',{slug:slug,on:false}).then(function(){finished();
-return refresh('Turned off. You will not get notifications about '+name+'.')})
-.catch(function(){finished();refresh('Could not turn that off. Please try again.')})}
+/* One switch, for one game. The other two are sent back as they are, because
+   /api/push/watch replaces the whole row. All three off deletes it. */
+function flip(forSlug,key,on){
+var w=watchFor(forSlug)||{};
+var next={quiet:!!w.quiet,busy:!!w.busy,events:!!w.events};
+next[key]=on;
+busy=true;note='';draw();
+ensureDevice()
+.then(function(){return post('watch',{slug:forSlug,quiet:next.quiet,
+busy:next.busy,events:next.events,lead:15})})
+.then(function(){busy=false;return refresh()})
+.then(function(){
+/* The first switch anybody turns on sends one notification straight away, so they
+   can see it work. Permission was granted on a different screen and "did that do
+   anything?" is otherwise unanswerable until the small hours. */
+if(on&&!S.tested){S.tested=true;return post('test',{}).catch(function(){})}})
+.catch(function(err){busy=false;
+note=(err&&err.message)||'That did not work.';refresh()})}
 
-/* On success this says where to look if nothing appears, because the commonest
-   outcome is not a failure at all: the push service accepted it and the computer
-   did not show it. Telling someone "Sent" and leaving them staring at an empty
-   screen is the least useful thing this panel could do. */
-function test(btn){
-working(btn,'Sending...');
-post('test',{}).then(function(){finished();
-refresh('Sent. If nothing appears within a few seconds, your computer is hiding '
-+'it rather than this site failing: check your notification centre, and that '
-+'notifications are allowed for your browser in your system settings.')})
-.catch(function(err){finished();
-refresh(err&&err.message||'That did not work.')})}
+function refresh(){return fetch('/api/push/state').then(function(r){return r.json()})
+.then(function(d){S=d;draw()}).catch(function(){if(gameBox)gameBox.hidden=true})}
 
-/* PT.ready runs this now and again once /api/me has answered, so the panel settles
-   as soon as the page knows whether anybody is signed in. */
+function tog(forSlug,key,label,on){
+return '<button class="tog" type="button" data-s="'+ptEsc(forSlug)+'" data-k="'+key+'" '
++'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'+label+'</button>'}
+
+function switches(forSlug){
+var w=watchFor(forSlug)||{};
+return '<div class="togs">'+tog(forSlug,'quiet','Quiet',w.quiet)
++tog(forSlug,'busy','Busy',w.busy)+tog(forSlug,'events','Events',w.events)+'</div>'}
+
+var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
+var INSTALL='<a class="fav" href="/install">How to install it</a>';
+
+/* ----------------------------------------------------------- the game page */
+function drawGame(){
+if(!gameBox)return;
+if(!S||!S.available||!slug){gameBox.hidden=true;return}
+var html;
+if(!S.signedIn){
+html='<p class="mut small">Notifications need a Roblox sign-in. 13+.</p>'+SIGNIN}
+else if(!usable()){
+html='<p class="mut small">'+(ios
+?'Add '+ptEsc(PTSITE)+' to your home screen first.'
+:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
+else{
+html='<p class="mut small">Notify me when this game is</p>'+switches(slug)
++(note?'<p class="mut small">'+ptEsc(note)+'</p>':'')
++'<p class="mut small"><a href="/notifications">All your notifications</a></p>'}
+gameBox.innerHTML=html;gameBox.hidden=false}
+
+/* ------------------------------------------------- the notifications page */
+function row(w){
+var g=(names&&names[w.slug])||{n:w.slug,i:''};
+return '<li class="nrow"><a href="/game/'+ptEsc(w.slug)+'">'
++(g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="34" height="34">':'')
++'<span>'+ptEsc(g.n)+'</span></a>'+switches(w.slug)+'</li>'}
+
+function drawPage(){
+if(!pageBox)return;
+if(!S){pageBox.innerHTML='<p class="mut">Loading&hellip;</p>';return}
+if(!S.available){
+pageBox.innerHTML='<p class="mut">Notifications are not switched on for this site yet.</p>';return}
+if(!S.signedIn){
+pageBox.innerHTML='<p>Notifications need you to be signed in with Roblox, because we '
++'have to remember your device to send one. Roblox does not let under-13s sign in to '
++'other sites, so this part of '+ptEsc(PTSITE)+' is 13 and over.</p>'+SIGNIN;return}
+var head='';
+if(!usable()){
+head='<div class="card"><h2>This device cannot receive them</h2><p class="mut small">'
++(ios?'On an iPhone or iPad, notifications only work once '+ptEsc(PTSITE)
++' is on your home screen.':'This browser does not support notifications.')
++'</p>'+(ios?INSTALL:'')+'</div>'}
+else if(Notification.permission==='denied'){
+head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
++'Allow notifications for this site in your browser settings, next to the address '
++'bar, then come back.</p></div>'}
+var list=(S.watching||[]);
+pageBox.innerHTML=head
++(note?'<p class="saidit">'+ptEsc(note)+'</p>':'')
++(list.length
+?'<ul class="nlist">'+list.map(row).join('')+'</ul>'
+:'<p class="mut">You are not getting notifications for any games yet. Open a game '
++'you play and turn one on there.</p>')
++(list.length?'<p class="mut small">Up to '+(S.maxGames||20)+' games. '
++'<button class="fav" id="notiftest" type="button">Send me a test</button></p>':'')}
+
+function draw(){drawGame();drawPage()}
+
+/* Delegated from the document: draw() replaces this markup on every change, so a
+   handler put on a switch itself would be thrown away with it. e.target.closest is
+   guarded because on iOS a tap that has bubbled this far can arrive at a text node. */
+document.addEventListener('click',function(e){
+if(!e.target.closest||busy)return;
+var t=e.target.closest('.tog');
+if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
+if(e.target.closest('#notiftest')){
+busy=true;note='Sending&hellip;';draw();
+post('test',{}).then(function(){busy=false;
+note='Sent. If nothing appears, your computer is hiding it rather than this site '
++'failing: check your notification centre and your system settings.';draw()})
+.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';draw()})}});
+
+/* The names and pictures for the list, from the file search already uses. */
+if(pageBox){fetch('/games.json').then(function(r){return r.json()}).then(function(all){
+names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
+
 PT.ready(function(){refresh()});
 })();"""
+
+
+def notifications_body():
+    """Everything somebody is being told about, in one place.
+
+    A page rather than a menu hanging off the bell: three switches per game and a
+    device to turn on is more than a dropdown in the corner of a phone can hold
+    without quietly becoming its own little application. The list itself is drawn by
+    PUSH_JS, because it is different for every person and a built page is the same
+    file for everyone.
+    """
+    site = html.escape(SITE)
+    return f"""<div class="doc"><h1>Your notifications</h1>
+<p class="mut">Each switch takes effect as you press it.</p>
+<div id="notifpage"><p class="mut">Loading&hellip;</p></div>
+<h2>What the three mean</h2>
+<ul>
+<li><b>Quiet</b> &mdash; shortly before that game is usually at its emptiest, which is
+when queues are short and servers are calm.</li>
+<li><b>Busy</b> &mdash; shortly before it is usually at its fullest, which is when
+trading and events are easiest to find.</li>
+<li><b>Events</b> &mdash; shortly before something the creators have put on the game's
+Roblox calendar starts.</li>
+</ul>
+<p>You get about fifteen minutes' warning, and at most one of each per game per day.
+Turning all three off for a game stops it completely.</p>
+<h2>What we keep</h2>
+<p>The notification address your browser gives us for each device you turn on, the two
+keys needed to lock each message so only your device can read it, how many hours ahead
+of UTC you are, and which games you picked. Nothing else. <b>Delete my data</b> on the
+<a href="/privacy">Privacy Policy</a> removes all of it, and so does turning every
+switch off.</p>
+<p class="mut small">{site} only offers this to people signed in with Roblox, who are
+13 or over by Roblox's own rule, because sending a notification means remembering a
+particular device.</p></div>"""
 
 
 def install_body():
@@ -4133,6 +4118,14 @@ def main():
         f"What {SITE} is, how it measures when Roblox games are busy, and what it does not "
         f"tell you.", canon="/about",
         trail=[("All games", "/"), ("About", "/about")]))
+    # noindex: it is a page about one person's own settings and is empty until the
+    # browser fills it in, so there is nothing here for Google to list.
+    write("notifications.html", page(
+        seo_title(f"Your notifications - {SITE}"), notifications_body(),
+        "Choose which games tell you when they are quiet, busy, or about to run an event.",
+        canon="/notifications", noindex=True,
+        trail=[("All games", "/"), ("Your notifications", "/notifications")],
+        tail=f"<script>{PUSH_JS}</script>"))
     write("install.html", page(
         seo_title(f"Get {SITE} as an app on your phone"), install_body(),
         f"How to add {SITE} to your home screen on an iPhone, iPad, Android phone or "

@@ -461,7 +461,7 @@ async function claimAndSend(env, sub, rbxId, slug, slot, message, now) {
 export async function runPushCron(env, origin) {
   if (!pushReady(env)) return { skipped: "no VAPID keys" };
   const { results } = await env.DB.prepare(
-    "SELECT w.rbx_id, w.slug, w.mode, w.lead, w.events FROM push_watch w " +
+    "SELECT w.rbx_id, w.slug, w.quiet, w.busy, w.lead, w.events FROM push_watch w " +
     "WHERE EXISTS (SELECT 1 FROM push_subs s WHERE s.rbx_id = w.rbx_id)").all();
   const watches = results || [];
   if (!watches.length) return { watches: 0, sent: 0 };
@@ -494,18 +494,25 @@ export async function runPushCron(env, origin) {
     for (const sub of subs) {
       const tz = sub.tz || 0;
 
-      // 1. The quiet or busy window this person asked about.
-      const win = nextWindow(game.m, w.mode, tz);
-      if (win) {
+      // 1. The quiet and busy windows, each only if asked for. Independent, so
+      //    somebody can have both: they are different hours of the day.
+      let deviceGone = false;
+      for (const kind of ["quiet", "busy"]) {
+        if (!w[kind]) continue;
+        const win = nextWindow(game.m, kind, tz);
+        if (!win) continue;
         const minutes = Math.round((win.at.getTime() - now) / 60000);
-        if (minutes >= 0 && minutes <= w.lead + CRON_MINUTES) {
-          const how = await claimAndSend(env, sub, w.rbx_id, w.slug,
-            win.at.toISOString().slice(0, 13),
-            wording(game, w.mode, win, minutes), now);
-          if (how === "sent") sent++;
-          if (how === "gone") continue;        // that device is gone; skip its events
-        }
+        if (minutes < 0 || minutes > w.lead + CRON_MINUTES) continue;
+        // The slot carries the kind, so a quiet notification cannot claim the hour a
+        // busy one wanted. They fall on different hours in practice, but relying on
+        // that would be relying on the data rather than on the key.
+        const how = await claimAndSend(env, sub, w.rbx_id, w.slug,
+          kind[0] + win.at.toISOString().slice(0, 13),
+          wording(game, kind, win, minutes), now);
+        if (how === "sent") sent++;
+        if (how === "gone") { deviceGone = true; break; }
       }
+      if (deviceGone) continue;
 
       // 2. The creators' own events, if they asked for those as well. Keyed on the
       //    event's start time rather than an hour, so two events in the same hour
@@ -590,22 +597,28 @@ async function setWatch(request, env, userId) {
       .bind(userId, slug).run();
     return json({ watching: false, slug });
   }
-  const mode = body?.mode === "busy" ? "busy" : "quiet";
-  const lead = Math.max(5, Math.min(120, Math.round(Number(body?.lead) || DEFAULT_LEAD)));
-  // Events are a separate yes/no from quiet-or-busy: one is about the crowd, the
-  // other about something the creators announced, and people want them separately.
+  // Three independent switches. All three off is not a watch at all, so the row goes
+  // - otherwise it would sit there looking switched on and never send anything.
+  const quiet = body?.quiet ? 1 : 0;
+  const busy = body?.busy ? 1 : 0;
   const events = body?.events ? 1 : 0;
+  if (!quiet && !busy && !events) {
+    await env.DB.prepare("DELETE FROM push_watch WHERE rbx_id = ?1 AND slug = ?2")
+      .bind(userId, slug).run();
+    return json({ watching: false, slug });
+  }
+  const lead = Math.max(5, Math.min(120, Math.round(Number(body?.lead) || DEFAULT_LEAD)));
   const have = await env.DB.prepare(
     "SELECT COUNT(*) AS n FROM push_watch WHERE rbx_id = ?1 AND slug <> ?2").bind(userId, slug).first();
   if ((have?.n || 0) >= MAX_WATCH) {
     return json({ error: "That is as many games as one account can follow." }, 409);
   }
   await env.DB.prepare(
-    "INSERT INTO push_watch (rbx_id, slug, mode, lead, events, added) " +
-    "VALUES (?1, ?2, ?3, ?4, ?5, ?6) " +
-    "ON CONFLICT (rbx_id, slug) DO UPDATE SET mode = ?3, lead = ?4, events = ?5"
-  ).bind(userId, slug, mode, lead, events, Date.now()).run();
-  return json({ watching: true, slug, mode, lead, events });
+    "INSERT INTO push_watch (rbx_id, slug, quiet, busy, events, lead, added) " +
+    "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) " +
+    "ON CONFLICT (rbx_id, slug) DO UPDATE SET quiet = ?3, busy = ?4, events = ?5, lead = ?6"
+  ).bind(userId, slug, quiet, busy, events, lead, Date.now()).run();
+  return json({ watching: true, slug, quiet, busy, events, lead });
 }
 
 /**
@@ -629,7 +642,7 @@ async function sendTest(request, env, userId) {
 async function state(request, env, userId) {
   const [subs, watch] = await Promise.all([
     env.DB.prepare("SELECT COUNT(*) AS n FROM push_subs WHERE rbx_id = ?1").bind(userId).first(),
-    env.DB.prepare("SELECT slug, mode, lead, events FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
+    env.DB.prepare("SELECT slug, quiet, busy, events, lead FROM push_watch WHERE rbx_id = ?1 ORDER BY added")
       .bind(userId).all()
   ]);
   return json({

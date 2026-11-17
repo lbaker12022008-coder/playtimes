@@ -204,8 +204,7 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
 - **The account is in the panel, and the bell is in the bar** (16 Nov 2026). The account spent two weeks in the bar on the grounds that a face is easier to find than a menu item; the owner wanted the bar down to icons so the notifications bell could live there, and the name and Sign out were already in a menu hanging off the bar, so this is the same two things in a place with room for them. **Both are written EMPTY** - `<div class="acct">` in the panel and `<div class="nots">` in the bar - and `ptPaint()` in `FAVJS` fills them once `/api/me` has answered, because a built page is the same file for everyone and only the worker knows who is signed in. `:empty{display:none}` on each is what stops an unfilled one holding a gap open, which is also the whole behaviour when the Roblox keys are missing: nothing is written and the header reads as though sign-in never existed.
-- **The bell is drawn only for somebody signed in.** Notifications are offered to signed-in people only, so for anybody else it would open on an explanation of why it is empty, which is not worth a button in the bar. Its list is **filled on first open, not on page load** (`nfill()` in `CHROME_JS`), so a visitor who never presses it costs no extra requests; it reads `/api/push/state` for what they follow and `/games.json` for the names and pictures, the same file search already uses. Each row has an **Off** button that posts `on:false` and refills the list. `shut()` closes it alongside the drawer and the search sheet.
-- **`.nots .nmenu` is written with two classes, and that is not tidiness.** `.gmenu` sets `left:0` for the game picker at the *other* end of the bar and is written further down the stylesheet, so a one-class rule loses to it and this menu opens rightwards off the edge of a phone - exactly what happened to the account menu before it. **In this stylesheet, assume a later single-class rule will beat yours.**
+- **The bell is drawn only for somebody signed in**, because notifications are offered to signed-in people only and for anybody else it would lead to a page explaining why it is empty. **It is a plain link to `/notifications`, not a dropdown** (16 Nov 2026): three switches per game plus a device to turn on outgrew the corner of a phone screen, and a menu that size quietly becomes its own little application. It is an `<a class="iconb">`, which is why `.iconb` carries `text-decoration:none`.
 - **Every `.acctb` rule is written `.acct .acctb`, and that is not tidiness.** `.iconb` sets `display:grid` and `width:42px` and is written *further down* the same stylesheet, and `.gmenu` sets `left:0` for the game picker at the other end of the bar. A media query adds no specificity, so each one-class rule simply lost to the later one: the pill came out as a 42px square with the glyph stacked **on top of** the word, and the menu opened rightwards off the screen (measured 252px wide ending at 473px inside a 390px phone). Two classes settle all three whatever the order. This is the same trap as `.w` vs `.shell>*` above - **in this stylesheet, assume a later single-class rule will beat yours.**
 - **The account button is bound by delegation from `document`, never directly.** `ptPaint()` replaces that markup every time it runs, so a handler put on the button itself is thrown away with the old markup and the menu quietly stops opening. `e.target.closest` is guarded (`e.target.closest&&...`) because on iOS a click that has bubbled to the document can arrive at a text node, which has no `closest` - the same thing that once stopped the reminder links working.
 - **`.drawer` and `.sheet` are written after `</header>`, not inside it, and must stay there.** Both are `position:fixed`, and `.hdr` has `backdrop-filter`, which makes the header the containing block for any fixed descendant. Inside the header the side menu was 88px tall instead of the height of the screen, and the search panel was pinned to the header's own box, so it read as sitting under the game picker. **Anything `position:fixed` that should cover the page belongs outside any element with `backdrop-filter`, `filter` or `transform`.**
@@ -239,14 +238,45 @@ the notification panel sits in the same place under the countdown and uses the s
 button styling.
 
 Worth keeping in mind rather than regretting: the calendar worked for **everyone**,
-with no account and nothing stored, while notifications reach only signed-in people -
-capped at 10 until the Roblox app review passes - and need an install first on Apple
-devices. That was the owner's call, made with the trade spelled out. If reminders for
-signed-out visitors are ever wanted again, this is in the git history.
+with no account and nothing stored, while notifications reach only people who sign in,
+and need an install first on Apple devices. That was the owner's call, made with the
+trade spelled out, and it got a good deal easier to live with on the same day: the
+Roblox app passed review, so signing in is open to everybody rather than the first ten.
+If reminders for signed-out visitors are ever wanted again, this is in the git history.
 
 ## Browser notifications ("tell me when to get on")
-Built 16 Nov 2026. A signed-in person follows a game, picks quiet or busy, and their
-browser is woken about fifteen minutes before that game's next best hour.
+Built 16 Nov 2026. A signed-in person turns on any of **three independent switches**
+per game - Quiet, Busy, Events - and their browser is woken about fifteen minutes
+before whichever of those is next.
+
+- **Three switches, not one choice.** They were a single `mode` column holding
+  `'quiet'` or `'busy'` for the first few hours of their life, which made two
+  perfectly compatible things mutually exclusive for no reason anybody could defend:
+  plenty of people want telling about both, and an event is a different question
+  again. `push_watch` now has `quiet`, `busy` and `events` columns, the `mode` column
+  is **dropped**, and **all three off deletes the row** rather than leaving it sitting
+  there looking switched on and sending nothing.
+- **`/api/push/watch` replaces the whole row**, so anything that changes one switch
+  must send the other two back as they are. Both the game page and the notifications
+  page read the current row first and post all three; there is a test that catches a
+  switch sending only itself.
+- **`/notifications` is where they are managed** (`notifications_body()`), reached
+  from the bell. Every game being followed, with its three switches, plus a test
+  button. It is `noindex`: it is one person's own settings and is empty until the
+  browser fills it in.
+- **The game page's own control is deliberately bare**: a line, three switches, and a
+  link to the page. It had grown to a paragraph of explanation around a button, and
+  the explanation belongs on the page that exists for it. Measured at 68 characters of
+  wording, and there is a test that fails if it grows past about 110.
+- **`PUSH_JS` drives both** rather than being written twice: it looks for `#notif`
+  (the game page) or `#notifpage` (the page) and draws whichever it finds. The
+  subscribe-this-device flow, the switch handler and the state cache are therefore
+  shared and cannot drift apart.
+- **The device is subscribed on the first switch anybody presses**, never on load: a
+  browser only grants permission in response to a real gesture, and a site that asks
+  on arrival is why browsers now bury the prompt. `ensureDevice()` is safe to call
+  again - an existing subscription is reused and the server upserts - so no switch has
+  to know whether it is the first.
 
 - **Signed-in only, and that is not negotiable.** A push subscription is a permanent
   per-device identifier. Keeping one for a visitor who has not signed in would be
@@ -328,12 +358,8 @@ browser is woken about fifteen minutes before that game's next best hour.
   encrypt a message and decrypt that with our own test's browser-side code, then
   compare the byte layout, headers and JWT claims. Done 16 Nov 2026 and they agree
   exactly, which is what ruled the crypto out in minutes.
-- **Event notifications** (16 Nov 2026) are a separate yes/no from quiet-or-busy, and
-  deliberately so: one is about the crowd, the other about something the creators have
-  announced, and plenty of people want one without the other. `push_watch.events` holds
-  it, a tickbox in the panel sets it, and **`/api/push/watch` replaces the whole row**,
-  so anything editing it must send `mode` and `lead` back as they are or they silently
-  reset to the defaults.
+- **Event notifications** are the third switch: something the creators have put on the
+  game's Roblox calendar is about to start.
   - The worker cannot call Roblox, so `build_site.py` writes **`docs/events.json`**
     (`{games: {slug: [{t, s}]}}`, upcoming only, 12 per game) from the `all_events` it
     already collects. Its own small file rather than part of `data.json`, which carries
@@ -346,14 +372,15 @@ browser is woken about fifteen minutes before that game's next best hour.
     There is a test for exactly that.
   - `claimAndSend()` holds the claim-send-and-tidy bookkeeping that the window path and
     the event path both need, so the two cannot drift.
-- **Reach is capped at 10 people until the Roblox app passes review**, since
-  notifications need sign-in. That review is still item 3 on the launch checklist.
+- **The 10-person cap is gone**: the Roblox app passed review on the morning of
+  16 Nov 2026, so anybody can sign in and anybody can have notifications.
 - Tests live in the scratchpad, not the repo: crypto round-trip, 27 timezone offsets,
-  the cron's decisions against real SQLite, and the HTTP routes against
-  `wrangler dev`. 147 checks. **If `wrangler dev` seems to ignore `.dev.vars`, look
-  for a stale `workerd`**: `TaskStop` kills wrangler's parent but leaves `workerd`
-  holding the port, and the old process then hot-reloads new code with its old
-  environment - which looks exactly like the secrets being wrong.
+  the cron's decisions against real SQLite, the HTTP routes against `wrangler dev`,
+  and the whole UI in a real browser. About 226 checks. **If `wrangler dev` seems to
+  ignore `.dev.vars`, look for a stale `workerd`**: `TaskStop` kills wrangler's parent
+  but leaves `workerd` holding the port, and the old process then hot-reloads new code
+  with its old environment - which looks exactly like the secrets being wrong. Kill
+  the whole `wrangler dev` process tree, not just `workerd`, or it respawns.
 
 ## Search engines (SEO)
 All of this lives in `build_site.py`. Nothing here is a trick: every number a page claims is one it worked out from our own samples, and nothing is hidden from visitors to feed Google something different.
@@ -391,12 +418,13 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Before editing, pull the latest (the build job commits to `docs/` on `main`).
 - The owner buys domains and creates Cloudflare/AdSense accounts and accepts terms themselves.
 - Past mistake to avoid: pasting one file's contents into another (for example workflow text into `collector.py`). Check the first line of each file after any edit.
+- **`build_site.py` was silently rewritten back to its committed state once** (16 Nov 2026), losing about an hour of edits that had already been built and checked. The cause was never proved - OneDrive was not running, and an editor saving a stale buffer is the likeliest explanation - but the lesson is cheap: **commit as soon as a change builds, before the long tail of testing**, and if a change seems to have vanished, check the file against `git show HEAD:<file>` before assuming the code is wrong. Writing each patch to a file in the scratchpad rather than piping a heredoc is what made it re-appliable in two minutes.
 
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
 - **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints on About, Privacy **and** Terms through `contact_html()`, which is why setting it moved `POLICY_DATE` to 13 Nov 2026 - those two documents gained a Contact section. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
-- **Browser notifications are live** (16 Nov 2026): VAPID keys set in Cloudflare, the three push tables created in D1, and the panel renders on every game page. Reach is capped at Roblox's 10 signed-in users until the app review passes. See "Browser notifications" above.
-- **Sign in with Roblox works.** The domain unblocked it, the redirect URL is registered, and people have signed in and out for real since 14 Nov 2026 - which is how the sign-out bug above was found. The OAuth app is on the Roblox account `gp_isweird`, client id `5479373624062556036`, secret rotated 14 Nov 2026. **Still to do:** submit the app for review to lift Roblox's 10-user cap (needs a demo video under a minute and a justification for the scopes), and delete the old app `5285601446665495033`.
+- **Browser notifications are live and open to everybody** (16 Nov 2026): VAPID keys set in Cloudflare, the three push tables in D1, three switches per game, and `/notifications` to manage them. The Roblox review passed that morning, so the 10-user cap is gone. See "Browser notifications" above.
+- **Sign in with Roblox works.** The domain unblocked it, the redirect URL is registered, and people have signed in and out for real since 14 Nov 2026 - which is how the sign-out bug above was found. The OAuth app is on the Roblox account `gp_isweird`, client id `5479373624062556036`, secret rotated 14 Nov 2026, and it **passed Roblox's review on 16 Nov 2026** - the 10-user cap is lifted. **Still to do:** delete the old app `5285601446665495033`.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
 - **`MIN_SAMPLES` is at its launch value of 200** (set 2 Nov 2026) and **all 140 games clear it now**, so the dip it caused is over: the site builds 140 game pages and every one also passes `index_ok()`, so all 140 are in the sitemap. There is no reason to touch it again - it has stopped being a brake on the existing games and is now only a gate on *new* ones added to `games.txt`, which simply have no page for about a day and a half. Lowering it to 2 is still the undo if design work ever needs every game present.
 - Sitemap uses full URLs once `DOMAIN` is set in `build_site.py`.
@@ -414,7 +442,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **Redesign (Oct 2026)**: owner's palette, one game's page stripped back to a side menu plus search, hourly data drawn as line graphs with a draggable readout, a separate `/updates/<game>.html` page behind a "Game updates" button, and game passes shown with pictures and contents. See "Look and layout" above.
 - **Tile glow**: hovering a game lights it up in a colour taken from its own icon. Worked out at build time, so the browser downloads nothing extra and does no work for it. 99 of 100 games get a colour; the spread is mostly reds and oranges, which is what Roblox icons actually are.
 - **Admin dashboard redesign**: four tabs instead of one long page, the site's own black-and-purple palette fed in from `worker/theme.js`, a "Needs doing" list at the top worked out from real conditions, and the numbers drawn as graphs (a drag-to-read line for page views, rings for progress, bars for the days of the week and for pages and games). See "Admin dashboard" above.
-- **Reminders**: pick your days and whether you mean quiet or busy, and get a calendar file with each day's own best hour in it. Plus one per upcoming event. No accounts and no notifications. See "Reminders" above.
+- **Notifications**: three switches per game (Quiet, Busy, Events), managed on `/notifications` and reachable from the bell in the header. The calendar reminders they replaced are described under "Calendar reminders: removed".
 - **Jump links in the game page's button row** (Nov 2026): Events and Questions sit beside Play, Game updates and Save, so the sections furthest down a long page are one tap away. Compare left that row to make space. See "Look and layout" above.
 - **Similar games** row at the foot of each game page (`similar`): same category first, then closest in typical player count on a log scale, so 1K vs 2K counts like 100K vs 200K. The wording changes to "games with about as many players" when the category could not fill the row.
 - `main()` runs in **two passes**: pass one works out every game's numbers, pass two writes the pages. It has to be this way round because the "Similar games" row on each page needs to know about all the others. The empty-site guard sits between them, so it fires before anything is written.
@@ -426,7 +454,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 Launch checklist, in order:
 1. ~~**Buy the domain**~~ **done Nov 2026** - `playtimestats.com`, with `DOMAIN` and `CONTACT` set and the sitemap carrying full addresses.
 2. ~~**`MIN_SAMPLES = 200`**~~ **done 2 Nov 2026.** If it ever needs lowering again for design work, remember the trade: below 200 the site shows every game, at 200 it shows only the ones with enough readings to be worth believing, and `prune()` deletes the pages of any that drop out.
-3. **Finish Sign in with Roblox**, which cannot happen before step 1: Roblox rejects a `workers.dev` redirect URL, so the app has no working redirect until the domain exists. Once it does, add `https://<domain>/auth/callback` to the app, put `ROBLOX_CLIENT_ID` back, test a real sign-in, then submit the app for review (step 5 under "Sign in with Roblox" above) to lift the 10-person cap.
+3. ~~**Finish Sign in with Roblox**~~ **done, and the app passed review on 16 Nov 2026**, so the 10-person cap is lifted and sign-in - and therefore notifications - is open to everybody. The only loose end is deleting the old OAuth app `5285601446665495033`.
 4. ~~**`NOINDEX = False`**~~ **done 13 Nov 2026**, with all 140 games in the sitemap and `check_seo` clean. **The owner's half is still open**: add the site to Google Search Console and submit `sitemap.xml`, registering every address it answers on (the apex, `www`, and the `workers.dev` one) so Search Console does not treat them as different sites.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
 6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.

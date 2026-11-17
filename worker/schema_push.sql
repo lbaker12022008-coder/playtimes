@@ -36,7 +36,13 @@ CREATE INDEX IF NOT EXISTS idx_push_user ON push_subs (rbx_id);
 CREATE TABLE IF NOT EXISTS push_watch (
   rbx_id  TEXT    NOT NULL,
   slug    TEXT    NOT NULL,            -- the game page, e.g. blox-fruits
-  mode    TEXT    NOT NULL,            -- 'quiet' or 'busy'
+  -- Three independent switches, not one choice. They were a single 'mode' column
+  -- holding 'quiet' or 'busy' until 16 Nov 2026, which made the two mutually
+  -- exclusive for no reason anybody could explain: plenty of people want telling
+  -- about both, and events are a different question again. Any combination is valid,
+  -- and all three off means the row is deleted rather than kept as a silent watch.
+  quiet   INTEGER NOT NULL DEFAULT 0,  -- before it is usually at its quietest
+  busy    INTEGER NOT NULL DEFAULT 0,  -- before it is usually at its busiest
   lead    INTEGER NOT NULL DEFAULT 15, -- how many minutes before the window to say so
   -- Also tell them when one of the creators' own events is about to start. Separate
   -- from mode because it answers a different question: mode is about the crowd, this
