@@ -362,6 +362,10 @@ color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
 .bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
 .bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
 .bellb[disabled]{opacity:.55;cursor:default}
+/* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
+.nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
+.nextline:empty{display:none}
+.nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
 .actions .bellb{margin:0}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
@@ -1392,6 +1396,16 @@ def iso_day(ts):
     return datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
 
 
+def iso_moment(ts):
+    """A point in time -> '2026-11-16T14:00:00Z'.
+
+    What structured data wants for a moment, as opposed to iso_day() which is only
+    the date. Always UTC and always says so with the Z, because the builder cannot
+    know where the reader is and a time without a zone is a time nobody can place.
+    """
+    return datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def thumb(name, url, alt="", cls="thumb", eager=False):
     """A game's square picture.
 
@@ -1882,6 +1896,41 @@ def faq_html(c, a, f, meta, pattern):
             f'estimates built from samples, not official Roblox figures.</p></div>'), qa
 
 
+def event_schema(c, events, now):
+    """The creators' upcoming events, in the form Google reads.
+
+    Roblox events happen inside the game rather than anywhere on a map, so they are
+    VirtualLocation pointing at the game on Roblox, and the attendance mode says
+    online. Nothing here is invented: the name, the start and the end are the
+    creators' own, and an event with no end is left without one rather than being
+    given a guess.
+    """
+    out = []
+    for e in sorted(events or [], key=lambda e: e["start"]):
+        if e["start"] <= now or len(out) >= 10:
+            continue
+        ev = {
+            "@type": "Event",
+            "name": e["title"][:110],
+            "startDate": iso_moment(e["start"]),
+            "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "location": {"@type": "VirtualLocation",
+                         "url": f'https://www.roblox.com/games/{c["place"]}'},
+            "organizer": {"@type": "Organization", "name": c["name"]},
+            "url": abs_url(f'/game/{c["slug"]}'),
+        }
+        if e.get("end"):
+            ev["endDate"] = iso_moment(e["end"])
+        desc = clean_desc(e.get("description") or "")[:300]
+        if desc:
+            ev["description"] = desc
+        if c["icon"]:
+            ev["image"] = c["icon"]
+        out.append(ev)
+    return out
+
+
 def game_schema(c, a, meta, qa):
     """Structured data for one game page: what the game is, and what our data covers.
 
@@ -2048,10 +2097,25 @@ def calendar_html(name, events, now):
                 f'<span data-bell="events"></span><p class="none">{html.escape(name)} has no '
                 f'events planned on Roblox right now. When the creators announce one it will show up here.</p></div>')
     items = "".join(event_item(e, now) for e in soon[:8])
+    # The soonest one that has not started yet gets a live countdown. It is the
+    # question anybody opening this card is actually asking, and it was previously
+    # answerable only by reading a date and doing the arithmetic yourself.
+    ahead = [e for e in soon if e["start"] > now]
+    nxt = (f'<p class="nextline">Next event in <span class="cd" data-at="{int(ahead[0]["start"])}" '
+           f'data-done="moments"></span></p>') if ahead else ""
     return (f'<div class="card"><h2>Event calendar</h2>'
-            f'<span data-bell="events"></span>'
+            f'<span data-bell="events"></span>{nxt}'
             f'<p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p>'
             f'<ul class="evt">{items}</ul></div>')
+
+
+def next_update_line():
+    """An empty line PATTERN_JS fills with a countdown, when it can predict one.
+
+    Left empty rather than written out by the builder, because the moment has to be
+    shown on the reader's own clock and only the browser knows which that is.
+    """
+    return '<p class="nextline" id="nextupd"></p>'
 
 
 def updates_bell():
@@ -2520,6 +2584,24 @@ window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
 
 # Shared by every page that draws a week of player counts.
 SHARED_JS = """var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+/* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
+   the next-event and next-update lines; the quiet-window countdown on a game page
+   predates it and keeps its own ticker, because that one also has to work out WHICH
+   hour it is aiming at every five minutes.
+   The elements are looked up on every tick rather than once, because the next-update
+   one does not exist until PATTERN_JS has worked out when that is. */
+function ptCountdowns(){ /* see the note above */
+function gap(s){
+if(s<=0)return null;
+var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60);
+if(d)return d+'d '+h+'h '+m+'m';
+if(h)return h+'h '+m+'m '+(x<10?'0':'')+x+'s';
+return m+'m '+(x<10?'0':'')+x+'s'}
+function tick(){
+Array.prototype.forEach.call(document.querySelectorAll('[data-at]'),function(el){
+var left=gap(+el.dataset.at-Math.floor(Date.now()/1000));
+el.textContent=left?(el.dataset.pre||'')+left:(el.dataset.done||'happening now')})}
+tick();setInterval(tick,1000)}
 var W=['no data','very quiet','quiet','average','busy','very busy'];
 function $(id){return document.getElementById(id)}
 function fmt(h){return (h%12||12)+(h<12?' AM':' PM')}
@@ -2655,7 +2737,22 @@ return ss+'s'}"""
 
 # Writes the "updates usually arrive on a Friday around 2 PM" line. The page that
 # uses it defines P first, so the same code serves any game.
-PATTERN_JS = """if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
+PATTERN_JS = """
+/* When the next update is predicted to land, as a live countdown.
+   P.wd and P.hour are UTC, so the moment is worked out in UTC and the browser shows
+   it in local time by itself - the same rule every other time on this site follows.
+   Only drawn when an hour is known: a prediction of "some time on Friday" is not
+   something to count seconds down to, and saying so would be pretending to a
+   precision the data does not have. */
+if(P&&P.hour!=null&&$('nextupd')){
+var now=new Date();
+var at=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),P.hour,0,0);
+var want=(P.wd+1)%7;
+at+=((want-new Date(at).getUTCDay()+7)%7)*86400000;
+if(at<=now.getTime())at+=7*86400000;
+$('nextupd').innerHTML='Next update expected in <span class="cd" data-at="'+
+Math.floor(at/1000)+'" data-done="any time now"></span>';}
+if(P&&$('pattern')){var pd=P.wd,ph=P.hour,every=P.every?
 ', about every '+P.every+' day'+(P.every>1?'s':''):'';
 if(ph!=null){var pt=ph+tzOff();
 while(pt<0){pt+=24;pd=(pd+6)%7}while(pt>=24){pt-=24;pd=(pd+1)%7}
@@ -4044,7 +4141,12 @@ def main():
                 .replace("__FAVJS__", FAV_GAME)
                 .replace("__NOTIFY__", NOTIFY_HTML)
                 .replace("__PUSHJS__", PUSH_JS)
-                .replace("__JS__", GAME_JS.replace("__DATA__", jsdata(a["week"])))
+                # ptCountdowns() drives the "Next event in ..." line on the event
+                # calendar. The quiet-window countdown in GAME_JS keeps its own
+                # ticker, because that one also re-decides which hour it is
+                # aiming at every five minutes.
+                .replace("__JS__",
+                         GAME_JS.replace("__DATA__", jsdata(a["week"])) + "ptCountdowns();")
                 # __NAME__ last: it appears inside several of the blocks above.
                 .replace("__NAME__", html.escape(name)))
         # Back goes to this game's category when it has one, so the button lands
@@ -4062,7 +4164,8 @@ def main():
         if upd:
             # Right under that page's own heading, where somebody reading about this
             # game's updates is already looking.
-            upd = upd.replace("</h2>", "</h2>" + updates_bell(), 1)
+            upd = upd.replace(
+                "</h2>", "</h2>" + updates_bell() + next_update_line(), 1)
         # The sitemap only asks Google to look at an updates page that has
         # something on it; an empty one is not worth a visit.
         c["has_updates"] = bool(upd)
@@ -4082,7 +4185,7 @@ def main():
             + f'<p><a href="/game/{s}">&larr; Back to {html.escape(name)}</a></p>'
             + f'<script>{SHARED_JS}</script>'
             + f'<script>var P={jsdata(pattern)};'
-            + PATTERN_JS + '</script>'
+            + PATTERN_JS + 'ptCountdowns();</script>'
             + f'<script>window.PT_GAME={jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>'
             # The Updates bell lives on this page, so the notification code has to be
             # here too. PT_GAME above it is what tells it which game it is looking at.
@@ -4106,7 +4209,8 @@ def main():
                  f"hours, and the best time to play."),
             wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
-            schema=game_schema(c, a, meta, qa), noindex=thin, modified=iso_day(a["last"])))
+            schema=game_schema(c, a, meta, qa) + event_schema(c, upcoming, now),
+            noindex=thin, modified=iso_day(a["last"])))
 
     print(f"Built {len(cards)} game pages.")
 
