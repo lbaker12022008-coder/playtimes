@@ -88,6 +88,15 @@ CSS = """:root{__LIGHT__}
    then drops its own search row so the same control is not offered twice. */
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
+/* From 900px the bar carries the name, the bell and the magnifier, so the panel
+   stops offering the same two things a second time.
+   Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
+   one-class rule written FURTHER DOWN this stylesheet, and a media query adds no
+   specificity at all, so a single class here simply loses to it and the bar stays
+   empty at every width. Same trap as .w vs .shell>*, and .acctb vs .iconb. */
+.hdr .nots,.hdr .acctbar{display:block}
+.hdr .nots:empty,.hdr .acctbar:empty{display:none}
+.notsrow{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
@@ -289,8 +298,23 @@ border:1px solid var(--line);background:var(--shade)}
 /* The notification bell, at the right end of the bar, and the list it opens.
    Drawn only for somebody signed in: notifications are only offered to signed-in
    people, so for anybody else there is nothing it could ever list. */
-.nots{flex:none}
-.nots:empty{display:none}
+/* Both of these are computer-only. Written as display:none first and turned on
+   inside the 900px block, the same way .deskonly works, so the phone case is the
+   default and a new width cannot accidentally reveal them. */
+.nots,.acctbar{display:none;flex:none}
+.acctb{display:flex;align-items:center;gap:8px;max-width:210px;height:42px;
+padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
+color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+.acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
+.acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
+.acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
+border:1px solid var(--line);background:var(--shade)}
+.albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+font-size:.9rem}
+/* The panel's Notifications row is the other half of the same arrangement: it shows
+   on a phone, where the bell is not in the bar, and hides where the bell is. */
+.notsrow:empty{display:none}
+.notsrow svg{width:18px;height:18px;flex:none;fill:currentColor}
 /* One game on /notifications: its name, then its three switches. The switches drop
    onto their own line on a narrow screen rather than squeezing the name out. */
 .nlist{list-style:none;margin:0;padding:0}
@@ -1110,7 +1134,13 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # Both are written EMPTY - ptPaint() fills them once /api/me has answered, because
     # a built page is the same file for everyone and only the worker knows who is
     # signed in. :empty collapses whichever of them has nothing to say.
-    buttons = (f'<div class="nots"></div>'
+    # The name and the bell are BOTH computer-only, and the stylesheet is what does
+    # it: a phone's bar has room for the logo, the game picker and two buttons, and
+    # a name in there pushed the picker down to a stub. Everything they lead to is
+    # still reachable on a phone - the account and a Notifications row both sit in
+    # the panel behind the three lines, which is where a phone was always going.
+    buttons = (f'<div class="acctbar"></div>'
+               f'<div class="nots"></div>'
                f'<button class="iconb deskonly" data-search type="button" '
                f'aria-label="Search for a game">{ICON_SEARCH}</button>'
                f'<button class="iconb" id="menubtn" type="button" aria-expanded="false" '
@@ -1123,6 +1153,10 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     extras = (f'<div class="drawer" id="drawer" hidden>'
               f'<div class="dtop">'
               f'<div class="acct"></div>'
+              # Filled by ptPaint only for somebody signed in, and hidden from 900px
+              # up where the bell is in the bar - the same trick the search row uses,
+              # so the one control is never offered twice on the same screen.
+              f'<div class="notsrow"></div>'
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
               f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
@@ -2252,6 +2286,23 @@ var bell=(PT.available&&PT.name)
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
 el.innerHTML=bell});
+/* The same two things again, for the other width. The bar pill carries the name and
+   opens the panel rather than a menu of its own: everything it would have held -
+   the name, Sign out - is already in that panel, and a second menu holding the same
+   two things is one more place for them to disagree. */
+var pill=(PT.available&&PT.name)
+?'<button class="acctb" id="acctbar" type="button" aria-controls="drawer" '
++'aria-label="Your account">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
++'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
+el.innerHTML=pill});
+var nrow=(PT.available&&PT.name)
+?'<a class="drow" href="/notifications">'+PTBELL+'<span>Notifications</span></a>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.notsrow'),function(el){
+el.innerHTML=nrow});
 PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
 fetch('/api/me').then(function(r){return r.json()}).then(function(d){
 PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
@@ -2347,6 +2398,13 @@ var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
 if(show){var a=dr.querySelector('a');if(a)a.focus()}};
+/* The name in the bar opens that same panel, because everything it would have held
+   - the name, Sign out - already lives there, and a second menu holding the same two
+   things is one more place for them to disagree. Delegated from the document, since
+   ptPaint replaces this button every time /api/me answers. */
+document.addEventListener('click',function(e){
+if(!(e.target.closest&&e.target.closest('#acctbar')))return;
+e.stopPropagation();if(mb)mb.click()});
 
 /* Search. The list of games is only fetched the first time it is opened. */
 var sheet=document.getElementById('sheet'),GAMES=null;
