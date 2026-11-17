@@ -476,6 +476,27 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT` (reads `SITE_OUT`), `DOMAIN`, `CONTACT`, `SPIKE`.
 - `roblox_api.py`: every Roblox call made while building (icons, descriptions, game passes, events, and the colour each icon reads as). It reads PNGs itself, with the `zlib` that comes with Python, rather than pulling in Pillow: the build server installs nothing, so it must stay dependency-free. Icons are asked for as PNG only for the colour; the pages still use the WebP ones. Answers are cached in `.cache/` (gitignored) so a rebuild is instant; a cold build takes about 40 seconds for 51 games. If an endpoint dies, the function returns `None` and the page quietly leaves that section out.
 - `collector.py`, `cloud/collector_cloud.py`, `cloud/build_cloud.py`: data pipeline. They import each other, so change them together.
+  - **Roblox does not leave out an id it will not talk about: it sends a placeholder.**
+    A deleted or newly-private game comes back as
+    `{"id": 0, "name": "[TITLE UNAVAILABLE]", "rootPlaceId": 0, "created": "0001-01-01T00:00:00Z"}`.
+    Both collectors used to take `g["id"]` from the answer rather than the id they
+    asked about, so every dead game in `games.txt` was being collected into **one
+    shared phantom game**. By 17 Nov 2026 it had 166 samples on the `data` branch and
+    was gaining three every half hour, so it was about six hours from passing
+    `MIN_SAMPLES` and being given a page and a sitemap entry; it had already built
+    one in `preview/`. Both collectors now skip an entry with no id, and
+    `build_site.py` drops a row with no id or no name as a net, **because the samples
+    already on the `data` branch cannot be un-collected** - that guard is load-bearing
+    for ever, not a transitional one.
+  - **`0001-01-01` is .NET's `DateTime.MinValue`, and it is how Roblox says "no date".**
+    Left alone `_iso` turned it into `-62135575740`, which is **truthy**, so every
+    `if meta.get("updated")` guard passed it and the page claimed the creators last
+    touched the game in the year 1. On Windows `datetime.fromtimestamp()` then raises
+    `OverflowError` (the FILETIME floor is 1601) and takes the **whole build** down;
+    on Linux it does not crash, so the build server would have published the year-1
+    date quietly. `ROBLOX_EPOCH` in `roblox_api.py` is the floor: a date before 2003
+    reads as no date. **Any new date Roblox hands us goes through `_iso`**, never
+    `fromisoformat` directly.
 - `seed_demo.py`: invents player counts for local previews, using the real IDs in `games.txt` so names, pictures, descriptions and events are real. It refuses to run if `SITE_OUT=docs`.
 - `games.txt`: one universe ID per line (not place IDs), **and nothing else - no comments**. All four readers (`collector.py`, `cloud/collector_cloud.py`, `build_site.py`, `seed_demo.py`, and now `discover.py`) parse it as `open(...).read().split()` filtered by `isdigit()`, so *any* bare number in the file is read as a game ID: a line reading `# 140 games` would quietly become a request for universe 140. `discover.py` appends to it on a schedule (see "Finding new games"). **Every game in it is Roblox maturity "Minimal" or "Mild", and that is a rule, not a coincidence** - much of the audience is children. Before adding a game, read its label back from Roblox rather than judging it by the name: `POST https://apis.roblox.com/experience-guidelines-api/experience-guidelines/get-age-recommendation` with `{"universeId": N}` answers `contentMaturity`. Several of the biggest games on Roblox are "Moderate" (Murder Mystery 2, Dead Rails, BlockSpin, Da Hood, Deepwoken, Pressure), so the gap is not an oversight. To find a game's universe ID by name, `https://apis.roblox.com/search-api/omni-search?searchQuery=<name>&pageToken=&sessionId=<any uuid>&pageType=all` - it returns nothing at all without a `sessionId`.
 - `check_seo.py`: reads a built site and reports search-engine mistakes. Changes nothing.
