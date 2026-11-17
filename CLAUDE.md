@@ -420,6 +420,35 @@ before whichever of those is next.
 - **The first switch turned on without the site installed says so once**, with a link
   to `/install`. A note beside the switch, not a wall in front of it - outside Apple's
   world installing is an improvement rather than a requirement.
+- **On an iPhone or iPad in a tab, pressing a bell opens a popup instead** (`.ipop`,
+  `buildPop`/`openPop`/`closePop` in `PUSH_JS`, 17 Nov 2026). Apple allows no web push
+  at all until a site is on the home screen, so there the bells used to render as an
+  **empty slot**, which reads as the site being broken rather than as one step away
+  from working. They are drawn as ordinary bells now and pressing one explains Share
+  then Add to Home Screen, with a link to `/install` and its screenshots. It closes on
+  the X, on Escape and on a tap outside the box, and **it enables nothing** - there is
+  a test that fails if a watch is ever posted from an uninstalled Apple device.
+  - **It is Apple-only, and that is deliberate.** Web push works in an ordinary
+    browser tab on Android, Windows and Mac with no install at all, and that is the
+    proven path - the first real notification reached a real Chrome on Windows. Gating
+    those would switch off a working feature, and a browser that never offers an
+    install button (Firefox has none on desktop, so `ptInstalled()` can never become
+    true there) would be locked out for good with nothing to press. The owner asked
+    for a gate everywhere, was shown that trade, and settled on this.
+  - **The box is `var(--solid)`, never `var(--card)`.** `--card` is translucent for
+    the glass look, which is right for a card on the page and wrong for a popup: the
+    heading behind it read straight through the instructions. Caught in a screenshot,
+    not in the markup.
+  - It is appended to `<body>`, not written inside the header, for the same reason
+    `.drawer` and `.sheet` are - `.hdr` has `backdrop-filter`, which would make the
+    header the containing block for anything `position:fixed` inside it. `z-index:31`
+    puts it above the drawer and the search sheet, which are both 30.
+  - It is built once and kept, because `draw()` replaces the bells on every change and
+    a popup living inside that markup would be torn down while it was open.
+  - **The switches on `/notifications` go through it too.** They were drawn and
+    clickable on an iPhone tab and simply threw an error, so the interception sits at
+    the top of the delegated click handler and covers the bells, the switches and the
+    test button at once.
   - The worker cannot call Roblox, so `build_site.py` writes **`docs/events.json`**
     (`{games: {slug: [{t, s}]}}`, upcoming only, 12 per game) from the `all_events` it
     already collects. Its own small file rather than part of `data.json`, which carries
