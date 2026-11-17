@@ -1980,6 +1980,18 @@ def event_schema(c, events, now):
     return out
 
 
+def faq_schema(qa):
+    """The questions and answers, in the form Google reads.
+
+    It belongs wherever the questions themselves are written out, which is now a page
+    of its own: a FAQPage block on a page that does not show the questions would be
+    telling Google about content that is not there.
+    """
+    return [{"@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q,
+         "acceptedAnswer": {"@type": "Answer", "text": ans}} for q, ans in qa]}] if qa else []
+
+
 def game_schema(c, a, meta, qa):
     """Structured data for one game page: what the game is, and what our data covers.
 
@@ -3159,6 +3171,52 @@ def anchor(block, sid):
     return block.replace("<div ", f'<div id="{sid}" ', 1) if block else ""
 
 
+def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
+              noindex=False, modified="", tail=""):
+    """One of a game's sections, as a page of its own.
+
+    Game updates has worked this way for a while and the other three now match it.
+    The reason is search: a page about one thing, with that thing in its title, its
+    heading and its address, is what somebody typing "blox fruits game passes" is
+    looking for - and on the game page those sections were three cards a long way
+    down a long page, competing with everything above them.
+
+    The shell is shared so the four of them cannot drift into four slightly
+    different-looking pages: the same heading panel, the same way back, the same
+    wording for the link to the game itself.
+    """
+    name = c["name"]
+    s_ = c["slug"]
+    return page(
+        h1[0], (f'<div class="ghead rise">{thumb(name, c["icon"], icon_alt(name), eager=True)}'
+                f'<div><h1>{html.escape(h1[1])}</h1>'
+                f'<p class="mut">{intro}</p>'
+                f'<div class="actions"><a class="fav" href="/game/{s_}">&larr; '
+                f'{html.escape(name)} player count</a>{play}</div></div></div>'
+                + body
+                + f'<p><a href="/game/{s_}">&larr; Back to {html.escape(name)}</a></p>'),
+        h1[2], wide=True, banner=c["banner"], tail=tail,
+        canon=f"/{slug_folder}/{s_}", image=c["banner"] or c["icon"] or "",
+        trail=trail + [(f"{name} player count", f"/game/{s_}"), (h1[3], f"/{slug_folder}/{s_}")],
+        schema=extra_schema, noindex=noindex, modified=modified)
+
+
+def side_links(s_, have):
+    """The links to a game's own sections, in the row of buttons under its heading.
+
+    Only the ones that exist: a game whose creators have announced nothing would
+    otherwise offer a link to a page saying so, which is a worse answer than no link.
+    """
+    out = []
+    for folder, icon, label in (("updates", "&#128221;", "Game updates"),
+                                ("events", "&#128197;", "Events"),
+                                ("passes", "&#128176;", "What costs money"),
+                                ("questions", "&#10067;", "Questions")):
+        if have.get(folder):
+            out.append(f'<a class="fav" href="/{folder}/{s_}">{icon} {label}</a>')
+    return "".join(out)
+
+
 def jump_html(items):
     """The jump links that sit in the row of buttons under the game's heading.
 
@@ -3179,9 +3237,9 @@ def jump_html(items):
 # from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>
-<div class="actions">__PLAY__<span data-bell="all"></span><a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
+<div class="actions">__PLAY__<span data-bell="all"></span>__SIDELINKS__
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
-__JUMP__</div></div></div>
+</div></div></div>
 __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
@@ -3209,9 +3267,7 @@ __NOTIFY__</div>
 <p class="mut small">The outlined square is right now.</p>
 __HOURS__</div>
 __HISTORY__
-__CALENDAR__
-__PARENTS__
-__FAQ__
+
 </div>
 __SIMILAR__
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan?g=__SLUG__">Plan a session</a>
@@ -3793,7 +3849,8 @@ def write_bytes(path, data):
     WRITTEN.add(path.replace("\\", "/"))
 
 
-def prune(folders=("game", "category", "updates", "ics")):
+def prune(folders=("game", "category", "updates", "ics",
+                   "events", "passes", "questions")):
     """Deletes pages from an earlier build that this build did not write.
 
     Pages in these folders are named after the game or category, so without this a
@@ -4198,20 +4255,88 @@ def main():
             lead += (f'<br><span class="small">Listed on Roblox right now as '
                      f'&ldquo;{html.escape(full)}&rdquo;.</span>')
 
+        # Back goes to this game's category when it has one, so the button lands
+        # somewhere useful even for a visitor who arrived straight from Google.
+        where = ((f'/category/{slug(c["genre"])}', f'{c["genre"]} games')
+                 if in_cat else ("/", "All games"))
+        trail = [("All games", "/")]
+        if in_cat:
+            trail.append((f'{c["genre"]} games', f'/category/{slug(c["genre"])}'))
+        thin = not index_ok(c)
+
         faq, qa = faq_html(c, a, facts, meta, pattern)
-        # The sections that can be missing are built before the page, so the
-        # "On this page" row can list only the ones that are really there.
         hist_b = anchor(history_html(name, a), "history")
-        cal_b = anchor(span(calendar_html(name, events, now), 6), "events")
-        par_b = anchor(span(parents_html(passes, pass_icons), 6), "costs")
-        faq_b = anchor(faq, "questions")
-        # Game updates is already a button in this row and is a page of its own,
-        # so the only jumps worth offering are the two sections furthest down.
-        jump = []
-        for sid, icon, label, block in (("events", "&#128197;", "Events", cal_b),
-                                        ("questions", "&#10067;", "Questions", faq_b)):
-            if block:
-                jump.append((sid, icon, label))
+
+        # Everything about this game's updates gets its own page, reached from the
+        # row of buttons at the top of the game page.
+        upd = updates_html(name, events, meta, a["spikes"], now)
+        if upd:
+            # Right under that page's own heading, where somebody reading about this
+            # game's updates is already looking.
+            upd = upd.replace(
+                "</h2>", "</h2>" + updates_bell() + next_update_line(), 1)
+
+        # ---- the three sections that are now pages of their own.
+        # Each is built first so the row of buttons on the game page can link only to
+        # the ones that actually have something on them.
+        cal_b = calendar_html(name, events, now)
+        par_b = parents_html(passes, pass_icons)
+        has = {"updates": bool(upd), "events": bool(upcoming), "passes": bool(par_b),
+               "questions": bool(faq)}
+        # The sitemap only asks Google to look at a page that has something on it.
+        for folder, yes in has.items():
+            c["has_" + folder] = yes
+
+        if has["events"]:
+            write(f"events/{s}.html", side_page(
+                c, "events",
+                (seo_title(f"{name} Events: What Is On and When It Starts",
+                           f"{name} Events"),
+                 f"{name} events",
+                 clip(f"Every event the creators of {name} have announced on Roblox, when "
+                      f"each one starts in your own timezone, and how long it runs."),
+                 "Events"),
+                f"Every event the creators have put on Roblox&rsquo;s calendar for "
+                f"{html.escape(name)}, with a live countdown to the next one.",
+                cal_b, play, trail,
+                extra_schema=event_schema(c, upcoming, now),
+                # This page has the events bell on it and the countdown to the next
+                # one, so it needs what drives both. The other two side pages have
+                # neither and stay as plain documents.
+                tail=(f'<script>window.PT_GAME='
+                      f'{jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>'
+                      f'<script>{SHARED_JS}ptCountdowns();</script>'
+                      f'<script>{PUSH_JS}</script>'),
+                noindex=thin, modified=iso_day(a["last"])))
+
+        if has["passes"]:
+            write(f"passes/{s}.html", side_page(
+                c, "passes",
+                (seo_title(f"{name} Game Passes and Prices in Robux",
+                           f"{name} Game Passes"),
+                 f"What costs money in {name}",
+                 clip(f"Every {name} game pass, what the creators say it contains, and the "
+                      f"price in Robux and in dollars. Written for parents."),
+                 "What costs money"),
+                f"Every game pass the creators sell for {html.escape(name)}, what they say "
+                f"each one contains, and the price in Robux and in dollars.",
+                par_b, play, trail,
+                noindex=thin, modified=iso_day(a["last"])))
+
+        if has["questions"]:
+            write(f"questions/{s}.html", side_page(
+                c, "questions",
+                (seo_title(f"{name} Questions: Player Count, Best Times, Is It Dead",
+                           f"{name} Questions"),
+                 f"{name} questions",
+                 clip(f"The questions people ask about {name}, answered with the player "
+                      f"counts we have taken ourselves."),
+                 "Questions"),
+                f"The things people ask about {html.escape(name)}, answered from the "
+                f"player counts we take ourselves.",
+                faq, play, trail,
+                extra_schema=faq_schema(qa),
+                noindex=thin, modified=iso_day(a["last"])))
         body = (GAME.replace("__ICON__", thumb(name, c["icon"], icon_alt(name), eager=True))
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
@@ -4219,8 +4344,7 @@ def main():
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
-                .replace("__FAQ__", faq_b)
-                .replace("__JUMP__", jump_html(jump))
+                .replace("__SIDELINKS__", side_links(s, has))
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
@@ -4228,9 +4352,7 @@ def main():
                 .replace("__SITE__", html.escape(SITE))
                 .replace("__VLABEL__", vlabel).replace("__VCOL__", vcol).replace("__VTEXT__", vtext)
                 .replace("__SPARK__", sparkline(a["daily"], a["spikes"]))
-                .replace("__CALENDAR__", cal_b)
                 .replace("__ABOUT__", about_game_html(name, meta))
-                .replace("__PARENTS__", par_b)
                 .replace("__SIMILAR__", similar_html(c, cards))
                 .replace("__GAMEINFO__", jsdata({"s": s, "n": name, "i": c["icon"] or ""}))
                 .replace("__SHARED__", SHARED_JS)
@@ -4245,26 +4367,7 @@ def main():
                          GAME_JS.replace("__DATA__", jsdata(a["week"])) + "ptCountdowns();")
                 # __NAME__ last: it appears inside several of the blocks above.
                 .replace("__NAME__", html.escape(name)))
-        # Back goes to this game's category when it has one, so the button lands
-        # somewhere useful even for a visitor who arrived straight from Google.
-        where = ((f'/category/{slug(c["genre"])}', f'{c["genre"]} games')
-                 if in_cat else ("/", "All games"))
-        trail = [("All games", "/")]
-        if in_cat:
-            trail.append((f'{c["genre"]} games', f'/category/{slug(c["genre"])}'))
-        thin = not index_ok(c)
 
-        # Everything about this game's updates gets its own page, reached from the
-        # "Game updates" button at the top of the game page.
-        upd = updates_html(name, events, meta, a["spikes"], now)
-        if upd:
-            # Right under that page's own heading, where somebody reading about this
-            # game's updates is already looking.
-            upd = upd.replace(
-                "</h2>", "</h2>" + updates_bell() + next_update_line(), 1)
-        # The sitemap only asks Google to look at an updates page that has
-        # something on it; an empty one is not worth a visit.
-        c["has_updates"] = bool(upd)
         write(f"updates/{s}.html", page(
             seo_title(f"{name} Update History and Patch Notes",
                       f"{name} Update History"),
@@ -4305,7 +4408,11 @@ def main():
                  f"hours, and the best time to play."),
             wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
-            schema=game_schema(c, a, meta, qa) + event_schema(c, upcoming, now),
+            # The questions and the events are written out on their own pages now,
+            # so their structured data went with them: a FAQPage block on a page that
+            # does not show the questions would be describing content that is not
+            # there.
+            schema=game_schema(c, a, meta, []),
             noindex=thin, modified=iso_day(a["last"])))
 
     print(f"Built {len(cards)} game pages.")
@@ -4624,8 +4731,9 @@ def main():
             continue
         last = iso_day(c["a"]["last"])
         pages.append((f'/game/{c["slug"]}', "0.9", last))
-        if c.get("has_updates"):
-            pages.append((f'/updates/{c["slug"]}', "0.5", last))
+        for folder in ("updates", "events", "passes", "questions"):
+            if c.get("has_" + folder):
+                pages.append((f'/{folder}/{c["slug"]}', "0.5", last))
     pages += [("/about", "0.3", today), ("/install", "0.3", today),
               ("/privacy", "0.2", today), ("/terms", "0.2", today)]
 
