@@ -1,0 +1,986 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Grow a Garden Questions | PlayTime</title>
+<meta name="description" content="The questions people ask about Grow a Garden, answered with the player counts we have taken ourselves."><meta name="theme-color" content="#A855F7">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/questions/grow-a-garden">
+<meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
+<meta property="og:title" content="Grow a Garden Questions | PlayTime">
+<meta property="og:description" content="The questions people ask about Grow a Garden, answered with the player counts we have taken ourselves.">
+<meta property="og:url" content="https://playtimestats.com/questions/grow-a-garden"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-5890289e44d41be2699d308bac4b68b8/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
+<meta property="article:modified_time" content="2026-11-17">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PlayTime">
+<link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
+<script>try{var d=document.documentElement,t=localStorage.getItem('pt_theme');if(t)d.setAttribute('data-theme',t);d.setAttribute('data-view',localStorage.getItem('pt_view')==='list'?'list':'grid')}catch(e){document.documentElement.setAttribute('data-view','grid')}</script><style>:root{--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;--mut:#595068;
+--line:#DDD6E8;--acc:#7E22CE;--acc2:#9333EA;--alt:#0E7490;--sky:#E9D5FF;--btnink:#fff;
+--glass:rgba(246,244,251,.86);--sh:0 1px 2px rgba(10,10,15,.07),0 10px 30px rgba(10,10,15,.11);
+--l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
+--soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14;
+--glowh:272;--glowa:.32}
+/* Widths only apply once there is room for them. Below 900px every card is full
+   width again, because two columns of this on a phone is unreadable. */
+@media(min-width:900px){
+.bento{gap:18px;margin-top:-30px}   /* pulls the first row up under the heading panel */
+.lstack{gap:18px}                   /* must match .bento's gap, or the column looks loose */
+.bento>.sp4{grid-column:span 4}.bento>.sp5{grid-column:span 5}
+.bento>.sp6{grid-column:span 6}.bento>.sp7{grid-column:span 7}.bento>.sp8{grid-column:span 8}
+/* The week grid gets a lot wider on a wide page, so the squares grow with it rather
+   than stretching into letterboxes, and it stops short of the full width. */
+.hm{max-width:1120px;margin-left:auto;margin-right:auto}
+.hm .c{height:32px}
+/* The magnifier goes back in the bar once there is room for it, and the panel
+   then drops its own search row so the same control is not offered twice. */
+.iconb.deskonly{display:grid}
+.dtop .drow[data-search]{display:none}
+/* From 900px the bar carries the name, the bell and the magnifier, so the panel
+   stops offering the same two things a second time.
+   Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
+   one-class rule written FURTHER DOWN this stylesheet, and a media query adds no
+   specificity at all, so a single class here simply loses to it and the bar stays
+   empty at every width. Same trap as .w vs .shell>*, and .acctb vs .iconb. */
+.hdr .nots,.hdr .acctbar{display:block}
+.hdr .nots:empty,.hdr .acctbar:empty{display:none}
+.notsrow{display:none}
+}
+/* Follow the device unless the visitor picked a theme themselves. */
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
+--acc:#A855F7;--acc2:#C084FC;--alt:#22D3EE;--sky:#E9D5FF;--glass:rgba(10,10,15,.86);--btnink:#0A0A0F;
+--sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
+--up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
+--shade:rgba(255,255,255,.06);--bannerop:.3;--glowa:.5}}
+:root[data-theme=dark]{--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
+--acc:#A855F7;--acc2:#C084FC;--alt:#22D3EE;--sky:#E9D5FF;--glass:rgba(10,10,15,.86);--btnink:#0A0A0F;
+--sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.62);
+--up:#34D399;--down:#FF7A8A;--soft:#150F24;--favbg:#241739;--favink:#D8B4FE;
+--shade:rgba(255,255,255,.06);--bannerop:.3;--glowa:.5}
+*{box-sizing:border-box}
+body{margin:0;position:relative;background:var(--bg);color:var(--ink);font:18px/1.6 ui-rounded,"SF Pro Rounded",Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;overflow-wrap:break-word;overflow-x:clip}
+/* overflow-wrap stops one long word dragging the page wider than the phone. The
+   text is not ours: creators paste group links into a game's description, and a
+   61-character URL is about 430px, which is wider than a card on any phone.
+   overflow-x:clip is the net under all of this, in case something new overflows
+   one day. It must be clip and not hidden: hidden makes the body a scrolling box,
+   which would stop the sticky header sticking. */
+/* The game's own artwork, faded out behind the top of the page. Decorative only:
+   it sits under everything and fades into the page colour, so text stays readable
+   in both themes. The sticky header is see-through, so it picks the colour up too. */
+.banner{position:absolute;top:0;left:0;right:0;height:360px;z-index:0;overflow:hidden;pointer-events:none}
+.banner img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
+filter:blur(7px) saturate(1.2);transform:scale(1.1);opacity:var(--bannerop)}
+.banner::after{content:"";position:absolute;inset:0;
+background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%)}
+.shell{position:relative;z-index:1}   /* keep the page content above the artwork */
+/* width:100% is not spare. .w is a grid item with auto side margins, and an item
+   with auto margins is not stretched to its track - it is sized to its contents
+   and centred in whatever is left. So a page whose contents happened to be narrow
+   drew a narrow column and centred that: /popular came out 1024px wide and
+   /trending 1001px inside the same 1400px band, each centred on its own, so
+   every one of them started at a different distance from the logo (475px, 464px,
+   446px, 404px at 1920px). Asking for the full width and capping it with max-width
+   makes every page the same width and lines them all up under the header. */
+.w{width:100%;max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
+.w.wide{max-width:min(1400px,100%)}
+/* The page sits in the middle with a column either side kept for ads, the way most
+   game-value sites lay out. The side columns only appear on wide screens, and only
+   when there is something to put in them. */
+.shell{display:grid;grid-template-columns:minmax(0,1fr);justify-content:center}
+/* A grid item defaults to min-width:auto, which means it refuses to shrink below
+   the widest thing inside it. On a phone that let one wide child drag .w to 1094px
+   inside a 390px track, and every page then scrolled sideways. The track is already
+   minmax(0,1fr); this is the other half of the same fix. */
+/* max-width is the half that actually does the work. .shell centres its track with
+   justify-content, and a grid item in a centred track is allowed to grow past the
+   track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
+   phone and every page scrolled sideways. min-width:0 alone does not stop that. */
+.shell>*{min-width:0;max-width:100%}
+/* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
+   .w's own max-width on source order and the reading pages ran the full width of
+   the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
+   across on a 1920px screen, flush to the left edge, while the logo above them
+   sat 280px in. .w.wide was never affected because two classes outrank one, which
+   is why only the reading pages looked wrong. Re-stating both clamps as children
+   of .shell gives them the weight to survive, the same trick the wide pages got
+   for free. Keep them after .shell>*, and keep the min(...,100%) form. */
+.shell>.w{max-width:min(820px,100%)}
+.shell>.w.wide{max-width:min(1400px,100%)}
+.rail{display:none}
+.shell.ads{gap:20px}
+/* The rails belong beside the words, not out at the edges of the screen. A 1fr
+   middle track eats every spare pixel, so on a 2560px monitor the reading column
+   stayed 820px in the middle and the ads sat nearly 700px away from it, reading as
+   two stray boxes rather than a page. Capping the middle track at the width the
+   page actually uses lets justify-content centre all three together instead.
+   minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
+   wide pages instead of scrolling sideways. */
+@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
+.shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+/* With the rails up the middle column is no longer 1400px: the three tracks need
+   1776px between them, so from 1480 to 1776 the middle one shrinks and the band
+   holding the logo has to shrink with it, or the logo drifts left of the words
+   again - 88px out at 1600px. 376px is the two 168px rails plus the two 20px
+   gaps. .wideads is only put on the header when the rails are up AND the page is
+   wide, so this can never reach a reading page (which stays capped at 820px by
+   .hdr.narrow, a selector of exactly the same weight). */
+@media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
+/* The strip along the bottom only exists at all when ads are switched on, and it is
+   the ONLY ad slot a phone or a tablet ever sees: the side rails need 1480px. It used
+   to start at 900px, which meant every phone and an iPad held upright showed no ads
+   at all - and this audience is overwhelmingly on phones, so that was most of the
+   site's income switched off. It is deliberately short at 66px (about a 50px banner
+   once the padding and rule are taken off), because a bar on a 844px-tall phone is
+   spending screen the visitor came for; the laptop strip keeps its 98px.
+   z-index 8 is below the header (9), the scrim (25) and the drawer and search sheet
+   (30), so an open menu covers the ad rather than fighting it.
+   position:sticky, not fixed: a sticky element still takes its space at the end of
+   the page, so the footer is never left permanently hidden underneath it - and a
+   fixed one would be trapped by the backdrop-filter above it anyway. */
+.railb{display:block;position:sticky;bottom:0;z-index:8;
+background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+padding:6px;text-align:center;height:66px}
+@media(min-width:900px){.railb{height:98px}}
+.adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
+display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
+a{color:var(--acc)}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:.4em 0 .3em;letter-spacing:-.02em}
+h2{font-size:1.15rem;margin:0 0 6px}
+h3{font-size:1rem;margin:1.3em 0 .2em}
+.lede{font-size:1.05rem;color:var(--mut);margin:.2em 0 1em}
+.card,.ghead>div{min-width:0}
+.card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0;box-shadow:var(--sh)}
+/* The description drawer under the game heading. Its arrow is drawn with two
+   borders rather than loaded as a picture, and turns over when the drawer opens. */
+.gdesc{position:relative;z-index:2;background:var(--card);backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);margin:0 0 14px}
+.gdesc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px}
+.gdesc>summary::-webkit-details-marker{display:none}
+.gdesc>summary h2{margin:0;font-size:1.03rem}
+.gdesc>summary:hover h2,.gdesc[open]>summary h2{color:var(--acc)}
+.gdesc>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.gdesc[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.gdesc-in{padding:0 18px 16px}
+.gdesc-in>:first-child{margin-top:0}
+/* ---- Bento: a page as a grid, not one tall column ---------------------------
+   A game page has a dozen sections. Stacked one per row, the last of them is a very
+   long way down. Laid out two and three across, a visitor sees several at once.
+   Each card keeps its place in the HTML and only its WIDTH changes, so the reading
+   order, screen readers and check_seo.py all see exactly what they saw before: the
+   grid never reorders anything, which is why there is no grid-auto-flow:dense here.
+   Cards keep their own height (align-items:start) rather than stretching to match the
+   tallest in the row. What goes in them varies far too much for that: a game with no
+   events sits next to a long FAQ, a 7-row table next to a 24-row one, and stretching
+   turns the short one into a mostly empty box. The even gaps hold the grid together. */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin:0 0 16px;align-items:start}
+/* min-width:0 matters: a grid item defaults to min-width:auto, so one wide table
+   or long word inside a card could otherwise force the whole grid wider. */
+/* scroll-margin-top keeps a jumped-to heading clear of the sticky header,
+   which is about 65px tall here and 57px on a phone. */
+.bento>*{grid-column:1/-1;margin:0;min-width:0;scroll-margin-top:78px}   /* full width by default; the grid owns the spacing */
+/* Two short cards sharing one column, so the tall card beside them has something
+   to sit against. The grid cannot do this by itself: its rows are rigid, so a card
+   shorter than the one next to it simply leaves the space under it empty - "The
+   short answer" is 239px tall and "Plan my session" is 735px, which left a 496px
+   hole on every game page. A nested column is used rather than grid-row:span 2
+   because spanning splits the slack evenly between the rows, which would open an
+   arbitrary gap BETWEEN the two cards instead of closing it. Its gap has to be
+   kept level with the bento's own, both here and in the wide block above. */
+.lstack{display:flex;flex-direction:column;gap:14px}
+.lstack>.card{margin:0;min-width:0;scroll-margin-top:78px}
+.mut{color:var(--mut)}.small{font-size:.9rem}
+.up{color:var(--up)}.down{color:var(--down)}
+.wrap{overflow-x:auto}
+button,.btn,.chip,select{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ans p{margin:.35em 0;font-size:1.1rem}
+
+/* top bar, with the sections across the top */
+.hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
+/* One slim bar, about 62px tall, holding four things. */
+.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 16px}
+/* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
+   the words below it start, and the phone block already pairs them at 14px. */
+/* The bar's contents sit over the page's contents, so the band holding the logo
+   has to be as wide as the column underneath it - 1400px on the wide pages, 820px
+   on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
+   About, Events, Compare and Plan stood about 290px to the left of the words it
+   was supposed to be sitting above, because an 820px column is centred inside a
+   1400px band. .hdr itself still spans the whole screen; only what is inside it
+   moves, so the bar does not change shape from page to page. */
+.hdr.narrow .in{max-width:min(820px,100%)}
+.hrow{display:flex;align-items:center;gap:12px}
+.hrow .gap{flex:1 1 auto}
+/* The account lives in the bar, beside the search, rather than inside the panel
+   behind the three lines: it is the one control that says something about the
+   person rather than about the page, and buried in a menu nobody found it.
+   Signed out it is a round button that leads to Roblox; signed in, the person's
+   own picture takes its place and their name and Sign out move into a small menu
+   underneath - the bar has room for a face, not for a name and a verb.
+   From 900px up both forms widen into a pill and say what they are, because an
+   unlabelled glyph is the one kind of button up here whose meaning cannot be
+   guessed, which is why the bell is the only thing in the bar that is new: it is
+   drawn for signed-in people, who have already met notifications on a game page.
+   :empty is what keeps the bar tidy when the Roblox keys are missing - ptPaint()
+   writes nothing at all then, and an empty div would hold a gap open. */
+/* THE ACCOUNT IS IN THE PANEL, NOT THE BAR. It was moved into the bar in Nov 2026
+   on the grounds that a face is easier to find than a menu item, and moved back out
+   in Nov 2026 when the owner wanted the bar down to icons so the notification bell
+   could live there. The name and Sign out were already in a menu hanging off the
+   bar, so this is the same two things in a place with room for them.
+   :empty is what keeps the panel tidy when the Roblox keys are missing - ptPaint()
+   writes nothing at all then, and an empty div would hold a gap open. */
+.acct{display:flex;flex-direction:column;gap:2px;margin-bottom:8px;padding-bottom:8px;
+border-bottom:1px solid var(--line)}
+.acct:empty{display:none}
+.acct form{margin:0}
+.acct .drow{text-decoration:none}
+.acct svg{width:18px;height:18px;flex:none;fill:currentColor}
+/* Picture, name, and a quiet line saying where the name came from. */
+.awho{display:flex;align-items:center;gap:11px;padding:9px 13px}
+.awho>span{display:flex;flex-direction:column;min-width:0}
+.awho b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.awho i{font-style:normal}
+/* Width and height are on the tag too, so the panel does not jump when the picture
+   arrives. flex:0 0 auto stops a long display name squeezing it. */
+.acct .pfp{width:34px;height:34px;border-radius:50%;flex:0 0 auto;object-fit:cover;
+border:1px solid var(--line);background:var(--shade)}
+
+/* The notification bell, at the right end of the bar, and the list it opens.
+   Drawn only for somebody signed in: notifications are only offered to signed-in
+   people, so for anybody else there is nothing it could ever list. */
+/* Both of these are computer-only. Written as display:none first and turned on
+   inside the 900px block, the same way .deskonly works, so the phone case is the
+   default and a new width cannot accidentally reveal them. */
+.nots,.acctbar{display:none;flex:none}
+.acctb{display:flex;align-items:center;gap:8px;max-width:210px;height:42px;
+padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
+color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+.acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
+.acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
+.acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
+border:1px solid var(--line);background:var(--shade)}
+.albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+font-size:.9rem}
+/* The panel's Notifications row is the other half of the same arrangement: it shows
+   on a phone, where the bell is not in the bar, and hides where the bell is. */
+.notsrow:empty{display:none}
+.notsrow svg{width:18px;height:18px;flex:none;fill:currentColor}
+/* One game on /notifications: its name, then its three switches. The switches drop
+   onto their own line on a narrow screen rather than squeezing the name out. */
+.nlist{list-style:none;margin:0;padding:0}
+.nrow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;
+padding:12px 0;border-bottom:1px solid var(--line)}
+.nrow>a{display:flex;align-items:center;gap:11px;flex:1 1 170px;min-width:0;
+text-decoration:none;color:var(--ink)}
+.nrow img{width:34px;height:34px;border-radius:9px;flex:none;object-fit:cover}
+.nrow>a span{flex:1 1 auto;min-width:0;font-weight:700;
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The events tickbox in the notification panel. A real checkbox rather than a third
+   pill beside Quiet and Busy: those two are a choice between one and the other, and
+   this is an extra on top of whichever was picked. */
+/* The numbered steps on /install, each with a screenshot under it. The picture is
+   capped well below its own width: these are phone screenshots, tall and narrow, and
+   at full size one step would fill the screen and hide the fact that there are four.
+   width and height are on the tag so the page does not jump as each one loads. */
+.shots{padding-left:22px}
+.shots>li{margin:0 0 22px}
+.shots>li>p{margin:0 0 10px}
+.shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
+border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The two-line history chart, and the key under it. The key uses a coloured block
+   rather than naming the colours in words: a colour named in text goes stale on the
+   next palette change, which the 45-day caption did once already. */
+.hist{display:block;width:100%;height:150px;margin:4px 0 2px}
+/* A build-time chart that can be dragged (scrub() and SCRUB_JS). The dots are HTML
+   rather than SVG circles because these charts stretch to fit with
+   preserveAspectRatio none, which would squash a circle into an oval. */
+.scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+.scrub>svg{margin:0}
+.scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
+pointer-events:none;transform:translateX(-.75px)}
+.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
+border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+.scrub.on .sdot{display:block}
+.hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
+.hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
+margin:0 6px 3px 0;vertical-align:middle}
+.hleg .k.acc{background:var(--acc)}
+.hleg .k.alt{background:var(--alt)}
+.nevt{display:flex;align-items:flex-start;gap:9px;margin:10px 0 2px;
+font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.45}
+.nevt input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:var(--acc);cursor:pointer}
+/* The three switches. Each is on or off by itself - they were one Quiet-or-Busy
+   choice until 16 Nov 2026, which made two perfectly compatible things exclusive.
+   aria-pressed carries the state, so the styling and the screen reader cannot
+   disagree about which are on. */
+/* A bell sits under the heading of the section it belongs to, or in the row of
+   buttons at the top of a game page. Same object in both places. */
+.bellb{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.bellb svg{width:15px;height:15px;flex:none;fill:currentColor}
+.bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.bellb[disabled]{opacity:.55;cursor:default}
+a.bellb{text-decoration:none}
+/* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
+.nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
+.nextline:empty{display:none}
+.nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
+.actions .bellb{margin:0}
+.togs{display:flex;gap:7px;flex-wrap:wrap}
+.tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
+background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
+cursor:pointer}
+.tog:hover:not([disabled]),.tog:focus-visible{color:var(--ink);box-shadow:var(--rim)}
+.tog[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
+.tog[disabled]{opacity:.55;cursor:default}
+.saidit{margin:12px 0;padding:11px 13px;border:1px solid var(--line);
+border-radius:12px;background:var(--shade);font-size:.92rem}
+/* A game that is only on this list because it was saved, so the row reads as an
+   offer rather than as something already switched on. */
+.svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
+letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{width:32px;height:32px;flex:none}
+.logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+/* The header is logo, name and game picker on the left, then the account, the
+   search magnifier and the three-line button on the right. Light and dark is the
+   one control still kept in the panel that button opens; search joins it below
+   900px, where the bar has no room to offer both. */
+/* the game switcher, top left */
+.gpick{position:relative;min-width:0}
+.gpick>button{display:flex;align-items:center;gap:8px;max-width:240px;min-width:0;padding:8px 13px;border-radius:12px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:700}
+.gpick>button:hover{border-color:var(--acc)}
+.gpick img,.gpick .ph{width:24px;height:24px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
+.gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
+.gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--solid);
+border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;z-index:20}
+.gmenu[hidden]{display:none}
+.gmenu p{margin:7px 10px 4px;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.gmenu a{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:.92rem}
+.gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
+.gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
+.gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
+/* round icon button on the right of the header */
+.iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
+.iconb:hover{border-color:var(--acc)}
+/* The bell is an anchor, so it needs saying that it is not an underlined link. */
+.iconb{text-decoration:none}
+/* Shown only inside the min-width:900px block near the top of this stylesheet. */
+.deskonly{display:none}
+.iconb svg{width:19px;height:19px;fill:currentColor}
+.themeic .moon{display:none}
+:root[data-theme=dark] .themeic .moon{display:block}
+:root[data-theme=dark] .themeic .sun{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .themeic .moon{display:block}
+:root:not([data-theme=light]) .themeic .sun{display:none}}
+/* the side drawer and the search sheet, used on the pages about one game */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
+background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
+padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
+.drawer[hidden]{display:none}
+/* The panel's top section: the controls that are in the header on a wide screen. */
+.dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
+border-bottom:1px solid var(--line)}
+.drow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:0;
+border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
+text-align:left;cursor:pointer}
+.drow:hover,.drow:focus-visible{background:var(--shade)}
+.drow svg{width:18px;height:18px;flex:none;fill:currentColor}
+.drawer nav{display:flex;flex-direction:column;gap:2px}
+.drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
+.drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
+.scrim{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
+.scrim[hidden]{display:none}
+@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
+.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
+.sheet[hidden]{display:none}
+.sheetbox{width:min(560px,100%);background:var(--solid);border:1px solid var(--line);
+border-radius:16px;box-shadow:var(--sh);padding:12px}
+.qout{max-height:50vh;overflow-y:auto;margin-top:8px}
+.qout a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+text-decoration:none;color:var(--ink)}
+.qout a:hover,.qout a:focus-visible{background:var(--shade)}
+.qout img,.qout .ph{width:30px;height:30px;border-radius:8px;flex:none;object-fit:cover;background:var(--line)}
+.qout p{margin:8px 10px;color:var(--mut);font-size:.9rem}
+/* game passes: picture, what it contains, what it costs */
+.passes{list-style:none;padding:0;margin:14px 0 6px;display:grid;gap:10px;
+grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr))}
+.pass{display:flex;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--shade)}
+.pass img,.pass .ph{width:64px;height:64px;flex:none;border-radius:12px;object-fit:cover;
+background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--mut);font-size:.95rem}
+.pass>div{min-width:0}
+.pass b{display:block;line-height:1.25}
+.pass p{margin:.3em 0;font-size:.9rem;color:var(--mut);line-height:1.4}
+.pass .price{font-weight:700;font-size:.92rem}
+.ptag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;
+margin:3px 4px 0 0;vertical-align:1px;background:var(--soft);color:var(--acc)}
+.ptag.sale{background:#E5AD2A;color:#10131c}
+.ptag.cheap{background:var(--sky);color:#10131c}
+/* grid or list */
+.vtog{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.vtog button{display:grid;place-items:center;width:34px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;padding:0}
+.vtog button svg{width:16px;height:16px;fill:currentColor}
+.vtog button[aria-pressed=true]{background:var(--acc);color:var(--btnink)}
+.rowhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+.rowhead h2{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-view=list] .grid{grid-template-columns:minmax(0,1fr);gap:8px}
+:root[data-view=list] .tile{display:flex;align-items:center;gap:14px;padding:8px 12px;background:var(--card);
+border:1px solid var(--line);border-radius:13px}
+:root[data-view=list] .tile:hover{border-color:var(--acc)}
+:root[data-view=list] .thumb{width:52px;height:52px;flex:none;border-radius:10px}
+:root[data-view=list] .tile:hover .thumb{transform:none;box-shadow:none}
+:root[data-view=list] .ph{font-size:1.4rem}
+:root[data-view=list] .tname{-webkit-line-clamp:1;margin:0;flex:1 1 auto;min-width:0}
+:root[data-view=list] .tmeta{margin:0;flex:none}
+/* A scrolling strip is written as a block with nowrap text, never as a nowrap
+   flex row: a nowrap flex container hands its parent the total width of its
+   items, so the page grows to fit a strip that was supposed to scroll. */
+.drawer a[aria-current=page]{background:var(--soft);color:var(--acc)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem;transition:border-color .12s,box-shadow .18s}
+.pills a:hover{border-color:var(--acc)}
+.hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* "what are you looking for?" */
+.ask{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));margin:14px 0}
+.chip{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .12s,border-color .12s,box-shadow .18s}
+.chip:hover{transform:translateY(-2px);border-color:var(--acc)}
+.chip[aria-pressed=true]{border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.note{border:1px solid var(--acc);border-radius:14px;padding:12px 15px;margin:12px 0;
+background:var(--card);font-size:.95rem;line-height:1.5;box-shadow:var(--sh)}
+.back{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px;padding:7px 13px;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;
+font-size:.9rem;font-weight:600}
+.back:hover{border-color:var(--acc)}
+.chip b{display:block;font-size:1rem}
+.chip i{display:block;font-style:normal;font-size:.85rem;color:var(--mut);line-height:1.35}
+
+/* A thin rim of light around the two rows of controls above the games, so they
+   answer a hover the way a game tile does without being painted like one.
+   Deliberately different from the tile glow on both counts:
+   - It is a box-shadow, not a blob behind the control, so the light follows the
+     border and stops there. A halo the size of the whole chip read as the chip
+     changing colour rather than as it lighting up.
+   - Every one of them is the accent. A tile borrows the hue of its own icon
+     because it HAS one; a category and a question do not, and a different
+     colour per category read as decoration pretending to mean something.
+   --glowh is the accent's hue and --glowa the strength, both already tuned per
+   theme for the tiles, so this stays in step with them. z-index lifts the one
+   being pointed at, or the next pill along paints over its light. */
+.chip,.pills a{position:relative;
+--rim:0 0 0 1px hsl(var(--glowh) 92% 62%/.5),0 0 12px hsl(var(--glowh) 92% 62%/var(--glowa))}
+.chip:hover,.chip:focus-visible,.pills a:hover,.pills a:focus-visible{z-index:1}
+.chip:hover,.chip:focus-visible{box-shadow:var(--sh),var(--rim)}
+.pills a:hover,.pills a:focus-visible{box-shadow:var(--rim)}
+/* The chosen chip is marked by its inset ring and does NOT glow on its own: a
+   light that is always on stops reading as a response to anything. It still
+   lights up while it is the one being pointed at, which needs a rule of its own
+   because [aria-pressed=true] and :hover have equal specificity. */
+.chip[aria-pressed=true]:hover,.chip[aria-pressed=true]:focus-visible{
+box-shadow:inset 0 0 0 2px var(--acc),var(--rim)}
+
+/* game tiles */
+.grid{list-style:none;padding:0;margin:14px 0;overflow-x:clip;overflow-y:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:22px 14px}
+.grid>li{animation:up .45s cubic-bezier(.2,.75,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
+.tile{display:block;text-decoration:none;color:var(--ink);position:relative;isolation:isolate}
+.thumb{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--line);transition:transform .15s,box-shadow .15s}
+.ph{display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:var(--mut)}
+.tile:hover .thumb{transform:translateY(-4px) scale(1.015);
+box-shadow:0 10px 24px hsl(var(--glow,var(--glowh)) 75% 38%/.45)}
+/* The glow behind a tile is that game's own colour. --glow is the hue of its
+   picture, worked out while the site is built (roblox_api.fetch_icon_hues) and
+   written onto the tile as a single number; a game whose picture has no colour
+   in it never gets one, and falls back to --glowh, the site accent's hue. Only
+   the hue is stored, because the saturation and lightness are fixed here: left
+   to themselves some icons would glow in a muddy brown and others in a glare.
+   isolation:isolate keeps the glow inside the tile's own stack, so z-index:-1
+   puts it behind the picture and the words without dropping it behind the page.
+   The picture itself is not see-through, so a glow the size of the tile would be
+   hidden behind it: this one is half as wide again, centred on the picture, and
+   holds full strength to 35% of its radius so that what spills past the edge is
+   still bright. :hover lifts the whole tile so its glow is not painted under the
+   next tile along. */
+.tile:hover,.tile:focus-visible{z-index:2}
+.tile::before{content:"";position:absolute;left:50%;top:-25%;width:150%;aspect-ratio:1;
+transform:translateX(-50%);z-index:-1;pointer-events:none;border-radius:50%;opacity:0;
+transition:opacity .22s ease;
+background:radial-gradient(closest-side,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)) 35%,transparent)}
+.tile:hover::before,.tile:focus-visible::before{opacity:1}
+/* In a list a tile is a wide card, so the glow spreads out of the picture on the
+   left rather than sitting as a circle on top of the words. */
+:root[data-view=list] .tile::before{left:0;top:0;width:100%;height:100%;aspect-ratio:auto;
+transform:none;border-radius:13px;
+background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92% 62%/var(--glowa)),transparent 74%)}
+.tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:.95rem;line-height:1.3;margin-top:8px}
+.tmeta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--mut);margin-top:3px}
+.tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
+
+/* charts */
+.days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
+.bars{margin-top:12px}
+/* The compare page still puts two games side by side as columns. */
+.bars.cols{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:170px}
+.graph{width:100%;height:auto;display:block;overflow:visible}
+.graph{touch-action:pan-y;cursor:crosshair}
+.graph .cursor{transition:opacity .12s}
+.readout{min-height:1.6em;margin:.2em 0 0;font-size:1.05rem}
+/* Roblox text: names, descriptions, event blurbs, game-pass names. Any of it can
+   be a pasted link or an unbroken run of characters, so it may break anywhere. */
+.desc,.gdesc-in,.evt b,.evt p,.pass b,.pass p,.tname,.qout a,.gmenu a{overflow-wrap:anywhere}
+.bar{border-radius:5px 5px 0 0;min-height:4px;transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*11ms)}
+.bar.b2{opacity:.72}
+.axis{display:grid;grid-template-columns:repeat(24,1fr);font-size:.8rem;color:var(--mut);margin-top:4px}
+.axis span{grid-column:span 6}
+.hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
+.hm .c{height:26px;border-radius:4px}
+.hm .now{outline:2px solid #10131c;outline-offset:-1px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.82)}
+.legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
+.legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
+.spark{width:100%;height:80px;display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:12px}
+.stats b{display:block;font-size:1.5rem}
+.key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+
+/* game page */
+/* The heading sits on its own glass panel over the game's artwork, and the picture
+   lifts out of the top of it, so the page opens with depth instead of two flat things
+   stacked. z-index keeps the panel above the cards that tuck up underneath it. */
+.ghead{position:relative;z-index:2;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20px 22px;margin:48px 0 12px}
+.ghead .thumb{width:132px;flex:none;margin-top:-40px;border:3px solid var(--solid);box-shadow:var(--sh)}
+.ghead>div{flex:1 1 280px}
+.ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
+.btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
+.fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
+.verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#10131c}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}
+.tbl td,.tbl th{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td:last-child,.tbl th:last-child{text-align:right;white-space:nowrap}
+details summary{cursor:pointer;color:var(--acc);font-weight:700;margin:6px 0}
+.desc{white-space:pre-line;margin:.3em 0}
+.evt{list-style:none;padding:0;margin:8px 0}
+/* "Remind me" is a quiet offer, not a call to action: it sits under the thing it
+   is about and only picks up the accent when the pointer is on it. */
+/* The day picker: seven boxes that look like the pills elsewhere on the site. The
+   real checkbox stays where it is for screen readers and the keyboard and is simply
+   not drawn, and the pill beside it follows its state.
+   Deliberately "input:checked + span" and not ":has()": a lot of this audience is on
+   a handed-down iPad, and :has needs Safari 15.4 while the sibling selector has
+   worked for as long as anyone here has been alive. The fieldset stays a block for
+   the same sort of reason - a legend inside a flex container lands differently in
+   different browsers - and the labels flow as inline blocks instead. */
+/* The reminder is its own question, so it is ruled off from the countdown above it
+   rather than running on from it. */
+/* Kept: the notification panel sits in this same spot under the countdown, where
+   the calendar day-picker used to be. */
+.rem{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.rem>p:first-child{margin:0 0 8px}
+.rem .days{margin:0}
+.remind{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;
+font-size:.85rem;font-weight:600;border-radius:999px;border:1px solid var(--line);
+background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-height:40px}
+.remind:hover{border-color:var(--acc);color:var(--ink)}
+.evt li{border-left:3px solid var(--line);padding:2px 0 2px 14px;margin:16px 0}
+.evt li.soon{border-left-color:var(--acc2);background:var(--soft);border-radius:0 10px 10px 0;padding:8px 12px 8px 14px}
+.evt li.live{border-left-color:var(--up)}
+.evt b{display:block}
+.evt .d{font-size:.85rem;color:var(--mut)}
+.evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
+.sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:var(--sh);font:inherit}
+.foot{border-top:1px solid var(--line);margin-top:36px;padding-top:12px}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}
+.doc h2{margin-top:1.4em}.doc ul{padding-left:1.2em}
+.none{color:var(--mut)}
+/* The breadcrumb trail. Small and muted, so it tells search engines (and anyone
+   who landed from Google) where the page sits without shouting. */
+.topnav{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 2px}
+.topnav .back{margin:0}
+.crumbs{font-size:.84rem;color:var(--mut);margin:0;display:flex;flex-wrap:wrap;gap:4px 7px;align-items:center;min-width:0}
+.crumbs a{color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line)}
+.crumbs a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+.crumbs span[aria-current]{color:var(--ink);font-weight:600}
+/* The facts list under each game's heading. Written into the page by the builder,
+   not by the browser, so a search engine reads the numbers without running any code. */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px 18px;margin:10px 0 0}
+.facts div{min-width:0}
+.facts dt{font-size:.85rem;color:var(--mut)}
+.facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
+/* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
+   Collapsed text is still read by search engines, and it works with no JavaScript. */
+.hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
+.hourtbl th,.hourtbl td{padding:3px 5px;border:1px solid var(--line);text-align:right;white-space:nowrap}
+.hourtbl th:first-child,.hourtbl td:first-child{text-align:left;font-weight:700}
+.hourtbl thead th{color:var(--mut);font-weight:600}
+.faq h3{margin:1.1em 0 .1em;font-size:1.02rem}
+.faq p{margin:.2em 0 .7em}
+
+/* ---- phones ---------------------------------------------------------------
+   Everything above is written as though there is room. A phone has about a
+   quarter of the width, so anything that sat side by side stacks up and the page
+   becomes a long column of half-empty boxes, which is what made it feel
+   cluttered. These rules do not hide anything: they tighten the padding and put
+   the rows of buttons back into single rows, so more of the screen is the answer
+   the visitor came for. Add new phone rules here rather than in a new block, so
+   there is one place to look. */
+@media(max-width:620px){
+body{font-size:17px}
+.w{padding:6px 14px 48px}
+.card{padding:14px 15px;margin:12px 0;border-radius:15px}
+h2{font-size:1.06rem}
+.lede{font-size:1rem}
+.rowhead{margin-top:18px}
+/* the same four things, a little tighter, so the bar is not a third of the screen */
+.hdr .in{padding:8px 14px}
+.iconb{width:38px;height:38px}
+.hrow{gap:9px}
+.logo{font-size:1.2rem}
+.logo .mark{width:29px;height:29px}
+.gpick>button{max-width:150px;padding:7px 11px}
+/* two games across even on the narrowest phone, with less air between them */
+.grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(min(132px,100%),1fr));margin:12px 0}
+/* busy / quiet / browsing becomes one row of three. The line under each one goes:
+   there is no room for it, and the heading above already asks the question. */
+.ask{grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.chip{padding:9px 7px;text-align:center;border-radius:12px;box-shadow:none}
+/* The chips drop their shadow on a phone, so the rim must not quietly hand it
+   back on a tap - a tap leaves :hover stuck on in most mobile browsers. */
+.chip:hover,.chip:focus-visible{box-shadow:var(--rim)}
+.chip i{display:none}
+.chip b{font-size:.84rem;line-height:1.25}
+/* the categories become one sideways row instead of five stacked ones */
+.pills{display:block;white-space:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:12px 14px}
+.pills::-webkit-scrollbar{display:none}
+.pills a{display:inline-block;margin-right:8px}
+.pills a:last-child{margin-right:0}
+.bento>*,.lstack>.card{scroll-margin-top:68px}
+/* all seven days fit across, so the chart below does not jump when you change day */
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
+.days button{padding:6px 0;font-size:.82rem}
+/* the week grid: 24 columns on a phone, so the squares have to be small */
+.hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
+.hm .c{height:17px;border-radius:3px}
+.axis{font-size:.72rem}
+/* a game's icon beside its name, instead of a 150px square pushing the name down */
+.ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
+.ghead .thumb{width:72px;border-radius:12px;margin-top:-30px;border-width:2px}
+/* On a phone the picture goes on its own line and the words get the full width.
+   Beside a 72px picture the text column was about 250px, which broke a heading
+   into three lines and the opening paragraph into eleven. */
+.ghead>div{flex:1 1 100%}
+h1{font-size:1.5rem}
+.actions{gap:7px}
+.btn{padding:10px 16px}
+.fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
+.stats{gap:9px}
+.stats b{font-size:1.3rem}
+.foot nav{gap:4px 14px}
+/* the trail wraps onto three lines at this width, and Back already covers leaving */
+.crumbs{display:none}
+}
+
+/* the gentle opening effects */
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.rise{animation:up .5s cubic-bezier(.2,.75,.3,1) both}
+.rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
+.rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
+.card{animation:fade .7s both}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Grow a Garden player count","item":"https://playtimestats.com/game/grow-a-garden"},{"@type":"ListItem","position":4,"name":"Questions","item":"https://playtimestats.com/questions/grow-a-garden"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people play Grow a Garden?","acceptedAnswer":{"@type":"Answer","text":"About 16,862 people are in Grow a Garden at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 91,239. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play Grow a Garden?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Thursday around 8 PM UTC, when there are usually about 11,043 players. For full servers and trading, Saturday around 9 PM UTC is the busiest hour we see, at roughly 60,679 players. The charts on this page show those times on your own clock."}},{"@type":"Question","name":"When is Grow a Garden busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 9 PM UTC is its busiest hour in a typical week, with about 60,679 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Is Grow a Garden dying?","acceptedAnswer":{"@type":"Answer","text":"Not dead, but it is sliding. Fewer people are playing than a week ago, though about 16.9K are still in the game at a typical moment."}},{"@type":"Question","name":"When does Grow a Garden update?","acceptedAnswer":{"@type":"Answer","text":"Updates and events usually land on a Saturday at about 2 PM UTC, roughly every 4 days. That comes from the last 119 updates the creators announced on Roblox plus the days we saw the player count jump."}},{"@type":"Question","name":"How many visits does Grow a Garden have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 36,023,128,079 total visits for Grow a Garden so far, and it was first released 2 year ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+/* The sign-in address, carrying the page somebody is on, so Roblox sends them back
+   here rather than to the homepage. worker/auth.js checks it is one of our own
+   paths before it will redirect there. */
+function ptLogin(){return '/auth/login?back='+encodeURIComponent(location.pathname)}
+var PTPERSON='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>';
+var PTBELL='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.3a4.2 4.2 0 0 0-4.2 4.2v2.3L2.4 10a1 1 0 0 0 .85 1.5h9.5A1 1 0 0 0 13.6 10l-1.4-2.2V5.5A4.2 4.2 0 0 0 8 1.3z"/><path d="M6.2 12.6a1.9 1.9 0 0 0 3.6 0z"/></svg>';
+var PTSITE='PlayTime';
+var MAXFAVS=200;   /* must match MAX_FAVS in worker/auth.js, or the two drift apart */
+function getFavs(){if(PT.favs)return PT.favs;
+try{return JSON.parse(localStorage.getItem('pt_favs'))||[]}catch(e){return[]}}
+function setFavs(f){f=f.slice(0,MAXFAVS);PT.favs=f;
+try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
+if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
+body:JSON.stringify({favs:f})}).catch(function(){})}
+PT.ready=function(fn){PT.cbs.push(fn);fn()};
+/* Is this page running as an installed app, and is this an Apple device? Both
+   questions are asked in two places - the Install option in the header panel, and
+   the notification panel on a game page - so they are answered here rather than
+   written twice and left to drift. It is also the only place they can live: this
+   block is in the head and CHROME_JS may use nothing else.
+   iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad. */
+function ptIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||
+(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+function ptInstalled(){try{return (window.matchMedia&&
+window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+catch(e){return false}}
+/* A browser offers to install the site once per page load, and it does so before
+   CHROME_JS has run - so the offer has to be caught up here and kept. Calling
+   preventDefault stops the browser showing its own bar across the page, which means
+   the option in the panel is the only place it is ever offered, rather than a second
+   thing appearing over the games. */
+PT.prompt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();
+PT.prompt=e;if(PT.onprompt)try{PT.onprompt()}catch(err){}});
+function ptEsc(s){return String(s).replace(/[&<>"]/g,function(c){
+return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+/* Signed out, one button that leads to Roblox. Signed in, the person's own
+   picture takes that same button's place, and their name and Sign out move into a
+   menu under it. Not available at all - no Roblox keys set - and this writes
+   nothing, so the empty .acct collapses and the bar reads as though sign-in had
+   never existed.
+   alt is empty on purpose: the name is right beside the picture, and a screen
+   reader announcing it twice is worse than not announcing it at all. */
+function ptPaint(){
+/* The account, in the panel behind the three lines. Nothing at all when the Roblox
+   keys are missing, so .acct:empty collapses and the panel reads as though signing
+   in had never existed. */
+var acct=!PT.available?'':PT.name
+?'<div class="awho">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="34" height="34">':PTPERSON)
++'<span><b>'+ptEsc(PT.name)+'</b>'
++'<i class="mut small">Signed in with Roblox</i></span></div>'
++'<form method="POST" action="/auth/logout">'
++'<button class="drow" type="submit">Sign out</button></form>'
+:'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
++'<span>Sign in with Roblox</span></a>';
+Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
+el.innerHTML=acct});
+/* The bell, in the bar. Only for somebody signed in: notifications are offered to
+   signed-in people only, so for anybody else it would open on an explanation of why
+   it is empty, which is not worth a button in the bar. The list inside is left
+   empty and filled when it is first opened, so a visitor who never presses it costs
+   no extra requests. */
+/* A link to a page, not a menu that opens in the bar. There are three switches
+   per game and a device to turn on, which is more than a dropdown off the corner
+   of a phone screen can hold without becoming its own little application. */
+var bell=(PT.available&&PT.name)
+?'<a class="iconb" href="/notifications" aria-label="Your notifications">'
++PTBELL+'</a>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.nots'),function(el){
+el.innerHTML=bell});
+/* The same two things again, for the other width. The bar pill carries the name and
+   opens the panel rather than a menu of its own: everything it would have held -
+   the name, Sign out - is already in that panel, and a second menu holding the same
+   two things is one more place for them to disagree. */
+var pill=(PT.available&&PT.name)
+?'<button class="acctb" id="acctbar" type="button" aria-controls="drawer" '
++'aria-label="Your account">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
++'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
+el.innerHTML=pill});
+var nrow=(PT.available&&PT.name)
+?'<a class="drow" href="/notifications">'+PTBELL+'<span>Notifications</span></a>'
+:'';
+Array.prototype.forEach.call(document.querySelectorAll('.notsrow'),function(el){
+el.innerHTML=nrow});
+PT.cbs.forEach(function(fn){try{fn()}catch(e){}})}
+fetch('/api/me').then(function(r){return r.json()}).then(function(d){
+PT.available=!!d.available;PT.name=d.signedIn?d.name:null;
+PT.pic=d.signedIn?(d.pic||null):null;
+if(d.signedIn){var server=(d.favs||[]).slice(),joined=null;
+/* who is null if an older worker is still answering, which just means we merge again. */
+var who=d.id?String(d.id):null;
+try{joined=localStorage.getItem('pt_joined')}catch(e){}
+if(who&&joined===who){
+/* This device has already given its list to this account, so the account wins.
+   Otherwise un-saving a game here would come back from an older list elsewhere. */
+PT.favs=server;try{localStorage.setItem('pt_favs',JSON.stringify(server))}catch(e){}}
+else{
+/* First sign-in on this device: keep anything saved before signing in. */
+var all=server.slice();
+getFavs().forEach(function(s){if(all.indexOf(s)<0)all.push(s)});
+all=all.slice(0,MAXFAVS);PT.favs=all;
+try{localStorage.setItem('pt_favs',JSON.stringify(all));
+if(who)localStorage.setItem('pt_joined',who)}catch(e){}
+if(all.length!==server.length)setFavs(all)}}
+ptPaint()}).catch(function(){});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ptPaint);
+/* Back buttons: a real link, but if the visitor came from one of our own pages,
+   go back properly so they land where they were in the list. */
+document.addEventListener('click',function(e){
+var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
+if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
+e.preventDefault();history.back()}});</script></head><body>
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-5890289e44d41be2699d308bac4b68b8/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
+<div class="gpick" id="gpick"></div><div class="gap"></div>
+<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/popular">Most popular</a><a href="/trending">Trending</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="shell">
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/grow-a-garden">Grow a Garden player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Questions</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d59abcda64c7f647cd679c87c67e1f01/256/256/Image/Webp/noFilter" alt="Grow a Garden Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Grow a Garden questions</h1><p class="mut">The things people ask about Grow a Garden, answered from the player counts we take ourselves.</p><div class="actions"><a class="fav" href="/game/grow-a-garden">&larr; Grow a Garden player count</a><a class="btn" href="https://www.roblox.com/games/126884695634066">Play Grow a Garden</a></div></div></div><div class="card faq"><h2>Grow a Garden: common questions</h2><h3>How many people play Grow a Garden?</h3><p>About 16,862 people are in Grow a Garden at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 91,239. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><h3>What is the best time to play Grow a Garden?</h3><p>For quiet servers, aim for Thursday around 8 PM UTC, when there are usually about 11,043 players. For full servers and trading, Saturday around 9 PM UTC is the busiest hour we see, at roughly 60,679 players. The charts on this page show those times on your own clock.</p><h3>When is Grow a Garden busiest?</h3><p>Saturday around 9 PM UTC is its busiest hour in a typical week, with about 60,679 players. Saturday is its busiest day overall.</p><h3>Is Grow a Garden dying?</h3><p>Not dead, but it is sliding. Fewer people are playing than a week ago, though about 16.9K are still in the game at a typical moment.</p><h3>When does Grow a Garden update?</h3><p>Updates and events usually land on a Saturday at about 2 PM UTC, roughly every 4 days. That comes from the last 119 updates the creators announced on Roblox plus the days we saw the player count jump.</p><h3>How many visits does Grow a Garden have?</h3><p>Roblox reports 36,023,128,079 total visits for Grow a Garden so far, and it was first released 2 year ago.</p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div><p><a href="/game/grow-a-garden">&larr; Back to Grow a Garden</a></p>
+<footer class="foot"><nav class="small"><a href="/">All games</a>
+<a href="/popular">Most played</a><a href="/trending">Trending</a>
+<a href="/busiest-hours">When is Roblox busiest?</a>
+<a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a>
+<a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
+<a href="/terms">Terms of Service</a></nav>
+<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
+shows when people play, not whether a game is good or safe.</p></footer>
+</div></div>
+<script>(function(){
+var d=document.documentElement;
+
+/* Light and dark. Starts on whatever the device prefers; once the button is pressed
+   that choice is remembered and wins from then on. */
+function theme(){return d.getAttribute('data-theme')||
+(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}
+/* Both copies are bound and both are relabelled, so the panel row never says
+   "Dark mode" while the page is already dark. The row carries a .tlab to write
+   into; the header button is an icon and has only its aria-label. */
+function paintTheme(){var dark=theme()==='dark';
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');
+var lab=b.querySelector('.tlab');if(lab)lab.textContent=dark?'Light mode':'Dark mode'})}
+Array.prototype.forEach.call(document.querySelectorAll('[data-themebtn]'),function(b){
+b.onclick=function(){var next=theme()==='dark'?'light':'dark';
+d.setAttribute('data-theme',next);try{localStorage.setItem('pt_theme',next)}catch(e){}
+paintTheme()}});
+paintTheme();
+
+/* Grid or list. One attribute on the page, so every list of games follows it. */
+window.ptView=function(v){d.setAttribute('data-view',v);
+try{localStorage.setItem('pt_view',v)}catch(e){}
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===v)})};
+Array.prototype.forEach.call(document.querySelectorAll('.vtog button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.v===d.getAttribute('data-view'));
+b.onclick=function(){ptView(b.dataset.v)}});
+
+/* Games you looked at recently, so you can hop between them from any page. */
+function recent(){try{return JSON.parse(localStorage.getItem('pt_recent'))||[]}catch(e){return[]}}
+window.ptSeen=function(g){if(!g||!g.s)return;
+var list=recent().filter(function(x){return x&&x.s!==g.s});
+list.unshift(g);try{localStorage.setItem('pt_recent',JSON.stringify(list.slice(0,8)))}catch(e){}};
+
+/* The side drawer and the search sheet. Both only exist on the pages about one
+   game, where the row of sections is hidden to keep the page about the game. */
+var scrim=null;
+function shade(on){
+if(on&&!scrim){scrim=document.createElement('div');scrim.className='scrim';
+scrim.onclick=function(){shut()};document.body.appendChild(scrim)}
+if(scrim)scrim.hidden=!on}
+function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
+mb=document.getElementById('menubtn');
+if(dr)dr.hidden=true;if(sh)sh.hidden=true;
+if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
+var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
+if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
+dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
+if(show){var a=dr.querySelector('a');if(a)a.focus()}};
+/* The name in the bar opens that same panel, because everything it would have held
+   - the name, Sign out - already lives there, and a second menu holding the same two
+   things is one more place for them to disagree. Delegated from the document, since
+   ptPaint replaces this button every time /api/me answers. */
+document.addEventListener('click',function(e){
+if(!(e.target.closest&&e.target.closest('#acctbar')))return;
+e.stopPropagation();if(mb)mb.click()});
+
+/* Search. The list of games is only fetched the first time it is opened. */
+var sheet=document.getElementById('sheet'),GAMES=null;
+if(sheet){
+var q=document.getElementById('q'),qout=document.getElementById('qout');
+function draw(){
+var t=q.value.trim().toLowerCase();
+if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
+var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+qout.innerHTML=hits.length?hits.map(function(g){
+return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
+'" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
+ptEsc(g.n.charAt(0).toUpperCase())+'</span>')+'<span>'+ptEsc(g.n)+'</span></a>'}).join(''):
+'<p>No game matches that.</p>'}
+/* The magnifier on a wide screen, and the first row of the phone panel. shut()
+   closes the panel on the way, so opening search from inside it does the right
+   thing. The list of games is still only fetched the first time. */
+Array.prototype.forEach.call(document.querySelectorAll('[data-search]'),function(b){
+b.onclick=function(e){e.stopPropagation();var show=sheet.hidden;shut();
+if(!show)return;
+sheet.hidden=false;shade(true);q.value='';draw();q.focus();
+if(!GAMES)fetch('/games.json').then(function(r){return r.json()}).then(function(d){
+GAMES=d;draw()}).catch(function(){qout.innerHTML='<p>Could not load the list. Please reload.</p>'})}});
+q.oninput=draw;
+sheet.onclick=function(e){if(e.target===sheet)shut()}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')shut()});
+
+/* The account menu, under the picture in the bar. ptPaint() rewrites that markup
+   whenever /api/me answers, which can happen after this script has run and happens
+   again on every repaint, so the button is reached by delegation from the document
+   rather than held in a variable: a handler put on the button itself would be
+   thrown away with the old markup and the menu would quietly stop opening.
+   e.target.closest is guarded because on iOS a click that has bubbled this far can
+   arrive at a text node, which has no closest and would throw - the same thing that
+   once stopped the calendar links working. */
+var box=document.getElementById('gpick');if(!box)return;
+function pic(g,cls){return g.i?'<img src="'+ptEsc(g.i)+'" alt="" width="26" height="26" loading="lazy">'
+:'<span class="ph '+(cls||'')+'" aria-hidden="true">'+ptEsc((g.n||'?').charAt(0).toUpperCase())+'</span>'}
+var here=window.PT_GAME||null,list=recent();
+if(here){ptSeen(here);list=recent()}
+var others=list.filter(function(g){return !here||g.s!==here.s});
+var label=here?pic(here)+'<span class="nm">'+ptEsc(here.n)+'</span>':
+'<span class="nm">Pick a game</span>';
+box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspopup="true">'+
+label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
+var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
+menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
+return '<a href="/game/'+ptEsc(g.s)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+'<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
+function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
+btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
+document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();
+
+/* The Install app parts. Its own function because the block above gives up early on
+   any page without the game switcher, and these are on other pages.
+
+   Two things, and neither is the old panel row:
+     [data-install]     a real install button, shown ONLY where the browser has
+                        actually offered. It lives on /install, which explains the
+                        steps in words for every browser that never offers - so
+                        there is no longer any need to hide instructions behind a
+                        toggle, and nothing to show where nothing can be done.
+     [data-installlink] the link to /install from a game page, hidden once the site
+                        IS installed, because there is nothing left to explain. */
+(function(){
+var btns=document.querySelectorAll('[data-install]');
+var links=document.querySelectorAll('[data-installlink]');
+if(!btns.length&&!links.length)return;
+function paint(){
+var inst=ptInstalled();
+Array.prototype.forEach.call(btns,function(b){b.hidden=inst||!PT.prompt});
+Array.prototype.forEach.call(links,function(a){a.hidden=inst})}
+/* Called again if the browser makes its offer after this has already run. */
+PT.onprompt=paint;
+paint();
+/* Delegated, because paint may hide and show these at any time and because a tap on
+   iOS can arrive at a text node, which has no closest. */
+document.addEventListener('click',function(e){
+var b=e.target.closest&&e.target.closest('[data-install]');
+if(!b||!PT.prompt)return;
+/* An offer can only be used once, so it is taken rather than copied. */
+var offer=PT.prompt;PT.prompt=null;
+offer.prompt();
+if(offer.userChoice)offer.userChoice.then(paint,paint)});
+/* Installed while the page was open: there is nothing left to offer or explain. */
+window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
+})();</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
