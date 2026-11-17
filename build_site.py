@@ -415,20 +415,6 @@ border:1px solid var(--line);border-radius:13px}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .pills a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:.9rem;transition:border-color .12s,box-shadow .18s}
 .pills a:hover{border-color:var(--acc)}
-/* The "On this page" row borrows .pills outright - the pill shape, the shared
-   --rim glow, and below 620px the sideways-scrolling strip - so a palette change
-   reaches it and there is only one kind of strip that could ever widen a phone.
-   Written .pills.jump and never .jump: ".pills a" is one class and sits earlier
-   in this stylesheet, so a single-class rule of ours would simply lose to it. */
-.pills.jump{margin:10px 0 16px;gap:7px;align-items:center}
-.pills.jump>b{font-size:.8rem;color:var(--mut);font-weight:700}
-.pills.jump a{padding:5px 12px;font-size:.85rem}
-/* The bento pulls its first row 30px up under whatever is above it. The jump row
-   sits above the description drawer, so on a game that has a description nothing
-   changes and the cards still tuck under the drawer. On a game with no
-   description the row lands directly before the grid, and the pull would then
-   drag the cards over the pills - which is the only case this cancels. */
-.pills.jump+.bento{margin-top:0}
 .hero h1 em{font-style:normal;background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* "what are you looking for?" */
@@ -2902,19 +2888,17 @@ def anchor(block, sid):
 
 
 def jump_html(items):
-    """The "On this page" row under the heading panel.
+    """The jump links that sit in the row of buttons under the game's heading.
 
-    Only the sections this page really has are listed: a game whose creators have
-    announced no events, or that sells nothing, would otherwise offer a link to an
-    id that is not on the page. Plain anchors and no JavaScript, so the jumps work
-    before the page has finished loading, and Google can follow them to offer the
-    same list of sections under our own search result. Below three links it is not
-    worth the row and nothing is drawn."""
-    if len(items) < 3:
-        return ""
-    links = "".join(f'<a href="#{i}">{html.escape(t)}</a>' for i, t in items)
-    return ('<nav class="pills jump" aria-label="Sections of this page">'
-            f'<b>On this page</b>{links}</nav>')
+    They look and behave like the Game updates and Save buttons beside them, which
+    is the point: a visitor arriving from Google sees one row of places to go, not
+    a row of buttons and a separate strip of links. Only the sections this page
+    really has are listed - a game whose creators have announced no events would
+    otherwise offer a link to an id that is not on the page. Plain anchors and no
+    JavaScript, so they work before the page has finished loading, and Google can
+    follow them to offer the same sections under our own search result."""
+    return "".join(f'<a class="fav" href="#{i}">{ic} {html.escape(t)}</a>'
+                   for i, ic, t in items)
 
 
 # The order here is the order a visitor reads in, and the grid never reorders it.
@@ -2925,8 +2909,7 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and bes
 <p class="mut">__LEAD__</p>
 <div class="actions">__PLAY__<a class="fav" href="/updates/__SLUG__">&#128221; Game updates</a>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
-<a class="fav" href="/compare?a=__SLUG__">Compare</a></div></div></div>
-__JUMP__
+__JUMP__</div></div></div>
 __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
@@ -3804,16 +3787,13 @@ def main():
         cal_b = anchor(span(calendar_html(name, events, now), 6), "events")
         par_b = anchor(span(parents_html(passes, pass_icons), 6), "costs")
         faq_b = anchor(faq, "questions")
-        # In reading order, which is also the order the grid keeps.
-        jump = [("answer", "Short answer"), ("dead", "Is it dead?"),
-                ("session", "Plan a session"), ("byhour", "Hour by hour"),
-                ("stats", "Statistics"), ("week", "Whole week")]
-        for sid, label, block in (("history", "Player history", hist_b),
-                                  ("events", "Events", cal_b),
-                                  ("costs", "What it costs", par_b),
-                                  ("questions", "Questions", faq_b)):
+        # Game updates is already a button in this row and is a page of its own,
+        # so the only jumps worth offering are the two sections furthest down.
+        jump = []
+        for sid, icon, label, block in (("events", "&#128197;", "Events", cal_b),
+                                        ("questions", "&#10067;", "Questions", faq_b)):
             if block:
-                jump.append((sid, label))
+                jump.append((sid, icon, label))
         body = (GAME.replace("__ICON__", thumb(name, c["icon"], icon_alt(name), eager=True))
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
