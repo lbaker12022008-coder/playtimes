@@ -372,6 +372,7 @@ color:var(--mut);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
 .bellb:hover:not([disabled]),.bellb:focus-visible{color:var(--ink);box-shadow:var(--rim)}
 .bellb[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink)}
 .bellb[disabled]{opacity:.55;cursor:default}
+a.bellb{text-decoration:none}
 /* "Next event in 2d 4h 11m" - the one line somebody opening these cards is after. */
 .nextline{margin:0 0 10px;font-size:.95rem;font-weight:600}
 .nextline:empty{display:none}
@@ -2353,6 +2354,10 @@ def parents_html(passes, icons):
 # Saved games. Signed out, the list lives only in this browser. Signed in with
 # Roblox, it also follows the person to their other devices.
 FAVJS = """var PT={name:null,available:false,favs:null,cbs:[]};
+/* The sign-in address, carrying the page somebody is on, so Roblox sends them back
+   here rather than to the homepage. worker/auth.js checks it is one of our own
+   paths before it will redirect there. */
+function ptLogin(){return '/auth/login?back='+encodeURIComponent(location.pathname)}
 var PTPERSON='__PERSON__';
 var PTBELL='__BELL__';
 var PTSITE='__SITE__';
@@ -2403,7 +2408,7 @@ var acct=!PT.available?'':PT.name
 +'<i class="mut small">Signed in with Roblox</i></span></div>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
-:'<a class="drow" href="/auth/login">'+PTPERSON
+:'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
 +'<span>Sign in with Roblox</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});
@@ -3330,6 +3335,12 @@ function refresh(){return fetch('/api/push/state').then(function(r){return r.jso
 /* A bell for one section. The same object everywhere: the glyph, a short label and
    aria-pressed carrying the state, so the styling and a screen reader cannot
    disagree about whether it is on. */
+function signBell(kind){
+var label=kind==='all'?'Notify me':kind==='events'?'Tell me about events'
+:kind==='updates'?'Tell me about updates':planKind()==='busy'
+?'Tell me before it gets busy':'Tell me before it goes quiet';
+return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get '
++'notifications (13+)">'+PTBELL+'<span>'+label+'</span></a>'}
 function bellBtn(kind,label,on){
 return '<button class="bellb" type="button" data-bk="'+kind+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
@@ -3358,7 +3369,7 @@ if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
-var SIGNIN='<a class="fav" href="/auth/login">Sign in with Roblox</a>';
+var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>';
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */
@@ -3368,8 +3379,13 @@ var INSTALL='<a class="fav" href="/install">How to install it</a>';
 function drawBells(){
 if(!slug)return;
 var ok=S&&S.available&&S.signedIn&&usable();
+/* Signed out, the bells are still drawn, as links to sign in: a feature nobody can
+   see is a feature nobody asks for. Nothing is stored and nothing is asked of the
+   browser until they have signed in - the bell is only an address. */
+var out=S&&S.available&&!S.signedIn;
 var w=watchFor(slug)||{};
 Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
+if(out){el.innerHTML=signBell(el.dataset.bell);return}
 if(!ok){el.innerHTML='';return}
 var kind=el.dataset.bell;
 if(kind==='all'){
@@ -3388,7 +3404,8 @@ if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
 if(!S.signedIn){
-html='<p class="mut small">Notifications need a Roblox sign-in. 13+.</p>'+SIGNIN}
+html='<p class="mut small">Sign in with Roblox to get a notification before this '
++'game goes quiet or busy, or when it has an event or an update. 13+.</p>'+SIGNIN}
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
@@ -3456,7 +3473,7 @@ document.addEventListener('click',function(e){
 if(!e.target.closest||busy)return;
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
-var bb=e.target.closest('.bellb');
+var bb=e.target.closest('button.bellb');
 if(bb){
 var on=bb.getAttribute('aria-pressed')!=='true';
 if(bb.dataset.bk==='all'){
