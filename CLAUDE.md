@@ -298,6 +298,24 @@ before whichever of those is next.
   holding personal data about someone who might be nine. Roblox blocks under-13s from
   authorising outside apps, so everyone who can turn this on is 13+. `worker/push.js`
   enforces it in `handlePush()`, not merely by hiding the button.
+- **The notification titles are short, and the short part is the END.** Measured on
+  17 Nov 2026 against all 158 real game names: **every single title was over 30
+  characters, 99% over 40, and the longest was 81** -
+  `"+1 Speed Keyboard Escape | Candy & Chocolate is usually quiet in about 15 minutes"`.
+  A phone shows about one line of title, so what got cut was the tail, which is
+  exactly where the useful part was: you were left with a game name and no idea why
+  your phone had buzzed. The fixed wording is now `"<game>: quiet in 15 min"`,
+  `"<game>: event in 15 min"`, `"<game>: new update"`, and `shortName()` caps the name
+  at 26 characters with an ellipsis. Worst case went from 81 to 43, and there is a
+  test that fails if any title across every real name passes 48. **The cap is how we
+  choose what survives** - the phone truncates either way; cutting it ourselves is
+  what keeps the ending. The detail stays in the body, which phones show when a
+  notification is opened.
+- **Tapping a notification lands on the game it is about**, through `data.url` in
+  `docs/sw.js`, which also re-uses an already-open tab rather than piling up windows.
+  The **test** notification is the exception and goes to `/notifications`: it is not
+  about a game, and since it is the only one anybody can set off on purpose it was
+  the only one whose landing place ever got noticed. It used to go to the homepage.
 - **`worker/push.js`** serves `/api/push/state|subscribe|unsubscribe|watch|test` and
   exports `runPushCron()`. `worker/index.js` calls `handlePush()` and has a
   `scheduled()` handler; `wrangler.jsonc` runs it every ten minutes. **`CRON_MINUTES`
@@ -382,8 +400,24 @@ before whichever of those is next.
   - **The Plan my session bell follows the countdown beside it.** That card already has
     a Quiet/Busy chooser, and a bell next to it means "tell me before THIS window", so
     a third opinion of its own would have been one toggle too many in one card.
-  - **The top bell is a master**: on when anything is on, off turns all four off, and
-    pressed from cold it turns on the quiet one only - the least noisy place to start.
+  - **The top bell is a LINK to the settings, not a switch** (17 Nov 2026). It was a
+    master - on turned the quiet one on, off turned all four off - which is a blunt
+    thing to put at the top of a page when the four switches it stood for are one tap
+    away. It is `masterLink()` now, an `<a>` to `/notifications?game=<slug>`, and it
+    still says "Notifications on" or "Notify me" so it reports the state it no longer
+    sets. **It carries the game on purpose**: `/notifications` otherwise lists only
+    games already followed or saved, so arriving from a game that is neither would
+    land on a page that does not mention it, which reads as a broken link. `cameFor()`
+    reads the parameter and `listed()` puts that game first, adding a row for it with
+    all four off if it has none.
+  - **Every bell label comes from `bellLabel()`.** It was written out in three places
+    (the signed-out bell, the real one, and the one on an uninstalled Apple device)
+    and they had already started to drift.
+  - **Three say "before" and one says "about", and that is not a slip.** Quiet, busy
+    and events all aim at a moment still to come, so "Remind me before quiet". An
+    **update is already done** by the time Roblox reports it - see the fourth switch
+    below - so "Remind me about updates" is the only honest wording; "before" would be
+    a promise broken every single time one arrived.
   - **Signed out, a bell is a link into sign-in rather than nothing.** It was an
     empty slot until 17 Nov 2026, on the grounds that a control that cannot work
     should not be drawn; a bell is the clearest thing on the page to say what

@@ -346,14 +346,27 @@ export function nextWindow(week, mode, tz) {
   return null;
 }
 
+/**
+ * A game name short enough to leave room for the rest of the title.
+ *
+ * Creators write long names - "+1 Speed Keyboard Escape | Candy & Chocolate" is 44
+ * characters on its own. The phone truncates the title whatever we do; cutting it
+ * ourselves is how we choose WHAT survives, and what has to survive is the few words
+ * after the name saying why the phone just buzzed.
+ */
+function shortName(name, max = 26) {
+  const n = String(name || "");
+  return n.length <= max ? n : n.slice(0, max - 1).trimEnd() + "\u2026";
+}
+
 function wording(game, mode, win, minutes) {
   const word = mode === "quiet" ? "quiet" : "busy";
-  const soon = minutes <= 1 ? "now" : "in about " + minutes + " minutes";
+  const soon = minutes <= 1 ? "now" : "in " + minutes + " min";
   return {
-    title: game.n + " is usually " + word + " " + soon,
-    body: "Around " + HOURS[win.localHour] + " your time, with about " +
-      Math.round(win.players).toLocaleString("en-US") + " players, for about " +
-      win.length + (win.length > 1 ? " hours" : " hour") + ".",
+    title: shortName(game.n) + ": " + word + " " + soon,
+    body: "Usually " + word + " around " + HOURS[win.localHour] + " your time, " +
+      "with about " + Math.round(win.players).toLocaleString("en-US") +
+      " players, for about " + win.length + (win.length > 1 ? " hours" : " hour") + ".",
     url: "/game/" + game.s,
     tag: "pt-" + game.s
   };
@@ -369,9 +382,9 @@ function wording(game, mode, win, minutes) {
  */
 function eventWording(game, ev, minutes, tz) {
   const local = new Date(ev.s * 1000 + tz * 3600000);
-  const soon = minutes <= 1 ? "is starting now" : "starts in about " + minutes + " minutes";
+  const soon = minutes <= 1 ? "now" : "in " + minutes + " min";
   return {
-    title: game.n + ": an event " + soon,
+    title: shortName(game.n) + ": event " + soon,
     body: ev.t + " - around " + HOURS[local.getUTCHours()] + " your time.",
     url: "/game/" + game.s,
     tag: "pt-event-" + game.s
@@ -416,7 +429,7 @@ function updateWording(game, ago) {
   const when = hours < 1 ? "just now" : hours === 1 ? "about an hour ago"
     : "about " + hours + " hours ago";
   return {
-    title: game.n + " just got an update",
+    title: shortName(game.n) + ": new update",
     body: "The creators changed something " + when + ".",
     url: "/game/" + game.s,
     tag: "pt-update-" + game.s
@@ -672,9 +685,14 @@ async function setWatch(request, env, userId) {
 async function sendTest(request, env, userId) {
   const out = await sendToUser(env, userId, {
     title: "Notifications are on",
-    body: "This is what a PlayTime reminder looks like. We will only send one when a " +
-      "game you follow is about to get quiet or busy.",
-    url: "/", tag: "pt-test"
+    body: "This is what a PlayTime reminder looks like. A real one arrives when a game " +
+      "you follow is about to go quiet or busy, or has an event or an update.",
+    /* The real notifications land on the game they are about. This one is not
+       about a game, so it lands where it can be acted on - the page the switches
+       are on - rather than on the homepage. It is the only notification anybody
+       can trigger on purpose, so it was the only one whose landing place was
+       ever actually noticed. */
+    url: "/notifications", tag: "pt-test"
   });
   if (!out.devices) return json({ error: "This device is not set up for notifications yet." }, 409);
   if (!out.sent) return json({ error: "Your browser would not accept the notification." }, 502);
