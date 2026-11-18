@@ -6,7 +6,7 @@
 <meta property="og:title" content="Animal Hospital (Anomaly) Update History | PlayTime">
 <meta property="og:description" content="When does Animal Hospital (Anomaly) update? Past updates and events, how often new ones arrive, and the days its player count jumped.">
 <meta property="og:url" content="https://playtimestats.com/updates/animal-hospital-anomaly"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-db27bdc698b088f2d8352327f7dc64f6/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-17">
+<meta property="article:modified_time" content="2026-11-18">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1189,12 +1189,34 @@ function refresh(){return fetch('/api/push/state').then(function(r){return r.jso
 /* A bell for one section. The same object everywhere: the glyph, a short label and
    aria-pressed carrying the state, so the styling and a screen reader cannot
    disagree about whether it is on. */
+/* Every bell label, in one place. It was written out in three (the signed-out
+   bell, the real one and the one on an uninstalled Apple device) and they had
+   already started to drift. "before" for the three that aim at a moment still to
+   come; "about" for updates, which is the odd one - Roblox only tells us a game
+   changed after it has changed, so a notification about an update can never arrive
+   before it, and saying otherwise would be a promise broken every single time. */
+function bellLabel(kind,on){
+if(kind==='all')return on?'Notifications on':'Notify me';
+if(kind==='events')return 'Remind me before events';
+if(kind==='updates')return 'Remind me about updates';
+return kind==='busy'?'Remind me before busy':'Remind me before quiet';
+}
+
 function signBell(kind){
-var label=kind==='all'?'Notify me':kind==='events'?'Tell me about events'
-:kind==='updates'?'Tell me about updates':planKind()==='busy'
-?'Tell me before it gets busy':'Tell me before it goes quiet';
+var label=bellLabel(kind==='plan'?planKind():kind,false);
 return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get '
 +'notifications (13+)">'+PTBELL+'<span>'+label+'</span></a>'}
+/* The bell at the top of a game page goes to the settings rather than toggling
+   everything at once. It used to be a master switch - on turned the quiet one on,
+   off turned all four off - which is a blunt thing to put at the top of a page when
+   the four switches it stands for are one tap away. It carries the game it came
+   from, because /notifications otherwise lists only games already followed or saved
+   and arriving at a page that does not mention the game you just left reads as a
+   broken link. */
+function masterLink(on){
+return '<a class="bellb" href="/notifications?game='+encodeURIComponent(slug||'')+'">'
++PTBELL+'<span>'+bellLabel('all',on)+'</span></a>'}
+
 function bellBtn(kind,label,on){
 return '<button class="bellb" type="button" data-bk="'+kind+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
@@ -1248,24 +1270,19 @@ if(out){el.innerHTML=signBell(el.dataset.bell);return}
 if(!ok&&needInstall()&&S&&S.signedIn){
 var nw=watchFor(slug)||{};
 var nk=el.dataset.bell;
-if(nk==='all')el.innerHTML=bellBtn('all','Notify me',false);
-else if(nk==='plan'){var pk=planKind();
-el.innerHTML=bellBtn(pk,pk==='busy'?'Tell me before it gets busy'
-:'Tell me before it goes quiet',false)}
-else el.innerHTML=bellBtn(nk,nk==='events'?'Tell me about events'
-:'Tell me about updates',false);
+if(nk==='all')el.innerHTML=masterLink(false);
+else if(nk==='plan')el.innerHTML=bellBtn(planKind(),bellLabel(planKind(),false),false);
+else el.innerHTML=bellBtn(nk,bellLabel(nk,false),false);
 return}
 if(!ok){el.innerHTML='';return}
 var kind=el.dataset.bell;
 if(kind==='all'){
 var any=!!(w.quiet||w.busy||w.events||w.updates);
-el.innerHTML=bellBtn('all',any?'Notifications on':'Notify me',any)}
+el.innerHTML=masterLink(any)}
 else if(kind==='plan'){
 var k=planKind();
-el.innerHTML=bellBtn(k,k==='busy'?'Tell me before it gets busy'
-:'Tell me before it goes quiet',w[k])}
-else{el.innerHTML=bellBtn(kind,kind==='events'?'Tell me about events'
-:'Tell me about updates',w[kind])}})}
+el.innerHTML=bellBtn(k,bellLabel(k,w[k]),w[k])}
+else{el.innerHTML=bellBtn(kind,bellLabel(kind,w[kind]),w[kind])}})}
 
 function drawGame(){
 drawBells();
@@ -1297,11 +1314,25 @@ return '<li class="nrow"><a href="/game/'+ptEsc(w.slug)+'">'
    is not already there, with all four switches off. Saved games earn their place
    because saving one is already somebody saying they care about it - having to go
    and find it again to turn a notification on was a step with no purpose. */
+/* Which game the bell that sent us here belonged to. */
+function cameFor(){
+try{var m=/[?&]game=([^&]+)/.exec(location.search);
+return m?decodeURIComponent(m[1]):null}catch(e){return null}}
+
 function listed(){
 var out=(S.watching||[]).slice();
 var have={};out.forEach(function(w){have[w.slug]=true});
-(PT.favs||[]).forEach(function(slug){
-if(!have[slug])out.push({slug:slug,quiet:0,busy:0,events:0,updates:0,saved:true})});
+(PT.favs||[]).forEach(function(f){
+if(!have[f]){have[f]=true;
+out.push({slug:f,quiet:0,busy:0,events:0,updates:0,saved:true})}});
+/* The game whose bell was pressed goes to the top, and gets a row even if nothing
+   is on for it and it has never been saved. */
+var want=cameFor();
+if(want){
+var at=-1;
+for(var i=0;i<out.length;i++)if(out[i].slug===want){at=i;break}
+if(at>-1)out.unshift(out.splice(at,1)[0]);
+else out.unshift({slug:want,quiet:0,busy:0,events:0,updates:0})}
 return out}
 
 function drawPage(){
@@ -1351,20 +1382,7 @@ if(nd){e.preventDefault();openPop(nd);return}}
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
 var bb=e.target.closest('button.bellb');
-if(bb){
-var on=bb.getAttribute('aria-pressed')!=='true';
-if(bb.dataset.bk==='all'){
-/* The master. Off turns everything off; on turns the quiet one on, which is the
-   one most people want and the least noisy place to start. */
-var w=watchFor(slug)||{};
-if(on)flip(slug,'quiet',true);
-else{busy=true;note='';draw();
-ensureDevice().then(function(){return post('watch',{slug:slug,quiet:false,
-busy:false,events:false,updates:false})})
-.then(function(){busy=false;return refresh()})
-.catch(function(err){busy=false;note=(err&&err.message)||'That did not work.';refresh()})}}
-else flip(slug,bb.dataset.bk,on);
-return}
+if(bb){flip(slug,bb.dataset.bk,bb.getAttribute('aria-pressed')!=='true');return}
 /* Changing the countdown between quiet and busy changes what the bell beside it is
    offering, so it has to be redrawn. */
 if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
