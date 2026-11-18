@@ -2139,7 +2139,15 @@ def faq_html(c, a, f, meta, pattern):
                    f"Roblox reports {meta['visits']:,} total visits for {name} so far"
                    + (f", and it was first released {ago(meta['created'])}."
                       if meta.get("created") else ".")))
-    body = "".join(f"<h3>{html.escape(q)}</h3><p>{html.escape(ans)}</p>" for q, ans in qa)
+    # The timing questions are best answered by the graphs, which live on the game
+    # page. Whichever of the two pages Google sends somebody to, they are then one
+    # tap from the hourly graph. Only the HTML gets the link; qa stays plain text for
+    # the structured data.
+    graph_q = {f"When is {name} busiest?", f"What is the best time to play {name}?"}
+    graph = (f'<p class="small"><a href="/game/{c["slug"]}#byhour">See every hour on a '
+             f'graph &rarr;</a></p>')
+    body = "".join(f"<h3>{html.escape(q)}</h3><p>{html.escape(ans)}</p>"
+                   + (graph if q in graph_q else "") for q, ans in qa)
     return (f'<div class="card faq"><h2>{html.escape(name)}: common questions</h2>{body}'
             f'<p class="mut small">Answers come from our own player counts, which are '
             f'estimates built from samples, not official Roblox figures.</p></div>'), qa
