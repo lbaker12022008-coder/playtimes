@@ -1,6 +1,6 @@
 // Written by build_site.py on every build. Do not edit by hand.
 export default {
- "built_at": "2026-11-18T00:25:59Z",
+ "built_at": "2026-11-18T00:48:06Z",
  "site": {
   "noindex": false,
   "min_samples": 200,

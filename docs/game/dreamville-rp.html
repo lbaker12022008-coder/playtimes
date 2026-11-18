@@ -403,6 +403,36 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+/* The device sections on /install, collapsed so nobody scrolls past two
+   platforms to reach their own. Built like .gdesc: the <h2> stays inside the
+   <summary> so the page keeps its headings for search engines and for
+   heading-by-heading navigation, and the arrow is two borders rather than a
+   picture. */
+.howto{background:var(--card);border:1px solid var(--line);border-radius:14px;
+margin:0 0 12px}
+.howto>summary{cursor:pointer;list-style:none;display:flex;align-items:center;
+gap:10px;padding:14px 16px}
+.howto>summary::-webkit-details-marker{display:none}
+.howto>summary h2{margin:0;font-size:1.05rem}
+.howto>summary:hover h2,.howto[open]>summary h2{color:var(--acc)}
+.howto>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.howto[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.howto-in{padding:0 16px 14px}
+.howto-in>:first-child{margin-top:0}
+/* "I have already added it". A <details> rather than a button because it needs no
+   JavaScript and so cannot be thrown away when the notifications page redraws. */
+.already{margin:12px 0 0;font-size:.9rem}
+.already>summary{cursor:pointer;color:var(--acc);font-weight:600;
+list-style:none;padding:4px 0}
+.already>summary::-webkit-details-marker{display:none}
+.already p{margin:8px 0 0;color:var(--mut)}
+/* Asked for: a phone or tablet is told how to add it by hand instead. The button
+   only ever appeared where the browser had actually offered, so it was never shown
+   on an iPhone anyway - this takes it off Android and small tablets. Two parts to
+   the selector because .remind is a single class written further down. */
+@media(max-width:899px){.doc [data-install]{display:none}}
 .phonetip{display:none;margin:9px 0 0;font-size:.82rem;line-height:1.45;
 color:var(--mut)}
 @media(max-width:899px){.phonetip{display:block}}
@@ -722,7 +752,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Roleplay & Avatar Sim games","item":"https://playtimestats.com/category/roleplay-avatar-sim"},{"@type":"ListItem","position":3,"name":"Dreamville RP","item":"https://playtimestats.com/game/dreamville-rp"}]},{"@type":"VideoGame","name":"Dreamville RP","url":"https://playtimestats.com/game/dreamville-rp","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-c73e7af47ee841b0adf1b271d4e3c112/256/256/Image/Webp/noFilter","genre":"Roleplay & Avatar Sim","author":{"@type":"Organization","name":"Dreamfusion Games"},"description":"Hang out with friends, meet new people, create your own fun, and explore a city full of possibilities.\n\nOwn your dream home, drive cool vehicles, and dive into a world where you can play however you want\u2014whether you\u2019re keeping the peace, stirring up trouble, building a family, or just relaxing. Dress up your avatar, make connections, and let your imagination roam free in Dreamville!\n\nCustomizable ","datePublished":"2024-09-07","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":414105893}},{"@type":"Dataset","name":"Dreamville RP player count history","description":"Concurrent player counts for the Roblox game Dreamville RP, sampled from the public Roblox player count every few minutes. 1,184 readings so far.","url":"https://playtimestats.com/game/dreamville-rp","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Roleplay & Avatar Sim games","item":"https://playtimestats.com/category/roleplay-avatar-sim"},{"@type":"ListItem","position":3,"name":"Dreamville RP","item":"https://playtimestats.com/game/dreamville-rp"}]},{"@type":"VideoGame","name":"Dreamville RP","url":"https://playtimestats.com/game/dreamville-rp","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-c73e7af47ee841b0adf1b271d4e3c112/256/256/Image/Webp/noFilter","genre":"Roleplay & Avatar Sim","author":{"@type":"Organization","name":"Dreamfusion Games"},"description":"Hang out with friends, meet new people, create your own fun, and explore a city full of possibilities.\n\nOwn your dream home, drive cool vehicles, and dive into a world where you can play however you want\u2014whether you\u2019re keeping the peace, stirring up trouble, building a family, or just relaxing. Dress up your avatar, make connections, and let your imagination roam free in Dreamville!\n\nCustomizable ","datePublished":"2024-09-07","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":414121801}},{"@type":"Dataset","name":"Dreamville RP player count history","description":"Concurrent player counts for the Roblox game Dreamville RP, sampled from the public Roblox player count every few minutes. 1,184 readings so far.","url":"https://playtimestats.com/game/dreamville-rp","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -1225,7 +1255,11 @@ pop.innerHTML='<div class="ibox"><button class="ix" type="button" data-ipx '
 +'<li>Choose <b>Add to Home Screen</b>.</li>'
 +'<li>Press <b>Add</b>.</li>'
 +'<li>Open '+ptEsc(PTSITE)+' from your home screen, then turn the bell on there.</li></ol>'
-+'<a class="fav" href="/install">See it with pictures</a></div>';
++'<a class="fav" href="/install">See it with pictures</a>'
++'<details class="already"><summary>I have already added it</summary>'
++'<p>Then open '+ptEsc(PTSITE)+' from your home screen rather than in this browser '
++'tab, and turn the bell on there. Apple does not allow a browser tab to send '
++'notifications even once the site has been added.</p></details></div>';
 document.body.appendChild(pop);
 /* Tapping the dark area outside the box closes it, the same as the X. */
 pop.addEventListener('click',function(e){
@@ -1359,7 +1393,15 @@ var PHONETIP='<p class="phonetip">If the Roblox app opens instead of the sign-in
 +'page, open roblox.com in your browser and sign in there first, then come back '
 +'and tap this again.</p>';
 var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>'+PHONETIP;
-var INSTALL='<a class="fav" href="/install">How to install it</a>';
+var INSTALL='<a class="fav" href="/install">How to add it</a>';
+/* We cannot tell whether somebody has added the site: ptInstalled() reads
+   display-mode standalone, which is only true INSIDE the added app, so in a tab it
+   says no either way. So this does not unlock anything - Apple still will not allow
+   push from a tab - it says where the switch they want actually is. */
+var ALREADY='<details class="already"><summary>I have already added it</summary>'
++'<p>Then open '+ptEsc(PTSITE)+' from your home screen rather than in this browser '
++'tab, and turn the bell on there. Apple does not allow a browser tab to send '
++'notifications even once the site has been added.</p></details>';
 
 /* ----------------------------------------------------------- the game page */
 /* The bells, one per section, each filled only when it can do something. A section
@@ -1408,10 +1450,10 @@ html='<p class="mut small">Sign in with Roblox to get a notification before this
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
-:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
+:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL+ALREADY:'')}
 else{
 html=(note?'<p class="mut small">'+ptEsc(note)
-+' <a href="/install">How to install it</a></p>':'')
++' <a href="/install">How to add it</a></p>':'')
 +'<p class="mut small"><a href="/notifications">All four kinds</a></p>'}
 gameBox.innerHTML=html;gameBox.hidden=false}
 
@@ -1461,8 +1503,8 @@ var head='';
 if(!usable()){
 head='<div class="card"><h2>This device cannot receive them</h2><p class="mut small">'
 +(ios?'On an iPhone or iPad, notifications only work once '+ptEsc(PTSITE)
-+' is on your home screen.':'This browser does not support notifications.')
-+'</p>'+(ios?INSTALL:'')+'</div>'}
++' has been added to your home screen.':'This browser does not support notifications.')
++'</p>'+(ios?INSTALL+ALREADY:'')+'</div>'}
 else if(Notification.permission==='denied'){
 head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
 +'Allow notifications for this site in your browser settings, next to the address '
@@ -1666,4 +1708,13 @@ offer.prompt();
 if(offer.userChoice)offer.userChoice.then(paint,paint)});
 /* Installed while the page was open: there is nothing left to offer or explain. */
 window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
+/* On /install, open the section for the device being used. They are all shut in the
+   markup, so somebody with no JavaScript gets three closed drawers with readable
+   headings rather than one opened at random. */
+var devs=document.querySelectorAll('.howto[data-dev]');
+if(devs.length){
+var want=ptIOS()?'ios'
+:/Android/i.test(navigator.userAgent)?'android':'desktop';
+Array.prototype.forEach.call(devs,function(d){
+if(d.dataset.dev===want)d.open=true})}
 })();</script><script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},body:location.pathname,keepalive:true})}catch(e){}(function(){var seen=0,since=document.hidden?0:Date.now(),sent=false;function stop(){if(since){seen+=Date.now()-since;since=0}}function start(){if(!since)since=Date.now()}document.addEventListener("visibilitychange",function(){document.hidden?stop():start()});function send(){if(sent)return;stop();var s=Math.round(seen/1000);if(s<1||s>3600)return;sent=true;try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}addEventListener("pagehide",send);document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();</script></body></html>
