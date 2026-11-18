@@ -1787,33 +1787,47 @@ def find_spikes(daily):
 
 
 def verdict(a):
-    """Answers "is this game dead?" in plain English. Returns (label, colour, sentence)."""
+    """Answers "is this game dead?" in plain English.
+
+    Returns (label, colour, sentence, trend). The sentence opens by answering the
+    question the "Is X dead?" card asks - "No.", "Not dead, but it is sliding." -
+    and `trend` is the rest of it without that answer, for anywhere the question
+    being asked is a different one.
+
+    That split exists because the questions page asks "Do people still play X?",
+    answers it "Yes" with a live count, and then glued this whole sentence on after
+    it: on 18 Nov 2026, 42 of the 140 live pages read "Yes. 263,503 people were
+    playing Adopt Me at our last check... No. It is picking up a little." Both
+    halves are written out here rather than cut apart with a regex at the other
+    end, so rewording one cannot quietly stop the other from working.
+    """
     t, m, days = a["trend"], a["month"], a["days"]
     if days < 10 or t is None:
-        return ("Too new to say", "var(--l3)",
-                "We have not been watching this game long enough to say which way it is going. "
-                "Check back in a week or two.")
+        # No lead to strip: this one does not answer yes or no in the first place.
+        rest = ("We have not been watching this game long enough to say which way it is "
+                "going. Check back in a week or two.")
+        return ("Too new to say", "var(--l3)", rest, rest)
     # The last two weeks matter most; the longer view stops one odd week fooling us.
     score = t if m is None else t * 0.65 + m * 0.35
     players = short(a["avg7"])
     if score >= 15:
-        return ("Growing", "var(--l1)",
-                f"No, the opposite. More people are playing than a week ago, with about {players} "
+        rest = (f"More people are playing than a week ago, with about {players} "
                 f"in the game at a typical moment.")
+        return ("Growing", "var(--l1)", "No, the opposite. " + rest, rest)
     if score >= 5:
-        return ("Slowly growing", "var(--l1)",
-                f"No. It is picking up a little, with about {players} players at a typical moment.")
+        rest = f"It is picking up a little, with about {players} players at a typical moment."
+        return ("Slowly growing", "var(--l1)", "No. " + rest, rest)
     if score > -5:
-        return ("Steady", "var(--l2)",
-                f"No. It has about the same number of players as last week: roughly {players} "
+        rest = (f"It has about the same number of players as last week: roughly {players} "
                 f"at a typical moment.")
+        return ("Steady", "var(--l2)", "No. " + rest, rest)
     if score > -20:
-        return ("Getting quieter", "var(--l4)",
-                f"Not dead, but it is sliding. Fewer people are playing than a week ago, though about "
+        rest = (f"Fewer people are playing than a week ago, though about "
                 f"{players} are still in the game at a typical moment.")
-    return ("Losing players fast", "var(--l5)",
-            f"It is dropping quickly: a lot fewer people than a week ago. About {players} players "
-            f"are still there at a typical moment, so it is quiet rather than empty.")
+        return ("Getting quieter", "var(--l4)", "Not dead, but it is sliding. " + rest, rest)
+    rest = (f"It is dropping quickly: a lot fewer people than a week ago. About {players} "
+            f"players are still there at a typical moment, so it is quiet rather than empty.")
+    return ("Losing players fast", "var(--l5)", rest, rest)
 
 
 def scrub(svg, h, labels, ys, texts, hues):
@@ -2123,10 +2137,12 @@ def faq_html(c, a, f, meta, pattern):
         qa.append((f"When is {name} busiest?",
                    f"{DAYS[bd]} around {hour12(bh)} UTC is its busiest hour in a typical "
                    f"week, with about {bv:,} players.{extra}"))
+    # verdict()[3], never [2]: this question has already been answered "Yes" by the
+    # live count in front of it, and [2] opens by answering "Is X dead?" instead.
     qa.append((f"Do people still play {name}?",
                f"Yes. {lp:,} people were playing {name} at our last check, at {stamp(lt)}. "
-               + re.sub(r"</?b>", "", verdict(a)[2])
-               if a["avg7"] else re.sub(r"</?b>", "", verdict(a)[2])))
+               + re.sub(r"</?b>", "", verdict(a)[3])
+               if a["avg7"] else re.sub(r"</?b>", "", verdict(a)[3])))
     if pattern:
         every = f", roughly every {pattern['every']} days" if pattern.get("every") else ""
         hour = f" at about {hour12(pattern['hour'])} UTC" if pattern.get("hour") is not None else ""
@@ -4705,7 +4721,7 @@ def main():
         # for every upcoming event rather than the handful this game's own page
         # shows, because /events lists far more of them.
         c["events"], c["upcoming"] = len(events or []), len(upcoming)
-        vlabel, vcol, vtext = verdict(a)
+        vlabel, vcol, vtext, _ = verdict(a)
         pattern = update_pattern(events, a["spikes"], now)
         facts = week_facts(a["week"])
         c["facts"] = facts

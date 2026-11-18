@@ -773,6 +773,16 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
     on a page with no charts on it - the same trap as the homepage advertising the
     deleted calendar reminders. Deleting or moving a section means searching the
     prose for it.
+  - **An answer may only answer the question above it.** "Do people still play X?"
+    opens "Yes" with a live count and then used to paste on the whole of
+    `verdict()`, whose own first word answers "Is X dead?" - so 42 of the 140 live
+    pages said "Yes. 263,503 people were playing Adopt Me... **No.** It is picking
+    up a little." `verdict()` returns a fourth item now, the same sentence without
+    its leading yes or no, and the questions page takes that one. The card on the
+    game page still takes `[2]`, where "No." is the answer to the question it
+    really asks. Both halves are written out in `verdict()` rather than cut apart
+    by a regex at the other end, so rewording one cannot quietly stop the other
+    working - and anything unpacking `verdict()` takes four values.
 - **Estimate vs observation.** "Typical"/"about"/"average" is an average of our samples. "Highest seen"/"recorded" is a single reading we really took. Never blur the two, and never add a rating or review to the structured data: we do not collect either.
 - **Structured data** is `jsonld()`: `VideoGame` + `Dataset` + `FAQPage` + `BreadcrumbList` on game pages, `ItemList` on the ranked lists, `WebSite` on the homepage, `Dataset` on `/busiest-hours.html`. **Both `Dataset` blocks carry `license`, pointing at our own `/terms`** - Search Console warned "Missing field license" on 14 Nov 2026 (non-critical) once it had crawled three pages. It is deliberately not an open licence such as CC BY: Terms says personal use and asks people not to copy the site wholesale, and publishing a licence that contradicts our own terms would be worse than the warning. **If the numbers are ever meant to be reusable, change both `Dataset` blocks and the "Using the site" section of Terms together**, and move `POLICY_DATE`.
 - **`clean_name()` and `name_slugs()`**: Roblox creators rename games for every holiday (`[HALLOWEEN PT 3] Grand Piece Online`). The site uses the **core name** for headings, titles and addresses, so `/game/grand-piece-online.html` survives the rename instead of being pruned and rebuilt under a new address every few weeks, losing its links and its standing in Google. Square brackets and emoji are stripped; round brackets are left alone because they are often part of the real name. Ties are broken with the universe id so an address never changes build to build. `c["name"]` is the tidy name, `c["full"]` is what Roblox calls it today, and the game page says so in its opening paragraph.
