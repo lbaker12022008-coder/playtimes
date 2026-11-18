@@ -173,6 +173,34 @@ id (`info.sub`), which is global rather than per-app, so saved games survive an 
    starts signed out and shows the whole flow, plus the privacy and terms URLs (`/privacy` and
    `/terms`, which the site already serves).
 
+**On a phone, signing in can open the Roblox app instead of the login page - and
+that is Roblox's doing, not ours.** Diagnosed 17 Nov 2026 after it was reported, and
+measured rather than guessed:
+
+- `/auth/login` sends people to `apis.roblox.com/oauth/v1/authorize`, which is
+  **identical on mobile and desktop** (checked against the live site with both user
+  agents) and which the Roblox app does **not** claim - there is no
+  `apple-app-site-association` or `assetlinks.json` on that host at all.
+- If the person is **not already signed in to roblox.com in that browser**, Roblox
+  then 302s to `www.roblox.com/login?returnUrl=...`, and that host **is** claimed:
+  `www.roblox.com/.well-known/assetlinks.json` declares
+  `delegate_permission/common.handle_all_urls` for `com.roblox.client`, so the Android
+  app claims **every URL on the domain**, login included. Android hands the page over,
+  the app has nothing to do with it, and the person lands on the app's home screen or
+  a game. On iOS the app claims only `/games/*`, `/share/*`, `/join/*`, `/catalog/*`,
+  `/bundles/*` and `/communities/*` - **not** `/login` - but Roblox's login page
+  carries `<meta name="apple-itunes-app">`, so Safari offers the "Open in the app"
+  banner.
+- **There is nothing to change on our side.** The `prompt` parameter Roblox documents
+  (`none`, `login`, `consent`, `select_account`) does not avoid the login page for
+  somebody who is signed out, and we cannot alter Roblox's app or their assetlinks.
+- **Already signed in to roblox.com in that browser and it never happens**, because
+  the login hop never occurs - authorize goes straight to consent on `apis.roblox.com`.
+  That is why it works on a computer and why the first report of it turned out to be
+  **an incognito tab**. It is still the normal case for a first-time visitor on a
+  phone, so if it is ever worth addressing, the fix is wording next to the sign-in
+  button telling them to sign in at roblox.com first - not code.
+
 **You cannot check the app's own settings from outside.** Roblox's `/oauth/v1/authorize` redirects
 to its login page whatever you send it - a wrong `redirect_uri`, or a client id that does not exist
 at all, both come back as the same 302. So a bad redirect URL only shows up as a failure *after*
