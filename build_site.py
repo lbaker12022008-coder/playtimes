@@ -1244,6 +1244,10 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'</div>'
               f'<nav aria-label="Sections">{drawer}'
               f'<a href="/busiest-hours">When is Roblox busiest?</a>'
+              # The footer has linked /install since it was built, but the footer is
+              # at the bottom of a long page and this menu is how people actually get
+              # about: without a row here the page could only be reached by typing it.
+              f'<a href="/install">Get the app</a>'
               f'<a href="/about">About</a></nav></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
@@ -3780,7 +3784,7 @@ def notifications_body():
     return f"""<div class="doc"><h1>Your notifications</h1>
 <p class="mut">Each switch takes effect as you press it.</p>
 <div id="notifpage"><p class="mut">Loading&hellip;</p></div>
-<h2>What the three mean</h2>
+<h2>What the four mean</h2>
 <ul>
 <li><b>Quiet</b> &mdash; shortly before that game is usually at its emptiest, which is
 when queues are short and servers are calm.</li>
@@ -3788,21 +3792,23 @@ when queues are short and servers are calm.</li>
 trading and events are easiest to find.</li>
 <li><b>Events</b> &mdash; shortly before something the creators have put on the game's
 Roblox calendar starts.</li>
-<li><b>Updates</b> &mdash; when the creators change the game. This one looks backwards:
-an update has already happened by the time Roblox tells anybody, so it can arrive a few
-hours late and the message says how long ago.</li>
+<li><b>Updates</b> &mdash; when the creators change the game. This one is the other way
+round: the update has already happened by the time Roblox tells anyone. So it can turn up
+a few hours late, and the message says how long ago.</li>
 </ul>
 <p>You get about fifteen minutes' warning, and at most one of each per game per day.
-Turning all three off for a game stops it completely.</p>
+Turning all four off for a game stops it completely.</p>
 <h2>What we keep</h2>
-<p>The notification address your browser gives us for each device you turn on, the two
-keys needed to lock each message so only your device can read it, how many hours ahead
-of UTC you are, and which games you picked. Nothing else. <b>Delete my data</b> on the
-<a href="/privacy">Privacy Policy</a> removes all of it, and so does turning every
-switch off.</p>
-<p class="mut small">{site} only offers this to people signed in with Roblox, who are
-13 or over by Roblox's own rule, because sending a notification means remembering a
-particular device.</p></div>"""
+<p>Four things, and nothing else:</p>
+<ul><li>The address your browser gives us for each device you turn on.</li>
+<li>Two keys that lock each message, so only your device can open it.</li>
+<li>How many hours ahead of UTC you are.</li>
+<li>Which games you picked.</li></ul>
+<p><b>Delete my data</b> on the <a href="/privacy">Privacy Policy</a> removes all of it,
+and so does turning every switch off.</p>
+<p class="mut small">You have to be signed in with Roblox to use this, so everyone who
+can is 13 or over &mdash; that is Roblox's own rule. We ask because sending a
+notification means remembering your device.</p></div>"""
 
 
 def install_body():
@@ -3915,25 +3921,24 @@ gets quiet or busy, and before its events start. It is off until you turn it on,
 permission first, and you can turn it off again on the same page at any time. On an iPhone or iPad you
 have to add {html.escape(SITE)} to your home screen first &mdash; <a href="/install">here is how</a> &mdash;
 because Apple only allows notifications for a site that has been added.</p>
-<p>We only offer this to people signed in with Roblox. A notification has to be sent to a particular
-device, which means remembering that device, and we will not keep that for a visitor who has not signed
-in. Roblox does not let under-13s sign in to other sites, so everyone who can turn it on is 13 or over.</p>
+<p>You have to be signed in with Roblox. To send a notification we have to remember your device, and we
+will not remember anything at all about somebody who has not signed in. Roblox does not let under-13s sign
+in to other sites, so everyone who can turn this on is 13 or over.</p>
 <h2>Which games are on here</h2>
 <p>We only list games that Roblox itself labels <b>Minimal</b> or <b>Mild</b> for content, and we read that
 label back from Roblox before adding a game rather than guessing from its name. That is why some of the
-biggest games on Roblox are missing: it is deliberate, not an oversight. It is a rule about the label, though,
-not a promise &mdash; see &ldquo;What it does not tell you&rdquo; below.</p>
+biggest games on Roblox are not here. We leave them out on purpose. It is a rule about the label, though,
+not a promise about the game &mdash; see &ldquo;What it does not tell you&rdquo; below.</p>
 <h2>Where the extra details come from</h2>
 <ul><li><b>Event calendars and updates</b> come from the events the game's own creators post on Roblox.</li>
 <li><b>Descriptions, pictures and game passes</b> are the public ones Roblox shows on each game's page.</li>
-<li><b>"Days the player count jumped"</b> is worked out by us: any day at least {SPIKE:g} times busier than the
-week before it usually means an update, a seasonal event, or a popular video about the game.</li></ul>
-<h2>Estimates and observations</h2>
-<p>These are two different things and we try never to muddle them. A <b>typical</b> or <b>average</b> player
-count is an estimate: we add up the readings we took in that hour and divide. The <b>highest seen</b> figures are
-not estimates at all &mdash; each one is a single reading we really recorded. An estimate built from a handful of
-readings can be well out, which is why every game page says how many readings it is based on and how long we have
-been watching.</p>
+<li><b>"Days the player count jumped"</b> is ours: any day at least {SPIKE:g} times busier than the week
+before. That usually means an update, a holiday event, or a popular video about the game.</li></ul>
+<h2>Our guesses, and what we really saw</h2>
+<p>These are two different things, and we try never to mix them up. A <b>typical</b> or <b>average</b> player
+count is a guess: we add up the readings we took in that hour and divide. A <b>highest seen</b> number is not a
+guess &mdash; it is one real reading we took. A guess made from only a few readings can be a long way out, so
+every game page tells you how many readings it used and how long we have been watching.</p>
 <h2>Game names</h2>
 <p>Creators rename their games for every holiday and update, so the same game might be called
 &ldquo;Grand Piece Online&rdquo; one week and &ldquo;[&#127875;HALLOWEEN PT 3] Grand Piece Online&rdquo; the next.
@@ -3943,7 +3948,7 @@ Roblox is calling it today.</p>
 <p>Player counts show when people play. They do not say whether a game is good, fair, or safe for children,
 and neither does Roblox's content label on its own. Parents should still check a game themselves and use
 Roblox's parental controls.</p>
-<h2>The fine print</h2>
+<h2>A few last things</h2>
 <p>{html.escape(SITE)} is an independent fan project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.
 Game names belong to their creators. Numbers are averages and can be off, especially for games we started tracking recently.</p>
 <p>We never ask for your Roblox password. You can sign in with Roblox if you want your saved games on more than
@@ -4263,7 +4268,7 @@ def busy_page(cards, now):
     body = (
         f'<div class="hero"><h1>When is Roblox busiest?</h1>'
         f'<p class="lede">Across the {len(cards)} games we track, the busiest hour of the '
-        f'week is <b>{DAYS[busy[0]]} around {hour12(busy[1])} UTC</b> and the quietest is '
+        f'week is <b>{DAYS[busy[0]]} around {hour12(busy[1])} UTC</b>. The quietest is '
         f'<b>{DAYS[quiet[0]]} around {hour12(quiet[1])} UTC</b>. '
         + (f'{DAYS[busy_day]} is the busiest day overall and {DAYS[quiet_day]} the '
            f'quietest. ' if busy_day is not None else "")
@@ -4287,22 +4292,22 @@ def busy_page(cards, now):
         f'<div class="card faq"><h2>Common questions</h2>'
         f'<h3>What time is Roblox busiest?</h3>'
         f'<p>{DAYS[busy[0]]} around {hour12(busy[1])} UTC is the busiest hour we see across '
-        f'the games we track. Converted to local time that is the late afternoon and '
-        f'evening in most of Europe and the Americas, which is when most players are out '
-        f'of school.</p>'
+        f'the games we track. In local time that is late afternoon and evening across '
+        f'Europe and the Americas, when most players are out of school.</p>'
         f'<h3>When is the best time to play Roblox games quietly?</h3>'
         f'<p>{DAYS[quiet[0]]} around {hour12(quiet[1])} UTC is the quietest hour overall. '
         f'Quiet hours mean shorter queues, less lag and a better chance at timed or '
         f'limited in-game events. Individual games differ, so check the game\'s own page '
         f'for its quietest hour.</p>'
         f'<h3>Is this the same for every game?</h3>'
-        f'<p>No. Most games follow this rhythm because most players share a daily routine, '
-        f'but a game with players mainly in one part of the world can be hours out of step. '
-        f'Every game we track has its own hour-by-hour page.</p>'
+        f'<p>No. Most games follow this pattern, because most players are awake and '
+        f'asleep at much the same times. A game whose players are mostly in one part of '
+        f'the world can be hours out of step. Every game we track has its own '
+        f'hour-by-hour page.</p>'
         f'<p class="mut small">Worked out from '
-        f'{sum(c["samples"] for c in cards):,} player counts we took ourselves. These are '
-        f'averages of samples, so treat them as a good guess rather than an official '
-        f'figure.</p></div></div>'
+        f'{sum(c["samples"] for c in cards):,} player counts we took ourselves. They are '
+        f'averages, so treat them as a good guess rather than an official figure.'
+        f'</p></div></div>'
         + row_head("Busiest games right now",
                    f'<span class="mut small">{len(cards)} games</span>')
         + grid(cards[:12])
@@ -4752,21 +4757,22 @@ def main():
            'or busy stretch for any game.</li>'
            '<li><a href="/events">Event calendar</a> &ndash; what the creators have '
            'announced, so you know which hours will be packed.</li>'
-           '<li><b>Remind me</b> &ndash; on any game\'s page, tick the days you want and add '
-           'them straight to your phone\'s calendar, each one at that day\'s own quiet (or '
-           'busy) hour. No account, and nothing about you is stored.</li>'
+           '<li><b>Notifications</b> &ndash; sign in and we can buzz your phone about '
+           'fifteen minutes before a game goes quiet or busy. Also when it has an event, '
+           'or when the creators change it.</li>'
+           '<li><a href="/install">Get the app</a> &ndash; put us on your home screen so we '
+           'open like an app. On an iPhone or iPad that is also the only way notifications '
+           'can work.</li>'
            '</ul></div>'
            '<h2>Where the numbers come from</h2>'
-           '<div class="card"><p>Roblox publishes how many people are in each game right now. '
-           'We read that figure for every game on our list about every 10 minutes and keep it, '
-           'which '
-           'is something Roblox itself does not show you: it tells you about now, not about last '
-           'Tuesday. Averaging those readings by hour and weekday gives each game\'s rhythm, and '
-           'comparing one week with the next shows whether it is growing or shrinking.</p>'
-           '<p class="mut small">Averages are estimates built from samples, so treat them as a '
-           'good guess rather than an official figure. The highest player counts we quote are '
-           'different: those are single readings we really recorded. Nothing here says whether '
-           'a game is good, fair or suitable for a child.</p></div>')
+           '<div class="card"><p>Roblox shows how many people are in each game right now. '
+           'We write that number down for every game on our list, about every 10 minutes, and '
+           'we keep it. Roblox does not. It only ever shows you right now, never last Tuesday. '
+           'Add our readings up by hour and by day and you can see each game\'s week. Compare '
+           'one week with the next and you can see whether a game is growing or shrinking.</p>'
+           '<p class="mut small">An average is our best guess, worked out from the readings we '
+           'took. A highest player count is different: that is one real reading we saw. Nothing '
+           'here says whether a game is good, fair or safe for a child.</p></div>')
         + ask_js(cards))
     write("index.html", page(
         f"Roblox Player Counts & Best Times to Play Games | {SITE}", body,
@@ -4898,8 +4904,8 @@ def main():
     # ---- plan a session
     write("plan.html", page(
         seo_title("Best Time to Play: Next Quiet or Busy Hours"),
-        '<div class="hero"><h1>Plan my Roblox session</h1><p class="lede">Pick a game, say whether you want it quiet '
-        'or busy, and we will count down to the next good block of time in your timezone.</p></div>'
+        '<div class="hero"><h1>Plan my Roblox session</h1><p class="lede">Pick a game and say whether you want it '
+        'quiet or busy. We will count down to the next good stretch of time, on your own clock.</p></div>'
         '<div class="card" id="plan" hidden>'
         '<label>Game<br><select class="sel" id="g"></select></label>'
         '<p class="mut small" style="margin-top:14px">What do you want?</p>'

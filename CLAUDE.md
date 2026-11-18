@@ -221,6 +221,33 @@ to its login page whatever you send it - a wrong `redirect_uri`, or a client id 
 at all, both come back as the same 302. So a bad redirect URL only shows up as a failure *after*
 someone signs in. Test by actually signing in; do not read a 302 as proof the app is configured.
 
+## Reading age
+**Much of this audience is nine years old, and the words are written for them.**
+Measured on 17 Nov 2026 rather than guessed at: every page type's visible text was
+pulled out and scored, and the site already sat at about a US grade 4-6, so this is a
+standing rule rather than a rewrite waiting to happen.
+
+- **Short sentences do more than short words.** The pass that moved the numbers
+  mostly split sentences in two - the homepage's "Where the numbers come from" was
+  three sentences, one of them 35 words long with a colon in the middle, and is now
+  five. Afterwards no page but the game pages had a sentence over 24 words, and that
+  one is the hours table's own header row, not prose.
+- **Where it still reads high, check whose words they are.** `/events` scores a grade
+  9, and every bit of that is Roblox creators' own event titles. Nothing on that page
+  that we wrote is hard.
+- Things that were changed and are worth not changing back: "it is deliberate, not an
+  oversight" (now "we leave them out on purpose"), "Estimates and observations" (now
+  "Our guesses, and what we really saw"), "we try never to muddle them", "The fine
+  print" as a heading, and a 45-word sentence on `/notifications` listing the four
+  things we store, which is now four list items.
+- **The estimate/observation distinction survives the plain words.** "Typical" and
+  "average" are still our guess, "highest seen" is still one real reading, and the
+  two are still never blurred - see "Estimate vs observation" under Search engines.
+  Simpler words, same promise.
+- The scorer is in the scratchpad, not the repo: it reads a built folder, prints a
+  Flesch-Kincaid grade and words-per-sentence per page type, and lists every sentence
+  over 24 words so they can be read rather than trusted to a number.
+
 ## Look and layout
 - **Logo**: `logo_svg()` draws a timer ring with a play button inside, inline in the page so it stays sharp and costs no request. `FAVICON` is the same drawing written out as `favicon.svg`.
 - **Light/dark**: the dark palette is written once as `DARK` and dropped into the stylesheet twice, for `@media(prefers-color-scheme:dark)` on `:root:not([data-theme=light])` and for `:root[data-theme=dark]`. The site follows the device until the visitor presses the button, after which their choice is kept in `pt_theme` and wins. **Any new dark-mode rule must use a variable, not its own `prefers-color-scheme` block**, or the manual toggle will not reach it.
@@ -239,7 +266,15 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
   - `body{overflow-x:clip}` is the net under all of it. **Clip, not hidden**: `hidden` would make the body a scrolling box and the sticky header would stop sticking.
   - On a phone `.ghead` puts the picture on its own line (`.ghead>div{flex:1 1 100%}`) so the words get the full width, and `h1` drops to 1.5rem.
 - **One header, at every width**: logo, the PlayTime wordmark, the game picker, then the notifications bell, the search magnifier and the three-line button on the right. The panel that button opens holds the account, search and light/dark (`.dtop`, above the section links). **Search is the one thing that differs**: a wide screen has room for it, so from 900px up a magnifier sits in the bar (`.iconb.deskonly`, hidden by default and shown only inside the `@media(min-width:900px)` block) and the panel hides its own search row so the same control is not offered twice. **The row of section pills under the header is gone**: it was a second navigation that only ever showed on a wide screen, and the panel holds the same links plus two more. The footer still lists them as plain visible links, so none of the site's navigation is hidden from a search engine. Every control is bound by attribute, not id (`[data-search]`, `[data-themebtn]`), and the scripts bind **every** match - that is why the second magnifier needed no JavaScript at all, and why any further copy will not either. `ptPaint()` fills every `.acct` for the same reason, and `paintTheme()` keeps each labelled so a control cannot offer "Dark mode" on an already dark page. The sun/moon swap is keyed off `.themeic`. The bar is about 65px tall, 57px on a phone.
-- **Installing the site is a page, `/install`** (`install_body()`), not a row in a menu. Every game page links to it under the notification panel (`[data-installlink]`, hidden by `CHROME_JS` once `ptInstalled()` is true, since there is then nothing left to explain), and the footer links to it so it is not hidden from a search engine. It is a page because the steps differ on every platform and **Apple's cannot be automated at all** - no API lets a website install itself on an iPhone - so the only thing that works there is clear instructions, and instructions do not belong behind a toggle in a menu.
+- **Installing the site is a page, `/install`** (`install_body()`), not a row in a menu. Every game page links to it under the notification panel (`[data-installlink]`, hidden by `CHROME_JS` once `ptInstalled()` is true, since there is then nothing left to explain), and the footer links to it so it is not hidden from a search engine.
+  - **It is also a row in the panel behind the three-line button** ("Get the app",
+    added 17 Nov 2026). It was reachable only from the footer and from the
+    notification panels for a week, and the owner reported there was **no way to get
+    there without typing the address** - which was very nearly true, because the
+    footer is at the bottom of a long page and the panel is how people actually move
+    around this site. It is written straight into the panel's `<nav>` rather than
+    into `TABS`, because `TABS` is also the footer's list and the section pills, and
+    this is not a section of the site. It is a page because the steps differ on every platform and **Apple's cannot be automated at all** - no API lets a website install itself on an iPhone - so the only thing that works there is clear instructions, and instructions do not belong behind a toggle in a menu.
   - `/install` also carries `[data-install]`, a **real** install button that `CHROME_JS` reveals only where the browser has actually offered. **The offer arrives before `CHROME_JS` runs**, which is why it is caught in `FAVJS` (in the head) and kept on `PT.prompt`, with `preventDefault()` so the browser does not also throw its own bar across the page; `CHROME_JS` sets `PT.onprompt` so it can repaint if the offer lands later. An offer may be used **once**, so pressing the button takes it (`PT.prompt = null`) rather than copying it.
   - **The iPhone steps have the owner's own screenshots on them** (16 Nov 2026), one per step, each with a red arrow drawn on it: the three lines in Safari's address bar, Share, Add to Home Screen, then Add. The steps are written to match those pictures exactly, so **if the pictures are ever replaced the wording has to move with them** - Safari's own route to Add to Home Screen has changed before.
   - **The three device sections are drawers** (`.howto`, `data-dev`), and the one
@@ -345,6 +380,13 @@ What went: the `Remind me` block, `/reminder.ics`, `worker/ics.js`, the `ics/` f
 JavaScript. `prune()` still covers `ics/`, which is what deleted the 88 stale files on
 the next build; leave it covering that folder.
 
+**The homepage went on advertising it for a day** - "Remind me - on any game's page,
+tick the days you want and add them straight to your phone's calendar" sat in "What
+you can do here" until 17 Nov 2026, describing a control that no longer existed
+anywhere on the site. Deleting a feature means searching the prose for it, not only
+the code: that bullet is nowhere near `remind_btn` and no test could have caught it.
+It now offers notifications and a link to `/install`.
+
 `bestHour()` **survived and moved into `worker/push.js`**, because notifications ask
 the same question the calendar files did. The `.rem` and `.remind` CSS also survived:
 the notification panel sits in the same place under the countdown and uses the same
@@ -374,9 +416,14 @@ before whichever of those is next.
   page read the current row first and post all three; there is a test that catches a
   switch sending only itself.
 - **`/notifications` is where they are managed** (`notifications_body()`), reached
-  from the bell. Every game being followed, with its three switches, plus a test
+  from the bell. Every game being followed, with its four switches, plus a test
   button. It is `noindex`: it is one person's own settings and is empty until the
   browser fills it in.
+  - **Its prose said "three" over a list of four for a day** (fixed 17 Nov 2026):
+    "What the three mean" headed four bullets, and "turning all three off" sat under
+    four switches. Updates was added as a fourth switch and the words around it were
+    not. Anything that counts the switches in prose has to move when `KINDS` does -
+    there are two such phrases on this page and nothing enforces them.
 - **The game page's own control is deliberately bare**: a line, three switches, and a
   link to the page. It had grown to a paragraph of explanation around a button, and
   the explanation belongs on the page that exists for it. Measured at 68 characters of
