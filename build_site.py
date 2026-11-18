@@ -2139,15 +2139,35 @@ def faq_html(c, a, f, meta, pattern):
                    f"Roblox reports {meta['visits']:,} total visits for {name} so far"
                    + (f", and it was first released {ago(meta['created'])}."
                       if meta.get("created") else ".")))
-    # The timing questions are best answered by the graphs, which live on the game
-    # page. Whichever of the two pages Google sends somebody to, they are then one
-    # tap from the hourly graph. Only the HTML gets the link; qa stays plain text for
-    # the structured data.
-    graph_q = {f"When is {name} busiest?", f"What is the best time to play {name}?"}
-    graph = (f'<p class="small"><a href="/game/{c["slug"]}#byhour">See every hour on a '
-             f'graph &rarr;</a></p>')
-    body = "".join(f"<h3>{html.escape(q)}</h3><p>{html.escape(ans)}</p>"
-                   + (graph if q in graph_q else "") for q, ans in qa)
+    # Each answer ends with a link to the part of the game page that shows it - the
+    # graphs and the key numbers live there, and Google may send a search to either
+    # page. Only the HTML gets the links; qa stays plain text for the structured data.
+    # The history card only exists with 3+ days of readings (history_html), so its
+    # links fall back to the key numbers rather than pointing at an id that is absent.
+    g = f'/game/{c["slug"]}'
+    hist = f"{g}#history" if len(a["peaks"]) >= 3 else f"{g}#stats"
+    links = {
+        f"How many people are playing {name} right now?":
+            (f"{g}#stats", "See the latest count and this week&rsquo;s highs and lows"),
+        f"What is the highest player count {name} has had?":
+            (hist, "See the highest count for each day on a graph"),
+        f"What is the lowest player count {name} has?":
+            (f"{g}#stats", "See this week&rsquo;s lowest and highest"),
+        f"How many people play {name}?":
+            (hist, "See the player count day by day"),
+        f"What is the best time to play {name}?": (f"{g}#byhour", "See every hour on a graph"),
+        f"When is {name} busiest?": (f"{g}#byhour", "See every hour on a graph"),
+        f"Do people still play {name}?": (f"{g}#dead", "See the 45-day trend"),
+        f"When does {name} update?":
+            (f'/updates/{c["slug"]}', "See its past updates and when the next one is due"),
+    }
+    def more(q):
+        if q not in links:
+            return ""
+        href, text = links[q]
+        return f'<p class="small"><a href="{href}">{text} &rarr;</a></p>'
+    body = "".join(f"<h3>{html.escape(q)}</h3><p>{html.escape(ans)}</p>{more(q)}"
+                   for q, ans in qa)
     return (f'<div class="card faq"><h2>{html.escape(name)}: common questions</h2>{body}'
             f'<p class="mut small">Answers come from our own player counts, which are '
             f'estimates built from samples, not official Roblox figures.</p></div>'), qa
