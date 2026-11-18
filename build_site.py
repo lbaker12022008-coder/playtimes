@@ -1493,8 +1493,8 @@ def ago(ts, now=None):
     if d < 365:
         m = max(1, int(d / 30.4))
         return f"{m} month{'s' if m > 1 else ''} ago"
-    y = d / 365
-    return f"{y:.0f} year{'s' if y >= 2 else ''} ago"
+    y = max(1, round(d / 365))
+    return f"{y} year{'s' if y > 1 else ''} ago"
 
 
 def when(ts):
@@ -1521,6 +1521,12 @@ def index_ok(c):
     """
     a = c["a"]
     return a["days"] >= 3 and a["hours"] >= 48
+
+
+def stamp(ts):
+    """A reading's exact time -> '4:30 PM UTC on Wed 18 Nov'."""
+    d = datetime.fromtimestamp(ts, timezone.utc)
+    return f"{d.hour % 12 or 12}:{d.minute:02d} {'AM' if d.hour < 12 else 'PM'} UTC on {when(ts)}"
 
 
 def seo_title(*headlines):
@@ -1698,6 +1704,10 @@ def analyze(rows):
       first   the time of our oldest player count for this game
       last    the time of our newest player count
       hours   how many of the week's 168 hours we have ever seen this game in
+      latest  (time, players) of our newest player count
+      low7    (time, players) the lowest single count in the last 7 days
+      high7   (time, players) the highest single count in the last 7 days
+      peak_at the time we saw `peak`
     """
     sums = [[0] * 24 for _ in range(7)]
     cnt = [[0] * 24 for _ in range(7)]
@@ -1738,6 +1748,17 @@ def analyze(rows):
             "spikes": find_spikes(daily),
             "first": rows[0][0], "last": rows[-1][0],
             "hours": sum(1 for row in week for v in row if v is not None),
+            # Searchers ask for "player count right now", "lowest" and "highest" in
+            # those words, so the pages answer with real single readings - each with
+            # the moment we took it, since an observation without a time is a guess.
+            # A zero is left out of the lowest: it is far likelier a failed reading
+            # than a game with nobody in it.
+            "latest": rows[-1],
+            "low7": min(((ts, p) for ts, p in rows if now - ts <= 7 * 86400 and p > 0),
+                        key=lambda r: r[1], default=None),
+            "high7": max(((ts, p) for ts, p in rows if now - ts <= 7 * 86400),
+                         key=lambda r: r[1], default=None),
+            "peak_at": max(rows, key=lambda r: r[1])[0],
             "days": round((rows[-1][0] - rows[0][0]) / 86400, 1)}
 
 
@@ -1942,8 +1963,14 @@ def short_answer(name, f):
 
 def facts_html(c, a, f):
     """The key numbers as a list, so they are in the page itself and not only in a chart."""
-    rows = [("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
-            ("Highest player count seen", f'{a["peak"]:,}', "the most we have ever recorded"),
+    rows = [("Latest player count", f'{a["latest"][1]:,}', f'at {stamp(a["latest"][0])}'),
+            ("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
+            ("Highest player count ever seen", f'{a["peak"]:,}',
+             f'the most we have recorded, on {when(a["peak_at"])}')]
+    if a["high7"] and a["low7"]:
+        rows += [("Highest this week", f'{a["high7"][1]:,}', f'at {stamp(a["high7"][0])}'),
+                 ("Lowest this week", f'{a["low7"][1]:,}', f'at {stamp(a["low7"][0])}')]
+    rows += [
             ("Compared to last week", trend_html(a["trend"]), "last 7 days against the 7 before")]
     if f:
         bd, bh, _ = f["busy"]
@@ -2059,11 +2086,29 @@ def faq_html(c, a, f, meta, pattern):
     page's structured data without being written out twice.
     """
     name = c["name"]
-    qa = [(f"How many people play {name}?",
+    lt, lp = a["latest"]
+    qa = [(f"How many people are playing {name} right now?",
+           f"At our most recent check, at {stamp(lt)}, {lp:,} people were playing {name}. "
+           f"We read Roblox's public player count about every ten minutes and refresh this "
+           f"page four times a day, so that number can be a few hours old. At a typical "
+           f"moment over the last week there were about {a['avg7']:,}.")]
+    qa.append((f"What is the highest player count {name} has had?",
+               f"The most people we have seen in {name} at once is {a['peak']:,}, on "
+               f"{when(a['peak_at'])}."
+               + (f" This week the highest was {a['high7'][1]:,}, at {stamp(a['high7'][0])}."
+                  if a["high7"] else "")
+               + f" We have been counting since {when(a['first'])}, so a record from before "
+               f"then would not show here."))
+    if a["low7"]:
+        qa.append((f"What is the lowest player count {name} has?",
+                   f"The fewest people we saw in {name} over the last 7 days was "
+                   f"{a['low7'][1]:,}, at {stamp(a['low7'][0])}. That is everybody in the "
+                   f"game at that moment, across every server."))
+    qa.append((f"How many people play {name}?",
            f"About {a['avg7']:,} people are in {name} at a typical moment, averaged over "
            f"the last 7 days. The most we have ever recorded at once is {a['peak']:,}. "
            f"These are our own readings of Roblox's public player count, taken roughly "
-           f"every ten minutes.")]
+           f"every ten minutes."))
     if f:
         bd, bh, bv = f["busy"]
         qd, qh, qv = f["quiet"]
@@ -2078,7 +2123,10 @@ def faq_html(c, a, f, meta, pattern):
         qa.append((f"When is {name} busiest?",
                    f"{DAYS[bd]} around {hour12(bh)} UTC is its busiest hour in a typical "
                    f"week, with about {bv:,} players.{extra}"))
-    qa.append((f"Is {name} dying?", re.sub(r"</?b>", "", verdict(a)[2])))
+    qa.append((f"Do people still play {name}?",
+               f"Yes. {lp:,} people were playing {name} at our last check, at {stamp(lt)}. "
+               + re.sub(r"</?b>", "", verdict(a)[2])
+               if a["avg7"] else re.sub(r"</?b>", "", verdict(a)[2])))
     if pattern:
         every = f", roughly every {pattern['every']} days" if pattern.get("every") else ""
         hour = f" at about {hour12(pattern['hour'])} UTC" if pattern.get("hour") is not None else ""
@@ -4644,8 +4692,9 @@ def main():
         # The opening paragraph. Every number in it comes from our own samples, and the
         # wording keeps "about"/"typical" on the averages and "seen"/"recorded" on the
         # things we really observed, so an estimate is never dressed up as a fact.
-        lead = (f'{html.escape(name)} has about <b>{a["avg7"]:,} players</b> at a typical '
-                f'moment, and we have seen as many as <b>{a["peak"]:,}</b> at once. ')
+        lead = (f'At our last check ({stamp(a["latest"][0])}) <b>{a["latest"][1]:,} people</b> '
+                f'were playing {html.escape(name)}. It has about <b>{a["avg7"]:,} players</b> '
+                f'at a typical moment, and we have seen as many as <b>{a["peak"]:,}</b> at once. ')
         if facts:
             bd, bh, _ = facts["busy"]
             qd, qh, _ = facts["quiet"]
@@ -4804,12 +4853,16 @@ def main():
             noindex=thin or not upd, modified=iso_day(a["last"])))
 
         write(f"game/{s}.html", page(
-            seo_title(f"{name} Player Count & Best Times to Play",
-                      f"{name} Player Count and Best Times",
+            seo_title(f"{name} Player Count Today & Best Times to Play",
+                      f"{name} Player Count Today & Best Times",
+                      f"{name} Player Count Today",
                       f"{name} Player Count"), body,
-            clip(f"{name} has about {a['avg7']:,} players at a typical moment, and we have "
-                 f"seen {a['peak']:,} at once. Its player count history, busiest and quietest "
-                 f"hours, and the best time to play."),
+            # Leads with the numbers people search for in their own words - how many
+            # right now, the record, the lowest - so the snippet answers the search.
+            clip(f"{a['latest'][1]:,} people were playing {name} at our last check. "
+                 f"Record: {a['peak']:,}."
+                 + (f" Lowest this week: {a['low7'][1]:,}." if a["low7"] else "")
+                 + f" Player count history, busiest and quietest hours, best time to play."),
             wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
             # The questions and the events are written out on their own pages now,
