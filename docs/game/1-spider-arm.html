@@ -403,6 +403,9 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+.phonetip{display:none;margin:9px 0 0;font-size:.82rem;line-height:1.45;
+color:var(--mut)}
+@media(max-width:899px){.phonetip{display:block}}
 .ipop{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;
 background:rgba(0,0,0,.45)}
 .ipop[hidden]{display:none}
@@ -719,7 +722,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"+1 Spider Arm","item":"https://playtimestats.com/game/1-spider-arm"}]},{"@type":"VideoGame","name":"+1 Spider Arm","url":"https://playtimestats.com/game/1-spider-arm","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-7bca35328b9929f44d8e1da6db9e69a2/256/256/Image/Webp/noFilter","genre":"Simulation","author":{"@type":"Organization","name":"This Time For Sure"},"description":"\ud83d\udd77\ufe0f Welcome to +1 Spider Arm! \ud83d\udd77\ufe0f\n\nHOW TO PLAY:\n\ud83e\uddbe Ride a mechanical spider armature that walks, clings and climbs for you!\n\ud83e\uddd7 Hold SPACE to climb walls, hang under ceilings and swing across gaps.\n\ud83d\udcaa Train to level up and get +1 ARM. More arms means more speed and more grip!\n\u270a Watch your grip! It drains while you hang, so run out and you FALL.\n\ud83c\udf0b Escape 13 wild stages: rooftops, sand canyons, frost arch","datePublished":"2026-10-19","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":57003423}},{"@type":"Dataset","name":"+1 Spider Arm player count history","description":"Concurrent player counts for the Roblox game +1 Spider Arm, sampled from the public Roblox player count every few minutes. 1,240 readings so far.","url":"https://playtimestats.com/game/1-spider-arm","temporalCoverage":"2026-10-30/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"+1 Spider Arm","item":"https://playtimestats.com/game/1-spider-arm"}]},{"@type":"VideoGame","name":"+1 Spider Arm","url":"https://playtimestats.com/game/1-spider-arm","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-7bca35328b9929f44d8e1da6db9e69a2/256/256/Image/Webp/noFilter","genre":"Simulation","author":{"@type":"Organization","name":"This Time For Sure"},"description":"\ud83d\udd77\ufe0f Welcome to +1 Spider Arm! \ud83d\udd77\ufe0f\n\nHOW TO PLAY:\n\ud83e\uddbe Ride a mechanical spider armature that walks, clings and climbs for you!\n\ud83e\uddd7 Hold SPACE to climb walls, hang under ceilings and swing across gaps.\n\ud83d\udcaa Train to level up and get +1 ARM. More arms means more speed and more grip!\n\u270a Watch your grip! It drains while you hang, so run out and you FALL.\n\ud83c\udf0b Escape 13 wild stages: rooftops, sand canyons, frost arch","datePublished":"2026-10-19","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":57009590}},{"@type":"Dataset","name":"+1 Spider Arm player count history","description":"Concurrent player counts for the Roblox game +1 Spider Arm, sampled from the public Roblox player count every few minutes. 1,240 readings so far.","url":"https://playtimestats.com/game/1-spider-arm","temporalCoverage":"2026-10-30/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -775,7 +778,13 @@ var acct=!PT.available?'':PT.name
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
-+'<span>Sign in with Roblox</span></a>';
++'<span>Sign in with Roblox</span></a>'
+/* The same warning as the one beside the other two buttons. It is written out
+   here rather than shared because PUSH_JS is not loaded on every page and this
+   block is in FAVJS, which is. */
++'<p class="phonetip">If the Roblox app opens instead of the sign-in page, open '
++'roblox.com in your browser and sign in there first, then come back and tap this '
++'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
@@ -1345,7 +1354,11 @@ if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
-var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>';
+/* Said once, in one place, so the three buttons cannot drift apart. */
+var PHONETIP='<p class="phonetip">If the Roblox app opens instead of the sign-in '
++'page, open roblox.com in your browser and sign in there first, then come back '
++'and tap this again.</p>';
+var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>'+PHONETIP;
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */

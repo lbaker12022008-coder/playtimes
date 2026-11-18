@@ -403,6 +403,9 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+.phonetip{display:none;margin:9px 0 0;font-size:.82rem;line-height:1.45;
+color:var(--mut)}
+@media(max-width:899px){.phonetip{display:block}}
 .ipop{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;
 background:rgba(0,0,0,.45)}
 .ipop[hidden]{display:none}
@@ -719,7 +722,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Roleplay & Avatar Sim games","item":"https://playtimestats.com/category/roleplay-avatar-sim"},{"@type":"ListItem","position":3,"name":"Raise The Biggest Family","item":"https://playtimestats.com/game/raise-the-biggest-family"}]},{"@type":"VideoGame","name":"Raise The Biggest Family","url":"https://playtimestats.com/game/raise-the-biggest-family","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-47fd67aa956f94a5ef87a492dc9b5c6b/256/256/Image/Webp/noFilter","genre":"Roleplay & Avatar Sim","author":{"@type":"Organization","name":"Novkod X Level0Expert"},"description":"Your Children AGE OFFLINE!!! come back daily to give them love!\n\n\ud83d\udc36 NEW: Adopt a Puppy, Kitten or Bunny! \ud83d\udc30\n\ud83e\uddf8 Adopt a baby and raise them! \ud83e\uddf8\n\n\ud83d\ude90 Drive to the adoption center\n\ud83d\udcdc Pass your interview and bring your kid home\n\ud83c\udf7c Feed, bathe and care for them as they grow","datePublished":"2026-10-13","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":30979218}},{"@type":"Dataset","name":"Raise The Biggest Family player count history","description":"Concurrent player counts for the Roblox game Raise The Biggest Family, sampled from the public Roblox player count every few minutes. 1,218 readings so far.","url":"https://playtimestats.com/game/raise-the-biggest-family","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Roleplay & Avatar Sim games","item":"https://playtimestats.com/category/roleplay-avatar-sim"},{"@type":"ListItem","position":3,"name":"Raise The Biggest Family","item":"https://playtimestats.com/game/raise-the-biggest-family"}]},{"@type":"VideoGame","name":"Raise The Biggest Family","url":"https://playtimestats.com/game/raise-the-biggest-family","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-47fd67aa956f94a5ef87a492dc9b5c6b/256/256/Image/Webp/noFilter","genre":"Roleplay & Avatar Sim","author":{"@type":"Organization","name":"Novkod X Level0Expert"},"description":"Your Children AGE OFFLINE!!! come back daily to give them love!\n\n\ud83d\udc36 NEW: Adopt a Puppy, Kitten or Bunny! \ud83d\udc30\n\ud83e\uddf8 Adopt a baby and raise them! \ud83e\uddf8\n\n\ud83d\ude90 Drive to the adoption center\n\ud83d\udcdc Pass your interview and bring your kid home\n\ud83c\udf7c Feed, bathe and care for them as they grow","datePublished":"2026-10-13","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":30987717}},{"@type":"Dataset","name":"Raise The Biggest Family player count history","description":"Concurrent player counts for the Roblox game Raise The Biggest Family, sampled from the public Roblox player count every few minutes. 1,218 readings so far.","url":"https://playtimestats.com/game/raise-the-biggest-family","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -775,7 +778,13 @@ var acct=!PT.available?'':PT.name
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
-+'<span>Sign in with Roblox</span></a>';
++'<span>Sign in with Roblox</span></a>'
+/* The same warning as the one beside the other two buttons. It is written out
+   here rather than shared because PUSH_JS is not loaded on every page and this
+   block is in FAVJS, which is. */
++'<p class="phonetip">If the Roblox app opens instead of the sign-in page, open '
++'roblox.com in your browser and sign in there first, then come back and tap this '
++'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
@@ -1338,7 +1347,11 @@ if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
-var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>';
+/* Said once, in one place, so the three buttons cannot drift apart. */
+var PHONETIP='<p class="phonetip">If the Roblox app opens instead of the sign-in '
++'page, open roblox.com in your browser and sign in there first, then come back '
++'and tap this again.</p>';
+var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>'+PHONETIP;
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */

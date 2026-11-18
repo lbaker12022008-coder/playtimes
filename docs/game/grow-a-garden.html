@@ -403,6 +403,9 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+.phonetip{display:none;margin:9px 0 0;font-size:.82rem;line-height:1.45;
+color:var(--mut)}
+@media(max-width:899px){.phonetip{display:block}}
 .ipop{position:fixed;inset:0;z-index:31;display:grid;place-items:center;padding:16px;
 background:rgba(0,0,0,.45)}
 .ipop[hidden]{display:none}
@@ -719,7 +722,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Grow a Garden","item":"https://playtimestats.com/game/grow-a-garden"}]},{"@type":"VideoGame","name":"Grow a Garden","url":"https://playtimestats.com/game/grow-a-garden","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-d59abcda64c7f647cd679c87c67e1f01/256/256/Image/Webp/noFilter","genre":"Simulation","author":{"@type":"Organization","name":"The Garden Game"},"description":"\ud83c\udf45Welcome to Grow a Garden\ud83c\udf45\n\nAre you ready to grow your very own garden? Buy seeds from the shop when they restock, plant them, wait for them to grow, and collect the profits! Flex fruits and finds on friends, and have fun!\n\n[How To Plant]\n\u2022 Equip your seed you want to plant!\n\u2022 Click in your farm on the brown plots to plant!\n\u2022 Wait to see it start growing!\n\u2022 After its fully grown, it is time to har","datePublished":"2025-03-25","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":36023198318}},{"@type":"Dataset","name":"Grow a Garden player count history","description":"Concurrent player counts for the Roblox game Grow a Garden, sampled from the public Roblox player count every few minutes. 1,218 readings so far.","url":"https://playtimestats.com/game/grow-a-garden","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Grow a Garden","item":"https://playtimestats.com/game/grow-a-garden"}]},{"@type":"VideoGame","name":"Grow a Garden","url":"https://playtimestats.com/game/grow-a-garden","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-d59abcda64c7f647cd679c87c67e1f01/256/256/Image/Webp/noFilter","genre":"Simulation","author":{"@type":"Organization","name":"The Garden Game"},"description":"\ud83c\udf45Welcome to Grow a Garden\ud83c\udf45\n\nAre you ready to grow your very own garden? Buy seeds from the shop when they restock, plant them, wait for them to grow, and collect the profits! Flex fruits and finds on friends, and have fun!\n\n[How To Plant]\n\u2022 Equip your seed you want to plant!\n\u2022 Click in your farm on the brown plots to plant!\n\u2022 Wait to see it start growing!\n\u2022 After its fully grown, it is time to har","datePublished":"2025-03-25","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":36023209643}},{"@type":"Dataset","name":"Grow a Garden player count history","description":"Concurrent player counts for the Roblox game Grow a Garden, sampled from the public Roblox player count every few minutes. 1,218 readings so far.","url":"https://playtimestats.com/game/grow-a-garden","temporalCoverage":"2026-10-31/2026-11-18","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -775,7 +778,13 @@ var acct=!PT.available?'':PT.name
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
-+'<span>Sign in with Roblox</span></a>';
++'<span>Sign in with Roblox</span></a>'
+/* The same warning as the one beside the other two buttons. It is written out
+   here rather than shared because PUSH_JS is not loaded on every page and this
+   block is in FAVJS, which is. */
++'<p class="phonetip">If the Roblox app opens instead of the sign-in page, open '
++'roblox.com in your browser and sign in there first, then come back and tap this '
++'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
 el.innerHTML=acct});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
@@ -1341,7 +1350,11 @@ if(!w.slug)w={};
 return '<div class="togs">'+KINDS.filter(function(k){return want.indexOf(k[0])>-1})
 .map(function(k){return tog(forSlug,k[0],k[1],w[k[0]])}).join('')+'</div>'}
 
-var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>';
+/* Said once, in one place, so the three buttons cannot drift apart. */
+var PHONETIP='<p class="phonetip">If the Roblox app opens instead of the sign-in '
++'page, open roblox.com in your browser and sign in there first, then come back '
++'and tap this again.</p>';
+var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>'+PHONETIP;
 var INSTALL='<a class="fav" href="/install">How to install it</a>';
 
 /* ----------------------------------------------------------- the game page */
