@@ -337,6 +337,10 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shots>li>p{margin:0 0 10px}
 .shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The computer screenshots are a browser window rather than a phone: landscape, and
+   the thing being pointed at is a few pixels of address bar, so 270px would be
+   unreadable. Two classes, so it wins over the rule above whatever the order. */
+.shots.wide img{max-width:min(520px,100%)}
 /* The two-line history chart, and the key under it. The key uses a coloured block
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
@@ -3856,10 +3860,38 @@ notification button on any game page will work.</p>
 </div></details>
 <details class="howto" data-dev="desktop"><summary><h2>On a computer</h2></summary>
 <div class="howto-in">
+<h3>Adding it</h3>
 <ol><li>Open <b>{site}</b> in Chrome or Edge.</li>
 <li>Look for the small <b>add</b> or <b>install</b> icon at the right-hand end of the
 address bar, or open the browser <b>menu</b> and choose it from there.</li>
 <li>Confirm.</li></ol>
+<h3>Turning notifications on</h3>
+<p>On a computer you do not have to add {site} first &mdash; notifications work in an
+ordinary browser tab. The first time you press a bell, your browser asks.</p>
+<ol class="shots wide">
+<li><p>Press <b>Allow</b> when the box appears.</p>
+<img src="/img/install/pc1.webp" width="520" height="269" loading="lazy"
+alt="A browser asking whether {site} may show notifications, with a red arrow pointing at the Allow button."></li>
+<li><p>Missed it, or pressed Block by mistake? Click the <b>small icon just to the
+left of the address</b>.</p>
+<img src="/img/install/pc2.webp" width="520" height="158" loading="lazy"
+alt="A browser address bar, with a red arrow pointing at the site settings icon to the left of the address."></li>
+<li><p>Turn <b>Notifications</b> on. If it offers <b>Reset permission</b> instead,
+click that, reload the page and press the bell again.</p>
+<img src="/img/install/pc3.webp" width="520" height="548" loading="lazy"
+alt="The site settings panel, with a red arrow pointing at the Notifications switch."></li>
+</ol>
+<h3>If they still do not appear</h3>
+<p>Windows has a switch of its own on top of the browser's, and that is usually the
+one in the way.</p>
+<ol><li>Open <b>Settings</b>, then <b>System</b>, then <b>Notifications</b>.</li>
+<li>Turn <b>Notifications</b> on.</li>
+<li>Check that <b>Do not disturb</b> is <b>off</b>.</li>
+<li>Scroll down to the list of apps underneath and turn on the one for your browser
+&mdash; <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Firefox</b>, whichever you
+opened {site} in.</li></ol>
+<p class="mut small">On a Mac the same two switches are in <b>System Settings</b>,
+then <b>Notifications</b>.</p>
 </div></details>
 <h2>Getting rid of it</h2>
 <p>Hold the icon and remove it, the same as any other app. Nothing is left behind on

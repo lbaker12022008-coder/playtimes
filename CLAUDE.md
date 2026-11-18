@@ -268,7 +268,36 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
     plain `<details>` (`.already`), which is why it needs no JavaScript and survives
     the notifications page redrawing itself. It appears on `/notifications`, in the
     Plan my session card and inside the install popup.
-  - They live in **`brand/install/step1..4.webp`** and the build copies them byte for byte into `img/install/`. The arrows were drawn once with Pillow in a scratch script, not at build time: `build_site.py` needs no image library and the build server installs nothing, which is the same rule `roblox_api.py` follows. They are 520px wide, about 30KB each, and drawn at 270px on the page. **`prune()` does not cover them** - it only deletes `.html` and `.ics` - so a renamed picture would linger and has to be removed by hand.
+  - **The computer section has its own three screenshots** (17 Nov 2026), and they
+    are about *notifications* rather than adding the site, because on a computer
+    nothing has to be added - web push works in an ordinary tab. They are the
+    browser's Allow box, the settings icon to the left of the address (the way back
+    in after pressing Block), and the Notifications switch behind it.
+  - **A browser screenshot needs a different width cap from a phone one.** `.shots
+    img` caps at 270px, which is right for a tall phone picture and unreadable for a
+    browser window; `.shots.wide img` caps at 520px, the pictures' own width, so they
+    are never upscaled. Two classes, so it beats the rule above whatever the order -
+    the same trap as everywhere else in this stylesheet.
+  - **Each one is cropped to the part being talked about before the arrow is drawn.**
+    The first two were whole 1834px browser windows, and at 520px the Allow button
+    was illegible; cropped to 550px and 560px of real screen the words can be read.
+    The arrow is sized as a fraction of the picture (5% head, 1.6% shaft) rather than
+    in fixed pixels, because the site-settings panel is only 330px wide and the phone
+    shots' 54px arrowhead would have been a third of it.
+  - **"If they still do not appear" is about Windows, not us.** Windows holds a
+    notification switch on top of the browser's, and it is usually the one in the
+    way: Settings, System, Notifications; Do not disturb off; then the browser itself
+    in the list of apps underneath. There is nothing in our code that can read or set
+    any of that, so it is written as instructions and always will be.
+  - They live in **`brand/install/step1..4.webp`** (the Apple steps) and
+    **`pc1..3.webp`** (the computer ones), and the build copies every `.webp` in that
+    folder byte for byte into `img/install/`, so a new picture needs no change to
+    `build_site.py`. The arrows were drawn once with Pillow in a scratch script, not
+    at build time: `build_site.py` needs no image library and the build server
+    installs nothing, which is the same rule `roblox_api.py` follows. They are all
+    520px wide, 4-45KB each. **`prune()` does not cover them** - it only deletes
+    `.html` and `.ics` - so a renamed picture would linger and has to be removed by
+    hand.
   - `ptIOS()` and `ptInstalled()` live in `FAVJS` because both this and the notification panel on game pages ask the same two questions, and two copies would drift. iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
