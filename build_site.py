@@ -97,6 +97,14 @@ CSS = """:root{__LIGHT__}
 .hdr .nots,.hdr .acctbar{display:block}
 .hdr .nots:empty,.hdr .acctbar:empty{display:none}
 .notsrow{display:none}
+/* The name is in the bar here and its own menu holds Sign out, so the panel stops
+   offering the same person a second time. `.dtop .acct`, not `.acct`: the base
+   rule is display:flex, one class, written further down - the same trap again.
+   `.signedin` matters just as much: SIGNED OUT, this block holds the only Sign in
+   with Roblox on the page, because the bar pill is drawn only for somebody already
+   signed in. Hiding it unconditionally left a signed-out visitor on a computer with
+   no way to sign in anywhere. */
+.dtop .acct.signedin{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
@@ -311,6 +319,21 @@ color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 border:1px solid var(--line);background:var(--shade)}
 .albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 font-size:.9rem}
+/* The menu under the name in the bar (17 Nov 2026). It holds what the panel used to
+   hold for a signed-in person on a computer - who you are and the way out - so the
+   panel drops its own copy from 900px up and there is still only ever one of each.
+   Below 900px there is no name in the bar, so the panel keeps it and this is never
+   drawn.
+   It is written OUTSIDE <header> with the drawer and the sheet, and for the same
+   reason: .hdr has backdrop-filter, which makes the header the containing block for
+   anything position:fixed inside it. Script puts it under the pill. */
+.amenu{position:fixed;z-index:30;width:218px;max-width:calc(100vw - 24px);padding:6px;
+background:var(--solid);border:1px solid var(--line);border-radius:14px;
+box-shadow:var(--sh);animation:dropin .15s ease both}
+.amenu[hidden]{display:none}
+.amenu .asub{display:block;padding:8px 12px 9px;margin:0 0 4px;color:var(--mut);
+font-size:.78rem;border-bottom:1px solid var(--line)}
+.amenu form{margin:0}
 /* The panel's Notifications row is the other half of the same arrangement: it shows
    on a phone, where the bell is not in the bar, and hides where the bell is. */
 .notsrow:empty{display:none}
@@ -433,9 +456,18 @@ border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:poin
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .themeic .moon{display:block}
 :root:not([data-theme=light]) .themeic .sun{display:none}}
 /* the side drawer and the search sheet, used on the pages about one game */
-.drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
-background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
-padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
+/* It drops straight down from the three-line button with a gap at the side and
+   rounded corners, rather than sliding in from the edge of the screen as a
+   full-height drawer (17 Nov 2026, owner's call, after demand.gg). top clears the
+   bar - about 65px, 57px on a phone - and max-height keeps a long list scrolling
+   inside the card instead of running off the bottom of the window. */
+/* top/right here are only a sane starting point: script places the card under the
+   three-line button before it is ever shown, because the bar's band is capped and
+   centred and the button is not at the window edge on a wide screen. */
+.drawer{position:fixed;top:72px;right:16px;width:262px;max-width:calc(100vw - 32px);
+z-index:30;background:var(--solid);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);padding:8px;max-height:calc(100vh - 88px);overflow-y:auto;
+animation:dropin .15s ease both}
 .drawer[hidden]{display:none}
 /* The panel's top section: the controls that are in the header on a wide screen. */
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
@@ -448,10 +480,11 @@ text-align:left;cursor:pointer}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
-.scrim{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
+.scrim{position:fixed;inset:0;z-index:25}
 .scrim[hidden]{display:none}
-@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
-.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
+@keyframes dropin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;
+padding:76px 16px 16px;background:rgba(0,0,0,.45)}
 .sheet[hidden]{display:none}
 /* The device sections on /install, collapsed so nobody scrolls past two
    platforms to reach their own. Built like .gdesc: the <h2> stays inside the
@@ -747,6 +780,9 @@ h2{font-size:1.06rem}
 .rowhead{margin-top:18px}
 /* the same four things, a little tighter, so the bar is not a third of the screen */
 .hdr .in{padding:8px 14px}
+/* The bar is shorter here - about 57px - so the panel starts higher, and its gap
+   follows the bar's own 14px padding rather than the 16px a computer uses. */
+.drawer{top:63px;right:14px;max-width:calc(100vw - 28px);max-height:calc(100vh - 79px)}
 .iconb{width:38px;height:38px}
 .hrow{gap:9px}
 .logo{font-size:1.2rem}
@@ -1120,11 +1156,13 @@ TABS = [("home", "All games", "/"),
         ("plan", "Plan a session", "/plan")]
 
 # TABS is still the whole section list - sitemap.xml is built from it, and a page
-# left out here is a page we never ask Google to look at. This is the shorter list
-# the panel behind the three-line button draws (17 Nov 2026, owner's call): four
-# ranked lists of the same games in a row read as four names rather than four
-# choices. The four that are hidden are still reachable from the footer.
-PANEL_HIDE = {"popular", "trending", "growing", "shrinking"}
+# left out here is a page we never ask Google to look at. This is what the panel
+# behind the three-line button leaves out (17 Nov 2026, owner's call). Growing and
+# Shrinking were taken out with these two and put back the same day, so do not
+# assume the grouping means anything: it is the two the owner did not want listed.
+# Both of these are still reachable from the footer, which is what stops them
+# becoming pages we ask Google to crawl and then link from nowhere.
+PANEL_HIDE = {"popular", "trending"}
 
 # Words for the five busy-ness levels, used all over the site.
 WORDS = ["no data", "very quiet", "quiet", "average", "busy", "very busy"]
@@ -1256,6 +1294,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               # about: without a row here the page could only be reached by typing it.
               f'<a href="/install">Get the app</a>'
               f'<a href="/about">About</a></nav></div>'
+              f'<div class="amenu" id="amenu" hidden></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
               f'<div id="qout" class="qout"></div></div></div>')
@@ -2527,7 +2566,10 @@ var acct=!PT.available?'':PT.name
 +'roblox.com in your browser and sign in there first, then come back and tap this '
 +'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
-el.innerHTML=acct});
+el.innerHTML=acct;
+/* Only the signed-in block is a second copy of what the bar shows, so only that one
+   is hidden on a computer. See the .dtop .acct.signedin rule. */
+el.className=PT.name?'acct signedin':'acct'});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
    signed-in people only, so for anybody else it would open on an explanation of why
    it is empty, which is not worth a button in the bar. The list inside is left
@@ -2547,13 +2589,22 @@ el.innerHTML=bell});
    the name, Sign out - is already in that panel, and a second menu holding the same
    two things is one more place for them to disagree. */
 var pill=(PT.available&&PT.name)
-?'<button class="acctb" id="acctbar" type="button" aria-controls="drawer" '
-+'aria-label="Your account">'
+?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
++'aria-expanded="false" aria-label="Your account">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
 +'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
+/* What drops out of that pill. The name is not repeated inside it - it is written
+   across the button the menu hangs from, and saying it twice on one screen is how
+   the panel copy and this one would start to disagree. */
+var amenu=document.getElementById('amenu');
+if(amenu)amenu.innerHTML=(PT.available&&PT.name)
+?'<i class="asub">Signed in with Roblox</i>'
++'<form method="POST" action="/auth/logout">'
++'<button class="drow" type="submit">Sign out</button></form>'
+:'';
 var nrow=(PT.available&&PT.name)
 ?'<a class="drow" href="/notifications">'+PTBELL+'<span>Notifications</span></a>'
 :'';
@@ -2647,20 +2698,66 @@ if(on&&!scrim){scrim=document.createElement('div');scrim.className='scrim';
 scrim.onclick=function(){shut()};document.body.appendChild(scrim)}
 if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
-mb=document.getElementById('menubtn');
-if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
+mb=document.getElementById('menubtn'),am=document.getElementById('amenu'),
+ab=document.getElementById('acctbar');
+if(dr)dr.hidden=true;if(sh)sh.hidden=true;if(am)am.hidden=true;
+if(mb)mb.setAttribute('aria-expanded','false');
+if(ab)ab.setAttribute('aria-expanded','false');shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
-if(show){var a=dr.querySelector('a');if(a)a.focus()}};
-/* The name in the bar opens that same panel, because everything it would have held
-   - the name, Sign out - already lives there, and a second menu holding the same two
-   things is one more place for them to disagree. Delegated from the document, since
-   ptPaint replaces this button every time /api/me answers. */
+if(show){placePanel();var a=dr.querySelector('a');if(a)a.focus()}};
+/* The name in the bar opens its own small menu under itself (17 Nov 2026). It used
+   to open the whole panel, on the grounds that the panel already held the name and
+   Sign out - and from 900px up the panel no longer does, so there is nothing left to
+   disagree with. Delegated from the document, since ptPaint replaces this button
+   every time /api/me answers and a handler put on the button itself would be thrown
+   away with the old markup.
+   e.target.closest is guarded because on iOS a click that has bubbled this far can
+   arrive at a text node, which has no closest. */
+var am=document.getElementById('amenu');
+/* Put a card under the button it belongs to. Both of these are position:fixed, and
+   pinning either to the window edge is wrong on a wide screen: the bar's own band is
+   capped - 1400px on a wide page, 820px on a reading one, narrower again with the ad
+   rails up - so the three-line button can sit hundreds of pixels inside the window.
+   Measured at 1920px before this existed: 260px adrift. `edge` is which side of the
+   card lines up with which side of the button. */
+function drop(el,btn,edge){
+if(!el||!btn)return;
+var r=btn.getBoundingClientRect(),W=document.documentElement.clientWidth;
+var gap=W<900?14:16;
+/* Sideways from the button, but DOWN from the bar. The button is inset inside the
+   bar by its padding, so hanging the card off the button put its top 5px above the
+   bar's own bottom border - and the card is above the bar in the stacking order, so
+   it drew over it. */
+var hdr=document.querySelector('.hdr');
+var below=(hdr?hdr.getBoundingClientRect().bottom:r.bottom)+(W<900?6:7);
+el.style.top=Math.round(below)+'px';
+var w=el.offsetWidth||240;
+var x=edge==='right'?r.right-w:r.left;
+/* Never off either edge, whatever a long display name does to the pill. */
+x=Math.min(x,W-w-gap);
+el.style.left=Math.round(Math.max(gap,x))+'px';
+el.style.right='auto'}
+function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
+function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
 if(!(e.target.closest&&e.target.closest('#acctbar')))return;
-e.stopPropagation();if(mb)mb.click()});
+e.stopPropagation();
+if(!am)return;
+var show=am.hidden;shut();
+am.hidden=!show;
+var btn=document.getElementById('acctbar');
+if(btn)btn.setAttribute('aria-expanded',show?'true':'false');
+if(show){placeMenu();shade(true);
+var f=am.querySelector('button,a');if(f)f.focus()}});
+/* A card pinned to the viewport has to follow the thing it points at. The bar is
+   sticky, so its box only moves until the page has scrolled past the top of it. */
+window.addEventListener('resize',function(){
+if((am&&!am.hidden)||(dr&&!dr.hidden))shut()});
+window.addEventListener('scroll',function(){
+if(am&&!am.hidden)placeMenu();
+if(dr&&!dr.hidden)placePanel()},{passive:true});
 
 /* Search. The list of games is only fetched the first time it is opened. */
 var sheet=document.getElementById('sheet'),GAMES=null;
@@ -3836,7 +3933,7 @@ browser bar around it. It is the same website &mdash; there is nothing to downlo
 an app store, and it takes no space worth worrying about.</p>
 <button class="remind" data-install type="button" hidden>&#128229; Install it now</button>
 <p class="mut small" data-install hidden>One tap. Your browser will ask you to confirm.</p>
-<h2>Why bother</h2>
+<h2>Why install?</h2>
 <ul><li>It opens from your home screen instead of you having to find the address.</li>
 <li>It fills the whole screen, so there is more room for the charts.</li>
 <li><b>On an iPhone or iPad it is the only way notifications can work.</b> Apple only

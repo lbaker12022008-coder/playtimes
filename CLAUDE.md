@@ -348,11 +348,53 @@ standing rule rather than a rewrite waiting to happen.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
 - **The name and the bell are in the bar on a computer only, and nowhere on a phone** (16 Nov 2026). A phone's bar has room for the logo, the game picker and two buttons; a name in there squeezed the picker to a stub. Nothing becomes unreachable: below 900px the panel carries both the account block and a **Notifications** row, and from 900px up the panel drops that row because the bell is in the bar - the same trick the search magnifier already used. **The 900px rules are written `.hdr .nots`, not `.nots`**, because the base `display:none` is a one-class rule further down the stylesheet and a media query adds no specificity; a single class lost to it and the bar stayed empty at every width. That is the third time this trap has bitten here.
-- **The name opens the panel, not a menu of its own.** Everything such a menu would hold - the name, Sign out - already lives in the panel, and a second menu holding the same two things is one more place for them to disagree.
+- **The name in the bar opens its own menu, and the panel then drops the account**
+  (17 Nov 2026, owner's call, replacing the rule that the name should open the
+  panel). The old rule was right while the panel held the name and Sign out: a
+  second menu with the same two things is one more place for them to disagree. The
+  fix was not to keep them in one place but to **move them**, so from 900px up
+  `.dtop .acct.signedin{display:none}` and the bar's pill carries a small `#amenu`
+  holding "Signed in with Roblox" and Sign out. Below 900px there is no pill, so the
+  panel keeps the account and `#amenu` is never drawn. One of each at every width.
+  - **The name is NOT repeated inside the menu.** It is written across the button
+    the menu hangs from, and that was the whole complaint about the old
+    arrangement.
+  - **`.signedin` on that selector is load-bearing.** Hiding `.acct` outright on a
+    computer also hid the **signed-out** "Sign in with Roblox" link, which is the
+    only place sign-in is offered - the pill is drawn only for somebody already
+    signed in. A signed-out visitor on a computer then had no way to sign in
+    anywhere. Caught by `acct.js`, which walks three `/api/me` states across ten
+    widths; nothing a screenshot would have shown, since the page looked fine.
+  - `#amenu` is written **outside `<header>`** with `.drawer`, `.sheet` and `.ipop`,
+    for the same reason they are: `.hdr` has `backdrop-filter`, which makes the
+    header the containing block for anything `position:fixed` inside it.
+  - It is bound by **delegation from `document`**, because `ptPaint()` replaces the
+    pill every time `/api/me` answers and a handler on the button itself would be
+    thrown away with the old markup.
 - **The account is in the panel, and the bell is in the bar** (16 Nov 2026). The account spent two weeks in the bar on the grounds that a face is easier to find than a menu item; the owner wanted the bar down to icons so the notifications bell could live there, and the name and Sign out were already in a menu hanging off the bar, so this is the same two things in a place with room for them. **Both are written EMPTY** - `<div class="acct">` in the panel and `<div class="nots">` in the bar - and `ptPaint()` in `FAVJS` fills them once `/api/me` has answered, because a built page is the same file for everyone and only the worker knows who is signed in. `:empty{display:none}` on each is what stops an unfilled one holding a gap open, which is also the whole behaviour when the Roblox keys are missing: nothing is written and the header reads as though sign-in never existed.
 - **The bell is drawn only for somebody signed in**, because notifications are offered to signed-in people only and for anybody else it would lead to a page explaining why it is empty. **It is a plain link to `/notifications`, not a dropdown** (16 Nov 2026): three switches per game plus a device to turn on outgrew the corner of a phone screen, and a menu that size quietly becomes its own little application. It is an `<a class="iconb">`, which is why `.iconb` carries `text-decoration:none`.
 - **Every `.acctb` rule is written `.acct .acctb`, and that is not tidiness.** `.iconb` sets `display:grid` and `width:42px` and is written *further down* the same stylesheet, and `.gmenu` sets `left:0` for the game picker at the other end of the bar. A media query adds no specificity, so each one-class rule simply lost to the later one: the pill came out as a 42px square with the glyph stacked **on top of** the word, and the menu opened rightwards off the screen (measured 252px wide ending at 473px inside a 390px phone). Two classes settle all three whatever the order. This is the same trap as `.w` vs `.shell>*` above - **in this stylesheet, assume a later single-class rule will beat yours.**
 - **The account button is bound by delegation from `document`, never directly.** `ptPaint()` replaces that markup every time it runs, so a handler put on the button itself is thrown away with the old markup and the menu quietly stops opening. `e.target.closest` is guarded (`e.target.closest&&...`) because on iOS a click that has bubbled to the document can arrive at a text node, which has no `closest` - the same thing that once stopped the reminder links working.
+- **Both cards drop straight down from the bar with rounded edges** (17 Nov 2026,
+  owner's call, after demand.gg). `.drawer` was a full-height drawer sliding in from
+  the right edge; it is a 262px rounded card now, and `#amenu` is the same shape at
+  218px. `max-height` plus `overflow-y:auto` is what keeps a long list scrolling
+  inside the card rather than running off the bottom of the window.
+  - **Script places them, CSS does not, and that is not tidiness.** Pinned 16px from
+    the window edge the panel sat **260px to the right of the three-line button** on
+    a 1920px screen, because the bar's own band is capped and centred - and the cap
+    is not one number (1400px wide, 820px reading, narrower again with the ad rails
+    up), so no CSS value can follow it. `drop(el, btn, edge)` reads the button and
+    places the card: **sideways from the button, down from the bar**. Measured after
+    at 320/390/620/768/1024/1500/1920/2560 on both a wide page and a reading page -
+    the right edge lines up with the button to the pixel at every one.
+  - **Down from the BAR, not from the button**: the button is inset inside the bar by
+    its padding, so hanging the card off the button put its top 5px above the bar's
+    own bottom border, and the card is above the bar in the stacking order, so it
+    drew over it.
+  - **The scrim no longer dims.** A full-page dim behind a small rounded card reads
+    as a modal, which it is not; `.scrim` is now an invisible click-catcher and
+    `.sheet`, which really does take the screen over, carries its own dimming.
 - **`.drawer` and `.sheet` are written after `</header>`, not inside it, and must stay there.** Both are `position:fixed`, and `.hdr` has `backdrop-filter`, which makes the header the containing block for any fixed descendant. Inside the header the side menu was 88px tall instead of the height of the screen, and the search panel was pinned to the header's own box, so it read as sitting under the game picker. **Anything `position:fixed` that should cover the page belongs outside any element with `backdrop-filter`, `filter` or `transform`.**
 - **Checking a layout on a phone**: do not reason about it, and do not trust a headless screenshot — Chrome on Windows will not open a window under about 500px, so a 390px screenshot is really a 500px page cropped, which looks broken when it is not. Use real device emulation (`puppeteer-core` driving the installed Chrome, `page.emulate` with a 390x844 viewport). The test that matters is whether the page can actually be dragged sideways: `window.scrollTo(9999,0)` and read back `window.scrollX`. To find a culprit, walk down from `body` into the widest child repeatedly, then hide each child of the offender in turn and watch the width.
 - **The glow behind a tile** is that game's own colour. `roblox_api.fetch_icon_hues` reads each game's icon while the site is built and works out the one hue it reads as; `tile()` writes that onto the tile as `--glow`, a bare number, and the stylesheet does the rest on `:hover` and `:focus-visible`. **Only the hue is stored.** Saturation and lightness are fixed in the CSS, because left to themselves some icons would glow in a muddy brown and others in a glare. A game whose icon has no real colour in it (3008, for instance, which is grey on purpose) gets no `--glow` at all and falls back to `--glowh`, the accent's own hue. `--glowa` is the strength, weaker on a light page (.32) than a dark one (.5), where a bright colour spreads further and would wash the words out. The glow is half as wide again as the tile and `z-index:-1` inside an `isolation:isolate` stack: the icon is not see-through, so a glow the size of the tile would be entirely hidden behind it. **The two rows of controls above the games get a rim, not a glow.** The chips ("What are you looking for?") and the category pills light up on `:hover`/`:focus-visible` with a `box-shadow` that follows the border and stops there - `--rim`, one line, shared by both - rather than the tile's blob behind the whole control, which read as the chip changing colour. **They are all the accent, deliberately.** A tile borrows its own icon's hue because it has one; a category and a question do not, and a hue per category was tried and read as decoration pretending to mean something. They still use `--glowh` and `--glowa`, so a palette change moves the tiles and these together. **The chosen chip does not glow on its own** - it is marked by its inset ring - because a light that is always on stops reading as a response; it does light up while it is the one being pointed at, which needs its own rule since `[aria-pressed=true]` and `:hover` have equal specificity. The mobile block drops `.chip`'s shadow, so it re-states the hover as rim-only: a tap leaves `:hover` stuck on in most phone browsers and would otherwise hand the shadow back.
@@ -766,10 +808,11 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Category pages from Roblox `genre_l1` (saved in the `genre` column; a category needs 2+ games).
 - `TABS` in `build_site.py` is the site's section list (All games, Most popular, Trending, Growing, Shrinking, Event calendar, Compare games, Plan a session). **`sitemap.xml` is built from it**, so a section left out of `TABS` is a section we never ask Google to look at. The row of pills that used to sit across the top of every page was removed in Nov 2026. Genres are pills on the homepage.
   - **`PANEL_HIDE` is what the panel leaves out**, not `TABS` itself (17 Nov 2026,
-    owner's call): Most popular, Trending, Growing and Shrinking. Four ranked lists
-    of the same games, one under another, read as four names rather than four
-    choices. The panel is seven rows now - All games, Event calendar, Compare games,
-    Plan a session, When is Roblox busiest?, Get the app, About.
+    owner's call): **Most popular and Trending**. Growing and Shrinking went with
+    them for a few hours the same day and were put back, so do not read the pair as
+    a category - it is simply the two the owner did not want listed. The panel is
+    nine rows: All games, Growing, Shrinking, Event calendar, Compare games, Plan a
+    session, When is Roblox busiest?, Get the app, About.
   - **The footer is what stops that becoming four orphan pages.** Growing and
     Shrinking were never in the footer, and the homepage card that linked them went
     at the same time, so for a moment nothing on the site linked to either while both
