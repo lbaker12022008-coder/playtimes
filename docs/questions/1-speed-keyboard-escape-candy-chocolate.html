@@ -46,11 +46,14 @@
 /* The name is in the bar here and its own menu holds Sign out, so the panel stops
    offering the same person a second time. `.dtop .acct`, not `.acct`: the base
    rule is display:flex, one class, written further down - the same trap again.
-   `.signedin` matters just as much: SIGNED OUT, this block holds the only Sign in
-   with Roblox on the page, because the bar pill is drawn only for somebody already
-   signed in. Hiding it unconditionally left a signed-out visitor on a computer with
-   no way to sign in anywhere. */
-.dtop .acct.signedin{display:none}
+   THIS RULE DEPENDS ON THE BAR OFFERING SIGN-IN. For a few hours on 17 Nov 2026
+   the pill was drawn only for somebody already signed in, and hiding this block
+   left a signed-out visitor on a computer with no way to sign in anywhere on the
+   site - the page looked perfectly normal, there was simply nothing there. If the
+   signed-out pill is ever taken out of the bar, this has to go back to hiding only
+   the signed-in half. acct.js walks all three states at ten widths and is what
+   caught it. */
+.dtop .acct{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
@@ -245,13 +248,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 border-bottom:1px solid var(--line)}
 .acct:empty{display:none}
 .acct form{margin:0}
-.acct .drow{text-decoration:none}
+.acct .drow,.dtop a.drow{text-decoration:none}
 .acct svg{width:18px;height:18px;flex:none;fill:currentColor}
-/* Picture, name, and a quiet line saying where the name came from. */
-.awho{display:flex;align-items:center;gap:11px;padding:9px 13px}
-.awho>span{display:flex;flex-direction:column;min-width:0}
-.awho b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.awho i{font-style:normal}
+/* The account row in the panel, on a phone: the name, and Sign out folded inside.
+   The arrow is two borders rather than a picture, the way .gdesc and .howto do it. */
+.apop{margin:0}
+.apop>summary{cursor:pointer;list-style:none}
+.apop>summary::-webkit-details-marker{display:none}
+.apop>summary::after{content:"";margin-left:auto;flex:none;width:8px;height:8px;
+border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);
+transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.apop[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.aname{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap}
+.asub2{display:block;padding:2px 13px 7px;color:var(--mut);font-size:.78rem;
+font-style:normal}
+.apop form{margin:0}
 /* Width and height are on the tag too, so the panel does not jump when the picture
    arrives. flex:0 0 auto stops a long display name squeezing it. */
 .acct .pfp{width:34px;height:34px;border-radius:50%;flex:0 0 auto;object-fit:cover;
@@ -268,6 +280,8 @@ border:1px solid var(--line);background:var(--shade)}
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
+/* Signed out this is an <a>, not a <button>. */
+.acctb{text-decoration:none}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
@@ -426,6 +440,10 @@ animation:dropin .15s ease both}
 /* The panel's top section: the controls that are in the header on a wide screen. */
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
 border-bottom:1px solid var(--line)}
+/* The theme button, under the sections. Its own block so the rule above it stays
+   whether or not anything else is in there. */
+.dbot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.dbot .drow{text-decoration:none}
 .drow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:0;
 border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
 text-align:left;cursor:pointer}
@@ -792,7 +810,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"+1 Speed Keyboard Escape | Candy & Chocolate player count","item":"https://playtimestats.com/game/1-speed-keyboard-escape-candy-chocolate"},{"@type":"ListItem","position":4,"name":"Questions","item":"https://playtimestats.com/questions/1-speed-keyboard-escape-candy-chocolate"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people play +1 Speed Keyboard Escape | Candy & Chocolate?","acceptedAnswer":{"@type":"Answer","text":"About 29,262 people are in +1 Speed Keyboard Escape | Candy & Chocolate at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 1,383,360. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play +1 Speed Keyboard Escape | Candy & Chocolate?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Wednesday around 4 AM UTC, when there are usually about 9,647 players. For full servers and trading, Saturday around 6 PM UTC is the busiest hour we see, at roughly 806,026 players. The charts on this page show those times on your own clock."}},{"@type":"Question","name":"When is +1 Speed Keyboard Escape | Candy & Chocolate busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 6 PM UTC is its busiest hour in a typical week, with about 806,026 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Is +1 Speed Keyboard Escape | Candy & Chocolate dying?","acceptedAnswer":{"@type":"Answer","text":"Not dead, but it is sliding. Fewer people are playing than a week ago, though about 29.3K are still in the game at a typical moment."}},{"@type":"Question","name":"How many visits does +1 Speed Keyboard Escape | Candy & Chocolate have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 6,710,667,604 total visits for +1 Speed Keyboard Escape | Candy & Chocolate so far, and it was first released 9 months ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"+1 Speed Keyboard Escape | Candy & Chocolate player count","item":"https://playtimestats.com/game/1-speed-keyboard-escape-candy-chocolate"},{"@type":"ListItem","position":4,"name":"Questions","item":"https://playtimestats.com/questions/1-speed-keyboard-escape-candy-chocolate"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people play +1 Speed Keyboard Escape | Candy & Chocolate?","acceptedAnswer":{"@type":"Answer","text":"About 29,262 people are in +1 Speed Keyboard Escape | Candy & Chocolate at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 1,383,360. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play +1 Speed Keyboard Escape | Candy & Chocolate?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Wednesday around 4 AM UTC, when there are usually about 9,647 players. For full servers and trading, Saturday around 6 PM UTC is the busiest hour we see, at roughly 806,026 players. The charts on this page show those times on your own clock."}},{"@type":"Question","name":"When is +1 Speed Keyboard Escape | Candy & Chocolate busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 6 PM UTC is its busiest hour in a typical week, with about 806,026 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Is +1 Speed Keyboard Escape | Candy & Chocolate dying?","acceptedAnswer":{"@type":"Answer","text":"Not dead, but it is sliding. Fewer people are playing than a week ago, though about 29.3K are still in the game at a typical moment."}},{"@type":"Question","name":"How many visits does +1 Speed Keyboard Escape | Candy & Chocolate have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 6,710,698,545 total visits for +1 Speed Keyboard Escape | Candy & Chocolate so far, and it was first released 9 months ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -840,13 +858,17 @@ function ptPaint(){
 /* The account, in the panel behind the three lines. Nothing at all when the Roblox
    keys are missing, so .acct:empty collapses and the panel reads as though signing
    in had never existed. */
+/* A row with the name on it, and Sign out folded inside until it is asked for -
+   the same shape as the menu the name drops on a computer, so the two widths behave
+   alike. A plain <details>, so it needs no JavaScript and cannot be torn down by a
+   later ptPaint the way a bound handler would be. */
 var acct=!PT.available?'':PT.name
-?'<div class="awho">'
+?'<details class="apop"><summary class="drow">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="34" height="34">':PTPERSON)
-+'<span><b>'+ptEsc(PT.name)+'</b>'
-+'<i class="mut small">Signed in with Roblox</i></span></div>'
++'<b class="aname">'+ptEsc(PT.name)+'</b></summary>'
++'<i class="asub2">Signed in with Roblox</i>'
 +'<form method="POST" action="/auth/logout">'
-+'<button class="drow" type="submit">Sign out</button></form>'
++'<button class="drow" type="submit">Sign out</button></form></details>'
 :'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
 +'<span>Sign in with Roblox</span></a>'
 /* The same warning as the one beside the other two buttons. It is written out
@@ -856,10 +878,7 @@ var acct=!PT.available?'':PT.name
 +'roblox.com in your browser and sign in there first, then come back and tap this '
 +'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
-el.innerHTML=acct;
-/* Only the signed-in block is a second copy of what the bar shows, so only that one
-   is hidden on a computer. See the .dtop .acct.signedin rule. */
-el.className=PT.name?'acct signedin':'acct'});
+el.innerHTML=acct});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
    signed-in people only, so for anybody else it would open on an explanation of why
    it is empty, which is not worth a button in the bar. The list inside is left
@@ -878,12 +897,18 @@ el.innerHTML=bell});
    opens the panel rather than a menu of its own: everything it would have held -
    the name, Sign out - is already in that panel, and a second menu holding the same
    two things is one more place for them to disagree. */
-var pill=(PT.available&&PT.name)
+/* Signed in it is a button that drops its own menu; signed OUT it is a plain link
+   to Roblox, in the same place. The panel no longer offers signing in on a computer,
+   so this link is the only one there is at that width - see the .dtop .acct rule. */
+var pill=!PT.available?''
+:PT.name
 ?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
 +'aria-expanded="false" aria-label="Your account">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
 +'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
-:'';
+:'<a class="acctb" id="acctbar" href="'+ptLogin()+'" '
++'aria-label="Sign in with Roblox">'+PTPERSON
++'<span class="albl">Sign in</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
 /* What drops out of that pill. The name is not repeated inside it - it is written
@@ -931,9 +956,9 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-9c367a6529b84f4f199fd85dd8ad83bd/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Event calendar</a><a href="/compare">Compare games</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/install">Get the app</a><a href="/about">About</a></nav></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/">All games</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Event calendar</a><a href="/compare">Compare games</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/1-speed-keyboard-escape-candy-chocolate">+1 Speed Keyboard Escape | Candy &amp; Chocolate player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Questions</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-46749d354a0bbe1df8bbb284b2b8f1d9/256/256/Image/Webp/noFilter" alt="+1 Speed Keyboard Escape | Candy &amp; Chocolate Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>+1 Speed Keyboard Escape | Candy &amp; Chocolate questions</h1><p class="mut">The things people ask about +1 Speed Keyboard Escape | Candy &amp; Chocolate, answered from the player counts we take ourselves.</p><div class="actions"><a class="fav" href="/game/1-speed-keyboard-escape-candy-chocolate">&larr; +1 Speed Keyboard Escape | Candy &amp; Chocolate player count</a><a class="btn" href="https://www.roblox.com/games/95082159892680">Play +1 Speed Keyboard Escape | Candy &amp; Chocolate</a></div></div></div><div class="card faq"><h2>+1 Speed Keyboard Escape | Candy &amp; Chocolate: common questions</h2><h3>How many people play +1 Speed Keyboard Escape | Candy &amp; Chocolate?</h3><p>About 29,262 people are in +1 Speed Keyboard Escape | Candy &amp; Chocolate at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 1,383,360. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><h3>What is the best time to play +1 Speed Keyboard Escape | Candy &amp; Chocolate?</h3><p>For quiet servers, aim for Wednesday around 4 AM UTC, when there are usually about 9,647 players. For full servers and trading, Saturday around 6 PM UTC is the busiest hour we see, at roughly 806,026 players. The charts on this page show those times on your own clock.</p><h3>When is +1 Speed Keyboard Escape | Candy &amp; Chocolate busiest?</h3><p>Saturday around 6 PM UTC is its busiest hour in a typical week, with about 806,026 players. Saturday is its busiest day overall.</p><h3>Is +1 Speed Keyboard Escape | Candy &amp; Chocolate dying?</h3><p>Not dead, but it is sliding. Fewer people are playing than a week ago, though about 29.3K are still in the game at a typical moment.</p><h3>How many visits does +1 Speed Keyboard Escape | Candy &amp; Chocolate have?</h3><p>Roblox reports 6,710,667,604 total visits for +1 Speed Keyboard Escape | Candy &amp; Chocolate so far, and it was first released 9 months ago.</p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div><p><a href="/game/1-speed-keyboard-escape-candy-chocolate">&larr; Back to +1 Speed Keyboard Escape | Candy &amp; Chocolate</a></p>
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/1-speed-keyboard-escape-candy-chocolate">+1 Speed Keyboard Escape | Candy &amp; Chocolate player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Questions</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-46749d354a0bbe1df8bbb284b2b8f1d9/256/256/Image/Webp/noFilter" alt="+1 Speed Keyboard Escape | Candy &amp; Chocolate Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>+1 Speed Keyboard Escape | Candy &amp; Chocolate questions</h1><p class="mut">The things people ask about +1 Speed Keyboard Escape | Candy &amp; Chocolate, answered from the player counts we take ourselves.</p><div class="actions"><a class="fav" href="/game/1-speed-keyboard-escape-candy-chocolate">&larr; +1 Speed Keyboard Escape | Candy &amp; Chocolate player count</a><a class="btn" href="https://www.roblox.com/games/95082159892680">Play +1 Speed Keyboard Escape | Candy &amp; Chocolate</a></div></div></div><div class="card faq"><h2>+1 Speed Keyboard Escape | Candy &amp; Chocolate: common questions</h2><h3>How many people play +1 Speed Keyboard Escape | Candy &amp; Chocolate?</h3><p>About 29,262 people are in +1 Speed Keyboard Escape | Candy &amp; Chocolate at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 1,383,360. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><h3>What is the best time to play +1 Speed Keyboard Escape | Candy &amp; Chocolate?</h3><p>For quiet servers, aim for Wednesday around 4 AM UTC, when there are usually about 9,647 players. For full servers and trading, Saturday around 6 PM UTC is the busiest hour we see, at roughly 806,026 players. The charts on this page show those times on your own clock.</p><h3>When is +1 Speed Keyboard Escape | Candy &amp; Chocolate busiest?</h3><p>Saturday around 6 PM UTC is its busiest hour in a typical week, with about 806,026 players. Saturday is its busiest day overall.</p><h3>Is +1 Speed Keyboard Escape | Candy &amp; Chocolate dying?</h3><p>Not dead, but it is sliding. Fewer people are playing than a week ago, though about 29.3K are still in the game at a typical moment.</p><h3>How many visits does +1 Speed Keyboard Escape | Candy &amp; Chocolate have?</h3><p>Roblox reports 6,710,698,545 total visits for +1 Speed Keyboard Escape | Candy &amp; Chocolate so far, and it was first released 9 months ago.</p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div><p><a href="/game/1-speed-keyboard-escape-candy-chocolate">&larr; Back to +1 Speed Keyboard Escape | Candy &amp; Chocolate</a></p>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
@@ -1032,7 +1057,10 @@ el.style.right='auto'}
 function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
 function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
-if(!(e.target.closest&&e.target.closest('#acctbar')))return;
+var hit=e.target.closest&&e.target.closest('#acctbar');
+/* Signed out the pill is a link to Roblox, not a button, and the menu is empty:
+   intercepting it would swallow the click and open a blank card. */
+if(!hit||hit.tagName!=='BUTTON')return;
 e.stopPropagation();
 if(!am)return;
 var show=am.hidden;shut();
