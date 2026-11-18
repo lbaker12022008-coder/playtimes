@@ -100,11 +100,14 @@ CSS = """:root{__LIGHT__}
 /* The name is in the bar here and its own menu holds Sign out, so the panel stops
    offering the same person a second time. `.dtop .acct`, not `.acct`: the base
    rule is display:flex, one class, written further down - the same trap again.
-   `.signedin` matters just as much: SIGNED OUT, this block holds the only Sign in
-   with Roblox on the page, because the bar pill is drawn only for somebody already
-   signed in. Hiding it unconditionally left a signed-out visitor on a computer with
-   no way to sign in anywhere. */
-.dtop .acct.signedin{display:none}
+   THIS RULE DEPENDS ON THE BAR OFFERING SIGN-IN. For a few hours on 17 Nov 2026
+   the pill was drawn only for somebody already signed in, and hiding this block
+   left a signed-out visitor on a computer with no way to sign in anywhere on the
+   site - the page looked perfectly normal, there was simply nothing there. If the
+   signed-out pill is ever taken out of the bar, this has to go back to hiding only
+   the signed-in half. acct.js walks all three states at ten widths and is what
+   caught it. */
+.dtop .acct{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){__DARK__}}
@@ -291,13 +294,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 border-bottom:1px solid var(--line)}
 .acct:empty{display:none}
 .acct form{margin:0}
-.acct .drow{text-decoration:none}
+.acct .drow,.dtop a.drow{text-decoration:none}
 .acct svg{width:18px;height:18px;flex:none;fill:currentColor}
-/* Picture, name, and a quiet line saying where the name came from. */
-.awho{display:flex;align-items:center;gap:11px;padding:9px 13px}
-.awho>span{display:flex;flex-direction:column;min-width:0}
-.awho b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.awho i{font-style:normal}
+/* The account row in the panel, on a phone: the name, and Sign out folded inside.
+   The arrow is two borders rather than a picture, the way .gdesc and .howto do it. */
+.apop{margin:0}
+.apop>summary{cursor:pointer;list-style:none}
+.apop>summary::-webkit-details-marker{display:none}
+.apop>summary::after{content:"";margin-left:auto;flex:none;width:8px;height:8px;
+border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);
+transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.apop[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.aname{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap}
+.asub2{display:block;padding:2px 13px 7px;color:var(--mut);font-size:.78rem;
+font-style:normal}
+.apop form{margin:0}
 /* Width and height are on the tag too, so the panel does not jump when the picture
    arrives. flex:0 0 auto stops a long display name squeezing it. */
 .acct .pfp{width:34px;height:34px;border-radius:50%;flex:0 0 auto;object-fit:cover;
@@ -314,6 +326,8 @@ border:1px solid var(--line);background:var(--shade)}
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
+/* Signed out this is an <a>, not a <button>. */
+.acctb{text-decoration:none}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
@@ -472,6 +486,10 @@ animation:dropin .15s ease both}
 /* The panel's top section: the controls that are in the header on a wide screen. */
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
 border-bottom:1px solid var(--line)}
+/* The theme button, under the sections. Its own block so the rule above it stays
+   whether or not anything else is in there. */
+.dbot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.dbot .drow{text-decoration:none}
 .drow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:0;
 border-radius:11px;background:none;color:var(--ink);font:inherit;font-weight:600;
 text-align:left;cursor:pointer}
@@ -1275,6 +1293,11 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # descendant: inside it, the side menu was 88px tall instead of the height of
     # the screen, and the search panel was pinned to the header's own box rather
     # than the page. They sit after </header> as siblings instead.
+    # The panel, in order: who you are and the controls that are in the bar on a
+    # computer, then Get the app, then the sections, then the theme at the very
+    # bottom. On a computer the first three collapse, so Get the app is the first
+    # thing in the panel and Light mode the last - which is the order asked for at
+    # both widths, out of one piece of markup rather than two.
     extras = (f'<div class="drawer" id="drawer" hidden>'
               f'<div class="dtop">'
               f'<div class="acct"></div>'
@@ -1284,16 +1307,23 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<div class="notsrow"></div>'
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
-              f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
-              f'<span class="tlab">Dark mode</span></button>'
-              f'</div>'
-              f'<nav aria-label="Sections">{drawer}'
-              f'<a href="/busiest-hours">When is Roblox busiest?</a>'
               # The footer has linked /install since it was built, but the footer is
               # at the bottom of a long page and this menu is how people actually get
               # about: without a row here the page could only be reached by typing it.
-              f'<a href="/install">Get the app</a>'
-              f'<a href="/about">About</a></nav></div>'
+              # It sits with the controls rather than among the sections because it is
+              # a thing to do, not a part of the site to go and read.
+              f'<a class="drow" href="/install">{ICON_INSTALL}'
+              f'<span>Get the app</span></a>'
+              f'</div>'
+              f'<nav aria-label="Sections">{drawer}'
+              f'<a href="/busiest-hours">When is Roblox busiest?</a>'
+              f'<a href="/about">About</a></nav>'
+              # Last of all, under its own rule: it is the one row nobody comes to the
+              # menu for, and it was sitting above every section.
+              f'<div class="dbot">'
+              f'<button class="drow themeic" data-themebtn type="button">{SUN}{MOON}'
+              f'<span class="tlab">Dark mode</span></button>'
+              f'</div></div>'
               f'<div class="amenu" id="amenu" hidden></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
@@ -2550,13 +2580,17 @@ function ptPaint(){
 /* The account, in the panel behind the three lines. Nothing at all when the Roblox
    keys are missing, so .acct:empty collapses and the panel reads as though signing
    in had never existed. */
+/* A row with the name on it, and Sign out folded inside until it is asked for -
+   the same shape as the menu the name drops on a computer, so the two widths behave
+   alike. A plain <details>, so it needs no JavaScript and cannot be torn down by a
+   later ptPaint the way a bound handler would be. */
 var acct=!PT.available?'':PT.name
-?'<div class="awho">'
+?'<details class="apop"><summary class="drow">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="34" height="34">':PTPERSON)
-+'<span><b>'+ptEsc(PT.name)+'</b>'
-+'<i class="mut small">Signed in with Roblox</i></span></div>'
++'<b class="aname">'+ptEsc(PT.name)+'</b></summary>'
++'<i class="asub2">Signed in with Roblox</i>'
 +'<form method="POST" action="/auth/logout">'
-+'<button class="drow" type="submit">Sign out</button></form>'
++'<button class="drow" type="submit">Sign out</button></form></details>'
 :'<a class="drow" href="'+ptLogin()+'">'+PTPERSON
 +'<span>Sign in with Roblox</span></a>'
 /* The same warning as the one beside the other two buttons. It is written out
@@ -2566,10 +2600,7 @@ var acct=!PT.available?'':PT.name
 +'roblox.com in your browser and sign in there first, then come back and tap this '
 +'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
-el.innerHTML=acct;
-/* Only the signed-in block is a second copy of what the bar shows, so only that one
-   is hidden on a computer. See the .dtop .acct.signedin rule. */
-el.className=PT.name?'acct signedin':'acct'});
+el.innerHTML=acct});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
    signed-in people only, so for anybody else it would open on an explanation of why
    it is empty, which is not worth a button in the bar. The list inside is left
@@ -2588,12 +2619,18 @@ el.innerHTML=bell});
    opens the panel rather than a menu of its own: everything it would have held -
    the name, Sign out - is already in that panel, and a second menu holding the same
    two things is one more place for them to disagree. */
-var pill=(PT.available&&PT.name)
+/* Signed in it is a button that drops its own menu; signed OUT it is a plain link
+   to Roblox, in the same place. The panel no longer offers signing in on a computer,
+   so this link is the only one there is at that width - see the .dtop .acct rule. */
+var pill=!PT.available?''
+:PT.name
 ?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
 +'aria-expanded="false" aria-label="Your account">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
 +'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
-:'';
+:'<a class="acctb" id="acctbar" href="'+ptLogin()+'" '
++'aria-label="Sign in with Roblox">'+PTPERSON
++'<span class="albl">Sign in</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
 /* What drops out of that pill. The name is not repeated inside it - it is written
@@ -2742,7 +2779,10 @@ el.style.right='auto'}
 function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
 function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
-if(!(e.target.closest&&e.target.closest('#acctbar')))return;
+var hit=e.target.closest&&e.target.closest('#acctbar');
+/* Signed out the pill is a link to Roblox, not a button, and the menu is empty:
+   intercepting it would swallow the click and open a blank card. */
+if(!hit||hit.tagName!=='BUTTON')return;
 e.stopPropagation();
 if(!am)return;
 var show=am.hidden;shut();

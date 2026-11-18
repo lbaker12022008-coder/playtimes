@@ -348,6 +348,18 @@ standing rule rather than a rewrite waiting to happen.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
   - **Testing this needs the offer suppressed, not simulated.** Chrome fires `beforeinstallprompt` for this site for real - a manifest with the right icons is now enough, no service-worker fetch handler needed - and **claiming to be Safari in the user-agent does not stop it**, because the UA string is not what Chrome's installability check reads. So `installui.js` throws the real offer away to test the Apple path; without that it is only ever testing Chrome, which is exactly how three tests "failed" misleadingly the first time.
 - **The name and the bell are in the bar on a computer only, and nowhere on a phone** (16 Nov 2026). A phone's bar has room for the logo, the game picker and two buttons; a name in there squeezed the picker to a stub. Nothing becomes unreachable: below 900px the panel carries both the account block and a **Notifications** row, and from 900px up the panel drops that row because the bell is in the bar - the same trick the search magnifier already used. **The 900px rules are written `.hdr .nots`, not `.nots`**, because the base `display:none` is a one-class rule further down the stylesheet and a media query adds no specificity; a single class lost to it and the bar stayed empty at every width. That is the third time this trap has bitten here.
+- **Signed out on a computer, the bar carries "Sign in"** in the same slot the name
+  occupies when signed in (17 Nov 2026) - a plain `<a>` to `ptLogin()`, not a button.
+  The delegated handler checks `tagName !== 'BUTTON'` and leaves it alone, because
+  intercepting it would swallow the click and open an empty `#amenu`. Below 900px
+  there is no room in the bar, so the panel keeps the sign-in link.
+- **On a phone the account is a row that opens** (`.apop`, a plain `<details>`):
+  the name, with "Signed in with Roblox" and Sign out folded inside, which is the
+  same shape as the menu the name drops on a computer. A `<details>` rather than a
+  bound handler for the reason `.already` is one - `ptPaint()` replaces this markup
+  every time `/api/me` answers, and a handler put on the row would be thrown away
+  with it. **A closed `<details>` keeps its contents out of `innerText`**, which is
+  what three tests had to learn.
 - **The name in the bar opens its own menu, and the panel then drops the account**
   (17 Nov 2026, owner's call, replacing the rule that the name should open the
   panel). The old rule was right while the panel held the name and Sign out: a
@@ -359,12 +371,15 @@ standing rule rather than a rewrite waiting to happen.
   - **The name is NOT repeated inside the menu.** It is written across the button
     the menu hangs from, and that was the whole complaint about the old
     arrangement.
-  - **`.signedin` on that selector is load-bearing.** Hiding `.acct` outright on a
-    computer also hid the **signed-out** "Sign in with Roblox" link, which is the
-    only place sign-in is offered - the pill is drawn only for somebody already
-    signed in. A signed-out visitor on a computer then had no way to sign in
-    anywhere. Caught by `acct.js`, which walks three `/api/me` states across ten
-    widths; nothing a screenshot would have shown, since the page looked fine.
+  - **`.dtop .acct{display:none}` depends on the bar offering sign-in.** For a few
+    hours on 17 Nov 2026 the pill was drawn only for somebody already signed in, and
+    hiding this block left a signed-out visitor on a computer with **no way to sign
+    in anywhere on the site** - the page looked perfectly normal, there was simply
+    nothing there. It was briefly `.acct.signedin`; the signed-out pill is what made
+    the plain rule safe again. **If that pill is ever taken out of the bar, this has
+    to go back to hiding only the signed-in half.** Caught by `acct.js`, which walks
+    three `/api/me` states across ten widths; nothing a screenshot would have
+    shown.
   - `#amenu` is written **outside `<header>`** with `.drawer`, `.sheet` and `.ipop`,
     for the same reason they are: `.hdr` has `backdrop-filter`, which makes the
     header the containing block for anything `position:fixed` inside it.
@@ -810,9 +825,19 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
   - **`PANEL_HIDE` is what the panel leaves out**, not `TABS` itself (17 Nov 2026,
     owner's call): **Most popular and Trending**. Growing and Shrinking went with
     them for a few hours the same day and were put back, so do not read the pair as
-    a category - it is simply the two the owner did not want listed. The panel is
-    nine rows: All games, Growing, Shrinking, Event calendar, Compare games, Plan a
-    session, When is Roblox busiest?, Get the app, About.
+    a category - it is simply the two the owner did not want listed. `TABS` fills
+    the panel's `<nav>` only: All games, Growing, Shrinking, Event calendar, Compare
+    games, Plan a session, When is Roblox busiest?, About.
+  - **The panel's order is one piece of markup that reads correctly at both widths**
+    (17 Nov 2026). Top to bottom: `.dtop` (the account, Notifications and Search -
+    all three phone-only - then **Get the app**), then the sections, then `.dbot`
+    holding **Light mode** under its own rule. On a computer the first three
+    collapse, so Get the app is the first thing in the panel and the theme the last,
+    which is what was asked for at each width without writing two panels.
+    **Get the app is a `.drow` in `.dtop`, not a row in `TABS`**: it is a thing to
+    do rather than a part of the site to go and read, and `TABS` also feeds the
+    sitemap. It uses `ICON_INSTALL`, which had been defined and unused since the old
+    "Install app" row.
   - **The footer is what stops that becoming four orphan pages.** Growing and
     Shrinking were never in the footer, and the homepage card that linked them went
     at the same time, so for a moment nothing on the site linked to either while both
