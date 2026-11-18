@@ -291,6 +291,10 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shots>li>p{margin:0 0 10px}
 .shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The computer screenshots are a browser window rather than a phone: landscape, and
+   the thing being pointed at is a few pixels of address bar, so 270px would be
+   unreadable. Two classes, so it wins over the rule above whatever the order. */
+.shots.wide img{max-width:min(520px,100%)}
 /* The two-line history chart, and the key under it. The key uses a coloured block
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
@@ -899,7 +903,7 @@ NEW HAUNTED FUSE MACHINE
 RNG MACHINE LUCK
 - This will only be activated during AA, not purchasable
 
-+ MORE…</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>RNG MACHINE</td><td>Sat 8 Aug</td></tr><tr><td>NEW RITUAL</td><td>Sat 1 Aug</td></tr><tr><td>NEW MUTATION</td><td>Sat 25 Jul</td></tr><tr><td>LOS TRADERS</td><td>Sat 11 Jul</td></tr><tr><td>FUTBOL UPDATE</td><td>Sat 27 Jun</td></tr><tr><td>SUMMER UPD PT 2</td><td>Sat 20 Jun</td></tr><tr><td>SUMMER UPD PT 1</td><td>Sat 13 Jun</td></tr><tr><td>CAYLUS ADMIN ABUSE</td><td>Sat 6 Jun</td></tr><tr><td>STEAKS ADMIN ABUSE</td><td>Sat 30 May</td></tr><tr><td>SUMMER FUSE</td><td>Sat 23 May</td></tr><tr><td>1 YEAR EVENT</td><td>Sat 16 May</td></tr><tr><td>BACKROOMS</td><td>Sat 9 May</td></tr><tr><td>JOHN PORK</td><td>Sat 2 May</td></tr><tr><td>CYBER UPDATE</td><td>Sat 18 Apr</td></tr><tr><td>EASTER PART 2</td><td>Sat 4 Apr</td></tr><tr><td>EASTER EVENT</td><td>Sat 28 Mar</td></tr><tr><td>RIP MY GRANNY</td><td>Sat 21 Mar</td></tr><tr><td>ST PATRICKS</td><td>Sat 14 Mar</td></tr><tr><td>FUSE MACHINE</td><td>Sat 7 Mar</td></tr><tr><td>DIVINE ADMIN MACHINE</td><td>Sat 28 Feb</td></tr><tr><td>TRADE MACHINE</td><td>Sat 21 Feb</td></tr><tr><td>VALENTINES PT 2</td><td>Sat 14 Feb</td></tr><tr><td>VALENTINES PT 1</td><td>Sat 7 Feb</td></tr><tr><td>AY MI GATITO</td><td>Sat 31 Jan</td></tr></table></div></details><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Wed 18 Nov</td><td>3.0&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Steal a Brainrot has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/steal-a-brainrot">&larr; Back to Steal a Brainrot</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
++ MORE…</p></li></ul><details><summary>Older updates and events</summary><div class="wrap"><table class="tbl"><tr><th>Update or event</th><th>When</th></tr><tr><td>RNG MACHINE</td><td>Sat 8 Aug</td></tr><tr><td>NEW RITUAL</td><td>Sat 1 Aug</td></tr><tr><td>NEW MUTATION</td><td>Sat 25 Jul</td></tr><tr><td>LOS TRADERS</td><td>Sat 11 Jul</td></tr><tr><td>FUTBOL UPDATE</td><td>Sat 27 Jun</td></tr><tr><td>SUMMER UPD PT 2</td><td>Sat 20 Jun</td></tr><tr><td>SUMMER UPD PT 1</td><td>Sat 13 Jun</td></tr><tr><td>CAYLUS ADMIN ABUSE</td><td>Sat 6 Jun</td></tr><tr><td>STEAKS ADMIN ABUSE</td><td>Sat 30 May</td></tr><tr><td>SUMMER FUSE</td><td>Sat 23 May</td></tr><tr><td>1 YEAR EVENT</td><td>Sat 16 May</td></tr><tr><td>BACKROOMS</td><td>Sat 9 May</td></tr><tr><td>JOHN PORK</td><td>Sat 2 May</td></tr><tr><td>CYBER UPDATE</td><td>Sat 18 Apr</td></tr><tr><td>EASTER PART 2</td><td>Sat 4 Apr</td></tr><tr><td>EASTER EVENT</td><td>Sat 28 Mar</td></tr><tr><td>RIP MY GRANNY</td><td>Sat 21 Mar</td></tr><tr><td>ST PATRICKS</td><td>Sat 14 Mar</td></tr><tr><td>FUSE MACHINE</td><td>Sat 7 Mar</td></tr><tr><td>DIVINE ADMIN MACHINE</td><td>Sat 28 Feb</td></tr><tr><td>TRADE MACHINE</td><td>Sat 21 Feb</td></tr><tr><td>VALENTINES PT 2</td><td>Sat 14 Feb</td></tr><tr><td>VALENTINES PT 1</td><td>Sat 7 Feb</td></tr><tr><td>AY MI GATITO</td><td>Sat 31 Jan</td></tr></table></div></details></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Steal a Brainrot has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/steal-a-brainrot">&larr; Back to Steal a Brainrot</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -1079,7 +1083,7 @@ if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
 show(at<0?(e.key==='ArrowRight'?0:P.length-1):
 Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
 else if(e.key==='Escape')show(-1)})}
-</script><script>var P={"wd":5,"hour":19,"every":7,"n":65};
+</script><script>var P={"wd":5,"hour":19,"every":7,"n":64};
 /* When the next update is predicted to land, as a live countdown.
    P.wd and P.hour are UTC, so the moment is worked out in UTC and the browser shows
    it in local time by itself - the same rule every other time on this site follows.

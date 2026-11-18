@@ -291,6 +291,10 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shots>li>p{margin:0 0 10px}
 .shots img{display:block;width:100%;max-width:min(270px,100%);height:auto;
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
+/* The computer screenshots are a browser window rather than a phone: landscape, and
+   the thing being pointed at is a few pixels of address bar, so 270px would be
+   unreadable. Two classes, so it wins over the rule above whatever the order. */
+.shots.wide img{max-width:min(520px,100%)}
 /* The two-line history chart, and the key under it. The key uses a coloured block
    rather than naming the colours in words: a colour named in text goes stale on the
    next palette change, which the 45-day caption did once already. */
