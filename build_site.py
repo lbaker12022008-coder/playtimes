@@ -2116,8 +2116,8 @@ def faq_html(c, a, f, meta, pattern):
                    f"For quiet servers, aim for {DAYS[qd]} around {hour12(qh)} UTC, when "
                    f"there are usually about {qv:,} players. For full servers and trading, "
                    f"{DAYS[bd]} around {hour12(bh)} UTC is the busiest hour we see, at "
-                   f"roughly {bv:,} players. The charts on this page show those times on "
-                   f"your own clock."))
+                   f"roughly {bv:,} players. Those hours are UTC. The graph on the game "
+                   f"page shows them on your own clock."))
         extra = (f" {DAYS[f['busy_day']]} is its busiest day overall."
                  if f["busy_day"] is not None else "")
         qa.append((f"When is {name} busiest?",
