@@ -449,6 +449,36 @@ text-align:left;cursor:pointer}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
 .sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
 .sheet[hidden]{display:none}
+/* The device sections on /install, collapsed so nobody scrolls past two
+   platforms to reach their own. Built like .gdesc: the <h2> stays inside the
+   <summary> so the page keeps its headings for search engines and for
+   heading-by-heading navigation, and the arrow is two borders rather than a
+   picture. */
+.howto{background:var(--card);border:1px solid var(--line);border-radius:14px;
+margin:0 0 12px}
+.howto>summary{cursor:pointer;list-style:none;display:flex;align-items:center;
+gap:10px;padding:14px 16px}
+.howto>summary::-webkit-details-marker{display:none}
+.howto>summary h2{margin:0;font-size:1.05rem}
+.howto>summary:hover h2,.howto[open]>summary h2{color:var(--acc)}
+.howto>summary::after{content:"";margin-left:auto;flex:none;width:9px;height:9px;
+border-right:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);
+transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.howto[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.howto-in{padding:0 16px 14px}
+.howto-in>:first-child{margin-top:0}
+/* "I have already added it". A <details> rather than a button because it needs no
+   JavaScript and so cannot be thrown away when the notifications page redraws. */
+.already{margin:12px 0 0;font-size:.9rem}
+.already>summary{cursor:pointer;color:var(--acc);font-weight:600;
+list-style:none;padding:4px 0}
+.already>summary::-webkit-details-marker{display:none}
+.already p{margin:8px 0 0;color:var(--mut)}
+/* Asked for: a phone or tablet is told how to add it by hand instead. The button
+   only ever appeared where the browser had actually offered, so it was never shown
+   on an iPhone anyway - this takes it off Android and small tablets. Two parts to
+   the selector because .remind is a single class written further down. */
+@media(max-width:899px){.doc [data-install]{display:none}}
 .phonetip{display:none;margin:9px 0 0;font-size:.82rem;line-height:1.45;
 color:var(--mut)}
 @media(max-width:899px){.phonetip{display:block}}
@@ -2702,6 +2732,15 @@ offer.prompt();
 if(offer.userChoice)offer.userChoice.then(paint,paint)});
 /* Installed while the page was open: there is nothing left to offer or explain. */
 window.addEventListener('appinstalled',function(){PT.prompt=null;paint()});
+/* On /install, open the section for the device being used. They are all shut in the
+   markup, so somebody with no JavaScript gets three closed drawers with readable
+   headings rather than one opened at random. */
+var devs=document.querySelectorAll('.howto[data-dev]');
+if(devs.length){
+var want=ptIOS()?'ios'
+:/Android/i.test(navigator.userAgent)?'android':'desktop';
+Array.prototype.forEach.call(devs,function(d){
+if(d.dataset.dev===want)d.open=true})}
 })();"""
 
 # Shared by every page that draws a week of player counts.
@@ -3423,7 +3462,11 @@ pop.innerHTML='<div class="ibox"><button class="ix" type="button" data-ipx '
 +'<li>Choose <b>Add to Home Screen</b>.</li>'
 +'<li>Press <b>Add</b>.</li>'
 +'<li>Open '+ptEsc(PTSITE)+' from your home screen, then turn the bell on there.</li></ol>'
-+'<a class="fav" href="/install">See it with pictures</a></div>';
++'<a class="fav" href="/install">See it with pictures</a>'
++'<details class="already"><summary>I have already added it</summary>'
++'<p>Then open '+ptEsc(PTSITE)+' from your home screen rather than in this browser '
++'tab, and turn the bell on there. Apple does not allow a browser tab to send '
++'notifications even once the site has been added.</p></details></div>';
 document.body.appendChild(pop);
 /* Tapping the dark area outside the box closes it, the same as the X. */
 pop.addEventListener('click',function(e){
@@ -3557,7 +3600,15 @@ var PHONETIP='<p class="phonetip">If the Roblox app opens instead of the sign-in
 +'page, open roblox.com in your browser and sign in there first, then come back '
 +'and tap this again.</p>';
 var SIGNIN='<a class="fav" href="'+ptLogin()+'">Sign in with Roblox</a>'+PHONETIP;
-var INSTALL='<a class="fav" href="/install">How to install it</a>';
+var INSTALL='<a class="fav" href="/install">How to add it</a>';
+/* We cannot tell whether somebody has added the site: ptInstalled() reads
+   display-mode standalone, which is only true INSIDE the added app, so in a tab it
+   says no either way. So this does not unlock anything - Apple still will not allow
+   push from a tab - it says where the switch they want actually is. */
+var ALREADY='<details class="already"><summary>I have already added it</summary>'
++'<p>Then open '+ptEsc(PTSITE)+' from your home screen rather than in this browser '
++'tab, and turn the bell on there. Apple does not allow a browser tab to send '
++'notifications even once the site has been added.</p></details>';
 
 /* ----------------------------------------------------------- the game page */
 /* The bells, one per section, each filled only when it can do something. A section
@@ -3606,10 +3657,10 @@ html='<p class="mut small">Sign in with Roblox to get a notification before this
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
-:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL:'')}
+:'This browser cannot do notifications.')+'</p>'+(ios?INSTALL+ALREADY:'')}
 else{
 html=(note?'<p class="mut small">'+ptEsc(note)
-+' <a href="/install">How to install it</a></p>':'')
++' <a href="/install">How to add it</a></p>':'')
 +'<p class="mut small"><a href="/notifications">All four kinds</a></p>'}
 gameBox.innerHTML=html;gameBox.hidden=false}
 
@@ -3659,8 +3710,8 @@ var head='';
 if(!usable()){
 head='<div class="card"><h2>This device cannot receive them</h2><p class="mut small">'
 +(ios?'On an iPhone or iPad, notifications only work once '+ptEsc(PTSITE)
-+' is on your home screen.':'This browser does not support notifications.')
-+'</p>'+(ios?INSTALL:'')+'</div>'}
++' has been added to your home screen.':'This browser does not support notifications.')
++'</p>'+(ios?INSTALL+ALREADY:'')+'</div>'}
 else if(Notification.permission==='denied'){
 head='<div class="card"><h2>Your browser is blocking them</h2><p class="mut small">'
 +'Allow notifications for this site in your browser settings, next to the address '
@@ -3771,7 +3822,10 @@ an app store, and it takes no space worth worrying about.</p>
 <li>It fills the whole screen, so there is more room for the charts.</li>
 <li><b>On an iPhone or iPad it is the only way notifications can work.</b> Apple only
 allows a website to send notifications once it has been added to the home screen.</li></ul>
-<h2>On an iPhone or iPad</h2>
+<p class="mut small">Three ways to do it, one per kind of device. Open the one you
+are on &mdash; we open it for you where we can tell.</p>
+<details class="howto" data-dev="ios"><summary><h2>On an iPhone or iPad</h2></summary>
+<div class="howto-in">
 <p>This has to be done in <b>Safari</b>. Other browsers on an iPhone cannot add it.
 Each picture below shows what to tap, with a red arrow on it.</p>
 <ol class="shots">
@@ -3792,16 +3846,21 @@ alt="The Add to Home Screen box, with a red arrow pointing at the Add button in 
 </ol>
 <p>The icon appears on your home screen. Open {site} from there from now on, and the
 notification button on any game page will work.</p>
-<h2>On an Android phone</h2>
+</div></details>
+<details class="howto" data-dev="android"><summary><h2>On an Android phone</h2></summary>
+<div class="howto-in">
 <ol><li>Open <b>{site}</b> in Chrome.</li>
 <li>Tap the <b>menu</b> button &mdash; three lines or three dots, depending on your browser.</li>
-<li>Tap <b>Install app</b>, or <b>Add to Home screen</b> if that is what it says.</li>
+<li>Tap <b>Add to Home screen</b>, or <b>Install app</b> if that is what it says.</li>
 <li>Confirm.</li></ol>
-<h2>On a computer</h2>
+</div></details>
+<details class="howto" data-dev="desktop"><summary><h2>On a computer</h2></summary>
+<div class="howto-in">
 <ol><li>Open <b>{site}</b> in Chrome or Edge.</li>
-<li>Look for the small <b>install</b> icon at the right-hand end of the address bar, or
-open the browser <b>menu</b> and choose <b>Install</b>.</li>
+<li>Look for the small <b>add</b> or <b>install</b> icon at the right-hand end of the
+address bar, or open the browser <b>menu</b> and choose it from there.</li>
 <li>Confirm.</li></ol>
+</div></details>
 <h2>Getting rid of it</h2>
 <p>Hold the icon and remove it, the same as any other app. Nothing is left behind on
 your device, and nothing about you is kept here &mdash; see our

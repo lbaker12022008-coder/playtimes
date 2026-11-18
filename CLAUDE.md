@@ -242,6 +242,32 @@ someone signs in. Test by actually signing in; do not read a 302 as proof the ap
 - **Installing the site is a page, `/install`** (`install_body()`), not a row in a menu. Every game page links to it under the notification panel (`[data-installlink]`, hidden by `CHROME_JS` once `ptInstalled()` is true, since there is then nothing left to explain), and the footer links to it so it is not hidden from a search engine. It is a page because the steps differ on every platform and **Apple's cannot be automated at all** - no API lets a website install itself on an iPhone - so the only thing that works there is clear instructions, and instructions do not belong behind a toggle in a menu.
   - `/install` also carries `[data-install]`, a **real** install button that `CHROME_JS` reveals only where the browser has actually offered. **The offer arrives before `CHROME_JS` runs**, which is why it is caught in `FAVJS` (in the head) and kept on `PT.prompt`, with `preventDefault()` so the browser does not also throw its own bar across the page; `CHROME_JS` sets `PT.onprompt` so it can repaint if the offer lands later. An offer may be used **once**, so pressing the button takes it (`PT.prompt = null`) rather than copying it.
   - **The iPhone steps have the owner's own screenshots on them** (16 Nov 2026), one per step, each with a red arrow drawn on it: the three lines in Safari's address bar, Share, Add to Home Screen, then Add. The steps are written to match those pictures exactly, so **if the pictures are ever replaced the wording has to move with them** - Safari's own route to Add to Home Screen has changed before.
+  - **The three device sections are drawers** (`.howto`, `data-dev`), and the one
+    matching the device opens itself - `ptIOS()`, then Android in the user agent,
+    else a computer. The page ran 4,419px on a phone with everything laid out one
+    after another, so somebody on Android scrolled past four Apple screenshots to
+    reach four lines that applied to them; collapsed it is 1,438px. They are **all
+    shut in the markup** and opened by script, so somebody without JavaScript gets
+    three closed drawers with readable headings rather than one opened at random,
+    and the `<h2>` stays inside the `<summary>` the way `.gdesc` does it, so the
+    page keeps its headings for search engines.
+  - **The one-tap install button is hidden below 900px** (17 Nov 2026), at the
+    owner's request: on a phone it is done by hand. Worth knowing before putting it
+    back - it only ever appeared where the browser had **actually offered**, so it
+    was never shown on an iPhone at all, and what this really removes is the
+    shortcut on Android and small tablets. One media query, `.doc [data-install]`,
+    two parts because `.remind` is a single class written further down.
+  - **It says "add", not "install", wherever the Apple steps are meant.** Apple's own
+    wording is Add to Home Screen, and the screenshots say Add, so calling it
+    installing sent people looking for something that is not there.
+  - **"I have already added it" exists because we cannot tell.** `ptInstalled()`
+    reads `display-mode: standalone`, which is only true **inside** the added app -
+    in a Safari tab it answers "not added" whether they have added it or not. So the
+    line does not unlock anything, because Apple still refuses push from a tab: it
+    says to open the site from the home screen and turn the bell on there. It is a
+    plain `<details>` (`.already`), which is why it needs no JavaScript and survives
+    the notifications page redrawing itself. It appears on `/notifications`, in the
+    Plan my session card and inside the install popup.
   - They live in **`brand/install/step1..4.webp`** and the build copies them byte for byte into `img/install/`. The arrows were drawn once with Pillow in a scratch script, not at build time: `build_site.py` needs no image library and the build server installs nothing, which is the same rule `roblox_api.py` follows. They are 520px wide, about 30KB each, and drawn at 270px on the page. **`prune()` does not cover them** - it only deletes `.html` and `.ics` - so a renamed picture would linger and has to be removed by hand.
   - `ptIOS()` and `ptInstalled()` live in `FAVJS` because both this and the notification panel on game pages ask the same two questions, and two copies would drift. iPadOS reports itself as a Mac, so a Mac with a touch screen is an iPad.
   - Its own IIFE **after** `CHROME_JS`'s main one, because that gives up early on any page without the game switcher and this is on every page.
