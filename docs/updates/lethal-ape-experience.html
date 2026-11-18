@@ -43,6 +43,14 @@
 .hdr .nots,.hdr .acctbar{display:block}
 .hdr .nots:empty,.hdr .acctbar:empty{display:none}
 .notsrow{display:none}
+/* The name is in the bar here and its own menu holds Sign out, so the panel stops
+   offering the same person a second time. `.dtop .acct`, not `.acct`: the base
+   rule is display:flex, one class, written further down - the same trap again.
+   `.signedin` matters just as much: SIGNED OUT, this block holds the only Sign in
+   with Roblox on the page, because the bar pill is drawn only for somebody already
+   signed in. Hiding it unconditionally left a signed-out visitor on a computer with
+   no way to sign in anywhere. */
+.dtop .acct.signedin{display:none}
 }
 /* Follow the device unless the visitor picked a theme themselves. */
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A0A0F;--card:rgba(23,21,33,.82);--solid:#171521;--ink:#F5F3FF;--mut:#A09AB5;--line:#2A2735;
@@ -265,6 +273,21 @@ color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 border:1px solid var(--line);background:var(--shade)}
 .albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 font-size:.9rem}
+/* The menu under the name in the bar (17 Nov 2026). It holds what the panel used to
+   hold for a signed-in person on a computer - who you are and the way out - so the
+   panel drops its own copy from 900px up and there is still only ever one of each.
+   Below 900px there is no name in the bar, so the panel keeps it and this is never
+   drawn.
+   It is written OUTSIDE <header> with the drawer and the sheet, and for the same
+   reason: .hdr has backdrop-filter, which makes the header the containing block for
+   anything position:fixed inside it. Script puts it under the pill. */
+.amenu{position:fixed;z-index:30;width:218px;max-width:calc(100vw - 24px);padding:6px;
+background:var(--solid);border:1px solid var(--line);border-radius:14px;
+box-shadow:var(--sh);animation:dropin .15s ease both}
+.amenu[hidden]{display:none}
+.amenu .asub{display:block;padding:8px 12px 9px;margin:0 0 4px;color:var(--mut);
+font-size:.78rem;border-bottom:1px solid var(--line)}
+.amenu form{margin:0}
 /* The panel's Notifications row is the other half of the same arrangement: it shows
    on a phone, where the bell is not in the bar, and hides where the bell is. */
 .notsrow:empty{display:none}
@@ -387,9 +410,18 @@ border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:poin
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .themeic .moon{display:block}
 :root:not([data-theme=light]) .themeic .sun{display:none}}
 /* the side drawer and the search sheet, used on the pages about one game */
-.drawer{position:fixed;top:0;right:0;bottom:0;width:260px;max-width:82vw;z-index:30;
-background:var(--solid);border-left:1px solid var(--line);box-shadow:var(--sh);
-padding:72px 12px 16px;overflow-y:auto;animation:slidein .22s ease both}
+/* It drops straight down from the three-line button with a gap at the side and
+   rounded corners, rather than sliding in from the edge of the screen as a
+   full-height drawer (17 Nov 2026, owner's call, after demand.gg). top clears the
+   bar - about 65px, 57px on a phone - and max-height keeps a long list scrolling
+   inside the card instead of running off the bottom of the window. */
+/* top/right here are only a sane starting point: script places the card under the
+   three-line button before it is ever shown, because the bar's band is capped and
+   centred and the button is not at the window edge on a wide screen. */
+.drawer{position:fixed;top:72px;right:16px;width:262px;max-width:calc(100vw - 32px);
+z-index:30;background:var(--solid);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--sh);padding:8px;max-height:calc(100vh - 88px);overflow-y:auto;
+animation:dropin .15s ease both}
 .drawer[hidden]{display:none}
 /* The panel's top section: the controls that are in the header on a wide screen. */
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
@@ -402,10 +434,11 @@ text-align:left;cursor:pointer}
 .drawer nav{display:flex;flex-direction:column;gap:2px}
 .drawer a{padding:11px 13px;border-radius:11px;text-decoration:none;color:var(--ink);font-weight:600}
 .drawer a:hover,.drawer a:focus-visible{background:var(--shade)}
-.scrim{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
+.scrim{position:fixed;inset:0;z-index:25}
 .scrim[hidden]{display:none}
-@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
-.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;padding:76px 16px 16px}
+@keyframes dropin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.sheet{position:fixed;inset:0;z-index:30;display:grid;place-items:start center;
+padding:76px 16px 16px;background:rgba(0,0,0,.45)}
 .sheet[hidden]{display:none}
 /* The device sections on /install, collapsed so nobody scrolls past two
    platforms to reach their own. Built like .gdesc: the <h2> stays inside the
@@ -701,6 +734,9 @@ h2{font-size:1.06rem}
 .rowhead{margin-top:18px}
 /* the same four things, a little tighter, so the bar is not a third of the screen */
 .hdr .in{padding:8px 14px}
+/* The bar is shorter here - about 57px - so the panel starts higher, and its gap
+   follows the bar's own 14px padding rather than the 16px a computer uses. */
+.drawer{top:63px;right:14px;max-width:calc(100vw - 28px);max-height:calc(100vh - 79px)}
 .iconb{width:38px;height:38px}
 .hrow{gap:9px}
 .logo{font-size:1.2rem}
@@ -820,7 +856,10 @@ var acct=!PT.available?'':PT.name
 +'roblox.com in your browser and sign in there first, then come back and tap this '
 +'again.</p>';
 Array.prototype.forEach.call(document.querySelectorAll('.acct'),function(el){
-el.innerHTML=acct});
+el.innerHTML=acct;
+/* Only the signed-in block is a second copy of what the bar shows, so only that one
+   is hidden on a computer. See the .dtop .acct.signedin rule. */
+el.className=PT.name?'acct signedin':'acct'});
 /* The bell, in the bar. Only for somebody signed in: notifications are offered to
    signed-in people only, so for anybody else it would open on an explanation of why
    it is empty, which is not worth a button in the bar. The list inside is left
@@ -840,13 +879,22 @@ el.innerHTML=bell});
    the name, Sign out - is already in that panel, and a second menu holding the same
    two things is one more place for them to disagree. */
 var pill=(PT.available&&PT.name)
-?'<button class="acctb" id="acctbar" type="button" aria-controls="drawer" '
-+'aria-label="Your account">'
+?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
++'aria-expanded="false" aria-label="Your account">'
 +(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
 +'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
 :'';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
+/* What drops out of that pill. The name is not repeated inside it - it is written
+   across the button the menu hangs from, and saying it twice on one screen is how
+   the panel copy and this one would start to disagree. */
+var amenu=document.getElementById('amenu');
+if(amenu)amenu.innerHTML=(PT.available&&PT.name)
+?'<i class="asub">Signed in with Roblox</i>'
++'<form method="POST" action="/auth/logout">'
++'<button class="drow" type="submit">Sign out</button></form>'
+:'';
 var nrow=(PT.available&&PT.name)
 ?'<a class="drow" href="/notifications">'+PTBELL+'<span>Notifications</span></a>'
 :'';
@@ -883,7 +931,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-967b01c480175aeff6a00bfe45cc3d99/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div><div class="gap"></div>
-<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/events">Event calendar</a><a href="/compare">Compare games</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/install">Get the app</a><a href="/about">About</a></nav></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div><nav aria-label="Sections"><a href="/">All games</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Event calendar</a><a href="/compare">Compare games</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/install">Get the app</a><a href="/about">About</a></nav></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
 <div class="shell">
 <div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/survival">Survival games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/lethal-ape-experience">Lethal Ape Experience player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Update history</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-2b1438b40b087343ae9280a8f61cb7ed/256/256/Image/Webp/noFilter" alt="Lethal Ape Experience Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Lethal Ape Experience update history</h1><p class="mut">Every update and event the creators have announced, when they landed, and the days Lethal Ape Experience&rsquo;s player count jumped.</p><div class="actions"><a class="fav" href="/game/lethal-ape-experience">&larr; Lethal Ape Experience player count</a><a class="btn" href="https://www.roblox.com/games/117713779364528">Play Lethal Ape Experience</a></div></div></div><div class="card"><h2>Recent updates and changes</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>2 days ago</b> (Sun 15 Nov).</p><ul class="evt"><li class=""><b>🎃 Halloween Update</b><span class="d">Halloween Update</span><span class="d">Sun 11 Oct &middot; 1 month ago</span></li><li class=""><b>New Gamemode</b><span class="d">Be The Monster</span><span class="d">Sat 3 Oct &middot; 1 month ago</span><p>BTM Update Releasing Saturday!</p></li><li class=""><b>Lab Expansion Update</b><span class="d">NEW UPDATE!</span><span class="d">Sat 5 Sep &middot; 2 months ago</span><p>New Monsters + 3rd Floor + More!</p></li><li class=""><b>FOREST UPDATE</b><span class="d">NEW UPDATE!</span><span class="d">Fri 14 Aug &middot; 3 months ago</span><p>New Map + Monsters + more!</p></li><li class=""><b>Gooba Update</b><span class="d">NEW UPDATE!</span><span class="d">Sat 25 Jul &middot; 3 months ago</span><p>Gooba Monster, Cosmetics, Revamped Coins System, Monster Room, Daily Rewards, &amp; more</p></li><li class=""><b>Backrooms Update</b><span class="d">New Map, Monster, &amp; more!</span><span class="d">Sun 12 Jul &middot; 4 months ago</span><p>New Backrooms Map, Taller Monster, New Jumpscares, Color Customization, and more!</p></li></ul><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 14 Nov</td><td>1.8&times; busier &ndash; lines up with &ldquo;Maze Update&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>Maze Update</b><span class="d">New Update!</span><span class="d">Happening now &middot; ends Mon 23 Nov</span></li></ul></div><p><a href="/game/lethal-ape-experience">&larr; Back to Lethal Ape Experience</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
@@ -1508,20 +1556,66 @@ if(on&&!scrim){scrim=document.createElement('div');scrim.className='scrim';
 scrim.onclick=function(){shut()};document.body.appendChild(scrim)}
 if(scrim)scrim.hidden=!on}
 function shut(){var dr=document.getElementById('drawer'),sh=document.getElementById('sheet'),
-mb=document.getElementById('menubtn');
-if(dr)dr.hidden=true;if(sh)sh.hidden=true;
-if(mb)mb.setAttribute('aria-expanded','false');shade(false)}
+mb=document.getElementById('menubtn'),am=document.getElementById('amenu'),
+ab=document.getElementById('acctbar');
+if(dr)dr.hidden=true;if(sh)sh.hidden=true;if(am)am.hidden=true;
+if(mb)mb.setAttribute('aria-expanded','false');
+if(ab)ab.setAttribute('aria-expanded','false');shade(false)}
 var mb=document.getElementById('menubtn'),dr=document.getElementById('drawer');
 if(mb&&dr)mb.onclick=function(e){e.stopPropagation();var show=dr.hidden;shut();
 dr.hidden=!show;mb.setAttribute('aria-expanded',show?'true':'false');shade(show);
-if(show){var a=dr.querySelector('a');if(a)a.focus()}};
-/* The name in the bar opens that same panel, because everything it would have held
-   - the name, Sign out - already lives there, and a second menu holding the same two
-   things is one more place for them to disagree. Delegated from the document, since
-   ptPaint replaces this button every time /api/me answers. */
+if(show){placePanel();var a=dr.querySelector('a');if(a)a.focus()}};
+/* The name in the bar opens its own small menu under itself (17 Nov 2026). It used
+   to open the whole panel, on the grounds that the panel already held the name and
+   Sign out - and from 900px up the panel no longer does, so there is nothing left to
+   disagree with. Delegated from the document, since ptPaint replaces this button
+   every time /api/me answers and a handler put on the button itself would be thrown
+   away with the old markup.
+   e.target.closest is guarded because on iOS a click that has bubbled this far can
+   arrive at a text node, which has no closest. */
+var am=document.getElementById('amenu');
+/* Put a card under the button it belongs to. Both of these are position:fixed, and
+   pinning either to the window edge is wrong on a wide screen: the bar's own band is
+   capped - 1400px on a wide page, 820px on a reading one, narrower again with the ad
+   rails up - so the three-line button can sit hundreds of pixels inside the window.
+   Measured at 1920px before this existed: 260px adrift. `edge` is which side of the
+   card lines up with which side of the button. */
+function drop(el,btn,edge){
+if(!el||!btn)return;
+var r=btn.getBoundingClientRect(),W=document.documentElement.clientWidth;
+var gap=W<900?14:16;
+/* Sideways from the button, but DOWN from the bar. The button is inset inside the
+   bar by its padding, so hanging the card off the button put its top 5px above the
+   bar's own bottom border - and the card is above the bar in the stacking order, so
+   it drew over it. */
+var hdr=document.querySelector('.hdr');
+var below=(hdr?hdr.getBoundingClientRect().bottom:r.bottom)+(W<900?6:7);
+el.style.top=Math.round(below)+'px';
+var w=el.offsetWidth||240;
+var x=edge==='right'?r.right-w:r.left;
+/* Never off either edge, whatever a long display name does to the pill. */
+x=Math.min(x,W-w-gap);
+el.style.left=Math.round(Math.max(gap,x))+'px';
+el.style.right='auto'}
+function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
+function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
 if(!(e.target.closest&&e.target.closest('#acctbar')))return;
-e.stopPropagation();if(mb)mb.click()});
+e.stopPropagation();
+if(!am)return;
+var show=am.hidden;shut();
+am.hidden=!show;
+var btn=document.getElementById('acctbar');
+if(btn)btn.setAttribute('aria-expanded',show?'true':'false');
+if(show){placeMenu();shade(true);
+var f=am.querySelector('button,a');if(f)f.focus()}});
+/* A card pinned to the viewport has to follow the thing it points at. The bar is
+   sticky, so its box only moves until the page has scrolled past the top of it. */
+window.addEventListener('resize',function(){
+if((am&&!am.hidden)||(dr&&!dr.hidden))shut()});
+window.addEventListener('scroll',function(){
+if(am&&!am.hidden)placeMenu();
+if(dr&&!dr.hidden)placePanel()},{passive:true});
 
 /* Search. The list of games is only fetched the first time it is opened. */
 var sheet=document.getElementById('sheet'),GAMES=null;
