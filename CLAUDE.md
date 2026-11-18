@@ -197,9 +197,24 @@ measured rather than guessed:
 - **Already signed in to roblox.com in that browser and it never happens**, because
   the login hop never occurs - authorize goes straight to consent on `apis.roblox.com`.
   That is why it works on a computer and why the first report of it turned out to be
-  **an incognito tab**. It is still the normal case for a first-time visitor on a
-  phone, so if it is ever worth addressing, the fix is wording next to the sign-in
-  button telling them to sign in at roblox.com first - not code.
+  **an incognito tab**.
+- **It is still the normal case for a first-time visitor on a phone**, who has no
+  more signed in to roblox.com in that browser than an incognito tab has. So
+  `PHONETIP` says so next to every sign-in button: *"If the Roblox app opens instead
+  of the sign-in page, open roblox.com in your browser and sign in there first, then
+  come back and tap this again."* It appears under the button in the side panel, in
+  Plan my session and on `/notifications`.
+  - **Shown below 900px only**, by CSS rather than by sniffing the user agent. It is
+    really about having the Roblox app installed, and a small screen is the best
+    proxy; 900 rather than the 620px mobile stylesheet because an iPad held upright
+    is 768px and has the app too. The base `display:none` and the media query are
+    written **next to each other**, because both are one class and a media query adds
+    no specificity - source order is all that decides it.
+  - It is wording, not a fix. Nothing in our code can stop Roblox's app claiming
+    Roblox's own URLs; this turns a dead end into a short detour.
+  - The 110-character rule on the Plan my session control does **not** cover it. The
+    test measures that control with `.phonetip` removed, because the rule is about
+    the control staying bare and this is a separate, deliberate warning.
 
 **You cannot check the app's own settings from outside.** Roblox's `/oauth/v1/authorize` redirects
 to its login page whatever you send it - a wrong `redirect_uri`, or a client id that does not exist
@@ -653,6 +668,8 @@ Launch checklist, in order:
 3. ~~**Finish Sign in with Roblox**~~ **done, and the app passed review on 16 Nov 2026**, so the 10-person cap is lifted and sign-in - and therefore notifications - is open to everybody. The only loose end is deleting the old OAuth app `5285601446665495033`.
 4. ~~**`NOINDEX = False`**~~ **done 13 Nov 2026**, with all 140 games in the sitemap and `check_seo` clean. **Search Console is connected and `sitemap.xml` is submitted** - it sent a "Missing field license" warning on 14 Nov after crawling, which only happens for a verified property.
    - **But on 17 Nov 2026 it still showed 304 Discovered URLs, and that is the stale pre-14-Nov count** - the version where every entry ended in `.html`. So Google's list for this site was 304 addresses that each **307-redirect**, rather than the 671 real pages the live sitemap now holds. Nothing was broken on our side: both `sitemap.xml` and `sitemap.txt` serve 671 entries, none carrying `.html`, all on the live domain. Google simply had not re-read the file.
+   - **Re-submitted on 17 Nov 2026**, which is what this needed; Discovered URLs should
+     settle near the live count rather than the old 304.
    - **Re-submitting the same address in Search Console -> Sitemaps is what forces a fresh fetch.** Worth doing after any change that moves the page count a long way - the Nov 2026 split, which gave every game its own Events, Questions, What-costs-money and Updates pages, more than doubled the site and none of those were in the list Google held.
    - Still worth checking which property is being looked at: **`www` serves a complete live duplicate of the site** (see the `www` note under Sign in with Roblox), so numbers read from a `www` property are the duplicate's.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
