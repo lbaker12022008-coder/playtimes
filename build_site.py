@@ -1115,9 +1115,16 @@ TABS = [("home", "All games", "/"),
         ("trending", "Trending", "/trending"),
         ("growing", "Growing", "/growing"),
         ("shrinking", "Shrinking", "/shrinking"),
-        ("events", "Events", "/events"),
-        ("compare", "Compare", "/compare"),
+        ("events", "Event calendar", "/events"),
+        ("compare", "Compare games", "/compare"),
         ("plan", "Plan a session", "/plan")]
+
+# TABS is still the whole section list - sitemap.xml is built from it, and a page
+# left out here is a page we never ask Google to look at. This is the shorter list
+# the panel behind the three-line button draws (17 Nov 2026, owner's call): four
+# ranked lists of the same games in a row read as four names rather than four
+# choices. The four that are hidden are still reachable from the footer.
+PANEL_HIDE = {"popular", "trending", "growing", "shrinking"}
 
 # Words for the five busy-ness levels, used all over the site.
 WORDS = ["no data", "very quiet", "quiet", "average", "busy", "very busy"]
@@ -1197,7 +1204,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # already holds the same links plus two more. The footer still lists them as
     # plain visible links, so nothing is hidden from a search engine.)
     drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
-                     for k, t, u in TABS)
+                     for k, t, u in TABS if k not in PANEL_HIDE)
     # The same shape at every width: logo, name, game picker, then the buttons on
     # the right. The account is the first of those buttons, next to the search, at
     # every width - it is about the person rather than about the page, and while it
@@ -1304,8 +1311,10 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <div class="w{' wide' if wide else ''}">{topnav}{body}
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
+<a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
 <a href="/busiest-hours">When is Roblox busiest?</a>
-<a href="/events">Events</a><a href="/compare">Compare</a><a href="/plan">Plan a session</a>
+<a href="/events">Event calendar</a><a href="/compare">Compare games</a>
+<a href="/plan">Plan a session</a>
 <a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
 <a href="/terms">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
@@ -3867,10 +3876,16 @@ notification button on any game page will work.</p>
 <details class="howto" data-dev="desktop"><summary><h2>On a computer</h2></summary>
 <div class="howto-in">
 <h3>Adding it</h3>
-<ol><li>Open <b>{site}</b> in Chrome or Edge.</li>
-<li>Look for the small <b>add</b> or <b>install</b> icon at the right-hand end of the
-address bar, or open the browser <b>menu</b> and choose it from there.</li>
-<li>Confirm.</li></ol>
+<ol class="shots wide">
+<li><p>Open <b>{site}</b> in your browser.</p></li>
+<li><p>Click the small <b>install</b> icon at the right-hand end of the address bar
+&mdash; a little screen with an arrow in it.</p>
+<img src="/img/install/pc4.webp" width="520" height="176" loading="lazy"
+alt="The right-hand end of a browser address bar, with a red arrow pointing at the install icon, a small screen with an arrow in it."></li>
+<li><p>Choose <b>Next</b>, then <b>Install</b>.</p></li>
+</ol>
+<p class="mut small">That icon only appears in Chrome and Edge. Firefox on a computer
+cannot add a website this way, but notifications still work in it.</p>
 <h3>Turning notifications on</h3>
 <p>On a computer you do not have to add {site} first &mdash; notifications work in an
 ordinary browser tab. The first time you press a bell, your browser asks.</p>
@@ -4743,28 +4758,11 @@ def main():
         '<ul class="grid" id="favgrid"></ul></section>'
         + row_head("All games", f'<span class="mut small">{len(cards)} games</span>')
         + grid(cards, "all")
-        + ('<h2 style="margin-top:30px">What you can do here</h2>'
-           '<div class="card"><ul>'
-           '<li><a href="/popular">Most played Roblox games</a> &ndash; every game we '
-           'track, ranked by how many people are in it at a typical moment.</li>'
-           '<li><a href="/trending">Trending games</a> &ndash; the biggest gainers and '
-           'losers this week, from two weeks of player counts.</li>'
-           '<li><a href="/busiest-hours">When is Roblox busiest?</a> &ndash; the busiest '
-           'and quietest hours across every game we watch.</li>'
-           '<li><a href="/compare">Compare two games</a> &ndash; put their weeks side by '
-           'side and see which is less crowded.</li>'
-           '<li><a href="/plan">Plan a session</a> &ndash; a countdown to the next quiet '
-           'or busy stretch for any game.</li>'
-           '<li><a href="/events">Event calendar</a> &ndash; what the creators have '
-           'announced, so you know which hours will be packed.</li>'
-           '<li><b>Notifications</b> &ndash; sign in and we can buzz your phone about '
-           'fifteen minutes before a game goes quiet or busy. Also when it has an event, '
-           'or when the creators change it.</li>'
-           '<li><a href="/install">Get the app</a> &ndash; put us on your home screen so we '
-           'open like an app. On an iPhone or iPad that is also the only way notifications '
-           'can work.</li>'
-           '</ul></div>'
-           '<h2>Where the numbers come from</h2>'
+        # "What you can do here" was a list of the same links the panel holds, on the
+        # page that needs them least: somebody on the homepage has the menu button a
+        # thumb away. Taken out 17 Nov 2026 at the owner's request. The footer still
+        # carries every one of them, so none of it is hidden from a search engine.
+        + ('<h2 style="margin-top:30px">Where the numbers come from</h2>'
            '<div class="card"><p>Roblox shows how many people are in each game right now. '
            'We write that number down for every game on our list, about every 10 minutes, and '
            'we keep it. Roblox does not. It only ever shows you right now, never last Tuesday. '

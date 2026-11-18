@@ -303,11 +303,22 @@ standing rule rather than a rewrite waiting to happen.
     plain `<details>` (`.already`), which is why it needs no JavaScript and survives
     the notifications page redrawing itself. It appears on `/notifications`, in the
     Plan my session card and inside the install popup.
-  - **The computer section has its own three screenshots** (17 Nov 2026), and they
-    are about *notifications* rather than adding the site, because on a computer
-    nothing has to be added - web push works in an ordinary tab. They are the
-    browser's Allow box, the settings icon to the left of the address (the way back
-    in after pressing Block), and the Notifications switch behind it.
+  - **The computer section has its own four screenshots** (17 Nov 2026). Three are
+    about *notifications* rather than adding the site, because on a computer nothing
+    has to be added - web push works in an ordinary tab: the browser's Allow box, the
+    settings icon to the left of the address (the way back in after pressing Block),
+    and the Notifications switch behind it. The fourth, `pc4`, is the **install** icon
+    at the other end of the address bar, on the Adding it steps.
+  - **The Adding it steps name the buttons Chrome actually shows**: open it in your
+    browser, click the install icon, then **Next** and **Install**. They used to say
+    "look for the small add or install icon... or open the browser menu", then
+    "Confirm", which described the shape of the thing rather than what it says.
+    Chrome's wording has changed before and will again, so **if these go stale, the
+    screenshot has to move with them** - the same rule the Apple steps follow.
+  - **It says the icon is Chrome and Edge only.** Firefox on a computer cannot add a
+    website at all, so somebody in Firefox would otherwise hunt for an icon that is
+    not there. Notifications still work in it, and the line says so, because that is
+    the thing they actually came for.
   - **A browser screenshot needs a different width cap from a phone one.** `.shots
     img` caps at 270px, which is right for a tall phone picture and unreadable for a
     browser window; `.shots.wide img` caps at 520px, the pictures' own width, so they
@@ -359,6 +370,13 @@ standing rule rather than a rewrite waiting to happen.
   text, and nothing can read an SVG. **The key uses coloured blocks, never colour
   names** - a colour named in text goes stale on the next palette change, which the
   45-day caption did once already.
+- **The homepage does not list the site's own sections** (17 Nov 2026). "What you
+  can do here" was a card of eight links - the same ones the panel holds - sitting on
+  the one page where the menu button is nearest to hand, and it had already gone
+  stale once (it was still advertising the deleted calendar reminders). The homepage
+  now runs games, then "Where the numbers come from", then the footer. **The footer
+  is what keeps every section linked for a search engine**, so it is not optional
+  and nothing should be taken out of it.
 - **The homepage lede is one sentence.** It was four lines saying the same thing three
   ways. The two numbers that make it believable - games tracked and readings taken -
   are still there, in small type underneath, because they are the reason to trust the
@@ -746,7 +764,21 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - About + Privacy pages, game thumbnails, Save/favorites (browser localStorage only). The About page carries a **Reminders** section and a **"Which games are on here"** section saying we only list games Roblox labels Minimal or Mild and that we read that label back from Roblox rather than guessing - worded as a rule about the label, not a promise about the game, with the caveat kept below it. **Every count on the site is computed** (`len(cards)`, `total_samples`), so adding games to `games.txt` updates the wording on its own; nothing anywhere types a number of games in. **It will not match `games.txt`, and that is correct**: `cards` is games with enough readings to have a page, so a game `discover.py` added yesterday is in the file and not yet in the count. On 16 Nov 2026 the file held 160 and the site said 140, which is twenty games still collecting. Do not "fix" this by counting the file - the site would then claim pages it does not have. The collector runs every 30 minutes and takes three readings ten minutes apart inside each run, so the pages say **"about every 10 minutes"** - the old "every 30 minutes" on About and "every few minutes" on the homepage were both wrong and disagreed with each other.
 - For-parents game-pass section, fetched from `apis.roblox.com/game-passes/v1/universes/{id}/game-passes` (the old `games.roblox.com` one is dead).
 - Category pages from Roblox `genre_l1` (saved in the `genre` column; a category needs 2+ games).
-- `TABS` in `build_site.py` is the site's section list (All games, Most popular, Trending, Growing, Shrinking, Events, Compare, Plan a session). It is rendered into the panel behind the three-line button and into the footer; the row of pills that used to sit across the top of every page was removed in Nov 2026. Genres are pills on the homepage.
+- `TABS` in `build_site.py` is the site's section list (All games, Most popular, Trending, Growing, Shrinking, Event calendar, Compare games, Plan a session). **`sitemap.xml` is built from it**, so a section left out of `TABS` is a section we never ask Google to look at. The row of pills that used to sit across the top of every page was removed in Nov 2026. Genres are pills on the homepage.
+  - **`PANEL_HIDE` is what the panel leaves out**, not `TABS` itself (17 Nov 2026,
+    owner's call): Most popular, Trending, Growing and Shrinking. Four ranked lists
+    of the same games, one under another, read as four names rather than four
+    choices. The panel is seven rows now - All games, Event calendar, Compare games,
+    Plan a session, When is Roblox busiest?, Get the app, About.
+  - **The footer is what stops that becoming four orphan pages.** Growing and
+    Shrinking were never in the footer, and the homepage card that linked them went
+    at the same time, so for a moment nothing on the site linked to either while both
+    stayed in the sitemap. They were added to the footer in the same change. **Before
+    taking anything out of the panel, check the footer carries it** - that is the
+    footer's whole job here, and it is why the pills could be deleted safely.
+  - The labels in `TABS` are read by the panel and nowhere else (the footer's are
+    written out), so renaming one is safe. Events and Compare became **Event
+    calendar** and **Compare games** because one word each was doing too much work.
 - Homepage: "What are you looking for?" (busy / quiet / browsing) narrows the list to the games that are quiet or busy at the visitor's current hour, off a 168-digit busy-ness string per game baked into the page, so there is no extra request. Order stays player-count descending whether filtered or not. **Every game follows roughly the same daily rhythm, so a fixed test ("quiet" = the bottom two of a game's own five levels) came up empty for 85 of the week's 168 hours, and 67 for "busy".** `strict()` is still what the words mean; `fits()` is what is filtered on, and it widens to the quietest (or busiest) level any game is actually at this hour, so there is always an answer. `band.relaxed` says the widening happened and the note then admits it ("No game is properly quiet right now... these are the quietest of them"). When some games really are quiet, nothing widens and the behaviour is unchanged. `nextGood()` must keep using `strict()`, not `fits()`: it answers "when will games really be quiet", about a different hour than the band describes. A third case, no readings at all for this hour, is a different message again. Search goes through the same `refresh()` so the two cannot fight over which tiles are hidden.
 - Per-game pages: event calendar, recent updates and changes, game description, "Is X dead?" verdict with a 45-day chart, "Days the player count jumped" (any day `SPIKE`x busier than the week before, matched against the creators' events), and "Plan my session".
 - **Live countdown**: "Quietest window starts in 2h 14m 07s", ticking every second, on each game page and on `/plan.html`. `plan()`/`draw()` works out the hour being aimed at and `tick()` only rewrites the clock, so the digits move every second without redoing the maths. The block is recomputed every 5 minutes, and straight away once the countdown reaches zero.
