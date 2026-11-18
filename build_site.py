@@ -1068,7 +1068,14 @@ def app_icon(size, supersample=3):
 # file notifications could never work on an Apple device at all.
 def manifest_json():
     return json.dumps({
-        "name": SITE + " - when Roblox games are busiest",
+        # What the installed app is called: its title bar, the Windows taskbar and
+        # Start menu, and the box a browser shows when it offers to install. It is
+        # NOT a search engine's business - nothing crawls a manifest - so this is
+        # free to say whatever reads best, while the page titles keep "player count"
+        # where Google can see it. It said "when Roblox games are busiest" until
+        # 18 Nov 2026, which named only half of what the site is for: most people
+        # come here for the quiet hours. This matches the homepage's own heading.
+        "name": SITE + " - the best times to play Roblox games",
         "short_name": SITE,
         "description": "See when popular Roblox games are busiest and quietest.",
         "start_url": "/?from=app",
