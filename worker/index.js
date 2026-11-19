@@ -874,7 +874,12 @@ fetch('/admin/data').then(r => {
 
 function render(d) {
   const v = d.views, s = d.stats || {}, t = s.totals || {}, site = s.site || {};
-  const live = d.live;
+  // Id 0 is Roblox's placeholder for a deleted or private game. summary.json leaves it
+  // out now, but this keeps an old copy of that file from listing it as a game that
+  // is nearly ready for a page, which the site build would never give it.
+  const live = d.live ? Object.assign({}, d.live, {
+    games: (d.live.games || []).filter(g => g.id && String(g.id) !== '0')
+  }) : null;
   const todos = d.todos || [];
 
   // One place that knows the page views for any day, so every panel agrees.
