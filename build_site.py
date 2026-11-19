@@ -73,6 +73,13 @@ LIGHT = """--bg:#F6F4FB;--card:rgba(255,255,255,.8);--solid:#fff;--ink:#0A0A0F;-
 
 
 CSS = """:root{__LIGHT__}
+/* The light a control wears when it is pointed at: a ring that follows its border
+   and a short glow beyond it. It lived on .chip,.pills a and nowhere else, so every
+   other box-shadow:var(--rim) in this sheet - the bells, the notification switches -
+   resolved to an invalid value and drew NOTHING, which is not a thing you notice
+   unless you measure it. On :root it reaches every control, and it still reads off
+   --glowh and --glowa, so it stays in step with the tiles in both themes. */
+:root{--rim:0 0 0 1px hsl(var(--glowh) 92% 62%/.5),0 0 12px hsl(var(--glowh) 92% 62%/var(--glowa))}
 /* Widths only apply once there is room for them. Below 900px every card is full
    width again, because two columns of this on a phone is unreadable. */
 @media(min-width:900px){
@@ -677,6 +684,14 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
+/* Quiet/Busy in Plan my session and the days of the week under the hourly graph are
+   the same control, so one rule covers both. The rim follows the border and stops
+   there, the way the chips and the category pills do, rather than the tile glow
+   that sits behind a whole card. The chosen one keeps its filled accent and only
+   gains the glow, so hovering cannot be mistaken for choosing. */
+.days button:hover,.days button:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.days button:not([aria-pressed=true]):hover,
+.days button:not([aria-pressed=true]):focus-visible{color:var(--ink);font-weight:700}
 .bars{margin-top:12px}
 /* The compare page still puts two games side by side as columns. */
 .bars.cols{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:170px}
@@ -712,6 +727,18 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
+/* The three at the top of a game page are one set of buttons and are sized as one.
+   Two classes, so this beats the single-class rules for each of them wherever they
+   fall in the sheet - including the phone block, which shrinks .btn and .fav by
+   different amounts and so would pull them apart again. The transparent border on
+   .btn is not spare: a 1px border adds 2px of height, so without it the filled
+   button would sit 2px shorter than the two outlined ones. */
+.actions .btn,.actions .fav,.actions .bellb{display:inline-flex;align-items:center;
+justify-content:center;gap:8px;margin:0;padding:10px 18px;border-radius:13px;
+border:1px solid transparent;font-size:.95rem;font-weight:700;line-height:1.3;
+min-height:46px}
+.actions .fav,.actions .bellb{border-color:var(--line);background:var(--card);color:var(--ink)}
+.actions .bellb svg{width:16px;height:16px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 /* The tabs across a game's pages. Written as a BLOCK with nowrap, never a nowrap
    flex row: a nowrap flex container reports the full width of its items as its own
@@ -722,11 +749,20 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 .gtabs{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;
 margin:14px 0 0;border-bottom:1px solid var(--line);scrollbar-width:none}
 .gtabs::-webkit-scrollbar{display:none}
-.gtab{display:inline-block;margin:0 20px -1px 0;padding:9px 1px 10px;color:var(--mut);
-text-decoration:none;font-weight:700;font-size:.97rem;border-bottom:2px solid transparent}
+.gtab{position:relative;display:inline-block;margin:0 20px -1px 0;padding:9px 1px 12px;
+color:var(--mut);text-decoration:none;font-weight:700;font-size:.97rem}
 .gtab:hover,.gtab:focus-visible{color:var(--ink)}
-.gtab.on{color:var(--ink);border-bottom-color:var(--acc)}
+.gtab.on{color:var(--ink)}
+/* hsl off --glowh rather than --acc, because the bar wants to be LIGHTER than the
+   accent in both themes - light mode's accent is a deep purple that reads as a
+   shadow here, not a glow. --glowh is set in the light palette and never
+   overridden, so it is the one hue both themes share. */
+.gtab.on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;
+border-radius:3px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
+.fav:hover,.fav:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.btn:hover,.btn:focus-visible{box-shadow:var(--sh),var(--rim)}
 .fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#10131c}
@@ -3566,7 +3602,7 @@ def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
 
 # The order is the order they are offered in, and "Overview" is the game's own page.
 SIDE_TABS = (("updates", "Updates"), ("events", "Events"),
-             ("questions", "Questions"), ("passes", "What costs money"))
+             ("questions", "Questions"), ("passes", "Costs"))
 
 
 def game_tabs(s_, have, current=""):
