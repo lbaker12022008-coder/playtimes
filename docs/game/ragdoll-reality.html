@@ -943,6 +943,20 @@ padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
 .facts dt{font-size:.95rem;color:var(--ink);font-weight:600;min-width:0}
 .facts dt span{display:block;font-size:.8rem;color:var(--mut);font-weight:400;margin-top:1px}
 .facts dd{margin:0;font-weight:800;font-size:1.12rem;white-space:nowrap;text-align:right}
+/* Below 900px the stats card is full width and about a screen tall, so only its
+   first three rows show and the rest open behind "More stats". GAME_JS adds .fold,
+   so with no script every row simply shows. The base display:none and the media
+   query sit together because .fold+.morestats must beat .morestats on weight,
+   not on order. From 900px up the card fills its column beside the stack, so
+   nothing folds. */
+.morestats{display:none}
+@media(max-width:899.98px){
+.facts.fold:not(.open)>div.x{display:none}
+.facts.fold:not(.open)>div:nth-child(3){border-bottom:0;padding-bottom:0}
+.facts.fold+.morestats{display:inline-block;margin-top:12px;padding:8px 16px;font:inherit;
+font-size:.92rem;font-weight:700;color:var(--acc);background:none;border:1px solid var(--line);
+border-radius:999px;cursor:pointer}
+}
 /* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
    Collapsed text is still read by search engines, and it works with no JavaScript. */
 .hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
@@ -1208,7 +1222,7 @@ e.preventDefault();history.back()}});</script></head><body>
 </div><nav class="gtabs" aria-label="This game"><a class="gtab on" href="/game/ragdoll-reality" aria-current="page">Overview</a><a class="gtab" href="/updates/ragdoll-reality">Updates</a><a class="gtab" href="/events/ragdoll-reality">Events</a><a class="gtab" href="/questions/ragdoll-reality">Questions</a><a class="gtab" href="/passes/ragdoll-reality">Costs</a></nav></div></div>
 
 <div class="bento">
-<div id="stats" class="sp5 card rise2"><h2>Ragdoll Reality player count stats</h2><dl class="facts"><div><dt>Latest player count<span>at 7:02 PM UTC on Tue 17 Nov</span></dt><dd>4,310</dd></div><div><dt>Players at a typical moment<span>average over the last 7 days</span></dt><dd>7,723</dd></div><div><dt>Highest player count ever seen<span>the most we have recorded, on Sat 31 Oct</span></dt><dd>42,575</dd></div><div><dt>Highest this week<span>at 2:54 AM UTC on Sun 15 Nov</span></dt><dd>11,894</dd></div><div><dt>Lowest this week<span>at 8:44 PM UTC on Mon 16 Nov</span></dt><dd>4,028</dd></div><div><dt>Compared to last week<span>last 7 days against the 7 before</span></dt><dd><span class="down">Shrinking (-58%)</span></dd></div><div><dt>Busiest hour<span>in a typical week</span></dt><dd>Saturday, 5 PM UTC</dd></div><div><dt>Quietest hour<span>in a typical week</span></dt><dd>Friday, 7 AM UTC</dd></div><div><dt>Player counts collected<span>over 17 days, since Sat 31 Oct</span></dt><dd>1,168</dd></div></dl></div>
+<div id="stats" class="sp5 card rise2"><h2>Ragdoll Reality player count stats</h2><dl class="facts" id="facts"><div><dt>Latest player count<span>at 7:02 PM UTC on Tue 17 Nov</span></dt><dd>4,310</dd></div><div><dt>Players at a typical moment<span>average over the last 7 days</span></dt><dd>7,723</dd></div><div><dt>Highest player count ever seen<span>the most we have recorded, on Sat 31 Oct</span></dt><dd>42,575</dd></div><div class=x><dt>Highest this week<span>at 2:54 AM UTC on Sun 15 Nov</span></dt><dd>11,894</dd></div><div class=x><dt>Lowest this week<span>at 8:44 PM UTC on Mon 16 Nov</span></dt><dd>4,028</dd></div><div class=x><dt>Compared to last week<span>last 7 days against the 7 before</span></dt><dd><span class="down">Shrinking (-58%)</span></dd></div><div class=x><dt>Busiest hour<span>in a typical week</span></dt><dd>Saturday, 5 PM UTC</dd></div><div class=x><dt>Quietest hour<span>in a typical week</span></dt><dd>Friday, 7 AM UTC</dd></div><div class=x><dt>Player counts collected<span>over 17 days, since Sat 31 Oct</span></dt><dd>1,168</dd></div></dl><button class="morestats" type="button" aria-controls="facts" aria-expanded="false">More stats</button></div>
 <div class="sp7 lstack">
 <div id="answer" class="card ans rise2"><h2>When is Ragdoll Reality busiest?</h2><p id="now"></p><p id="best">Busiest: <b>Saturday around 5 PM</b> <span class="mut">UTC</span> &ndash; about 27,280 players.</p>
 <p id="quiet">Quietest: <b>Friday around 7 AM</b> <span class="mut">UTC</span> &ndash; about 6,562 players.</p></div>
@@ -1584,7 +1598,10 @@ hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
 $('hm').addEventListener('click',function(e){
 var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
 if(c)hmPick(c)});
-Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);ptCountdowns();</script><script>
+Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);
+(function(){var fl=$('facts'),mb=document.querySelector('.morestats');if(!fl||!mb)return;
+fl.classList.add('fold');mb.onclick=function(){var o=fl.classList.toggle('open');
+mb.setAttribute('aria-expanded',o);mb.textContent=o?'Fewer stats':'More stats'}})();ptCountdowns();</script><script>
 (function(){var b=document.getElementById('fav'),k=b.dataset.s;
 function draw(){var on=getFavs().indexOf(k)>-1;b.setAttribute('aria-pressed',on);
 b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
