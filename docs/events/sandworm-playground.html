@@ -943,6 +943,20 @@ padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
 .facts dt{font-size:.95rem;color:var(--ink);font-weight:600;min-width:0}
 .facts dt span{display:block;font-size:.8rem;color:var(--mut);font-weight:400;margin-top:1px}
 .facts dd{margin:0;font-weight:800;font-size:1.12rem;white-space:nowrap;text-align:right}
+/* Below 900px the stats card is full width and about a screen tall, so only its
+   first three rows show and the rest open behind "More stats". GAME_JS adds .fold,
+   so with no script every row simply shows. The base display:none and the media
+   query sit together because .fold+.morestats must beat .morestats on weight,
+   not on order. From 900px up the card fills its column beside the stack, so
+   nothing folds. */
+.morestats{display:none}
+@media(max-width:899.98px){
+.facts.fold:not(.open)>div.x{display:none}
+.facts.fold:not(.open)>div:nth-child(3){border-bottom:0;padding-bottom:0}
+.facts.fold+.morestats{display:inline-block;margin-top:12px;padding:8px 16px;font:inherit;
+font-size:.92rem;font-weight:700;color:var(--acc);background:none;border:1px solid var(--line);
+border-radius:999px;cursor:pointer}
+}
 /* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
    Collapsed text is still read by search engines, and it works with no JavaScript. */
 .hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
