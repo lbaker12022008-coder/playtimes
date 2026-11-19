@@ -38,6 +38,12 @@ def write_summary(d, known):
         with open(f"{d}/samples.csv", newline="") as f:
             for row in csv.reader(f):
                 if len(row) < 2 or not row[0].isdigit(): continue
+                # Id 0 is Roblox's placeholder for a game it will not talk about
+                # ("[TITLE UNAVAILABLE]"). The collectors stopped recording it on
+                # 17 Nov 2026, but its 166 old samples stay in samples.csv for good,
+                # and without this the admin dashboard listed it as a game a few
+                # hours from getting a page - which build_site.py would never give it.
+                if int(row[0]) == 0: continue
                 gid = row[0]
                 try: ts = int(row[1])
                 except ValueError: continue
