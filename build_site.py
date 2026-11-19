@@ -96,6 +96,7 @@ CSS = """:root{__LIGHT__}
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
 .dtop .hnavrow{display:none}
+.dtop .hnavrow{display:none}
 /* The three ways in move from the panel into the bar, the same swap.
    `.hdr .hnav`, not `.hnav`: the base `.hnav{display:none}` is a one-class rule
    written further down the sheet, a media query adds no specificity, and a plain
@@ -209,10 +210,37 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    position:sticky, not fixed: a sticky element still takes its space at the end of
    the page, so the footer is never left permanently hidden underneath it - and a
    fixed one would be trapped by the backdrop-filter above it anyway. */
-.railb{display:block;position:sticky;bottom:0;z-index:8;
+/* The bar across the bottom of a phone. Fixed, so it is there wherever the page
+   has been scrolled to - the point of it is that a thumb reaches the bottom of a
+   phone and not the top corner.
+   z-index 9 matches the header: above the page and above the bottom ad strip (8),
+   below the scrim (25) and the drawer and sheet (30), so an open menu still covers
+   it. The ad strip is pushed up by exactly this bar's height rather than being
+   covered, and .shell gets the same padding so the footer is not hidden under it
+   either - the two were the things that broke when this was first tried. */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;
+grid-template-columns:repeat(3,1fr);background:var(--glass);
+backdrop-filter:saturate(1.4) blur(12px);border-top:1px solid var(--line);
+padding-bottom:env(safe-area-inset-bottom)}
+.tabbar .tbb{display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:3px;min-height:56px;padding:7px 4px 8px;border:0;background:none;cursor:pointer;
+color:var(--mut);font:inherit;font-size:.72rem;font-weight:700;text-decoration:none;
+position:relative}
+.tabbar .tbb svg{width:21px;height:21px;fill:currentColor}
+.tabbar .tbb:hover,.tabbar .tbb:focus-visible{color:var(--ink)}
+.tabbar .tbb.on{color:var(--acc)}
+/* The same underline the tabs across a game's pages wear, so the two read as one
+   idea: here is where you are. */
+.tabbar .tbb.on::after{content:'';position:absolute;left:28%;right:28%;top:0;height:3px;
+border-radius:0 0 3px 3px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
+@media(min-width:900px){.tabbar{display:none}}
+.shell{padding-bottom:62px}
+@media(min-width:900px){.shell{padding-bottom:0}}
+.railb{display:block;position:sticky;bottom:62px;z-index:8;
 background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
 padding:6px;text-align:center;height:66px}
-@media(min-width:900px){.railb{height:98px}}
+@media(min-width:900px){.railb{height:98px;bottom:0}}
 .adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
 display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
 a{color:var(--acc)}
@@ -290,7 +318,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    bar has room for the logo, the game picker and two buttons and nothing else -
    the panel behind the three lines carries the same three links at that width, the
    trick the search magnifier and the bell already use. */
-.hnav{display:none;margin-left:4px;white-space:nowrap}
+/* min-width:0 and the overflow are the net under all of this: .hnav is a flex item
+   in a nowrap row, and a flex item is sized to its contents unless told it may
+   shrink - so a link too many pushed the whole bar wider than the phone it was on.
+   It can scroll inside itself now and the page never moves. */
+.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 1 auto;
+overflow-x:auto;scrollbar-width:none}
+.hnav::-webkit-scrollbar{display:none}
+/* Three links at 900px, all eight once there is room for them. Eight at 900 was
+   measured dragging a 900px window sideways; the panel keeps the other five until
+   the bar can really hold them. */
+.hnav a.more{display:none}
+@media(min-width:1200px){.hdr .hnav a.more{display:inline-block}}
 .hnav a{display:inline-block;margin:0 14px 0 0;padding:6px 1px 7px;color:var(--mut);
 text-decoration:none;font-weight:700;font-size:.93rem;position:relative}
 .hnav a:hover,.hnav a:focus-visible{color:var(--ink)}
@@ -419,10 +458,33 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 #dead .scrub{margin:12px 0 4px}
 #dead .verdict{margin-top:12px}
 .scrub>svg{margin:0}
+/* The box that follows the pointer across a chart. Fixed to the window and put on
+   <body>, so no card can clip it and no stacking context can bury it. Mouse only:
+   under a finger it would be behind the finger, which is why the line of text
+   under the chart stays on a phone and this takes its place on a computer. */
+.chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
+background:var(--solid);border:1px solid var(--line);border-radius:12px;
+padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
+max-width:260px;white-space:nowrap}
+.chtip.on{opacity:1}
+@media(min-width:900px){.readout.chartout{display:none}}
+/* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
+.graph .lockdot{filter:drop-shadow(0 0 4px hsl(var(--glowh) 92% 66%/.9))}
 .scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
 pointer-events:none;transform:translateX(-.75px)}
-.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
-border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+/* Every reading on the line, so the chart shows what it is made of rather than
+   only the shape of it. Purple like the line it belongs to, with a thin ring in
+   the page's ink so one dot is still tellable from the next where they crowd. */
+.scrub .pdot{position:absolute;width:8px;height:8px;border-radius:50%;
+border:1.5px solid var(--ink);transform:translate(-50%,-50%);pointer-events:none;
+opacity:.95}
+/* The one being read is the other way round - ink filled, ringed in the line's own
+   colour, with a little glow - so it reads as "this one" and never as another
+   point that happens to be bigger. */
+.scrub .sdot{position:absolute;width:13px;height:13px;border-radius:50%;
+background:var(--ink);border:2.5px solid var(--acc);transform:translate(-50%,-50%);
+pointer-events:none;display:none;
+box-shadow:0 0 7px hsl(var(--glowh) 92% 66%/.85),0 0 16px hsl(var(--glowh) 92% 66%/.5)}
 .scrub.on .sdot{display:block}
 .hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
 .hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
@@ -516,6 +578,16 @@ box-shadow:var(--sh);padding:8px;max-height:calc(100vh - 88px);overflow-y:auto;
 animation:dropin .15s ease both}
 .drawer[hidden]{display:none}
 /* The panel's top section: the controls that are in the header on a wide screen. */
+/* The panel never offers search: the bar across the top carries a magnifier from
+   900px up, and the bar across the bottom of a phone carries one below that. Two
+   buttons for one sheet in one menu is the thing this header keeps avoiding. */
+.dtop .drow[data-search]{display:none}
+/* Same for the event calendar, which is in that bottom bar - but only on a phone,
+   since the bottom bar is not there on a computer. */
+@media(max-width:899px){.drawer nav a[data-sec=events]{display:none}}
+/* The sections leave the panel only once the bar is wide enough to show all of
+   them, which is 1200px - not 900, where only the first three fit. */
+@media(min-width:1200px){.drawer nav a[data-sec]{display:none}}
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
 border-bottom:1px solid var(--line)}
 /* The theme button, under the sections. Its own block so the rule above it stays
@@ -929,9 +1001,25 @@ h2{font-size:1.06rem}
 /* all seven days fit across, so the chart below does not jump when you change day */
 .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
 .days button{padding:6px 0;font-size:.82rem}
+/* ...but Plan my session has two buttons, not seven, and the seven-column grid
+   left each of them about 48px wide on a phone - a target smaller than a
+   fingertip, carrying a word that did not fit in it. */
+/* width:100% is not spare. #planbtns is a grid INSIDE a flex row, and a flex item
+   is sized to its contents unless told otherwise - so 1fr resolved to the width of
+   the word in the button and the two stayed 43px wide, exactly as before. */
+#planbtns{grid-template-columns:1fr 1fr;gap:8px;width:100%;flex:1 1 100%}
+#planbtns button{padding:11px 0;font-size:1rem;min-height:48px}
 /* the week grid: 24 columns on a phone, so the squares have to be small */
 .hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
-.hm .c{height:17px;border-radius:3px}
+.hm .c{height:17px;border-radius:3px;transition:transform .12s}
+/* A square is about 13px across on a phone, which is smaller than the finger
+   pressing it - so the one that was pressed grows, both to show which one it was
+   and to put something finger-sized under the next tap. It lifts above its
+   neighbours rather than pushing them, since the grid must not reflow while
+   somebody is reading it. Every other square stays live: a chart that stops
+   answering because one square is open would be a fault, not a feature. */
+.hm .c.sel{transform:scale(2.2);position:relative;z-index:3;border-radius:4px;
+outline-width:1.5px;outline-offset:1px;box-shadow:0 3px 12px rgba(0,0,0,.5)}
 .axis{font-size:.72rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
 .ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
@@ -1249,6 +1337,15 @@ ICON_BELL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
 ICON_INSTALL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
                 '<path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/>'
                 '<path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg>')
+ICON_STAR = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
+             '<path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 '
+             '4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" '
+             'stroke-linejoin="round"/></svg>')
+ICON_CAL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
+            '<rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" '
+            'stroke="currentColor" stroke-width="1.6"/>'
+            '<path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" '
+            'stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>')
 ICON_LIST = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/>'
              '<rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg>')
 
@@ -1370,7 +1467,8 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # second navigation that only ever appeared on a wide screen, and the panel
     # already holds the same links plus two more. The footer still lists them as
     # plain visible links, so nothing is hidden from a search engine.)
-    drawer = "".join(f'<a href="{u}"{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
+    drawer = "".join(f'<a href="{u}" data-sec="{k}"'
+                     f'{" aria-current=page" if k == nav else ""}>{html.escape(t)}</a>'
                      for k, t, u in TABS if k not in PANEL_HIDE)
     # The same shape at every width: logo, name, game picker, then the buttons on
     # the right. The account is the first of those buttons, next to the search, at
@@ -1447,7 +1545,17 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<div class="amenu" id="amenu" hidden></div>'
               f'<div class="sheet" id="sheet" hidden><div class="sheetbox">'
               f'<input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game">'
-              f'<div id="qout" class="qout"></div></div></div>')
+              f'<div id="qout" class="qout"></div></div></div>'
+              # Outside <header>, like the drawer and the sheet: .hdr carries
+              # backdrop-filter, which makes it the containing block for anything
+              # fixed inside it, and this is fixed to the window.
+              f'<nav class="tabbar" aria-label="Quick links">'
+              f'<button class="tbb" data-search type="button">{ICON_SEARCH}'
+              f'<span>Search</span></button>'
+              f'<a class="tbb" href="/#favs" data-tb="favs">{ICON_STAR}'
+              f'<span>Saved</span></a>'
+              f'<a class="tbb" href="/events" data-tb="events">{ICON_CAL}'
+              f'<span>Events</span></a></nav>')
     # The band holding the logo has to be as wide as the column of words below it, or
     # the logo does not sit above what it belongs to. A reading page is 820px, a wide
     # page 1400px, and a wide page with the ad rails up is narrower still between 1480
@@ -1497,7 +1605,12 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <div class="gpick" id="gpick"></div>
 <nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
 <a href="/?for=quiet" data-hn="quiet">Quiet now</a>
-<a href="/popular" data-hn="popular">Popular</a></nav><div class="gap"></div>
+<a href="/popular" data-hn="popular">Popular</a>
+<a class="more" href="/growing" data-hn="growing">Growing</a>
+<a class="more" href="/shrinking" data-hn="shrinking">Shrinking</a>
+<a class="more" href="/events" data-hn="events">Events</a>
+<a class="more" href="/compare" data-hn="compare">Compare</a>
+<a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 {buttons}</div></div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}{' wideads' if SHOW_RAILS and wide else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
@@ -1970,12 +2083,16 @@ def scrub(svg, h, labels, ys, texts, hues):
     n = len(labels)
     pts = [[round(i / (n - 1) * 100, 2), [round(y / h * 100, 2) for y in ys[i]], texts[i]]
            for i in range(n)]
-    dots = "".join(f'<b class="sdot" style="background:var(--{c})"></b>' for c in hues)
+    dots = "".join(f'<b class="sdot" style="border-color:var(--{c})"></b>' for c in hues)
+    pdots = "".join(
+        f'<b class="pdot" style="left:{pt[0]}%;top:{pt[1][k]}%;'
+        f'background:var(--{c})"></b>'
+        for pt in pts for k, c in enumerate(hues))
     return (f'<div class="scrub" tabindex="0" role="group" aria-label="Drag across the '
             f'graph, or use the arrow keys, to read any day" '
             f'data-scrub="{html.escape(json.dumps(pts, separators=(",", ":")))}">{svg}'
-            f'<i class="sline" hidden></i>{dots}</div>'
-            f'<p class="readout" aria-live="polite"></p>')
+            f'<i class="sline" hidden></i>{pdots}{dots}</div>'
+            f'<p class="readout chartout" aria-live="polite"></p>')
 
 
 def sparkline(daily, spikes):
@@ -2920,6 +3037,14 @@ var hkey=hs.indexOf('for=busy')>-1?'busy'
 return seg==='popular'||seg==='popular.html'})()?'popular':'';
 if(hkey)Array.prototype.forEach.call(document.querySelectorAll('.hnav a[data-hn]'),
 function(a){if(a.getAttribute('data-hn')===hkey)a.className='on'});
+/* The bar across the bottom of a phone marks itself the same way. Saved games are
+   a block on the homepage rather than a page of their own, so that one lights up
+   on the homepage when the address names it. */
+var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+var tkey=(hseg2==='events')?'events'
+:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
+function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 
 /* Light and dark. Starts on whatever the device prefers; once the button is pressed
    that choice is remembered and wins from then on. */
@@ -3198,7 +3323,8 @@ var d=r.map(function(i,n){return (n?'L':'M')+x(i).toFixed(1)+' '+y(vals[i]).toFi
 line+=d+' ';
 if(r.length>1)wash+=d+' L'+x(r[r.length-1]).toFixed(1)+' '+bot+' L'+x(r[0]).toFixed(1)+' '+bot+' Z ';
 r.forEach(function(i){dots+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(vals[i]).toFixed(1)+
-'" r="3.5" fill="var(--'+hue+')"/>'})});
+'" r="4" fill="var(--'+hue+')" stroke="var(--ink)" stroke-width="1.5" '+
+'vector-effect="non-scaling-stroke"/>'})});
 return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+label+'" '+
 'tabindex="0">'+
 '<defs><linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">'+
@@ -3221,8 +3347,8 @@ Math.round(R.f).toLocaleString()+'</text>'+
 'vector-effect="non-scaling-stroke" '+
 'stroke-linejoin="round" stroke-linecap="round"/>'+dots+
 '<g class="cursor" opacity="0"><line y1="'+top+'" y2="'+bot+'" stroke="var(--ink)" '+
-'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6" fill="var(--'+hue+')" '+
-'stroke="var(--solid)" stroke-width="2.5"/></g></svg>'}
+'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6.5" fill="var(--ink)" '+
+'stroke="var(--'+hue+')" stroke-width="2.5" class="lockdot"/></g></svg>'}
 
 /* Lets people drag or click along a graph to read off any hour. Works with a mouse,
    a finger, and the arrow keys, and falls back to doing nothing if the browser
@@ -3243,14 +3369,17 @@ function rest(){
 if(!out)return;
 out.innerHTML=last<0?'':'<b>'+fmt(last)+'</b> &middot; about <b>'+
 vals[last].toLocaleString()+'</b> players'}
+var gLastMouse=null;
 function show(i){
-if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;rest();return}
+if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;rest();tipHide();return}
 at=i;
 var x=P+i*(W-P*2)/23,y=bot-((vals[i]-R.f)/rng)*span;
 line.setAttribute('x1',x);line.setAttribute('x2',x);
 dot.setAttribute('cx',x);dot.setAttribute('cy',y);
 g.setAttribute('opacity','1');
-if(out)out.innerHTML='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players'}
+var txt='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players';
+if(out)out.innerHTML=txt;
+if(gLastMouse)tipShow(txt,gLastMouse[0],gLastMouse[1])}
 function fromX(clientX){
 var r=svg.getBoundingClientRect();
 if(!r.width)return -1;
@@ -3263,10 +3392,13 @@ if(cx==null)return;
 if(t)e.preventDefault();          /* stop the page scrolling while dragging the graph */
 show(fromX(cx))}
 var down=false;
-svg.addEventListener('mousedown',function(e){down=true;move(e)});
-svg.addEventListener('mousemove',function(e){if(down||e.buttons===0)move(e)});
+svg.addEventListener('mousedown',function(e){gLastMouse=[e.clientX,e.clientY];
+down=true;move(e)});
+svg.addEventListener('mousemove',function(e){gLastMouse=[e.clientX,e.clientY];
+if(down||e.buttons===0)move(e)});
 window.addEventListener('mouseup',function(){down=false});
-svg.addEventListener('mouseleave',function(){if(!down)show(-1)});
+svg.addEventListener('mouseleave',function(){gLastMouse=null;tipHide();
+if(!down)show(-1)});
 svg.addEventListener('touchstart',move,{passive:false});
 svg.addEventListener('touchmove',move,{passive:false});
 svg.addEventListener('keydown',function(e){
@@ -3300,6 +3432,27 @@ var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
 return ss+'s'}
+/* The box that follows the pointer on a computer, in place of the line of text
+   under the chart. One box for every chart on the page: it is moved and refilled
+   rather than made again, so a page with four charts still has one of them.
+   It is only ever shown for a mouse. A finger covers the thing it is pointing at,
+   so on a touch screen the readout under the chart is still the answer - which is
+   why that line is hidden by CSS at 900px and not deleted. */
+var chtip=null;
+function tipEl(){
+if(!chtip){chtip=document.createElement('div');chtip.className='chtip';
+chtip.setAttribute('aria-hidden','true');document.body.appendChild(chtip)}
+return chtip}
+function tipShow(html,cx,cy){
+var t=tipEl();t.innerHTML=html;t.className='chtip on';
+var w=t.offsetWidth,h=t.offsetHeight,pad=14;
+var x=cx+pad,y=cy-h-pad;
+if(x+w>window.innerWidth-6)x=cx-w-pad;
+if(x<6)x=6;
+if(y<6)y=cy+pad;
+t.style.left=x+'px';t.style.top=y+'px'}
+function tipHide(){if(chtip)chtip.className='chtip'}
+
 /* Makes a chart drawn at build time draggable, the way graphCursor does for the
    hourly graph: drag, hover, tap, touch-drag sideways, or the arrow keys. The
    positions come ready-made from scrub() in build_site.py as percentages of the
@@ -3312,20 +3465,25 @@ var ln=el.querySelector('.sline'),dots=el.querySelectorAll('.sdot'),
 out=el.nextElementSibling,at=-1,down=false;
 /* The same rule as the hourly graph: at rest this says the most recent point
    rather than nothing, so the line under the chart is never an unexplained gap. */
-function rest(){if(out)out.innerHTML=P[P.length-1][2]}
+var lastMouse=null;
+function rest(){if(out)out.innerHTML=P[P.length-1][2];tipHide()}
 function show(i){
 if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;rest();return}
 at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
 for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
-el.classList.add('on');if(out)out.innerHTML=p[2]}
+el.classList.add('on');if(out)out.innerHTML=p[2];
+if(lastMouse)tipShow(p[2],lastMouse[0],lastMouse[1])}
 function fromX(cx){var r=el.getBoundingClientRect();if(!r.width)return -1;
 return Math.max(0,Math.min(P.length-1,Math.round((cx-r.left)/r.width*(P.length-1))))}
-el.addEventListener('pointerdown',function(e){down=true;show(fromX(e.clientX))});
+el.addEventListener('pointerdown',function(e){down=true;
+lastMouse=e.pointerType==='mouse'?[e.clientX,e.clientY]:null;show(fromX(e.clientX))});
 el.addEventListener('pointermove',function(e){
+lastMouse=e.pointerType==='mouse'?[e.clientX,e.clientY]:null;
 if(down||e.pointerType==='mouse')show(fromX(e.clientX))});
 window.addEventListener('pointerup',function(){down=false});
 el.addEventListener('pointercancel',function(){down=false});
-el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!down)show(-1)});
+el.addEventListener('pointerleave',function(e){lastMouse=null;tipHide();
+if(e.pointerType==='mouse'&&!down)show(-1)});
 el.addEventListener('keydown',function(e){
 if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
 show(at<0?(e.key==='ArrowRight'?0:P.length-1):
@@ -3588,6 +3746,27 @@ var any=false;Array.prototype.forEach.call(fg.children,function(c){if(!c.hidden)
 $('favs').hidden=!any}
 PT.ready(favs);
 refresh();"""
+
+# The saved-games block at the top of the event calendar. Copies of the rows that
+# are already on the page rather than a second list built from scratch, so the two
+# can never disagree about when something starts.
+#
+# PT.ready runs this now AND again once /api/me has answered, which is what makes a
+# signed-in person's games appear without a reload: their list arrives from the
+# server a moment after the page does.
+MYEVTS_JS = """<script>(function(){
+var box=document.getElementById('myevts');if(!box)return;
+var ul=box.querySelector('ul');
+function draw(){
+var favs=getFavs(),out=[];
+Array.prototype.forEach.call(document.querySelectorAll('.evt li[data-s]'),function(li){
+if(li.closest('#myevts'))return;
+if(favs.indexOf(li.getAttribute('data-s'))>-1)out.push(li.cloneNode(true))});
+ul.innerHTML='';
+out.forEach(function(li){ul.appendChild(li)});
+box.hidden=!out.length}
+PT.ready(draw)})();</script>"""
+
 
 COMPARE_JS = """var A=null,B=null,day=nowDay(),DATA=null;
 function opts(sel,pick){DATA.games.forEach(function(g){var o=document.createElement('option');
@@ -5178,9 +5357,11 @@ def main():
 
 
     # ---- homepage
-    # Two numbers worth saying out loud, because they are the reason to trust the rest
-    # of the site: how many games we watch and how many readings we have taken.
-    total_samples = sum(c["samples"] for c in cards)
+    # The readings count used to print here as well, as the reason to believe the
+    # rest of the site. The owner would rather the page opened on the thing itself,
+    # and nothing a search engine ranks on goes with it: the games tracked is still
+    # in the lede, and every game page writes its own sample count out in full,
+    # which is where anybody checking our working would look.
     top = cards[0] if cards else None
     body = (
         '<div class="hero rise"><h1>Roblox player counts and the <em>best times</em> to play</h1>'
@@ -5190,8 +5371,7 @@ def main():
         # are not what somebody arriving needs to read first.
         f'<p class="lede">The quietest and busiest hours for {len(cards)} Roblox games, '
         f'in your own timezone.</p>'
-        f'<p class="mut small">From {total_samples:,} player counts we have taken '
-        f'ourselves, about every 10 minutes.</p></div>'
+        f'</div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
         + ask_html()
         # The categories used to be a bare row of pills under the chooser, with nothing
@@ -5240,7 +5420,7 @@ def main():
     list_page("popular", seo_title("Most Played Roblox Games by Player Count"),
               "Most played Roblox games right now",
               f"All {len(cards)} games we track, ranked by how many people are in the game at a "
-              f"typical moment over the last 7 days. Rebuilt four times a day.",
+              f"typical moment over the last 7 days.",
               cards,
               "Roblox game rankings by live player count: the most played games we track, "
               "with typical and peak players for each. Updated four times a day.",
@@ -5293,8 +5473,9 @@ def main():
     def ev_list(items):
         out = []
         for e in items[:40]:
-            out.append(f'<li class="{"live" if e["start"] <= now else "soon"}">'
-                       f'<b><a href="/game/{e["slug"]}">{html.escape(e["game"])}</a>: '
+            out.append(f'<li class="{"live" if e["start"] <= now else "soon"}" '
+                       f'data-s="{e["slug"]}">'
+                       f'<b><a href="/game/{e["slug"]}">{html.escape(e["game"])}</a>: ' 
                        f'{html.escape(e["title"])}</b>'
                        + (f'<span class="d">{html.escape(e["subtitle"])}</span>'
                           if says_something(e["subtitle"]) else "")
@@ -5309,6 +5490,10 @@ def main():
         seo_title("Roblox Game Events Calendar: On Now and Next"),
         '<div class="hero"><h1>Roblox game events calendar</h1><p class="lede">Events and updates the game creators '
         'themselves have put on the Roblox calendar, for every game we track. Expect these hours to be busy.</p></div>'
+        '<section id="myevts" hidden><h2 style="margin-top:22px">Your saved games</h2>'
+        '<ul class="evt"></ul>'
+        '<p class="mut small">Want telling before one starts? '
+        '<a href="/notifications">Turn on Events for a game</a>.</p></section>' 
         + (f'<h2 style="margin-top:22px">Happening now</h2>{ev_list(live)}' if live else "")
         + (f'<h2 style="margin-top:26px">Coming up</h2>{ev_list(soon)}' if soon else "")
         + ("" if live or soon else '<p class="none">No events are listed right now. Creators usually '
@@ -5317,6 +5502,7 @@ def main():
         "Every upcoming Roblox game event and update we know about, with the dates they run "
         "and the games they belong to.",
         nav="events", canon="/events",
+        tail=MYEVTS_JS,
         trail=[("All games", "/"), ("Events", "/events")],
         noindex=not (live or soon), modified=iso_day(now)))
 
