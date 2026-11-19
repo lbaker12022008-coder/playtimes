@@ -1015,6 +1015,17 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
     in the bar also carry `more`, the class that keeps them out of a narrow bar,
     and overwriting it put the one you were on back on screen at widths with no
     room for it.
+  - **All EIGHT links wear the mark, not the first three** (19 Nov 2026, owner's
+    call). The stylesheet had treated them alike from the start - one `.hnav a.on`
+    rule with the underline and its glow - but `hkey` in `CHROME_JS` could only
+    ever come out `busy`, `quiet` or `popular`, so standing on Growing,
+    Shrinking, Events, Compare or Plan the bar said nothing about where you were.
+    Each of those five is a page of its own, so the file name is the answer
+    (`hseg`); busy and quiet are the homepage asked a question, so they still come
+    off the query string. **`hseg` is read once and the bottom bar's `tkey` uses
+    the same value** - it had its own identical copy as `hseg2`. If a ninth
+    section is ever added to `TABS`, its name goes in that list or it will be the
+    one page in the bar that never lights up.
   - **The bar across the bottom of a phone is four now: Search, Saved, Events,
     Plan** (19 Nov 2026). Anything in that bar is hidden from the panel below
     900px (`.drawer nav a[data-sec=events]`, `[data-sec=plan]`), because the
