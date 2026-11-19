@@ -19,6 +19,13 @@
 --l1:#A8EBCB;--l2:#A4D967;--l3:#EEA830;--l4:#EC8A58;--l5:#E26D68;--up:#047857;--down:#B3203F;
 --soft:#F3E8FF;--favbg:#F3E8FF;--favink:#6B21A8;--shade:rgba(10,10,15,.05);--bannerop:.14;
 --glowh:272;--glowa:.32}
+/* The light a control wears when it is pointed at: a ring that follows its border
+   and a short glow beyond it. It lived on .chip,.pills a and nowhere else, so every
+   other box-shadow:var(--rim) in this sheet - the bells, the notification switches -
+   resolved to an invalid value and drew NOTHING, which is not a thing you notice
+   unless you measure it. On :root it reaches every control, and it still reads off
+   --glowh and --glowa, so it stays in step with the tiles in both themes. */
+:root{--rim:0 0 0 1px hsl(var(--glowh) 92% 62%/.5),0 0 12px hsl(var(--glowh) 92% 62%/var(--glowa))}
 /* Widths only apply once there is room for them. Below 900px every card is full
    width again, because two columns of this on a phone is unreadable. */
 @media(min-width:900px){
@@ -34,6 +41,15 @@
    then drops its own search row so the same control is not offered twice. */
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
+.dtop .hnavrow{display:none}
+.dtop .hnavrow{display:none}
+/* The three ways in move from the panel into the bar, the same swap.
+   `.hdr .hnav`, not `.hnav`: the base `.hnav{display:none}` is a one-class rule
+   written further down the sheet, a media query adds no specificity, and a plain
+   `.hnav` here simply lost to it - the bar stayed empty at every width. Same trap
+   as `.hdr .nots`, `.acct .acctb` and `.shell>.w` before it. */
+.hdr .hnav{display:block}
+.dtop .hnavrow{display:none}
 /* From 900px the bar carries the name, the bell and the magnifier, so the panel
    stops offering the same two things a second time.
    Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
@@ -92,7 +108,7 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    446px, 404px at 1920px). Asking for the full width and capping it with max-width
    makes every page the same width and lines them all up under the header. */
 .w{width:100%;max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:min(1400px,100%)}
+.w.wide{max-width:min(1200px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
    when there is something to put in them. */
@@ -115,7 +131,7 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    of .shell gives them the weight to survive, the same trick the wide pages got
    for free. Keep them after .shell>*, and keep the min(...,100%) form. */
 .shell>.w{max-width:min(820px,100%)}
-.shell>.w.wide{max-width:min(1400px,100%)}
+.shell>.w.wide{max-width:min(1200px,100%)}
 .rail{display:none}
 .shell.ads{gap:20px}
 /* The rails belong beside the words, not out at the edges of the screen. A 1fr
@@ -125,17 +141,14 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    page actually uses lets justify-content centre all three together instead.
    minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
    wide pages instead of scrolling sideways. */
-@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
-.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
-.shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
-/* With the rails up the middle column is no longer 1400px: the three tracks need
-   1776px between them, so from 1480 to 1776 the middle one shrinks and the band
-   holding the logo has to shrink with it, or the logo drifts left of the words
-   again - 88px out at 1600px. 376px is the two 168px rails plus the two 20px
-   gaps. .wideads is only put on the header when the rails are up AND the page is
-   wide, so this can never reach a reading page (which stays capped at 820px by
-   .hdr.narrow, a selector of exactly the same weight). */
-@media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
+@media(min-width:1380px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1200px) 168px}
+.shell.ads .rail{display:block;position:sticky;top:112px;align-self:start;height:600px;overflow:hidden}}
+/* The ad rails used to shrink the bar as well, so the logo kept sitting above the
+   first word: 376px (two 168px rails and two 20px gaps) came off the band between
+   1380 and 1576px. That is 196px at 1440px - the commonest laptop width there is -
+   and it pushed the last two links in the bar off the edge of it. The band holds
+   at 1200px now whatever else is on the page. See the note by .hdr .in. */
 /* The strip along the bottom only exists at all when ads are switched on, and it is
    the ONLY ad slot a phone or a tablet ever sees: the side rails need 1480px. It used
    to start at 900px, which meant every phone and an iPad held upright showed no ads
@@ -148,10 +161,53 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    position:sticky, not fixed: a sticky element still takes its space at the end of
    the page, so the footer is never left permanently hidden underneath it - and a
    fixed one would be trapped by the backdrop-filter above it anyway. */
-.railb{display:block;position:sticky;bottom:0;z-index:8;
+/* The bar across the bottom of a phone. Fixed, so it is there wherever the page
+   has been scrolled to - the point of it is that a thumb reaches the bottom of a
+   phone and not the top corner.
+   z-index 9 matches the header: above the page and above the bottom ad strip (8),
+   below the scrim (25) and the drawer and sheet (30), so an open menu still covers
+   it. The ad strip is pushed up by exactly this bar's height rather than being
+   covered, and .shell gets the same padding so the footer is not hidden under it
+   either - the two were the things that broke when this was first tried. */
+/* The three ways in, as buttons across the homepage, under the search box. They
+   are in the bar across the top on a computer and there is no room for them there
+   on a phone, so on a phone they come back to the one page everybody starts on.
+   The base rule and the media query are written NEXT TO EACH OTHER on purpose:
+   both are one class, a media query adds no specificity, and source order is all
+   that decides it - the trap this stylesheet keeps setting. */
+.homenav{display:none}
+@media(max-width:899px){.homenav{display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 2px}}
+.homenav a{display:flex;align-items:center;justify-content:center;text-align:center;
+min-height:46px;padding:9px 6px;border:1px solid var(--line);border-radius:12px;
+background:var(--card);color:var(--ink);text-decoration:none;font-weight:700;
+font-size:.9rem;line-height:1.2}
+.homenav a:hover,.homenav a:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.homenav a.on{border-color:var(--acc);color:var(--acc)}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));background:var(--glass);
+backdrop-filter:saturate(1.4) blur(12px);border-top:1px solid var(--line);
+padding-bottom:env(safe-area-inset-bottom)}
+.tabbar .tbb{display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:3px;min-height:56px;padding:7px 4px 8px;border:0;background:none;cursor:pointer;
+color:var(--mut);font:inherit;font-size:.72rem;font-weight:700;text-decoration:none;
+position:relative}
+.tabbar .tbb svg{width:21px;height:21px;fill:currentColor}
+.tabbar .tbb:hover,.tabbar .tbb:focus-visible{color:var(--ink)}
+.tabbar .tbb.on{color:var(--acc)}
+/* The same underline the tabs across a game's pages wear, so the two read as one
+   idea: here is where you are. */
+.tabbar .tbb.on::after{content:'';position:absolute;left:28%;right:28%;top:0;height:3px;
+border-radius:0 0 3px 3px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
+@media(min-width:900px){.tabbar{display:none}}
+.shell{padding-bottom:62px}
+@media(min-width:900px){.shell{padding-bottom:0}}
+.railb{display:block;position:sticky;bottom:62px;z-index:8;
 background:var(--glass);backdrop-filter:blur(10px);border-top:1px solid var(--line);
 padding:6px;text-align:center;height:66px}
-@media(min-width:900px){.railb{height:98px}}
+@media(min-width:900px){.railb{height:98px;bottom:0}}
 .adbox{width:100%;height:100%;border:1px dashed var(--line);border-radius:12px;color:var(--mut);
 display:grid;place-items:center;font-size:.8rem;background:var(--shade);text-align:center;padding:8px}
 a{color:var(--acc)}
@@ -211,19 +267,50 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-/* One slim bar, about 62px tall, holding four things. */
-.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 16px}
+/* One slim bar, about 52px tall, holding four things. */
+.hdr .in{max-width:min(1200px,100%);margin:0 auto;padding:7px 16px}
 /* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
    the words below it start, and the phone block already pairs them at 14px. */
-/* The bar's contents sit over the page's contents, so the band holding the logo
-   has to be as wide as the column underneath it - 1400px on the wide pages, 820px
-   on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
-   About, Events, Compare and Plan stood about 290px to the left of the words it
-   was supposed to be sitting above, because an 820px column is centred inside a
-   1400px band. .hdr itself still spans the whole screen; only what is inside it
-   moves, so the bar does not change shape from page to page. */
-.hdr.narrow .in{max-width:min(820px,100%)}
+/* The band is the SAME on every page, and that is the point of it. It used to
+   follow the column underneath - 820px on a reading page so the logo sat exactly
+   above the first word - which meant that clicking Events, Compare or Plan in the
+   bar shrank the bar itself by 244px, slid the logo 122px to the right and squeezed
+   the eight links into a scrolling strip. A cap being respected, and it read as the
+   page breaking. The logo now sits left of the words on a reading page, which is
+   what most sites do and what nobody notices, and the bar never changes shape. */
 .hrow{display:flex;align-items:center;gap:12px}
+/* The same shape as the tabs across a game's pages, because they do the same job:
+   here is where you are, here is what else there is. Hidden below 900px, where the
+   bar has room for the logo, the game picker and two buttons and nothing else -
+   the panel behind the three lines carries the same three links at that width, the
+   trick the search magnifier and the bell already use. */
+/* min-width:0 and the overflow are the net under all of this: .hnav is a flex item
+   in a nowrap row, and a flex item is sized to its contents unless told it may
+   shrink - so a link too many pushed the whole bar wider than the phone it was on.
+   It can scroll inside itself now and the page never moves. */
+/* flex:0 0 auto - the sections do not shrink. They used to (0 1 auto), which is
+   what let a long name squeeze them; the overflow is kept as a last net rather
+   than as the usual case. */
+.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 0 auto;
+overflow-x:auto;scrollbar-width:none}
+.hnav::-webkit-scrollbar{display:none}
+/* Three links at 900px, all eight once there is room for them. Eight at 900 was
+   measured dragging a 900px window sideways; the panel keeps the other five until
+   the bar can really hold them. */
+.hnav a.more{display:none}
+@media(min-width:1200px){.hdr .hnav a.more{display:inline-block}}
+/* 11px and .9rem are measured, not chosen: at 12px and .93rem the eight links came
+   to 606px and the bar could spare 595 with somebody signed in, so Plan sat over the
+   edge and the whole strip scrolled. */
+.hnav a{display:inline-block;margin:0 11px 0 0;padding:6px 1px 7px;color:var(--mut);
+text-decoration:none;font-weight:700;font-size:.9rem;position:relative}
+.hnav a:hover,.hnav a:focus-visible{color:var(--ink)}
+.hnav a.on{color:var(--ink)}
+/* Half the height and about a third of the glow of the one on a game's tabs. The
+   same mark at the same size among eight small links read as a highlighter pen. */
+.hnav a.on::after{content:'';position:absolute;left:1px;right:1px;bottom:1px;height:2px;
+border-radius:2px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 4px hsl(var(--glowh) 92% 72%/.8),0 0 8px hsl(var(--glowh) 92% 72%/.4)}
 .hrow .gap{flex:1 1 auto}
 /* The account lives in the bar, beside the search, rather than inside the panel
    behind the three lines: it is the one control that says something about the
@@ -276,7 +363,15 @@ border:1px solid var(--line);background:var(--shade)}
    inside the 900px block, the same way .deskonly works, so the phone case is the
    default and a new width cannot accidentally reveal them. */
 .nots,.acctbar{display:none;flex:none}
-.acctb{display:flex;align-items:center;gap:8px;max-width:210px;height:42px;
+/* A long Roblox display name made the pill 182px instead of 94px and pushed
+   Compare and Plan off the end of the bar - at EVERY width, 1920px included,
+   because the band is capped at 1200px however wide the screen is. The bar is
+   navigation first, so the sections hold their width (.hnav is flex:0 0 auto
+   below) and the NAME gives way instead: min-width:0 all the way down to .albl,
+   which already has the ellipsis. The whole name is still one press away, written
+   across the button the menu hangs from. */
+.acctbar{flex:0 1 auto;min-width:0}
+.acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
@@ -285,8 +380,8 @@ color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
-.albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-font-size:.9rem}
+.albl{max-width:128px;min-width:0;flex:0 1 auto;overflow:hidden;
+text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
 /* The menu under the name in the bar (17 Nov 2026). It holds what the panel used to
    hold for a signed-in person on a computer - who you are and the way out - so the
    panel drops its own copy from 900px up and there is still only ever one of each.
@@ -340,11 +435,38 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
    rather than SVG circles because these charts stretch to fit with
    preserveAspectRatio none, which would squash a circle into an oval. */
 .scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+/* The verdict sits right on top of this one, so it gets air above it as well as a
+   taller box - squeezed between two blocks of text it read as a smudge. */
+#dead .scrub{margin:12px 0 4px}
+#dead .verdict{margin-top:12px}
 .scrub>svg{margin:0}
+/* The box that follows the pointer across a chart. Fixed to the window and put on
+   <body>, so no card can clip it and no stacking context can bury it. Mouse only:
+   under a finger it would be behind the finger, which is why the line of text
+   under the chart stays on a phone and this takes its place on a computer. */
+.chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
+background:var(--solid);border:1px solid var(--line);border-radius:12px;
+padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
+max-width:260px;white-space:nowrap}
+.chtip.on{opacity:1}
+@media(min-width:900px){.readout.chartout{display:none}}
+/* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
+.graph .lockdot{filter:drop-shadow(0 0 4px hsl(var(--glowh) 92% 66%/.9))}
 .scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
 pointer-events:none;transform:translateX(-.75px)}
-.scrub .sdot{position:absolute;width:12px;height:12px;border-radius:50%;
-border:2.5px solid var(--solid);transform:translate(-50%,-50%);pointer-events:none;display:none}
+/* Every reading on the line, so the chart shows what it is made of rather than
+   only the shape of it. Purple like the line it belongs to, with a thin ring in
+   the page's ink so one dot is still tellable from the next where they crowd. */
+.scrub .pdot{position:absolute;width:8px;height:8px;border-radius:50%;
+border:1.5px solid var(--ink);transform:translate(-50%,-50%);pointer-events:none;
+opacity:.95}
+/* The one being read is the other way round - ink filled, ringed in the line's own
+   colour, with a little glow - so it reads as "this one" and never as another
+   point that happens to be bigger. */
+.scrub .sdot{position:absolute;width:13px;height:13px;border-radius:50%;
+background:var(--ink);border:2.5px solid var(--acc);transform:translate(-50%,-50%);
+pointer-events:none;display:none;
+box-shadow:0 0 7px hsl(var(--glowh) 92% 66%/.85),0 0 16px hsl(var(--glowh) 92% 66%/.5)}
 .scrub.on .sdot{display:block}
 .hleg{margin:0 0 6px;font-size:.85rem;line-height:1.6;color:var(--mut)}
 .hleg .k{display:inline-block;width:13px;height:3px;border-radius:2px;
@@ -373,6 +495,14 @@ a.bellb{text-decoration:none}
 .nextline:empty{display:none}
 .nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
 .actions .bellb{margin:0}
+/* A bell on a calendar row: smaller than one under a heading, because it is one of
+   forty and the row above it is the thing being read. :empty is what keeps a row
+   that cannot offer one from holding a gap open - the same trick .acct uses. */
+.evt .evbell{display:block}
+.evt .evbell .bellb{margin:9px 0 2px;padding:5px 12px;font-size:.78rem}
+.evt .evbell .bellb svg{width:13px;height:13px}
+#planbell{margin:12px 0 2px}
+#planbell:empty{display:none}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -438,6 +568,17 @@ box-shadow:var(--sh);padding:8px;max-height:calc(100vh - 88px);overflow-y:auto;
 animation:dropin .15s ease both}
 .drawer[hidden]{display:none}
 /* The panel's top section: the controls that are in the header on a wide screen. */
+/* The panel never offers search: the bar across the top carries a magnifier from
+   900px up, and the bar across the bottom of a phone carries one below that. Two
+   buttons for one sheet in one menu is the thing this header keeps avoiding. */
+.dtop .drow[data-search]{display:none}
+/* Same for the event calendar and Plan a session, which are in that bottom bar -
+   but only on a phone, since the bottom bar is not there on a computer. */
+@media(max-width:899px){.drawer nav a[data-sec=events],
+.drawer nav a[data-sec=plan]{display:none}}
+/* The sections leave the panel only once the bar is wide enough to show all of
+   them, which is 1200px - not 900, where only the first three fit. */
+@media(min-width:1200px){.drawer nav a[data-sec]{display:none}}
 .dtop{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;padding-bottom:10px;
 border-bottom:1px solid var(--line)}
 /* The theme button, under the sections. Its own block so the rule above it stays
@@ -628,9 +769,27 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
 
 /* charts */
+/* The chooser reads as one question with two answers, instead of a label on one
+   row and two buttons on another. */
+.planpick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 2px}
+.planpick .days{margin:0}
+#session .cd{font-size:1.5rem}
+#session #plantxt{margin:6px 0 2px}
+/* The bell is the last thing in this card now, so its margin belongs above it.
+   .bellb carries a bottom margin for the bells that sit UNDER a heading, which
+   left this one jammed against the sentence and hanging off the bottom. */
+#session .bellb{margin:14px 0 2px}
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
+/* Quiet/Busy in Plan my session and the days of the week under the hourly graph are
+   the same control, so one rule covers both. The rim follows the border and stops
+   there, the way the chips and the category pills do, rather than the tile glow
+   that sits behind a whole card. The chosen one keeps its filled accent and only
+   gains the glow, so hovering cannot be mistaken for choosing. */
+.days button:hover,.days button:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.days button:not([aria-pressed=true]):hover,
+.days button:not([aria-pressed=true]):focus-visible{color:var(--ink);font-weight:700}
 .bars{margin-top:12px}
 /* The compare page still puts two games side by side as columns. */
 .bars.cols{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:170px}
@@ -648,9 +807,21 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
 .hm .c{height:26px;border-radius:4px}
 .hm .now{outline:2px solid #10131c;outline-offset:-1px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.82)}
+/* Every square answers when it is pointed at or pressed. The ring is the ACCENT
+   and sits outside the square, where .now's is white and inside it - drawn the
+   same way the two were indistinguishable on the grid, and "right now" and "the
+   one you picked" are different answers to different questions. It is a ring and
+   never a fill, so it cannot be mistaken for a sixth band of the traffic light. */
+.hm .c[data-d]{cursor:pointer}
+/* padding:0 is NOT spare. `.sel` is also the class on every <select> on the site
+   (.sel{padding:10px 13px}, further down and one class), and a one-class rule that
+   declares something this one does not simply applies - so the square you tapped
+   picked up a dropdown's padding and went from 11x17 to 28x22 on a phone. It was
+   hidden for as long as the tapped square was scaled up anyway. */
+.hm .c.sel{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:5px;padding:0}
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
-.spark{width:100%;height:80px;display:block}
+.spark{width:100%;height:190px;display:block}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:12px}
 .stats b{display:block;font-size:1.5rem}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
@@ -666,8 +837,44 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 .ghead>div{flex:1 1 280px}
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
+/* The three at the top of a game page are one set of buttons and are sized as one.
+   Two classes, so this beats the single-class rules for each of them wherever they
+   fall in the sheet - including the phone block, which shrinks .btn and .fav by
+   different amounts and so would pull them apart again. The transparent border on
+   .btn is not spare: a 1px border adds 2px of height, so without it the filled
+   button would sit 2px shorter than the two outlined ones. */
+.actions .btn,.actions .fav,.actions .bellb{display:inline-flex;align-items:center;
+justify-content:center;gap:8px;margin:0;padding:10px 18px;border-radius:13px;
+border:1px solid transparent;font-size:.95rem;font-weight:700;line-height:1.3;
+min-height:46px}
+.actions .fav,.actions .bellb{border-color:var(--line);background:var(--card);color:var(--ink)}
+.actions .bellb svg{width:16px;height:16px}
+.gcat{margin:8px 0 0;font-size:.92rem}
+.gcat a{color:var(--acc);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+/* The tabs across a game's pages. Written as a BLOCK with nowrap, never a nowrap
+   flex row: a nowrap flex container reports the full width of its items as its own
+   max-content width and drags its parent out with it, even while it scrolls - which
+   is what the category pills did to the homepage on a phone. The rule sits under the
+   whole row and the chosen tab covers its own inch of it, so the two must stay on
+   the same pixel: hence the -1px bottom margin against the row's 1px border. */
+.gtabs{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;
+margin:14px 0 0;border-bottom:1px solid var(--line);scrollbar-width:none}
+.gtabs::-webkit-scrollbar{display:none}
+.gtab{position:relative;display:inline-block;margin:0 20px -1px 0;padding:9px 1px 12px;
+color:var(--mut);text-decoration:none;font-weight:700;font-size:.97rem}
+.gtab:hover,.gtab:focus-visible{color:var(--ink)}
+.gtab.on{color:var(--ink)}
+/* hsl off --glowh rather than --acc, because the bar wants to be LIGHTER than the
+   accent in both themes - light mode's accent is a deep purple that reads as a
+   shadow here, not a glow. --glowh is set in the light palette and never
+   overridden, so it is the one hue both themes share. */
+.gtab.on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;
+border-radius:3px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
+.fav:hover,.fav:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.btn:hover,.btn:focus-visible{box-shadow:var(--sh),var(--rim)}
 .fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .vbadge{font-size:1.05rem;font-weight:800;padding:8px 16px;border-radius:999px;white-space:nowrap;color:#10131c}
@@ -722,10 +929,20 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .crumbs span[aria-current]{color:var(--ink);font-weight:600}
 /* The facts list under each game's heading. Written into the page by the builder,
    not by the browser, so a search engine reads the numbers without running any code. */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px 18px;margin:10px 0 0}
-.facts div{min-width:0}
-.facts dt{font-size:.85rem;color:var(--mut)}
-.facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
+/* Written in the graph itself, so it needs no room under it. */
+.gsc{fill:var(--mut);font-size:15px;font-weight:700;opacity:.75}
+/* One row per fact: what it is on the left, the number on the right, a hairline
+   between. It used to be a grid of auto-fitting columns, each holding a label, a
+   number and a note stacked three deep - so at two or three columns wide nothing
+   lined up with anything and you could not tell which number belonged to which
+   label. A list reads down; that is the whole fix. */
+.facts{display:block;margin:12px 0 0}
+.facts div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
+.facts div:last-child{border-bottom:0;padding-bottom:0}
+.facts dt{font-size:.95rem;color:var(--ink);font-weight:600;min-width:0}
+.facts dt span{display:block;font-size:.8rem;color:var(--mut);font-weight:400;margin-top:1px}
+.facts dd{margin:0;font-weight:800;font-size:1.12rem;white-space:nowrap;text-align:right}
 /* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
    Collapsed text is still read by search engines, and it works with no JavaScript. */
 .hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
@@ -780,9 +997,26 @@ h2{font-size:1.06rem}
 /* all seven days fit across, so the chart below does not jump when you change day */
 .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
 .days button{padding:6px 0;font-size:.82rem}
+/* ...but Plan my session has two buttons, not seven, and the seven-column grid
+   left each of them about 48px wide on a phone - a target smaller than a
+   fingertip, carrying a word that did not fit in it. */
+/* width:100% is not spare. #planbtns is a grid INSIDE a flex row, and a flex item
+   is sized to its contents unless told otherwise - so 1fr resolved to the width of
+   the word in the button and the two stayed 43px wide, exactly as before. */
+#planbtns{grid-template-columns:1fr 1fr;gap:8px;width:100%;flex:1 1 100%}
+#planbtns button{padding:11px 0;font-size:1rem;min-height:48px}
 /* the week grid: 24 columns on a phone, so the squares have to be small */
 .hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
-.hm .c{height:17px;border-radius:3px}
+.hm .c{height:17px;border-radius:3px;transition:transform .12s}
+/* The square that was tapped is RINGED, not grown (19 Nov 2026, owner's call). It
+   used to scale to 2.2 so there was something finger-sized to tap again, and the
+   owner would rather the grid held still: a square that jumps out from under the
+   finger that pressed it reads as the page moving about. z-index keeps the ring
+   above its neighbours, since the squares are only 1.5px apart. Every other square
+   stays live - a chart that stops answering because one square is open would be a
+   fault, not a feature. */
+.hm .c.sel{position:relative;z-index:3;border-radius:4px;
+outline:2px solid var(--acc);outline-offset:1px}
 .axis{font-size:.72rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
 .ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
@@ -793,6 +1027,7 @@ h2{font-size:1.06rem}
 .ghead>div{flex:1 1 100%}
 h1{font-size:1.5rem}
 .actions{gap:7px}
+.gtab{margin-right:16px;font-size:.92rem}
 .btn{padding:10px 16px}
 .fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
 .stats{gap:9px}
@@ -955,10 +1190,18 @@ if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-c58d61dab107e3c13bc29cb5c3bb1853/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
-<div class="gpick" id="gpick"></div><div class="gap"></div>
-<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/">All games</a><a href="/growing">Growing</a><a href="/shrinking">Shrinking</a><a href="/events">Event calendar</a><a href="/compare">Compare games</a><a href="/plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div>
+<div class="gpick" id="gpick"></div>
+<nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
+<a href="/?for=quiet" data-hn="quiet">Quiet now</a>
+<a href="/popular" data-hn="popular">Popular</a>
+<a class="more" href="/growing" data-hn="growing">Growing</a>
+<a class="more" href="/shrinking" data-hn="shrinking">Shrinking</a>
+<a class="more" href="/events" data-hn="events">Events</a>
+<a class="more" href="/compare" data-hn="compare">Compare</a>
+<a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
+<div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow hnavrow" href="/?for=busy"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Busy right now</span></a><a class="drow hnavrow" href="/?for=quiet"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Quiet right now</span></a><a class="drow hnavrow" href="/popular"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span>Popular games</span></a><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/action">Action games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/command-an-army">Command An Army player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Events</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-29145c4e18a9d1e9a638523072ab90bc/256/256/Image/Webp/noFilter" alt="Command An Army Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Command An Army events</h1><p class="mut">Every event the creators have put on Roblox&rsquo;s calendar for Command An Army, with a live countdown to the next one.</p><div class="actions"><a class="fav" href="/game/command-an-army">&larr; Command An Army player count</a><a class="btn" href="https://www.roblox.com/games/101770480176177">Play Command An Army</a></div></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795870804" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>SIEGE ENGINES</b><span class="d">New siege engines!</span><span class="d">Happening now &middot; ends Sat 21 Nov</span></li><li class="soon"><b>CHRISTMAS EVENT</b><span class="d">Christmas is coming!</span><span class="d">Starts Sat 28 Nov</span></li></ul></div><p><a href="/game/command-an-army">&larr; Back to Command An Army</a></p>
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/action">Action games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/command-an-army">Command An Army player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Events</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-29145c4e18a9d1e9a638523072ab90bc/256/256/Image/Webp/noFilter" alt="Command An Army Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Command An Army events</h1><p class="mut">Every event the creators have put on Roblox&rsquo;s calendar for Command An Army, with a live countdown to the next one.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/101770480176177">Play Command An Army</a><span data-bell="all"></span><button class="fav" id="fav" data-s="command-an-army" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/command-an-army">Overview</a><a class="gtab" href="/updates/command-an-army">Updates</a><a class="gtab on" href="/events/command-an-army" aria-current="page">Events</a><a class="gtab" href="/questions/command-an-army">Questions</a><a class="gtab" href="/passes/command-an-army">Costs</a></nav></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795870804" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>SIEGE ENGINES</b><span class="d">New siege engines!</span><span class="d">Happening now &middot; ends Sat 21 Nov</span></li><li class="soon"><b>CHRISTMAS EVENT</b><span class="d">Christmas is coming!</span><span class="d">Starts Sat 28 Nov</span></li></ul></div><p><a href="/game/command-an-army">&larr; Back to Command An Army</a></p>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
@@ -968,7 +1211,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
 <a href="/terms">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
-shows when people play, not whether a game is good or safe.</p></footer>
+shows when people play, not whether a game is good or safe. Questions or problems? Email <a href="mailto:contact@playtimestats.com">contact@playtimestats.com</a>.</p></footer>
 </div></div>
 <script>window.PT_GAME={"s":"command-an-army","n":"Command An Army","i":"https://tr.rbxcdn.com/180DAY-29145c4e18a9d1e9a638523072ab90bc/256/256/Image/Webp/noFilter"};</script><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
@@ -1044,19 +1287,32 @@ var d=r.map(function(i,n){return (n?'L':'M')+x(i).toFixed(1)+' '+y(vals[i]).toFi
 line+=d+' ';
 if(r.length>1)wash+=d+' L'+x(r[r.length-1]).toFixed(1)+' '+bot+' L'+x(r[0]).toFixed(1)+' '+bot+' Z ';
 r.forEach(function(i){dots+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(vals[i]).toFixed(1)+
-'" r="3.5" fill="var(--'+hue+')"/>'})});
+'" r="4" fill="var(--'+hue+')" stroke="var(--ink)" stroke-width="1.5" '+
+'vector-effect="non-scaling-stroke"/>'})});
 return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+label+'" '+
 'tabindex="0">'+
 '<defs><linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">'+
 '<stop offset="0" stop-color="var(--'+hue+')" stop-opacity=".42"/>'+
 '<stop offset="1" stop-color="var(--'+hue+')" stop-opacity=".02"/></linearGradient></defs>'+
 '<line x1="'+P+'" y1="'+bot+'" x2="'+(W-P)+'" y2="'+bot+'" stroke="var(--line)" stroke-width="1.5"/>'+
+/* What the top and the bottom of this box stand for. The axis runs from the week's
+   quietest hour to its busiest rather than from zero, so without these two numbers
+   the shape of a day claims a bigger swing than it has. They are on the graph
+   because a sentence under it was one more thing to read. */
+'<text class="gsc" x="'+(W-P)+'" y="'+(top+12)+'" text-anchor="end">'+
+Math.round(R.c).toLocaleString()+'</text>'+
+/* The floor goes UNDER the baseline, not above it: a quiet late evening drops the
+   line into that corner and the two sat on top of each other. There is room,
+   because the box is 26px taller than the axis it draws. */
+'<text class="gsc" x="'+(W-P)+'" y="'+(bot+17)+'" text-anchor="end">'+
+Math.round(R.f).toLocaleString()+'</text>'+
 '<path d="'+wash+'" fill="url(#wash)"/>'+
-'<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="3" '+
+'<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="2.5" '+
+'vector-effect="non-scaling-stroke" '+
 'stroke-linejoin="round" stroke-linecap="round"/>'+dots+
 '<g class="cursor" opacity="0"><line y1="'+top+'" y2="'+bot+'" stroke="var(--ink)" '+
-'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6" fill="var(--'+hue+')" '+
-'stroke="var(--solid)" stroke-width="2.5"/></g></svg>'}
+'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6.5" fill="var(--ink)" '+
+'stroke="var(--'+hue+')" stroke-width="2.5" class="lockdot"/></g></svg>'}
 
 /* Lets people drag or click along a graph to read off any hour. Works with a mouse,
    a finger, and the arrow keys, and falls back to doing nothing if the browser
@@ -1067,15 +1323,27 @@ if(!svg)return;
 var W=720,H=320,P=14,top=16,bot=H-26,span=bot-top,rng=(R.c-R.f)||1;
 var g=svg.querySelector('.cursor'),line=g.querySelector('line'),dot=g.querySelector('circle');
 var at=-1;
+/* What the readout says when nobody is dragging. It used to say nothing, which
+   left a hole under the graph that read as something failing to load rather than
+   as a space waiting to be used. The latest hour we have a reading for is the one
+   worth resting on. */
+var last=-1;
+for(var li=23;li>=0;li--){if(vals[li]!=null){last=li;break}}
+function rest(){
+if(!out)return;
+out.innerHTML=last<0?'':'<b>'+fmt(last)+'</b> &middot; about <b>'+
+vals[last].toLocaleString()+'</b> players'}
+var gLastMouse=null;
 function show(i){
-if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;
-if(out)out.textContent='';return}
+if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;rest();tipHide();return}
 at=i;
 var x=P+i*(W-P*2)/23,y=bot-((vals[i]-R.f)/rng)*span;
 line.setAttribute('x1',x);line.setAttribute('x2',x);
 dot.setAttribute('cx',x);dot.setAttribute('cy',y);
 g.setAttribute('opacity','1');
-if(out)out.innerHTML='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players'}
+var txt='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players';
+if(out)out.innerHTML=txt;
+if(gLastMouse)tipShow(txt,gLastMouse[0],gLastMouse[1])}
 function fromX(clientX){
 var r=svg.getBoundingClientRect();
 if(!r.width)return -1;
@@ -1088,10 +1356,13 @@ if(cx==null)return;
 if(t)e.preventDefault();          /* stop the page scrolling while dragging the graph */
 show(fromX(cx))}
 var down=false;
-svg.addEventListener('mousedown',function(e){down=true;move(e)});
-svg.addEventListener('mousemove',function(e){if(down||e.buttons===0)move(e)});
+svg.addEventListener('mousedown',function(e){gLastMouse=[e.clientX,e.clientY];
+down=true;move(e)});
+svg.addEventListener('mousemove',function(e){gLastMouse=[e.clientX,e.clientY];
+if(down||e.buttons===0)move(e)});
 window.addEventListener('mouseup',function(){down=false});
-svg.addEventListener('mouseleave',function(){if(!down)show(-1)});
+svg.addEventListener('mouseleave',function(){gLastMouse=null;tipHide();
+if(!down)show(-1)});
 svg.addEventListener('touchstart',move,{passive:false});
 svg.addEventListener('touchmove',move,{passive:false});
 svg.addEventListener('keydown',function(e){
@@ -1100,6 +1371,10 @@ var i=at<0?0:at+(e.key==='ArrowRight'?1:-1);
 while(i>=0&&i<=23&&vals[i]==null)i+=(e.key==='ArrowRight'?1:-1);
 if(i>=0&&i<=23)show(i)}
 else if(e.key==='Escape')show(-1)});
+/* The resting state has to be written once at the start too, not only when a
+   drag ends: show() is never called on load, so without this the line under the
+   graph sat empty until somebody had hovered over it and come away again. */
+rest();
 }
 /* The next good time to play: looks at the next 48 hours in the visitor's own timezone. */
 function nextBlock(L,mode){var now=new Date(),list=[];
@@ -1121,6 +1396,27 @@ var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
 if(h)return h+'h '+(m<10?'0':'')+m+'m '+(ss<10?'0':'')+ss+'s';
 if(m)return m+'m '+(ss<10?'0':'')+ss+'s';
 return ss+'s'}
+/* The box that follows the pointer on a computer, in place of the line of text
+   under the chart. One box for every chart on the page: it is moved and refilled
+   rather than made again, so a page with four charts still has one of them.
+   It is only ever shown for a mouse. A finger covers the thing it is pointing at,
+   so on a touch screen the readout under the chart is still the answer - which is
+   why that line is hidden by CSS at 900px and not deleted. */
+var chtip=null;
+function tipEl(){
+if(!chtip){chtip=document.createElement('div');chtip.className='chtip';
+chtip.setAttribute('aria-hidden','true');document.body.appendChild(chtip)}
+return chtip}
+function tipShow(html,cx,cy){
+var t=tipEl();t.innerHTML=html;t.className='chtip on';
+var w=t.offsetWidth,h=t.offsetHeight,pad=14;
+var x=cx+pad,y=cy-h-pad;
+if(x+w>window.innerWidth-6)x=cx-w-pad;
+if(x<6)x=6;
+if(y<6)y=cy+pad;
+t.style.left=x+'px';t.style.top=y+'px'}
+function tipHide(){if(chtip)chtip.className='chtip'}
+
 /* Makes a chart drawn at build time draggable, the way graphCursor does for the
    hourly graph: drag, hover, tap, touch-drag sideways, or the arrow keys. The
    positions come ready-made from scrub() in build_site.py as percentages of the
@@ -1131,25 +1427,33 @@ var P;try{P=JSON.parse(el.getAttribute('data-scrub'))}catch(e){return}
 if(!P||!P.length)return;
 var ln=el.querySelector('.sline'),dots=el.querySelectorAll('.sdot'),
 out=el.nextElementSibling,at=-1,down=false;
+/* The same rule as the hourly graph: at rest this says the most recent point
+   rather than nothing, so the line under the chart is never an unexplained gap. */
+var lastMouse=null;
+function rest(){if(out)out.innerHTML=P[P.length-1][2];tipHide()}
 function show(i){
-if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;
-if(out)out.innerHTML='';return}
+if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;rest();return}
 at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
 for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
-el.classList.add('on');if(out)out.innerHTML=p[2]}
+el.classList.add('on');if(out)out.innerHTML=p[2];
+if(lastMouse)tipShow(p[2],lastMouse[0],lastMouse[1])}
 function fromX(cx){var r=el.getBoundingClientRect();if(!r.width)return -1;
 return Math.max(0,Math.min(P.length-1,Math.round((cx-r.left)/r.width*(P.length-1))))}
-el.addEventListener('pointerdown',function(e){down=true;show(fromX(e.clientX))});
+el.addEventListener('pointerdown',function(e){down=true;
+lastMouse=e.pointerType==='mouse'?[e.clientX,e.clientY]:null;show(fromX(e.clientX))});
 el.addEventListener('pointermove',function(e){
+lastMouse=e.pointerType==='mouse'?[e.clientX,e.clientY]:null;
 if(down||e.pointerType==='mouse')show(fromX(e.clientX))});
 window.addEventListener('pointerup',function(){down=false});
 el.addEventListener('pointercancel',function(){down=false});
-el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!down)show(-1)});
+el.addEventListener('pointerleave',function(e){lastMouse=null;tipHide();
+if(e.pointerType==='mouse'&&!down)show(-1)});
 el.addEventListener('keydown',function(e){
 if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
 show(at<0?(e.key==='ArrowRight'?0:P.length-1):
 Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
-else if(e.key==='Escape')show(-1)})}
+else if(e.key==='Escape')show(-1)});
+rest()}
 ptCountdowns();</script><script>(function(){
 var gameBox=document.getElementById('notif');
 var pageBox=document.getElementById('notifpage');
@@ -1308,10 +1612,9 @@ if(kind==='updates')return 'Remind me about updates';
 return kind==='busy'?'Remind me before busy':'Remind me before quiet';
 }
 
-function signBell(kind){
-var label=bellLabel(kind==='plan'?planKind():kind,false);
+function signBell(el,kind){
 return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get '
-+'notifications (13+)">'+PTBELL+'<span>'+label+'</span></a>'}
++'notifications (13+)">'+PTBELL+'<span>'+bellWords(el,kind,false)+'</span></a>'}
 /* The bell at the top of a game page goes to the settings rather than toggling
    everything at once. It used to be a master switch - on turned the quiet one on,
    off turned all four off - which is a blunt thing to put at the top of a page when
@@ -1319,14 +1622,25 @@ return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get 
    from, because /notifications otherwise lists only games already followed or saved
    and arriving at a page that does not mention the game you just left reads as a
    broken link. */
-function masterLink(on){
-return '<a class="bellb" href="/notifications?game='+encodeURIComponent(slug||'')+'">'
+function masterLink(on,forSlug){
+return '<a class="bellb" href="/notifications?game='+encodeURIComponent(forSlug||'')+'">'
 +PTBELL+'<span>'+bellLabel('all',on)+'</span></a>'}
 
-function bellBtn(kind,label,on){
+function bellBtn(kind,label,on,forSlug){
 return '<button class="bellb" type="button" data-bk="'+kind+'" '
++'data-s="'+ptEsc(forSlug||'')+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
 +PTBELL+'<span>'+label+'</span></button>'}
+
+/* Which game a bell belongs to. Nearly always the page's own - but the event
+   calendar lists every game and Plan my session lets somebody pick one, so a bell
+   may carry its own, and those two pages have no game of their own at all. */
+function bellSlug(el){return el.getAttribute('data-s')||slug}
+/* A bell inside a list has no room for "Remind me before events", and the row it
+   sits in has already said which game and which event it is about. */
+function bellWords(el,kind,on){
+if(el.hasAttribute('data-short'))return on?'Reminder on':'Remind me';
+return bellLabel(kind,on)}
 
 /* Which quiet-or-busy window the countdown in this card is showing. The bell beside
    it means "tell me before THIS window", so it follows that choice rather than
@@ -1371,36 +1685,35 @@ var ALREADY='<details class="already"><summary>I have already added it</summary>
    whose bell cannot work shows nothing at all rather than a button that does not:
    the one explanation lives in the Plan my session card, which every game page has. */
 function drawBells(){
-if(!slug)return;
 var ok=S&&S.available&&S.signedIn&&usable();
 /* Signed out, the bells are still drawn, as links to sign in: a feature nobody can
    see is a feature nobody asks for. Nothing is stored and nothing is asked of the
    browser until they have signed in - the bell is only an address. */
 var out=S&&S.available&&!S.signedIn;
-var w=watchFor(slug)||{};
 Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
-if(out){el.innerHTML=signBell(el.dataset.bell);return}
+var s2=bellSlug(el);
+/* Plan my session before a game has been picked, and nothing else. */
+if(!s2){el.innerHTML='';return}
+/* "plan" means the bell beside a countdown: it follows that card's own Quiet or
+   Busy chooser rather than keeping a third opinion of its own. */
+var kind=el.dataset.bell;
+if(kind==='plan')kind=planKind();
+if(out){el.innerHTML=signBell(el,kind);return}
 /* On an iPhone or iPad in a tab the bells used to be left EMPTY, which reads as the
    site being broken rather than as one step away from working. They are drawn as
    normal now and the click handler opens the install popup instead of switching
    anything on, because on Apple nothing can be switched on until the site is on the
    home screen. */
 if(!ok&&needInstall()&&S&&S.signedIn){
-var nw=watchFor(slug)||{};
-var nk=el.dataset.bell;
-if(nk==='all')el.innerHTML=masterLink(false);
-else if(nk==='plan')el.innerHTML=bellBtn(planKind(),bellLabel(planKind(),false),false);
-else el.innerHTML=bellBtn(nk,bellLabel(nk,false),false);
+if(kind==='all')el.innerHTML=masterLink(false,s2);
+else el.innerHTML=bellBtn(kind,bellWords(el,kind,false),false,s2);
 return}
 if(!ok){el.innerHTML='';return}
-var kind=el.dataset.bell;
+var w=watchFor(s2)||{};
 if(kind==='all'){
 var any=!!(w.quiet||w.busy||w.events||w.updates);
-el.innerHTML=masterLink(any)}
-else if(kind==='plan'){
-var k=planKind();
-el.innerHTML=bellBtn(k,bellLabel(k,w[k]),w[k])}
-else{el.innerHTML=bellBtn(kind,bellLabel(kind,w[kind]),w[kind])}})}
+el.innerHTML=masterLink(any,s2)}
+else el.innerHTML=bellBtn(kind,bellWords(el,kind,w[kind]),w[kind],s2)})}
 
 function drawGame(){
 drawBells();
@@ -1408,8 +1721,7 @@ if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
 if(!S.signedIn){
-html='<p class="mut small">Sign in with Roblox to get a notification before this '
-+'game goes quiet or busy, or when it has an event or an update. 13+.</p>'+SIGNIN}
+html='<p class="mut small">The bell above needs a Roblox sign-in. 13+.</p>'}
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
@@ -1500,7 +1812,10 @@ if(nd){e.preventDefault();openPop(nd);return}}
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
 var bb=e.target.closest('button.bellb');
-if(bb){flip(slug,bb.dataset.bk,bb.getAttribute('aria-pressed')!=='true');return}
+/* The bell says which game it is for: on the calendar and on the planner that is
+   not the page's own game, because those pages have none. */
+if(bb){flip(bb.dataset.s||slug,bb.dataset.bk,
+bb.getAttribute('aria-pressed')!=='true');return}
 /* Changing the countdown between quiet and busy changes what the bell beside it is
    offering, so it has to be redrawn. */
 if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
@@ -1515,9 +1830,38 @@ note='Sent. If nothing appears, your computer is hiding it rather than this site
 if(pageBox){fetch('/games.json').then(function(r){return r.json()}).then(function(all){
 names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
 
+/* The planner changes which game its bell is for every time the dropdown moves, so
+   it needs a way to ask for a redraw. Nothing else uses it. */
+PT.bells=drawBells;
 PT.ready(function(){refresh()});
 })();</script><script>(function(){
 var d=document.documentElement;
+
+/* Which of the three ways in the bar offers is the page being looked at, so that
+   one wears the underline. Worked out from the address rather than written into
+   each page, because the bar is one piece of markup shared by all 670 of them.
+   Plain string tests and no regex: these blocks are ordinary Python strings, so a
+   backslash in one is eaten before the browser ever sees it. */
+var hp=location.pathname,hs=location.search;
+var hkey=hs.indexOf('for=busy')>-1?'busy'
+:hs.indexOf('for=quiet')>-1?'quiet'
+:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
+return seg==='popular'||seg==='popular.html'})()?'popular':'';
+/* Every copy of them: the bar on a computer and the three buttons on the phone's
+   homepage. classList.add, not className=, because five of the links in the bar
+   also carry "more" - the class that keeps them out of a narrow bar - and
+   overwriting it put the one you were on back on screen at widths with no room. */
+if(hkey)Array.prototype.forEach.call(document.querySelectorAll('[data-hn]'),
+function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
+/* The bar across the bottom of a phone marks itself the same way. Saved games are
+   a block on the homepage rather than a page of their own, so that one lights up
+   on the homepage when the address names it. */
+var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+var tkey=(hseg2==='events')?'events'
+:(hseg2==='plan')?'plan'
+:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
+function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 
 /* Light and dark. Starts on whatever the device prefers; once the button is pressed
    that choice is remembered and wins from then on. */
@@ -1579,8 +1923,8 @@ if(show){placePanel();var a=dr.querySelector('a');if(a)a.focus()}};
 var am=document.getElementById('amenu');
 /* Put a card under the button it belongs to. Both of these are position:fixed, and
    pinning either to the window edge is wrong on a wide screen: the bar's own band is
-   capped - 1400px on a wide page, 820px on a reading one, narrower again with the ad
-   rails up - so the three-line button can sit hundreds of pixels inside the window.
+   capped - 1200px, narrower again with the ad rails up - so the three-line button
+   can sit hundreds of pixels inside the window.
    Measured at 1920px before this existed: 260px adrift. `edge` is which side of the
    card lines up with which side of the button. */
 function drop(el,btn,edge){
