@@ -1800,6 +1800,19 @@ def index_ok(c):
     return a["days"] >= 3 and a["hours"] >= 48
 
 
+# The short names players actually type into Google for a few games - "jjs player
+# count", "tsb player count", "bss player count", "aotr likes" all turned up in
+# Search Console. Written by hand, by slug, because nothing in Roblox's data says
+# what a game is nicknamed. Add one only when people really search for it.
+ALIASES = {
+    "jujutsu-shenanigans": "JJS",
+    "the-strongest-battlegrounds": "TSB",
+    "bee-swarm-simulator": "BSS",
+    "attack-on-titan-revolution": "AOTR",
+    "bubble-gum-simulator-infinity": "BGSI",
+}
+
+
 def stamp(ts):
     """A reading's exact time -> '4:30 PM UTC on Wed 18 Nov'."""
     d = datetime.fromtimestamp(ts, timezone.utc)
@@ -2266,7 +2279,7 @@ def short_answer(name, f):
             f'<span class="mut">UTC</span> &ndash; about {qv:,} players.')
 
 
-def facts_html(c, a, f):
+def facts_html(c, a, f, meta=None):
     """The key numbers as a list, so they are in the page itself and not only in a chart."""
     rows = [("Latest player count", f'{a["latest"][1]:,}', f'at {stamp(a["latest"][0])}'),
             ("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
@@ -2275,8 +2288,17 @@ def facts_html(c, a, f):
     if a["high7"] and a["low7"]:
         rows += [("Highest this week", f'{a["high7"][1]:,}', f'at {stamp(a["high7"][0])}'),
                  ("Lowest this week", f'{a["low7"][1]:,}', f'at {stamp(a["low7"][0])}')]
-    rows += [
-            ("Compared to last week", trend_html(a["trend"]), "last 7 days against the 7 before")]
+    meta = meta or {}
+    if meta.get("visits"):
+        rows.append(("Total visits", short(meta["visits"]), f'{meta["visits"]:,}, as Roblox reports it'))
+    if meta.get("likes"):
+        votes = meta["likes"] + (meta.get("dislikes") or 0)
+        rows.append(("Likes", short(meta["likes"]),
+                     f'{meta["likes"] / votes:.0%} of {short(votes)} votes are likes'
+                     if votes else "as Roblox reports it"))
+    if meta.get("created"):
+        rows.append(("Came out", when(meta["created"]), f'first released {ago(meta["created"])}'))
+    rows += [("Compared to last week", trend_html(a["trend"]), "last 7 days against the 7 before")]
     if f:
         bd, bh, _ = f["busy"]
         qd, qh, _ = f["quiet"]
@@ -2371,7 +2393,7 @@ def history_html(name, a, days=21):
         return ""
     rows = "".join(f'<tr><td>{when(day)}</td><td>{avg:,}</td><td>{hi:,}</td></tr>'
                    for day, avg, hi in reversed(pts))
-    return (f'<div class="card"><h2>{html.escape(name)} player count history</h2>'
+    return (f'<div class="card"><h2>{html.escape(name)} player count graph</h2>'
             + history_lines(pts) +
             # Short, but the two still cannot be mixed up: one is an average we
             # worked out, the other a number we really saw. That distinction is the
@@ -2442,6 +2464,16 @@ def faq_html(c, a, f, meta, pattern):
                    f"Updates and events usually land on a {DAYS[pattern['wd']]}{hour}{every}. "
                    f"That comes from the last {pattern['n']} updates the creators announced "
                    f"on Roblox plus the days we saw the player count jump."))
+    if meta and meta.get("likes"):
+        votes = meta["likes"] + (meta.get("dislikes") or 0)
+        qa.append((f"How many likes does {name} have?",
+                   f"Roblox reports {meta['likes']:,} likes for {name}"
+                   + (f", which is {meta['likes'] / votes:.0%} of the {votes:,} people who "
+                      f"voted on it." if votes else ".")))
+    if meta and meta.get("created"):
+        qa.append((f"When did {name} come out?",
+                   f"{name} was first released on Roblox on {when(meta['created'])}, "
+                   f"{ago(meta['created'])}."))
     if meta and meta.get("visits"):
         qa.append((f"How many visits does {name} have?",
                    f"Roblox reports {meta['visits']:,} total visits for {name} so far"
@@ -2467,7 +2499,9 @@ def faq_html(c, a, f, meta, pattern):
         f"When is {name} busiest?": (f"{g}#byhour", "See every hour on a graph"),
         f"Do people still play {name}?": (f"{g}#dead", "See the 45-day trend"),
         f"When does {name} update?":
-            (f'/updates/{c["slug"]}', "See its past updates and when the next one is due"),
+            (f'/updates/{c["slug"]}', "See every update in order and when the next is due"),
+        f"How many visits does {name} have?": (f"{g}#stats", "See all its numbers"),
+        f"How many likes does {name} have?": (f"{g}#stats", "See all its numbers"),
     }
     def more(q):
         if q not in links:
@@ -2735,26 +2769,63 @@ def updates_bell():
     return '<span data-bell="updates"></span>'
 
 
-def updates_html(name, events, meta, spikes, now):
-    """Recent updates and changes: finished events (creators use them as a changelog) plus spikes.
+def next_update(pattern, now):
+    """When the next update is most likely, as a UTC timestamp, or None.
+
+    The same rule the page's countdown uses: the next time the usual weekday (and
+    hour, when there is one) comes round. Without an hour it aims at midday, and the
+    words that use it then name only the day."""
+    if not pattern:
+        return None
+    d = datetime.fromtimestamp(now, timezone.utc)
+    hour = pattern.get("hour") if pattern.get("hour") is not None else 12
+    t = d.replace(hour=hour, minute=0, second=0, microsecond=0)
+    t += timedelta(days=(pattern["wd"] - d.weekday()) % 7)
+    if t.timestamp() <= now:
+        t += timedelta(days=7)
+    return t.timestamp()
+
+
+def updates_html(name, events, meta, spikes, now, pattern=None):
+    """A game's changelog: finished events (creators use them as one) plus spikes.
 
     Anything still running or still to come belongs on the calendar instead, so the
     two sections never show the same event twice.
+
+    Worded for what people search (Search Console, Nov 2026): "updates in order",
+    "changelog", "update log", "patch notes", "when is the next update". So the
+    next update is answered in plain text at the top, and every past update is
+    listed numbered from the first, rather than only the latest handful.
     """
     past = [e for e in (events or []) if (e["end"] or e["start"] + 86400) < now]
     past.sort(key=lambda e: -e["start"])
     parts = []
+    nxt = next_update(pattern, now)
+    if nxt:
+        at = (f'{when(nxt)} around {hour12(pattern["hour"])} UTC'
+              if pattern.get("hour") is not None else when(nxt))
+        parts.append(f'<h3>When is the next {html.escape(name)} update?</h3>'
+                     f'<p>Most likely <b>{at}</b>. Its updates usually land on a '
+                     f'{DAYS[pattern["wd"]]}'
+                     + (f', roughly every {pattern["every"]} days' if pattern.get("every") else '')
+                     + f', going by the last {pattern["n"]} updates and busy days. That is a '
+                     f'pattern, not an announcement: the creators can always change it.</p>')
     if meta and meta.get("updated"):
         parts.append(f'<p>The creators last changed something in the game <b>{ago(meta["updated"], now)}</b> '
                      f'({when(meta["updated"])}).</p>')
     if past:
-        parts.append(f'<ul class="evt">{"".join(event_item(e, now, cls="") for e in past[:6])}</ul>')
-        if len(past) > 6:
-            rest = "".join(f'<tr><td>{html.escape(e["title"])}</td><td>{when(e["start"])}</td></tr>'
-                           for e in past[6:30])
-            parts.append(f'<details><summary>Older updates and events</summary><div class="wrap">'
-                         f'<table class="tbl"><tr><th>Update or event</th><th>When</th></tr>{rest}'
-                         f'</table></div></details>')
+        parts.append(f'<h3>Latest {html.escape(name)} updates</h3>'
+                     f'<ul class="evt">{"".join(event_item(e, now, cls="") for e in past[:6])}</ul>')
+        # Numbered from the first one we know of, so "update 1" stays update 1 as
+        # new ones arrive. Newest at the top, because that is what most people want.
+        rows = "".join(f'<tr><td>{len(past) - i}</td><td>{html.escape(e["title"])}</td>'
+                       f'<td>{when(e["start"])}</td></tr>' for i, e in enumerate(past))
+        parts.append(f'<h3>Every {html.escape(name)} update in order</h3>'
+                     f'<p class="mut small">All {len(past)} updates and events the creators '
+                     f'have put on Roblox, newest first. Number 1 is the first we know of, from '
+                     f'{when(past[-1]["start"])}.</p><div class="wrap"><table class="tbl">'
+                     f'<tr><th>#</th><th>Update or event</th><th>Date</th></tr>{rows}'
+                     f'</table></div>')
     elif events is not None:
         parts.append('<p class="none">The creators have not posted any updates to the Roblox event '
                      'calendar, so we only know the date above.</p>')
@@ -2772,7 +2843,7 @@ def updates_html(name, events, meta, spikes, now):
     if not parts:
         return ""
     # The rhythm line is filled in by the page itself, in the visitor's timezone.
-    return (f'<div class="card"><h2>Recent updates and changes</h2>'
+    return (f'<div class="card"><h2>{html.escape(name)} changelog</h2>'
             f'<p id="pattern" class="mut small"></p>{"".join(parts)}</div>')
 
 
@@ -4038,9 +4109,15 @@ def jump_html(items):
 
 
 # The order here is the order a visitor reads in, and the grid never reorders it.
-# Sections are paired by how tall they are, not just by subject: the short answer
-# next to the session planner, the hourly graph next to the numbers it is drawn
-# from. The week grid is the one full-width card, because it is 24 hours across.
+# It is also the order Google reads, and Google indexes the phone layout, where every
+# card is full width and simply follows the one before. So the HTML runs from what
+# people search for most to least, going by Search Console (Nov 2026): the player
+# count itself (right now, peak, lowest, visits, likes), when it is busiest, the
+# player count graph, "is it dead", then the hourly detail, and planning last.
+# On a computer the numbers sit alone in the left column and the next three are
+# stacked in a .lstack beside them; measured with real data the two columns come out
+# within about 40px of each other, where pairing the numbers with "when is it busiest"
+# left a 350px hole under the graphs.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>__CAT__
 <div class="actions">__PLAY__<span data-bell="all"></span>
@@ -4048,13 +4125,20 @@ GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and bes
 </div>__GTABS__</div></div>
 __ABOUT__
 <div class="bento">
+<div id="stats" class="sp5 card rise2"><h2>__NAME__ player count stats</h2>__FACTS__</div>
 <div class="sp7 lstack">
-<div id="answer" class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
+<div id="answer" class="card ans rise2"><h2>When is __NAME__ busiest?</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p></div>
+__HISTORY__
 <div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2>
 __SPARK__<div class="verdict">
-<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div></div></div>
-<div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
+<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div></div>
+</div>
+<div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
+<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
+<p class="readout" id="readout"></p></div>
+<div id="session" class="sp4 card rise3"><h2>Plan my session</h2>
 <div class="planpick">
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div></div>
@@ -4062,19 +4146,12 @@ __SPARK__<div class="verdict">
 <p id="plantxt"></p>
 <span data-bell="plan"></span>
 __NOTIFY__</div>
-<div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
-<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
-<p class="readout" id="readout"></p></div>
-<div id="stats" class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div id="week" class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
 <p class="readout chartout" id="hmout">Pick a box to see how many play then.</p>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
 __HOURS__</div>
-__HISTORY__
-
 </div>
 __SIMILAR__
 <p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan?g=__SLUG__">Plan a session</a>
@@ -5217,8 +5294,10 @@ def main():
         # The opening paragraph. Every number in it comes from our own samples, and the
         # wording keeps "about"/"typical" on the averages and "seen"/"recorded" on the
         # things we really observed, so an estimate is never dressed up as a fact.
+        alias = ALIASES.get(s)
+        aka = f' ({html.escape(alias)})' if alias else ''
         lead = (f'At our last check ({stamp(a["latest"][0])}) <b>{a["latest"][1]:,} people</b> '
-                f'were playing {html.escape(name)}. It has about <b>{a["avg7"]:,} players</b> '
+                f'were playing {html.escape(name)}{aka}. It has about <b>{a["avg7"]:,} players</b> '
                 f'at a typical moment, and we have seen as many as <b>{a["peak"]:,}</b> at once. ')
         if facts:
             bd, bh, _ = facts["busy"]
@@ -5247,7 +5326,7 @@ def main():
 
         # Everything about this game's updates gets its own page, reached from the
         # row of buttons at the top of the game page.
-        upd = updates_html(name, events, meta, a["spikes"], now)
+        upd = updates_html(name, events, meta, a["spikes"], now, pattern)
         if upd:
             # Right under that page's own heading, where somebody reading about this
             # game's updates is already looking.
@@ -5319,7 +5398,7 @@ def main():
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
                 .replace("__QUIET__", quiet_txt)
-                .replace("__FACTS__", facts_html(c, a, facts))
+                .replace("__FACTS__", facts_html(c, a, facts, meta))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
                 .replace("__GTABS__", game_tabs(s, has))
@@ -5345,13 +5424,26 @@ def main():
                 # __NAME__ last: it appears inside several of the blocks above.
                 .replace("__NAME__", html.escape(name)))
 
+        # The description leads with what the searches ask: how many updates, the
+        # latest one, and when the next is likely.
+        past_ev = sorted((e for e in (events or []) if (e["end"] or e["start"] + 86400) < now),
+                         key=lambda e: -e["start"])
+        nxt = next_update(pattern, now)
+        upd_desc = (f"Every {name} update in order"
+                    + (f": {len(past_ev)} since {when(past_ev[-1]['start'])}. Latest: "
+                       f"{past_ev[0]['title']} ({when(past_ev[0]['start'])})." if past_ev else ".")
+                    + (f" Next update likely {when(nxt)}." if nxt else "")
+                    + " Changelog, update log and player count jumps.")
         write(f"updates/{s}.html", page(
-            seo_title(f"{name} Update History and Patch Notes",
-                      f"{name} Update History"),
+            seo_title(f"{name} Updates in Order: Changelog & Next Update",
+                      f"{name} Updates in Order & Changelog",
+                      f"{name} Updates & Changelog",
+                      f"{name} Updates"),
             f'<div class="ghead rise">{thumb(name, c["icon"], icon_alt(name), eager=True)}<div>'
-            f'<h1>{html.escape(name)} update history</h1>'
-            f'<p class="mut">Every update and event the creators have announced, when they '
-            f'landed, and the days {html.escape(name)}&rsquo;s player count jumped.</p>'
+            f'<h1>{html.escape(name)} updates in order</h1>'
+            f'<p class="mut">The {html.escape(name)} changelog: every update and event the '
+            f'creators have announced, when it landed, when the next one is likely, and the '
+            f'days {html.escape(name)}&rsquo;s player count jumped.</p>'
             f'<div class="actions">{play}<span data-bell="all"></span>'
             f'<button class="fav" id="fav" data-s="{s}" aria-pressed="false">'
             f'&#9734; Save</button></div>'
@@ -5368,27 +5460,30 @@ def main():
             # The Updates bell lives on this page, so the notification code has to be
             # here too. PT_GAME above it is what tells it which game it is looking at.
             + f'<script>{PUSH_JS}</script>',
-            clip(f"When does {name} update? Past updates and events, how often new ones "
-                 f"arrive, and the days its player count jumped."),
+            clip(upd_desc),
             wide=True, banner=c["banner"],
             canon=f"/updates/{s}", image=c["banner"] or c["icon"] or "",
             trail=trail + [(f"{name} player count", f"/game/{s}"),
-                           ("Update history", f"/updates/{s}")],
+                           ("Updates in order", f"/updates/{s}")],
             # An update page with nothing on it is a thin page, so we keep it on the
             # site (the button still works) but ask Google not to list it.
             noindex=thin or not upd, modified=iso_day(a["last"])))
 
         write(f"game/{s}.html", page(
-            seo_title(f"{name} Player Count Today & Best Times to Play",
-                      f"{name} Player Count Today & Best Times",
-                      f"{name} Player Count Today",
-                      f"{name} Player Count"), body,
+            seo_title(*([f"{name} ({alias}) Player Count Today, Peak & Graph",
+                         f"{name} ({alias}) Player Count & Peak"] if alias else [])
+                      + [f"{name} Player Count Today, Peak & Graph",
+                         f"{name} Player Count, Peak & Graph",
+                         f"{name} Player Count Today",
+                         f"{name} Player Count"]), body,
             # Leads with the numbers people search for in their own words - how many
             # right now, the record, the lowest - so the snippet answers the search.
-            clip(f"{a['latest'][1]:,} people were playing {name} at our last check. "
-                 f"Record: {a['peak']:,}."
+            clip(f"{a['latest'][1]:,} people were playing {name}"
+                 + (f" ({alias})" if alias else "") + " at our last check. "
+                 f"Peak: {a['peak']:,}."
                  + (f" Lowest this week: {a['low7'][1]:,}." if a["low7"] else "")
-                 + f" Player count history, busiest and quietest hours, best time to play."),
+                 + (f" {short(meta['visits'])} visits." if meta and meta.get("visits") else "")
+                 + " Player count graph, busiest hours and best time to play."),
             wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
             # The questions and the events are written out on their own pages now,
@@ -5593,21 +5688,23 @@ def main():
         return f'<ul class="evt">{"".join(out)}</ul>' if out else ""
 
     write("events.html", page(
-        seo_title("Roblox Game Events Calendar: On Now and Next"),
-        '<div class="hero"><h1>Roblox game events calendar</h1><p class="lede">Events and updates the game creators '
+        seo_title("Roblox Events Today & Next: Game Events Calendar",
+                  "Roblox Events Today & Next"),
+        '<div class="hero"><h1>Roblox events today and coming up</h1><p class="lede">Events and updates the game creators '
         'themselves have put on the Roblox calendar, for every game we track. Expect these hours to be busy.</p></div>'
         '<section id="myevts" hidden><h2 style="margin-top:22px">Your saved games</h2>'
         '<ul class="evt"></ul>'
         '<p class="mut small">The bell on a row tells your browser about that '
         'game&rsquo;s events, about fifteen minutes before one starts. '
         '<a href="/notifications">All of yours are here</a>.</p></section>' 
-        + (f'<h2 style="margin-top:22px">Happening now</h2>{ev_list(live)}' if live else "")
-        + (f'<h2 style="margin-top:26px">Coming up</h2>{ev_list(soon)}' if soon else "")
+        + (f'<h2 style="margin-top:22px">Roblox events happening now</h2>{ev_list(live)}' if live else "")
+        + (f'<h2 style="margin-top:26px">Next Roblox events</h2>{ev_list(soon)}' if soon else "")
         + ("" if live or soon else '<p class="none">No events are listed right now. Creators usually '
                                    'announce them a few days ahead, so check back soon.</p>')
         + '<p><a href="/">&larr; All Roblox player counts</a></p>',
-        "Every upcoming Roblox game event and update we know about, with the dates they run "
-        "and the games they belong to.",
+        clip(f"Roblox events today: {len(live)} happening now and {len(soon)} coming up across "
+             f"{len(cards)} games, with the dates they run. The next Roblox events, updated four "
+             f"times a day."),
         nav="events", canon="/events",
         tail=MYEVTS_JS + f'<script>{PUSH_JS}</script>',
         trail=[("All games", "/"), ("Events", "/events")],
