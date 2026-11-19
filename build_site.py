@@ -393,6 +393,10 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
    rather than SVG circles because these charts stretch to fit with
    preserveAspectRatio none, which would squash a circle into an oval. */
 .scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
+/* The verdict sits right on top of this one, so it gets air above it as well as a
+   taller box - squeezed between two blocks of text it read as a smudge. */
+#dead .scrub{margin:16px 0 4px}
+#dead .verdict{margin-bottom:2px}
 .scrub>svg{margin:0}
 .scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
 pointer-events:none;transform:translateX(-.75px)}
@@ -687,6 +691,10 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .planpick .days{margin:0}
 #session .cd{font-size:1.5rem}
 #session #plantxt{margin:6px 0 2px}
+/* The bell is the last thing in this card now, so its margin belongs above it.
+   .bellb carries a bottom margin for the bells that sit UNDER a heading, which
+   left this one jammed against the sentence and hanging off the bottom. */
+#session .bellb{margin:14px 0 2px}
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
@@ -715,6 +723,13 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .hm{display:grid;grid-template-columns:44px repeat(24,minmax(0,1fr));gap:2px;font-size:.8rem;color:var(--mut);align-items:center}
 .hm .c{height:26px;border-radius:4px}
 .hm .now{outline:2px solid #10131c;outline-offset:-1px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.82)}
+/* Every square answers when it is pointed at or pressed. The ring is the ACCENT
+   and sits outside the square, where .now's is white and inside it - drawn the
+   same way the two were indistinguishable on the grid, and "right now" and "the
+   one you picked" are different answers to different questions. It is a ring and
+   never a fill, so it cannot be mistaken for a sixth band of the traffic light. */
+.hm .c[data-d]{cursor:pointer}
+.hm .c.sel{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:5px}
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
 .spark{width:100%;height:80px;display:block}
@@ -1944,7 +1959,7 @@ def sparkline(daily, spikes):
     vals = [v for _, v in pts]
     lo, hi = min(vals), max(vals)
     span = (hi - lo) or 1
-    w, h = 600, 150
+    w, h = 600, 190
     x = lambda i: round(i / (len(pts) - 1) * w, 1)
     y = lambda v: round(h - 6 - (v - lo) / span * (h - 14), 1)
     line = " ".join(f"{x(i)},{y(v)}" for i, (_, v) in enumerate(pts))
@@ -3172,9 +3187,18 @@ if(!svg)return;
 var W=720,H=320,P=14,top=16,bot=H-26,span=bot-top,rng=(R.c-R.f)||1;
 var g=svg.querySelector('.cursor'),line=g.querySelector('line'),dot=g.querySelector('circle');
 var at=-1;
+/* What the readout says when nobody is dragging. It used to say nothing, which
+   left a hole under the graph that read as something failing to load rather than
+   as a space waiting to be used. The latest hour we have a reading for is the one
+   worth resting on. */
+var last=-1;
+for(var li=23;li>=0;li--){if(vals[li]!=null){last=li;break}}
+function rest(){
+if(!out)return;
+out.innerHTML=last<0?'':'<b>'+fmt(last)+'</b> &middot; about <b>'+
+vals[last].toLocaleString()+'</b> players'}
 function show(i){
-if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;
-if(out)out.textContent='';return}
+if(i<0||i>23||vals[i]==null){g.setAttribute('opacity','0');at=-1;rest();return}
 at=i;
 var x=P+i*(W-P*2)/23,y=bot-((vals[i]-R.f)/rng)*span;
 line.setAttribute('x1',x);line.setAttribute('x2',x);
@@ -3205,6 +3229,10 @@ var i=at<0?0:at+(e.key==='ArrowRight'?1:-1);
 while(i>=0&&i<=23&&vals[i]==null)i+=(e.key==='ArrowRight'?1:-1);
 if(i>=0&&i<=23)show(i)}
 else if(e.key==='Escape')show(-1)});
+/* The resting state has to be written once at the start too, not only when a
+   drag ends: show() is never called on load, so without this the line under the
+   graph sat empty until somebody had hovered over it and come away again. */
+rest();
 }
 /* The next good time to play: looks at the next 48 hours in the visitor's own timezone. */
 function nextBlock(L,mode){var now=new Date(),list=[];
@@ -3236,9 +3264,11 @@ var P;try{P=JSON.parse(el.getAttribute('data-scrub'))}catch(e){return}
 if(!P||!P.length)return;
 var ln=el.querySelector('.sline'),dots=el.querySelectorAll('.sdot'),
 out=el.nextElementSibling,at=-1,down=false;
+/* The same rule as the hourly graph: at rest this says the most recent point
+   rather than nothing, so the line under the chart is never an unexplained gap. */
+function rest(){if(out)out.innerHTML=P[P.length-1][2]}
 function show(i){
-if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;
-if(out)out.innerHTML='';return}
+if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;rest();return}
 at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
 for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
 el.classList.add('on');if(out)out.innerHTML=p[2]}
@@ -3254,7 +3284,8 @@ el.addEventListener('keydown',function(e){
 if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();
 show(at<0?(e.key==='ArrowRight'?0:P.length-1):
 Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
-else if(e.key==='Escape')show(-1)})}
+else if(e.key==='Escape')show(-1)});
+rest()}
 """
 
 # Writes the "updates usually arrive on a Friday around 2 PM" line. The page that
@@ -3345,9 +3376,33 @@ var g='<div></div>';['12 AM','6 AM','12 PM','6 PM'].forEach(function(t){
 g+='<span style="grid-column:span 6">'+t+'</span>'});
 for(var d=0;d<7;d++){g+='<div>'+DAY[d].slice(0,3)+'</div>';
 for(var h=0;h<24;h++){var v=L[d][h];
-g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" title="'+DAY[d]+' '+fmt(h)+': about '+
-(v||0).toLocaleString()+' players" style="background:'+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
+g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" data-d="'+d+'" data-h="'+h+'" title="'+
+DAY[d]+' '+fmt(h)+': about '+(v||0).toLocaleString()+' players" style="background:'+
+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
 $('hm').innerHTML=g;show(nd);
+
+/* A square says what it is worth when it is pointed at or pressed. The title
+   attribute said the same thing, but a tooltip takes a second of hovering, never
+   appears on a phone at all, and cannot be read out - so on a touch screen the
+   whole grid was a picture with no numbers in it. Hover follows the pointer and a
+   tap holds, which is why the selected one keeps its ring. */
+var hmo=$('hmout'),hmSel=null;
+function hmSay(c){
+var d=+c.dataset.d,h=+c.dataset.h,v=L[d][h];
+hmo.innerHTML=v==null
+?'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; no readings for this hour yet'
+:'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; about <b>'+v.toLocaleString()+'</b> players';}
+function hmPick(c){
+if(hmSel)hmSel.classList.remove('sel');
+hmSel=c;c.classList.add('sel');hmSay(c)}
+$('hm').addEventListener('pointerover',function(e){
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c&&e.pointerType==='mouse')hmSay(c)});
+$('hm').addEventListener('pointerleave',function(e){
+if(e.pointerType==='mouse')hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
+$('hm').addEventListener('click',function(e){
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c)hmPick(c)});
 Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);"""
 
 HOME_JS = """var G=__GAMES__;
@@ -3688,7 +3743,7 @@ __ABOUT__
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div></div>
 <div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
-<div class="planpick"><span class="mut small">I want it</span>
+<div class="planpick">
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
@@ -3696,10 +3751,12 @@ __SPARK__</div></div>
 <span data-bell="plan"></span>
 __NOTIFY__</div>
 <div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p>
-<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
+<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
+<p class="readout" id="readout"></p></div>
 <div id="stats" class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div id="week" class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
+<p class="readout" id="hmout">Pick a box to see how many play then.</p>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
