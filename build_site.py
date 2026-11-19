@@ -5343,6 +5343,16 @@ def main():
         # The sitemap only asks Google to look at a page that has something on it.
         for folder, yes in has.items():
             c["has_" + folder] = yes
+        # An updates page for a game whose creators have announced no updates at all
+        # is about 200 words: the date the game last changed, and perhaps a spike or
+        # two. Google crawled several of those in Nov 2026 and declined to index them,
+        # and a pile of near-empty pages counts against the whole site. So it stays
+        # on the site and in the game's tabs, but is kept out of Google and out of
+        # the sitemap until the first update arrives. One or two updates is enough
+        # to keep it: /updates/anime-adventures had a single update and was already
+        # being found for "when is anime adventures update".
+        n_updates = sum(1 for e in (events or []) if (e["end"] or e["start"] + 86400) < now)
+        c["no_updates"] = n_updates == 0
 
         if has["events"]:
             write(f"events/{s}.html", side_page(
@@ -5467,7 +5477,7 @@ def main():
                            ("Updates in order", f"/updates/{s}")],
             # An update page with nothing on it is a thin page, so we keep it on the
             # site (the button still works) but ask Google not to list it.
-            noindex=thin or not upd, modified=iso_day(a["last"])))
+            noindex=thin or not upd or c["no_updates"], modified=iso_day(a["last"])))
 
         write(f"game/{s}.html", page(
             seo_title(*([f"{name} ({alias}) Player Count Today, Peak & Graph",
@@ -5826,7 +5836,7 @@ def main():
         last = iso_day(c["a"]["last"])
         pages.append((f'/game/{c["slug"]}', "0.9", last))
         for folder in ("updates", "events", "passes", "questions"):
-            if c.get("has_" + folder):
+            if c.get("has_" + folder) and not (folder == "updates" and c.get("no_updates")):
                 pages.append((f'/{folder}/{c["slug"]}', "0.5", last))
     pages += [("/about", "0.3", today), ("/install", "0.3", today),
               ("/privacy", "0.2", today), ("/terms", "0.2", today)]
