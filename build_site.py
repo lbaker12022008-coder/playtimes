@@ -395,8 +395,8 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .scrub{position:relative;margin:4px 0 2px;touch-action:pan-y;cursor:crosshair;outline-offset:4px}
 /* The verdict sits right on top of this one, so it gets air above it as well as a
    taller box - squeezed between two blocks of text it read as a smudge. */
-#dead .scrub{margin:16px 0 4px}
-#dead .verdict{margin-bottom:2px}
+#dead .scrub{margin:12px 0 4px}
+#dead .verdict{margin-top:12px}
 .scrub>svg{margin:0}
 .scrub .sline{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--ink);
 pointer-events:none;transform:translateX(-.75px)}
@@ -732,7 +732,7 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .hm .c.sel{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:5px}
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
-.spark{width:100%;height:80px;display:block}
+.spark{width:100%;height:190px;display:block}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:12px}
 .stats b{display:block;font-size:1.5rem}
 .key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
@@ -760,10 +760,8 @@ border:1px solid transparent;font-size:.95rem;font-weight:700;line-height:1.3;
 min-height:46px}
 .actions .fav,.actions .bellb{border-color:var(--line);background:var(--card);color:var(--ink)}
 .actions .bellb svg{width:16px;height:16px}
-.gcat{margin:8px 0 0}
-.gcat a{display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid var(--line);
-background:var(--soft);color:var(--favink);font-size:.84rem;font-weight:700;text-decoration:none}
-.gcat a:hover,.gcat a:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.gcat{margin:8px 0 0;font-size:.92rem}
+.gcat a{color:var(--acc);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 /* The tabs across a game's pages. Written as a BLOCK with nowrap, never a nowrap
    flex row: a nowrap flex container reports the full width of its items as its own
@@ -1959,6 +1957,8 @@ def sparkline(daily, spikes):
     vals = [v for _, v in pts]
     lo, hi = min(vals), max(vals)
     span = (hi - lo) or 1
+    # Kept level with .spark's CSS height: preserveAspectRatio is none, so a
+    # coordinate space taller than the box drawn on screen only thins the line.
     w, h = 600, 190
     x = lambda i: round(i / (len(pts) - 1) * w, 1)
     y = lambda v: round(h - 6 - (v - lo) / span * (h - 14), 1)
@@ -3739,9 +3739,9 @@ __ABOUT__
 <div class="sp7 lstack">
 <div id="answer" class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p></div>
-<div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
-<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
-__SPARK__</div></div>
+<div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2>
+__SPARK__<div class="verdict">
+<span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div></div></div>
 <div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
 <div class="planpick">
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
