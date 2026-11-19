@@ -1824,7 +1824,38 @@ ALIASES = {
     "bee-swarm-simulator": "BSS",
     "attack-on-titan-revolution": "AOTR",
     "bubble-gum-simulator-infinity": "BGSI",
+    # The rest are the standard short names these games go by on their own wikis,
+    # Discords and Reddit. Only ones the players themselves use - never invented.
+    "tower-defense-simulator": "TDS",
+    "toilet-tower-defense": "TTD",
+    "pet-simulator-99": "PS99",
+    "grow-a-garden": "GAG",
+    "steal-a-brainrot": "SAB",
+    "dress-to-impress": "DTI",
+    "grand-piece-online": "GPO",
+    "natural-disaster-survival": "NDS",
+    "build-a-boat-for-treasure": "BABFT",
+    "car-dealership-tycoon": "CDT",
+    "lumber-tycoon-2": "LT2",
+    "theme-park-tycoon-2": "TPT2",
+    "tower-of-hell": "TOH",
+    "murderers-vs-sheriffs": "MVS",
+    "untitled-boxing-game": "UBG",
+    "fling-things-and-people": "FTAP",
+    "warrior-cats-ultimate-edition": "WCUE",
+    "wild-horse-islands": "WHI",
+    "flee-the-facility": "FTF",
+    "survive-the-killer": "STK",
+    "creatures-of-sonaria-survive-kaiju-animals": "CoS",
 }
+
+
+def search_key(c):
+    """What the search boxes match against: the name plus its nickname, lower case,
+    with apostrophes taken out so "sols rng" finds Sol's RNG. The browser strips the
+    same characters from what was typed, so the two always compare like with like."""
+    k = f'{c["name"]} {ALIASES.get(c["slug"], "")}'.lower().strip()
+    return k.replace("'", "").replace("’", "")
 
 
 def stamp(ts):
@@ -1924,7 +1955,7 @@ def tile(c, i=0):
     # the game's colour. Left off entirely when the picture has no colour in it, so
     # that the stylesheet's fallback (the site accent) takes over.
     glow = "" if c.get("hue") is None else f';--glow:{c["hue"]}'
-    return (f'<li style="--i:{min(i, 14)}{glow}" data-n="{html.escape(c["name"].lower())}" data-s="{c["slug"]}">'
+    return (f'<li style="--i:{min(i, 14)}{glow}" data-n="{html.escape(search_key(c))}" data-s="{c["slug"]}">'
             f'<a class="tile" href="/game/{c["slug"]}">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
             f'<span class="tname">{html.escape(c["name"])}</span>'
             f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
@@ -2592,6 +2623,8 @@ def game_schema(c, a, meta, qa):
     url = abs_url(f'/game/{c["slug"]}')
     game = {"@type": "VideoGame", "name": c["name"], "url": url, "gamePlatform": "Roblox",
             "playMode": "MultiPlayer", "applicationCategory": "Game"}
+    if ALIASES.get(c["slug"]):
+        game["alternateName"] = ALIASES[c["slug"]]
     if c["icon"]:
         game["image"] = c["icon"]
     if c["genre"] and c["genre"] != "All":
@@ -3305,9 +3338,9 @@ var sheet=document.getElementById('sheet'),GAMES=null;
 if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
-var t=q.value.trim().toLowerCase();
+var t=q.value.trim().toLowerCase().replace(/['’]/g,'');
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
-var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+var hits=GAMES.filter(function(g){return (g.k||g.n.toLowerCase()).indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
 return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
@@ -3899,7 +3932,7 @@ b.onclick=function(){want=(want===b.dataset.w?'':b.dataset.w);refresh()}});
 
 /* Search. Goes through refresh() so searching and filtering cannot fight over
    which games are hidden. */
-var s=$('s');if(s)s.oninput=function(){term=s.value.toLowerCase();refresh()};
+var s=$('s');if(s)s.oninput=function(){term=s.value.trim().toLowerCase().replace(/['’]/g,'');refresh()};
 
 /* Saved games, pinned to the top. Copies of the tiles, so they must not inherit
    being hidden by a filter. */
@@ -5536,7 +5569,7 @@ def main():
     # data.json, which also carries a week of player counts per game and is far too
     # big to fetch just to search by name.
     write("games.json", json.dumps(
-        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or ""}
+        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or "", "k": search_key(c)}
          for c in sorted(cards, key=lambda c: c["name"].lower())],
         separators=(",", ":")))
 
@@ -5889,7 +5922,7 @@ def main():
     # Just enough for the search box. data.json carries every game's whole week
     # and is far too big to fetch just to answer "what is this game called".
     write("games.json", json.dumps(
-        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or ""}
+        [{"s": c["slug"], "n": c["name"], "i": c["icon"] or "", "k": search_key(c)}
          for c in sorted(cards, key=lambda c: c["name"].lower())],
         separators=(",", ":")))
     # The events the worker needs to send event notifications. It cannot call Roblox
