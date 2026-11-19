@@ -79,6 +79,41 @@ keeps up without anyone remembering to check.
 - **Numbers are drawn, not listed.** `lineChart`/`chartCursor` are the page-views line and its drag-to-read crosshair, built the same way as the site's `dayGraph` and `graphCursor` (a wash under the line, and a gap in the days breaks the line rather than being drawn as a zero we never recorded). `spark` is the tiny line inside a tile, `ring` the progress circle, `colBars` the days of the week, and `barRows` the sideways bars for pages and games. `lineChart` takes an `id` because its wash gradient needs a unique name on the page.
 - **The Launch checklist shows only what is left.** Ticked items fold into a `<details class="donelist">` below the open ones, counted in its summary ("8 finished items"). They are **folded, not deleted** - the rows stay in `todos` in D1, because "did I ever do Search Console?" is a real question months later. Ticking a box moves that row between the two lists *after* the save lands (`settleTodo`), never before: a row that jumped before the server agreed would have to jump back on a failure and would read as the page glitching. `paintRings()` then redraws **both** progress rings, the Launch tab's and the Overview card's, which until Nov 2026 sat at their load-time number while the list beside them moved.
 - **No CSS escape may be written anywhere in `worker/index.js`,** not even inside a comment. The dashboard lives in a backtick template literal, and a backslash followed by a digit (`content:'\25B8'`) is read as an octal escape, which is a **syntax error in a module and takes the whole worker down**. Writing that very warning out with an example is what caused it once. Describe such escapes in words, never in symbols - and the summary marker is therefore the browser's own triangle.
+- **Five tabs, and the fifth is People** (18 Nov 2026). Sign-ins, saved games and
+  notifications had been live for days with nothing anywhere to say whether any of
+  them worked - the rows were in the same D1 database the dashboard was already
+  reading. It shows how many have signed in and come back, how many games are saved
+  and followed, which switches people choose, and **what the push service last
+  answered for each device**, which until then was only readable by typing a
+  `wrangler d1 execute` at a terminal. The overview raises a warning when any device
+  is failing, because a notification that silently does not arrive is the one fault
+  this site cannot otherwise notice.
+  - **Counts and game names only: no display names, no Roblox IDs, no endpoints, no
+    keys.** Knowing whether the feature works does not need to know who, and a
+    dashboard is a screen that gets photographed and shared. `devList` selects five
+    columns and none of them identify a person.
+  - **Every people query goes through `soft()`**, which returns a fallback on any
+    error. `users`, `favourites` and the three push tables are each created by their
+    own schema file, so one that was never run must leave a quiet tile rather than
+    take the whole dashboard down.
+  - **`push_sent` is cleared to two days by `runPushCron`**, so the sends figure is
+    a recent count and never a running total. The panel says so; do not reword it
+    into "sent all time".
+- **The launch framing is retired** (18 Nov 2026). The checklist is 8 of 9 done -
+  only AdSense is left - so the tab is "Checklist" now and the all-clear line talks
+  about the site running rather than being launch-ready. The three settled
+  conditions (no domain, `NOINDEX` on, `MIN_SAMPLES` under 200) are **kept in the
+  code** even though they can no longer fire: they are regression alarms now, not
+  to-do items, and they cost nothing while silent.
+- **Where visitors came from is deliberately NOT recorded.** It was asked for and
+  turned down on 18 Nov 2026 for one reason: the Privacy Policy says we record "the
+  page address, the date, and that number of seconds, and nothing else". That is a
+  clean promise on a site read by nine-year-olds, and a referrer column would make
+  it false - so it would mean rewriting the policy and moving `POLICY_DATE` to buy
+  something Search Console already gives for nothing. What the dashboard shows
+  instead comes out of the `views` table it already had: **what kind of page** people
+  open (the Nov 2026 split gave every game four more pages and nothing said whether
+  anyone read them) and **which games are climbing**, this week against last.
 - The "Every game" table sorts and filters in the browser (`wireTable`), since all 100 rows are already on the page. Sorting falls back to the name so rows do not jump about between clicks, and a game with no trend yet sorts to the bottom instead of counting as zero.
 - `worker/index.js` holds the dashboard inside backtick template literals, so **a backtick anywhere in the dashboard's own CSS or JavaScript ends the string early** - including in a comment. Keep its inline script on single quotes and concatenation, the way it is written now.
 - Deploy with `npx wrangler deploy` (no `--assets` flag: `wrangler.jsonc` sets it, and passing both is an error).

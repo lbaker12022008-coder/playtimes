@@ -297,6 +297,65 @@ async function adminData(request, env) {
                    "WHERE day >= ?1 AND path LIKE '/game/%' GROUP BY path").bind(dayBefore(29)).all()
   ]);
 
+  // Sign-ins, saved games and notifications are three live features with rows in
+  // this same database, and until 18 Nov 2026 the dashboard mentioned none of them -
+  // so "it said it sent one and nothing appeared" meant going and typing a wrangler
+  // command, which is exactly the sort of thing this page exists to save.
+  //
+  // Every one goes through soft(): `users`, `favourites` and the three push tables
+  // are created by their own schema files, and a dashboard that will not load at all
+  // is a far worse answer than a tile that says nothing yet.
+  const soft = async (sql, binds, fallback) => {
+    try {
+      const st = env.DB.prepare(sql);
+      const r = await (binds && binds.length ? st.bind(...binds) : st).all();
+      return (r.results && r.results.length) ? r.results : fallback;
+    } catch { return fallback; }
+  };
+  const weekAgo = Date.now() - 7 * 86400e3;
+  const [accounts, favs, favTop, devices, devList, watches, watchTop, sent, kinds, climb] =
+    await Promise.all([
+      soft("SELECT COUNT(*) AS n, SUM(CASE WHEN seen >= ?1 THEN 1 ELSE 0 END) AS active, " +
+           "SUM(CASE WHEN created >= ?1 THEN 1 ELSE 0 END) AS joined, MAX(seen) AS last " +
+           "FROM users", [weekAgo], [{}]),
+      soft("SELECT COUNT(*) AS n, COUNT(DISTINCT rbx_id) AS people FROM favourites", [], [{}]),
+      soft("SELECT slug, COUNT(*) AS n FROM favourites GROUP BY slug " +
+           "ORDER BY n DESC, slug LIMIT 8", [], []),
+      soft("SELECT COUNT(*) AS n, COUNT(DISTINCT rbx_id) AS people, " +
+           "SUM(CASE WHEN fails > 0 THEN 1 ELSE 0 END) AS failing, " +
+           "SUM(CASE WHEN last_status IS NULL THEN 1 ELSE 0 END) AS untried, " +
+           "MAX(last_try) AS last_try FROM push_subs", [], [{}]),
+      // Deliberately NOT endpoint, p256dh or auth: those are the device's own address
+      // and its keys, nothing here needs them, and a screen is a place things get
+      // photographed. Nor rbx_id - this page answers "is it working", not "who".
+      soft("SELECT tz, fails, last_status, last_try, created FROM push_subs " +
+           "ORDER BY created DESC LIMIT 20", [], []),
+      soft("SELECT COUNT(*) AS n, COUNT(DISTINCT rbx_id) AS people, SUM(quiet) AS quiet, " +
+           "SUM(busy) AS busy, SUM(events) AS events, SUM(updates) AS updates " +
+           "FROM push_watch", [], [{}]),
+      soft("SELECT slug, COUNT(*) AS n FROM push_watch GROUP BY slug " +
+           "ORDER BY n DESC, slug LIMIT 8", [], []),
+      // push_sent is cleared down to two days by runPushCron, so this is a recent
+      // count and never a running total. The panel says so rather than implying one.
+      soft("SELECT COUNT(*) AS n, MAX(at) AS last FROM push_sent", [], [{}]),
+      // What kind of page people open. The Nov 2026 split gave every game four more
+      // pages, and nothing said whether anybody reads them.
+      soft("SELECT CASE WHEN path = '/' THEN 'The home page' " +
+           "WHEN path LIKE '/game/%' THEN 'Game pages' " +
+           "WHEN path LIKE '/questions/%' THEN 'Questions pages' " +
+           "WHEN path LIKE '/events/%' THEN 'Event pages' " +
+           "WHEN path LIKE '/passes/%' THEN 'What costs money pages' " +
+           "WHEN path LIKE '/updates/%' THEN 'Update pages' " +
+           "WHEN path LIKE '/category/%' THEN 'Category pages' " +
+           "ELSE 'Everything else' END AS kind, SUM(n) AS n " +
+           "FROM views WHERE day >= ?1 GROUP BY kind ORDER BY n DESC", [dayBefore(29)], []),
+      // This week against the week before, per game page. Column names avoid `before`,
+      // which SQLite keeps for triggers.
+      soft("SELECT path, SUM(CASE WHEN day >= ?1 THEN n ELSE 0 END) AS recent, " +
+           "SUM(CASE WHEN day < ?1 THEN n ELSE 0 END) AS earlier FROM views " +
+           "WHERE day >= ?2 AND path LIKE '/game/%' GROUP BY path", [dayBefore(6), dayBefore(13)], [])
+    ]);
+
   return json({
     views: {
       daily: daily.results || [],
@@ -307,6 +366,12 @@ async function adminData(request, env) {
     todos: todos.results || [],
     gameTime: gameTime.results || [],
     gameViews: gameViews.results || [],
+    people: {
+      accounts: accounts[0] || {}, favs: favs[0] || {}, favTop,
+      devices: devices[0] || {}, devList, watches: watches[0] || {}, watchTop,
+      sent: sent[0] || {}
+    },
+    kinds, climb,
     stats: STATS,
     live: await liveCounts()
   });
@@ -581,11 +646,13 @@ function dashboardHtml() {
 <div class="tabs" role="tablist" id="tabs">
 <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
 <button role="tab" data-tab="visitors" aria-selected="false">Visitors</button>
+<button role="tab" data-tab="people" aria-selected="false">People</button>
 <button role="tab" data-tab="games" aria-selected="false">Games &amp; data</button>
-<button role="tab" data-tab="launch" aria-selected="false">Launch checklist</button>
+<button role="tab" data-tab="launch" aria-selected="false">Checklist</button>
 </div>
 <div id="p-overview" role="tabpanel"><p class="mut">Loading&hellip;</p></div>
 <div id="p-visitors" role="tabpanel" hidden></div>
+<div id="p-people" role="tabpanel" hidden></div>
 <div id="p-games" role="tabpanel" hidden></div>
 <div id="p-launch" role="tabpanel" hidden></div>
 <script>
@@ -818,6 +885,7 @@ function render(d) {
 
   overview(d, v, s, t, site, live, todos, dayVal, sumBack);
   visitors(d, v, s, byDay);
+  people(d, s);
   gamesPanel(d, s, t, site, live);
   launch(d, t, site, todos);
   wireTabs();
@@ -864,6 +932,14 @@ function overview(d, v, s, t, site, live, todos, dayVal, sumBack) {
   if ((s.missing_ids || []).length) todo.push(['warn',
     plural((s.missing_ids || []).length, 'game ID') + ' in games.txt returned nothing',
     'Usually a wrong ID, or a game that has been taken down. See Games and data.']);
+  // Notifications fail silently by their nature: a browser that cannot decrypt a
+  // message simply ignores it, and a dead push service says nothing. This is the
+  // only place that would ever tell you.
+  const pdev = (d.people && d.people.devices) || {};
+  if (pdev.failing) todo.push(['warn',
+    'Notifications are failing on ' + plural(pdev.failing, 'device'),
+    'See the People tab for what the push service last said. Five failures in a row ' +
+    'and a device is dropped for good.']);
   if (site.noindex) todo.push(['', 'Google cannot see the site yet',
     'NOINDEX is still True in build_site.py. Turn it off once the pages have real data.']);
   if ((site.min_samples || 0) < 200) todo.push(['', 'MIN_SAMPLES is ' + num(site.min_samples) +
@@ -878,7 +954,8 @@ function overview(d, v, s, t, site, live, todos, dayVal, sumBack) {
     ? todo.map(a => '<div class="alert ' + a[0] + '"><span><b>' + a[1] + '</b><i>' + a[2] +
         '</i></span></div>').join('')
     : '<div class="alert good"><span><b>Nothing needs your attention.</b>' +
-      '<i>The site is building, the collector is running, and the settings are launch-ready.</i>' +
+      '<i>The site is building, the collector is running, every game ID answers, ' +
+      'and nothing is failing to send.</i>' +
       '</span></div>';
 
   const d1 = dayVal(0), d2 = dayVal(1);
@@ -905,13 +982,13 @@ function overview(d, v, s, t, site, live, todos, dayVal, sumBack) {
     range('ov-chart'), '</div><div id="ov-chart"></div></div>',
 
     '<div class="pair">',
-    '<div class="card"><h2>Launch checklist</h2>',
+    '<div class="card"><h2>Checklist</h2>',
     /* Wrapped in an id so ticking a box on the other tab can repaint it. Both
        rings used to be drawn once and then go quietly stale until a reload. */
     '<div id="ring-ov">',
     ring(todos.length - left, todos.length, 'done'),
     '<p class="mut small" style="text-align:center;margin:8px 0 0">',
-    left ? plural(left, 'thing') + ' left. See the Launch checklist tab.' : 'All ticked off.',
+    left ? plural(left, 'thing') + ' left. See the Checklist tab.' : 'All ticked off.',
     '</p></div></div>',
     '<div class="card"><h2>How long people stay</h2>',
     '<p style="font-size:2rem;margin:.1em 0;letter-spacing:-.02em">',
@@ -975,6 +1052,28 @@ function visitors(d, v, s, byDay) {
     return { label: esc(p.path), note: avg, value: p.n, valText: num(p.n) };
   });
 
+  const kindRows = (d.kinds || []).map(k =>
+    ({ label: esc(k.kind), value: k.n, valText: num(k.n) }));
+
+  // Which games are being found more than they were. Slugs are turned back into
+  // names, because a row of addresses is not something anybody reads for pleasure.
+  const slugName = {};
+  (s.games || []).forEach(g => { if (g.slug) slugName[g.slug] = g.name; });
+  const climbRows = (d.climb || [])
+    .map(r => {
+      const slug = r.path.replace('/game/', '');
+      return { name: slugName[slug] || slug, now: r.recent || 0, was: r.earlier || 0 };
+    })
+    .filter(r => r.now >= 3 && r.now > r.was)
+    .sort((a, b) => (b.now - b.was) - (a.now - a.was))
+    .slice(0, 10)
+    .map(r => ({
+      label: esc(r.name),
+      note: r.was ? r.was + ' then, ' + r.now + ' now' : 'new this week',
+      value: r.now, valText: r.was ? '+' + Math.round((r.now - r.was) / r.was * 100) + '%'
+        : '+' + r.now
+    }));
+
   // Which games hold attention, best three in each category.
   const timeByPath = {}, viewsByPath = {};
   (d.gameTime || []).forEach(r => { timeByPath[r.path] = r; });
@@ -1027,6 +1126,22 @@ function visitors(d, v, s, byDay) {
     pages.length ? barRows(pages) : '<p class="mut small">No page views recorded yet.</p>',
     '</div>',
 
+    '<div class="card"><h2>What kind of page people open</h2>',
+    '<p class="mut small">Last 30 days. Every game gained four pages of its own in ',
+    'November - events, questions, what costs money, updates - and this says whether ',
+    'anybody reads them.</p>',
+    kindRows.length ? barRows(kindRows, 'alt')
+      : '<p class="mut small">No page views recorded yet.</p>',
+    '</div>',
+
+    '<div class="card"><h2>Games climbing this week</h2>',
+    '<p class="mut small">The last 7 days against the 7 before them. A game needs ',
+    'three views this week to appear, so one curious afternoon does not top the list.</p>',
+    climbRows.length ? barRows(climbRows)
+      : '<p class="mut small">Nothing has moved enough to show yet. This needs two ' +
+        'weeks of views on the same game.</p>',
+    '</div>',
+
     '<div class="card"><h2>Games that hold attention</h2>',
     '<p class="mut small">Top 3 in each category, last 30 days, ranked by how long the page ',
     'stays open. A game read by a handful of people can top its category on luck, ',
@@ -1038,7 +1153,114 @@ function visitors(d, v, s, byDay) {
   ].join('');
 }
 
-/* ========================================================= 3. games and data */
+/* ================================================================ 3. people */
+/* Sign-ins, saved games and notifications - three features that had been live for
+   days with nothing anywhere to say whether they worked.
+
+   Counts and game names only: no display names, no Roblox IDs, no push addresses
+   and no keys. Knowing whether the thing is working does not need to know who, and
+   a dashboard is a screen that gets photographed and shared. The Privacy Policy
+   promises that what we hold about a person is their Roblox ID, their name and
+   their saved games, and nothing here widens that by a single column. */
+function people(d, s) {
+  const p = d.people || {};
+  const acc = p.accounts || {}, fav = p.favs || {}, dev = p.devices || {};
+  const w = p.watches || {}, sent = p.sent || {};
+
+  // Slugs back into names: a column of addresses is not something anybody reads.
+  const slugName = {};
+  (s.games || []).forEach(g => { if (g.slug) slugName[g.slug] = g.name; });
+  const gname = (slug) => esc(slugName[slug] || slug);
+  const agoMs = (ms) => ms ? ago(new Date(Number(ms)).toISOString()) : 'never';
+
+  /* What the push service said last time. This is the whole reason the panel
+     exists: fails counts failures only, so it sits at 0 both when a send worked
+     and when one was never tried, and the real answer was only ever readable by
+     typing a wrangler command at a terminal. 201 is a normal success. */
+  const statusWord = (c) => c == null ? 'No send tried yet'
+    : (c >= 200 && c < 300) ? 'Delivered (' + c + ')'
+    : c === 0 ? 'Could not build the message'
+    : c === -1 ? 'Could not reach the push service'
+    : (c === 404 || c === 410) ? 'This device is gone for good'
+    : 'The push service refused it (' + c + ')';
+  const statusCls = (c) => c == null ? '' : (c >= 200 && c < 300) ? 'good' : 'warn';
+
+  const devRows = (p.devList || []).map(r =>
+    '<div class="alert ' + statusCls(r.last_status) + '"><span><b>' +
+    statusWord(r.last_status) + '</b><i>' +
+    (r.last_try ? 'Last tried ' + agoMs(r.last_try) : 'Nothing sent to it yet') +
+    ' &middot; turned on ' + agoMs(r.created) +
+    ' &middot; clock UTC' + ((r.tz || 0) >= 0 ? '+' : '') + (r.tz || 0) +
+    (r.fails ? ' &middot; ' + plural(r.fails, 'failure') + ' in a row, dropped at 5' : '') +
+    '</i></span></div>').join('');
+
+  const kindRows = [
+    { label: 'Quiet', value: w.quiet || 0 },
+    { label: 'Busy', value: w.busy || 0 },
+    { label: 'Events', value: w.events || 0 },
+    { label: 'Updates', value: w.updates || 0 }
+  ].map(k => ({ label: k.label, value: k.value, valText: num(k.value) }));
+  const anyKind = kindRows.some(k => k.value);
+
+  const savedRows = (p.favTop || []).map(r =>
+    ({ label: gname(r.slug), value: r.n, valText: num(r.n) }));
+  const watchRows = (p.watchTop || []).map(r =>
+    ({ label: gname(r.slug), value: r.n, valText: num(r.n) }));
+
+  document.getElementById('p-people').innerHTML = [
+    '<div class="tiles">',
+    tile('Signed in with Roblox', num(acc.n),
+      '<span class="mut small">' + (acc.joined ? plural(acc.joined, 'new one') + ' this week'
+        : 'none new this week') + '</span>'),
+    tile('Back in the last 7 days', num(acc.active),
+      '<span class="mut small">' + (acc.last ? 'last sign-in ' + agoMs(acc.last)
+        : 'nobody yet') + '</span>'),
+    tile('Games saved', num(fav.n),
+      '<span class="mut small">by ' + plural(fav.people || 0, 'person') + '</span>'),
+    tile('Devices with notifications on', num(dev.n),
+      '<span class="mut small">' + plural(dev.people || 0, 'person') + '</span>'),
+    '</div>',
+
+    '<div class="card"><h2>Are notifications arriving?</h2>',
+    '<p class="mut small">One line per device, newest first. A browser that cannot ',
+    'read a message simply ignores it and nothing anywhere reports an error, so what ',
+    'the push service answered is the only honest signal there is.</p>',
+    devRows || '<p class="mut small">Nobody has turned notifications on yet. The ' +
+      'switches are on every game page and on the notifications page.</p>',
+    (sent.n ? '<p class="mut small">' + plural(sent.n, 'notification') + ' sent in the ' +
+      'last two days' + (sent.last ? ', the most recent ' + agoMs(sent.last) : '') +
+      '. Older records are cleared every run, so this is never a running total.</p>' : ''),
+    '</div>',
+
+    '<div class="pair">',
+    '<div class="card"><h2>Which alerts people choose</h2>',
+    '<p class="mut small">Four independent switches, counted across every game ',
+    'anybody follows.</p>',
+    anyKind ? barRows(kindRows, 'alt')
+      : '<p class="mut small">No alerts switched on yet.</p>',
+    '<p class="mut small">', num(w.n), ' game ', (w.n === 1 ? 'alert' : 'alerts'),
+    ' in all, set by ', plural(w.people || 0, 'person'), '.</p></div>',
+    '<div class="card"><h2>Most followed games</h2>',
+    '<p class="mut small">Games people asked to be told about.</p>',
+    watchRows.length ? barRows(watchRows)
+      : '<p class="mut small">Nothing followed yet.</p>',
+    '</div></div>',
+
+    '<div class="card"><h2>Most saved games</h2>',
+    '<p class="mut small">Saving a game is somebody saying they care about it, which ',
+    'is why a saved game gets a row on the notifications page with every switch off, ',
+    'ready to turn on.</p>',
+    savedRows.length ? barRows(savedRows)
+      : '<p class="mut small">Nothing saved by a signed-in person yet. Saves made ' +
+        'without signing in stay in that browser and never reach us.</p>',
+    '</div>',
+
+    '<p class="mut small">Counts only. No names, no Roblox IDs, no push addresses ' +
+    'and no keys are read for this page.</p>'
+  ].join('');
+}
+
+/* ========================================================= 4. games and data */
 function gamesPanel(d, s, t, site, live) {
   // Counts come from the collector, so they are current. Anything that needs a full
   // rebuild to work out - typical players, trend, verdict - is from the last build.
