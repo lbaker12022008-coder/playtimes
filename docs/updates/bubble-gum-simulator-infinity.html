@@ -1219,13 +1219,13 @@ e.preventDefault();history.back()}});</script></head><body>
 
 🎃 The Super Halloween Egg Features 3 New Secret, 2 Celestial, &amp; 3 Infinity Pets!
 
-❤️ Did I mention it&#x27;ll be available for 24 hours? You won&#x27;t want to miss this....</p></li><li class=""><b>🎃 Halloween Finale!</b><span class="d">🎃 Final Part!</span><span class="d">Sat 31 Oct &middot; 18 days ago</span><p>🎃 The Final Halloween Part is coming!
+❤️ Did I mention it&#x27;ll be available for 24 hours? You won&#x27;t want to miss this....</p></li><li class=""><b>🎃 Halloween Finale!</b><span class="d">🎃 Final Part!</span><span class="d">Sat 31 Oct &middot; 19 days ago</span><p>🎃 The Final Halloween Part is coming!
 
 🥚 The Super Halloween Egg! 3 Secrets, 2 Celestials, 3 Infinity Pets!
 🎁 New Halloween Shop Pets!
 🏆 Special 1 Week Long Infinity Bounty Pet!
 ⭐ New Season Pass!
-💎 Final Rebirth Upgrades + Void Luck Upgrade!</p></li><li class=""><b>💎Shadow Admin Abuse!</b><span class="d">🎁 Admin Abuse is back!</span><span class="d">Sat 24 Oct &middot; 26 days ago</span><p>🔮 A 2 Hour Long, x20,000 Luck Admin Abuse Egg will be spawning in The Overworld!</p></li><li class=""><b>🎃 Halloween Part 2.5</b><span class="d">🎃 Coming Soon!</span><span class="d">Fri 23 Oct &middot; 26 days ago</span><p>🎃 Halloween Part 2.5 is here!
+💎 Final Rebirth Upgrades + Void Luck Upgrade!</p></li><li class=""><b>💎Shadow Admin Abuse!</b><span class="d">🎁 Admin Abuse is back!</span><span class="d">Sat 24 Oct &middot; 26 days ago</span><p>🔮 A 2 Hour Long, x20,000 Luck Admin Abuse Egg will be spawning in The Overworld!</p></li><li class=""><b>🎃 Halloween Part 2.5</b><span class="d">🎃 Coming Soon!</span><span class="d">Fri 23 Oct &middot; 27 days ago</span><p>🎃 Halloween Part 2.5 is here!
 
 🍀 3 New Halloween Bounties!
 🎃 New Spooky Rebirth Machine + Special Combination for an Infinity Pet!
@@ -2042,9 +2042,9 @@ var sheet=document.getElementById('sheet'),GAMES=null;
 if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
-var t=q.value.trim().toLowerCase();
+var t=q.value.trim().toLowerCase().replace(/['’]/g,'');
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
-var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+var hits=GAMES.filter(function(g){return (g.k||g.n.toLowerCase()).indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
 return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+

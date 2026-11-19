@@ -1242,7 +1242,7 @@ e.preventDefault();history.back()}});</script></head><body>
 
 🚁 FLYING VEHICLE UPDATE 🚁
 - Helicopters have new blades
-- New VIP…</p></li><li class=""><b>🎃 HALLOWEEN 🎃</b><span class="d">Trick or Treat!</span><span class="d">Fri 23 Oct &middot; 26 days ago</span><p>Trick or Treat! It&#x27;s time for HALLOWEEN in Brookhaven!</p></li><li class=""><b>WELCOME TO THE SPA ✨</b><span class="d">Sooo relaxing!</span><span class="d">Fri 16 Oct &middot; 1 month ago</span><p>🧘 WELLNESS HOMES 🧘
+- New VIP…</p></li><li class=""><b>🎃 HALLOWEEN 🎃</b><span class="d">Trick or Treat!</span><span class="d">Fri 23 Oct &middot; 27 days ago</span><p>Trick or Treat! It&#x27;s time for HALLOWEEN in Brookhaven!</p></li><li class=""><b>WELCOME TO THE SPA ✨</b><span class="d">Sooo relaxing!</span><span class="d">Fri 16 Oct &middot; 1 month ago</span><p>🧘 WELLNESS HOMES 🧘
 New Estate - Run your own spa featuring:
 - An underground grotto
 - An indoor pool
@@ -2071,9 +2071,9 @@ var sheet=document.getElementById('sheet'),GAMES=null;
 if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
-var t=q.value.trim().toLowerCase();
+var t=q.value.trim().toLowerCase().replace(/['’]/g,'');
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
-var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+var hits=GAMES.filter(function(g){return (g.k||g.n.toLowerCase()).indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
 return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+
