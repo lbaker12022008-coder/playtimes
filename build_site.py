@@ -28,7 +28,7 @@ OUT = os.environ.get("SITE_OUT") or "docs"   # which folder to write the site in
 DOMAIN = "https://playtimestats.com"   # no slash on the end; this is what makes the sitemap real
 ROBUX_USD = 0.0125         # rough dollars per Robux (800 Robux costs $9.99)
 CONTACT = "contact@playtimestats.com"  # forwarded to the owner by Cloudflare Email Routing
-POLICY_DATE = "November 16, 2026"  # change this whenever you edit the Privacy Policy
+POLICY_DATE = "November 19, 2026"  # change this whenever you edit the Privacy Policy
 
 SPIKE = 1.5                # a day this much busier than normal is "likely an update or event"
 
@@ -215,8 +215,24 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    it. The ad strip is pushed up by exactly this bar's height rather than being
    covered, and .shell gets the same padding so the footer is not hidden under it
    either - the two were the things that broke when this was first tried. */
+/* The three ways in, as buttons across the homepage, under the search box. They
+   are in the bar across the top on a computer and there is no room for them there
+   on a phone, so on a phone they come back to the one page everybody starts on.
+   The base rule and the media query are written NEXT TO EACH OTHER on purpose:
+   both are one class, a media query adds no specificity, and source order is all
+   that decides it - the trap this stylesheet keeps setting. */
+.homenav{display:none}
+@media(max-width:899px){.homenav{display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 2px}}
+.homenav a{display:flex;align-items:center;justify-content:center;text-align:center;
+min-height:46px;padding:9px 6px;border:1px solid var(--line);border-radius:12px;
+background:var(--card);color:var(--ink);text-decoration:none;font-weight:700;
+font-size:.9rem;line-height:1.2}
+.homenav a:hover,.homenav a:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
+.homenav a.on{border-color:var(--acc);color:var(--acc)}
+
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;
-grid-template-columns:repeat(3,1fr);background:var(--glass);
+grid-template-columns:repeat(4,minmax(0,1fr));background:var(--glass);
 backdrop-filter:saturate(1.4) blur(12px);border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom)}
 .tabbar .tbb{display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -318,7 +334,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    in a nowrap row, and a flex item is sized to its contents unless told it may
    shrink - so a link too many pushed the whole bar wider than the phone it was on.
    It can scroll inside itself now and the page never moves. */
-.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 1 auto;
+/* flex:0 0 auto - the sections do not shrink. They used to (0 1 auto), which is
+   what let a long name squeeze them; the overflow is kept as a last net rather
+   than as the usual case. */
+.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 0 auto;
 overflow-x:auto;scrollbar-width:none}
 .hnav::-webkit-scrollbar{display:none}
 /* Three links at 900px, all eight once there is room for them. Eight at 900 was
@@ -390,7 +409,15 @@ border:1px solid var(--line);background:var(--shade)}
    inside the 900px block, the same way .deskonly works, so the phone case is the
    default and a new width cannot accidentally reveal them. */
 .nots,.acctbar{display:none;flex:none}
-.acctb{display:flex;align-items:center;gap:8px;max-width:210px;height:42px;
+/* A long Roblox display name made the pill 182px instead of 94px and pushed
+   Compare and Plan off the end of the bar - at EVERY width, 1920px included,
+   because the band is capped at 1200px however wide the screen is. The bar is
+   navigation first, so the sections hold their width (.hnav is flex:0 0 auto
+   below) and the NAME gives way instead: min-width:0 all the way down to .albl,
+   which already has the ellipsis. The whole name is still one press away, written
+   across the button the menu hangs from. */
+.acctbar{flex:0 1 auto;min-width:0}
+.acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
@@ -399,8 +426,8 @@ color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
-.albl{max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-font-size:.9rem}
+.albl{max-width:128px;min-width:0;flex:0 1 auto;overflow:hidden;
+text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
 /* The menu under the name in the bar (17 Nov 2026). It holds what the panel used to
    hold for a signed-in person on a computer - who you are and the way out - so the
    panel drops its own copy from 900px up and there is still only ever one of each.
@@ -591,9 +618,10 @@ animation:dropin .15s ease both}
    900px up, and the bar across the bottom of a phone carries one below that. Two
    buttons for one sheet in one menu is the thing this header keeps avoiding. */
 .dtop .drow[data-search]{display:none}
-/* Same for the event calendar, which is in that bottom bar - but only on a phone,
-   since the bottom bar is not there on a computer. */
-@media(max-width:899px){.drawer nav a[data-sec=events]{display:none}}
+/* Same for the event calendar and Plan a session, which are in that bottom bar -
+   but only on a phone, since the bottom bar is not there on a computer. */
+@media(max-width:899px){.drawer nav a[data-sec=events],
+.drawer nav a[data-sec=plan]{display:none}}
 /* The sections leave the panel only once the bar is wide enough to show all of
    them, which is 1200px - not 900, where only the first three fit. */
 @media(min-width:1200px){.drawer nav a[data-sec]{display:none}}
@@ -831,7 +859,12 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
    one you picked" are different answers to different questions. It is a ring and
    never a fill, so it cannot be mistaken for a sixth band of the traffic light. */
 .hm .c[data-d]{cursor:pointer}
-.hm .c.sel{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:5px}
+/* padding:0 is NOT spare. `.sel` is also the class on every <select> on the site
+   (.sel{padding:10px 13px}, further down and one class), and a one-class rule that
+   declares something this one does not simply applies - so the square you tapped
+   picked up a dropdown's padding and went from 11x17 to 28x22 on a phone. It was
+   hidden for as long as the tapped square was scaled up anyway. */
+.hm .c.sel{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:5px;padding:0}
 .legend{display:flex;align-items:center;gap:4px;font-size:.85rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
 .legend i{width:26px;height:12px;border-radius:3px;display:inline-block}
 .spark{width:100%;height:190px;display:block}
@@ -1021,14 +1054,15 @@ h2{font-size:1.06rem}
 /* the week grid: 24 columns on a phone, so the squares have to be small */
 .hm{grid-template-columns:30px repeat(24,minmax(0,1fr));gap:1.5px;font-size:.68rem}
 .hm .c{height:17px;border-radius:3px;transition:transform .12s}
-/* A square is about 13px across on a phone, which is smaller than the finger
-   pressing it - so the one that was pressed grows, both to show which one it was
-   and to put something finger-sized under the next tap. It lifts above its
-   neighbours rather than pushing them, since the grid must not reflow while
-   somebody is reading it. Every other square stays live: a chart that stops
-   answering because one square is open would be a fault, not a feature. */
-.hm .c.sel{transform:scale(2.2);position:relative;z-index:3;border-radius:4px;
-outline-width:1.5px;outline-offset:1px;box-shadow:0 3px 12px rgba(0,0,0,.5)}
+/* The square that was tapped is RINGED, not grown (19 Nov 2026, owner's call). It
+   used to scale to 2.2 so there was something finger-sized to tap again, and the
+   owner would rather the grid held still: a square that jumps out from under the
+   finger that pressed it reads as the page moving about. z-index keeps the ring
+   above its neighbours, since the squares are only 1.5px apart. Every other square
+   stays live - a chart that stops answering because one square is open would be a
+   fault, not a feature. */
+.hm .c.sel{position:relative;z-index:3;border-radius:4px;
+outline:2px solid var(--acc);outline-offset:1px}
 .axis{font-size:.72rem}
 /* a game's icon beside its name, instead of a 150px square pushing the name down */
 .ghead{gap:13px;margin:38px 0 12px;padding:14px 15px;border-radius:16px}
@@ -1355,6 +1389,10 @@ ICON_CAL = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
             'stroke="currentColor" stroke-width="1.6"/>'
             '<path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" '
             'stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>')
+ICON_CLOCK = ('<svg viewBox="0 0 16 16" aria-hidden="true">'
+              '<circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+              '<path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" '
+              'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')
 ICON_LIST = ('<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/>'
              '<rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg>')
 
@@ -1564,7 +1602,9 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<a class="tbb" href="/#favs" data-tb="favs">{ICON_STAR}'
               f'<span>Saved</span></a>'
               f'<a class="tbb" href="/events" data-tb="events">{ICON_CAL}'
-              f'<span>Events</span></a></nav>')
+              f'<span>Events</span></a>'
+              f'<a class="tbb" href="/plan" data-tb="plan">{ICON_CLOCK}'
+              f'<span>Plan</span></a></nav>')
     # The bar is the same shape on every page of the site and at every width -
     # see the note by `.hdr .in` in the stylesheet for why it stopped following the
     # column of words underneath it.
@@ -1624,7 +1664,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
 <a href="/terms">Terms of Service</a></nav>
 <p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
-shows when people play, not whether a game is good or safe.</p></footer>
+shows when people play, not whether a game is good or safe.{foot_contact()}</p></footer>
 </div>{ad_rail('right')}</div>{ad_rail('bottom')}
 {tail}<script>{CHROME_JS}</script>{HIT}</body></html>"""
 
@@ -1918,6 +1958,19 @@ def contact_html():
         return ""
     e = html.escape(CONTACT)
     return f'<h2>Contact</h2><p>Questions or problems? Email <a href="mailto:{e}">{e}</a>.</p>'
+
+
+def foot_contact():
+    """The same address at the very bottom of every page (19 Nov 2026, owner's
+    call: it was a section inside the Terms of Service, which is the last place
+    somebody with a question would think to look). About and the Privacy Policy
+    keep their own Contact heading - a privacy policy that cannot be replied to is
+    not much of one - but the Terms no longer carry one, because the foot of the
+    page is on that page too."""
+    if not CONTACT:
+        return ""
+    e = html.escape(CONTACT)
+    return f' Questions or problems? Email <a href="mailto:{e}">{e}</a>.'
 
 
 # ---------------------------------------------------------------- the maths
@@ -3036,13 +3089,18 @@ var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
 :(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
 return seg==='popular'||seg==='popular.html'})()?'popular':'';
-if(hkey)Array.prototype.forEach.call(document.querySelectorAll('.hnav a[data-hn]'),
-function(a){if(a.getAttribute('data-hn')===hkey)a.className='on'});
+/* Every copy of them: the bar on a computer and the three buttons on the phone's
+   homepage. classList.add, not className=, because five of the links in the bar
+   also carry "more" - the class that keeps them out of a narrow bar - and
+   overwriting it put the one you were on back on screen at widths with no room. */
+if(hkey)Array.prototype.forEach.call(document.querySelectorAll('[data-hn]'),
+function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
 var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
 var tkey=(hseg2==='events')?'events'
+:(hseg2==='plan')?'plan'
 :((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
@@ -4733,7 +4791,7 @@ Please treat the site as a helpful guess, not a promise.</p>
 arising from using the site or relying on its numbers.</p>
 <h2>Changes to these terms</h2>
 <p>If these terms change, we will update this page and the date at the top.</p>
-{contact_html()}</div>"""
+</div>"""
 
 
 # ---------------------------------------------------------------- writing files
@@ -5408,6 +5466,13 @@ def main():
         f'in your own timezone.</p>'
         f'</div>'
         '<input id="s" type="search" placeholder="Search for a game" aria-label="Search for a game">'
+        # Phone only. On a computer these three are in the bar at the top of every
+        # page; a phone's bar has no room for them, so on a phone they sit here, on
+        # the page everybody starts on, directly under the search box.
+        '<nav class="homenav" aria-label="Find games">'
+        '<a href="/?for=busy" data-hn="busy">Busy now</a>'
+        '<a href="/?for=quiet" data-hn="quiet">Quiet now</a>'
+        '<a href="/popular" data-hn="popular">Popular</a></nav>'
         + ask_html()
         # The categories used to be a bare row of pills under the chooser, with nothing
         # saying what they were. On a phone they wrapped onto five lines, which read as

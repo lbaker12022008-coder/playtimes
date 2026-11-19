@@ -454,6 +454,14 @@ standing rule rather than a rewrite waiting to happen.
   `.dtop .acct.signedin{display:none}` and the bar's pill carries a small `#amenu`
   holding "Signed in with Roblox" and Sign out. Below 900px there is no pill, so the
   panel keeps the account and `#amenu` is never drawn. One of each at every width.
+  - **The sections hold their width and the NAME gives way** (19 Nov 2026). A long
+    Roblox display name made the pill 182px instead of 94px and pushed Compare and
+    Plan off the end of the bar - at **every** width, 1920px included, because the
+    band is capped at 1200px however wide the screen is. `.hnav` is `flex:0 0 auto`
+    now, and `min-width:0` runs down through `.acctbar` and `.acctb` to `.albl`,
+    which already had the ellipsis. The bar is navigation first, and the whole name
+    is one press away on the button the menu hangs from. `longname.js` measures it
+    at four widths with a 30-character name.
   - **The name is NOT repeated inside the menu.** It is written across the button
     the menu hangs from, and that was the whole complaint about the old
     arrangement.
@@ -533,6 +541,17 @@ standing rule rather than a rewrite waiting to happen.
   finger covers the square it is pointing at**. It needs a `pointermove` handler as
   well as `pointerover`: the squares are 26px apart, so moving along a day without
   one left the box behind on the first square.
+  - **On a phone the tapped square is RINGED, not grown** (19 Nov 2026, owner's
+    call). It used to scale to 2.2 so there was something finger-sized to tap
+    again; the owner would rather the grid held still, since a square that jumps
+    out from under the finger that pressed it reads as the page moving about.
+    Every other square stays live either way.
+  - **`.hm .c.sel` has to say `padding:0`, and that is not tidiness.** `.sel` is
+    also the class on every `<select>` on the site (`.sel{padding:10px 13px}`,
+    further down and one class), and a one-class rule that declares something a
+    two-class rule does not simply applies - so the tapped square picked up a
+    dropdown's padding and went from 11x17 to 28x22. It had been doing that for as
+    long as the square was being scaled up anyway, which is what hid it.
 - **The row of buttons under the game's heading is the page's navigation** (`.actions`, `jump_html`): Play, Game updates, Save, and then a jump link for each section far enough down the page to be worth one - Events and the common questions. A visitor arriving from Google lands on a long page and the row says where everything is, in one place rather than as a second strip of links. **Compare was removed from it in Nov 2026** to make room; `/compare` is still reached from the panel and the footer, but no longer arrives with this game already chosen. **A jump link is only drawn when its section exists** - `anchor()` puts the id on the card and `jump_html` is handed only the blocks that came back non-empty, so a game whose creators have announced no events cannot offer a link to an id that is not on the page. Plain anchors, no JavaScript, which is also what lets Google offer the same sections underneath our own search result. **`.bento>*` and `.lstack>.card` carry `scroll-margin-top`** (78px, 68px on a phone): the header is sticky and about 65px tall, so without it every jump lands with the heading hidden underneath the bar. Measured on a real emulated phone and at 1024/1440: every jump clears the header by 26px or more and nothing scrolls sideways.
 - **`/updates/<game>.html`** holds everything about one game's updates: the recent-changes list, the update rhythm and the spike days. Game pages link to it with a "Game updates" button near the top rather than carrying the whole section themselves. `prune()` cleans this folder too, and `c["has_updates"]` is what puts the page in the sitemap.
 - **Game passes** (`pass_card`, `parents_html`, `roblox_api.fetch_passes` with `passView=Full`): picture, name, what the creators say it contains, and the price in Robux and dollars. The only labels are ones the data supports: `Cheapest`, `Newest` and `On sale now` (Roblox's own `priceDiscountDetails`). **Never add a "recommended" or "best" badge**: the game-pass API returns no sales, ratings or popularity of any kind, so a ranking would be invented, and the people reading it are often children about to spend real money. The page says so in as many words.
@@ -952,7 +971,7 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
-- **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints on About, Privacy **and** Terms through `contact_html()`, which is why setting it moved `POLICY_DATE` to 13 Nov 2026 - those two documents gained a Contact section. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
+- **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints at the **foot of every page** through `foot_contact()` (19 Nov 2026, owner's call: it had been a section inside the Terms of Service, which is the last place somebody with a question would think to look), and as a Contact heading on About and Privacy through `contact_html()`. **Terms no longer carries one** - the foot of the page is on that page too. Privacy keeps its own, because a privacy policy that cannot be replied to is not much of one. Setting the address in the first place moved `POLICY_DATE` to 13 Nov 2026; taking it out of Terms moved it again, to 19 Nov 2026. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
 - **Browser notifications are live and open to everybody** (16 Nov 2026): VAPID keys set in Cloudflare, the three push tables in D1, three switches per game, and `/notifications` to manage them. The Roblox review passed that morning, so the 10-user cap is gone. See "Browser notifications" above.
 - **Sign in with Roblox works.** The domain unblocked it, the redirect URL is registered, and people have signed in and out for real since 14 Nov 2026 - which is how the sign-out bug above was found. The OAuth app is on the Roblox account `gp_isweird`, client id `5479373624062556036`, secret rotated 14 Nov 2026, and it **passed Roblox's review on 16 Nov 2026** - the 10-user cap is lifted. **Still to do:** delete the old app `5285601446665495033`.
 - In Cloudflare, **Settings -> Builds -> Previews Base -> "Builds for Preview branches" is off**. It has to stay off: with it on, Cloudflare tried to deploy the `data` branch every ten minutes and failed every time, because that branch holds only the CSVs. The Production tab's deploy command is plain `npx wrangler deploy`; a `--assets ./docs` flag there would point at the right folder but create no `ASSETS` binding, and the 404 page would stop working.
@@ -986,6 +1005,21 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
     stayed in the sitemap. They were added to the footer in the same change. **Before
     taking anything out of the panel, check the footer carries it** - that is the
     footer's whole job here, and it is why the pills could be deleted safely.
+  - **On a phone the three ways in are buttons on the homepage** (`.homenav`,
+    19 Nov 2026), directly under the search box: three in a row, Busy now / Quiet
+    now / Popular. They are in the bar across the top on a computer and a phone's
+    bar has no room for them, so on a phone they go back to the one page everybody
+    starts on. `CHROME_JS` marks the one you are on in **every** copy - the
+    selector is `[data-hn]`, not `.hnav a[data-hn]` - and it uses
+    `classList.add('on')` rather than `className='on'`, because five of the links
+    in the bar also carry `more`, the class that keeps them out of a narrow bar,
+    and overwriting it put the one you were on back on screen at widths with no
+    room for it.
+  - **The bar across the bottom of a phone is four now: Search, Saved, Events,
+    Plan** (19 Nov 2026). Anything in that bar is hidden from the panel below
+    900px (`.drawer nav a[data-sec=events]`, `[data-sec=plan]`), because the
+    panel is not where somebody on a phone goes looking for them. On a computer
+    there is no bottom bar, so the panel keeps both.
   - The labels in `TABS` are read by the panel and nowhere else (the footer's are
     written out), so renaming one is safe. Events and Compare became **Event
     calendar** and **Compare games** because one word each was doing too much work.
