@@ -216,6 +216,29 @@ measured rather than guessed:
     test measures that control with `.phonetip` removed, because the rule is about
     the control staying bare and this is a separate, deliberate warning.
 
+**"Redirect URI is invalid" in the INSTALLED app, while the website signs in fine, means
+the app is on the wrong address.** Diagnosed 18 Nov 2026 after it was reported on the PC
+app. `redirectUri()` in `worker/auth.js` builds the return address out of the address the
+request arrived on, and the manifest's `start_url` and `scope` are relative - so an
+installed app is glued to whatever host it was installed from, for every page inside it,
+for ever. This one had been installed from the `workers.dev` address, which still answers;
+sign-in there asks Roblox to return to `<something>.workers.dev/auth/callback`, which is
+not registered and which Roblox will not let anybody register. Hence Roblox's red page in
+the app and a working sign-in in an ordinary tab, at the same moment, on the same machine.
+- **The fix is to install it again from the real domain**, not a code change. Redirecting
+  the wrong host to the right one does not rescue an app already installed on it: the app
+  is scoped to that origin, so the redirect pops out into a browser tab, and the cookie is
+  then set on a domain the app cannot read. Nothing but reinstalling moves an app's origin.
+- **It is not only `workers.dev`.** `wrangler.jsonc` sets `preview_urls: true` and
+  `.github/workflows/staging.yml` deploys a second copy, so there are several live hosts
+  to install the wrong one from. Only `www` is redirected to the bare name
+  (`worker/index.js`), and that is a 301 of the request, not of an installed app.
+- **Uninstalling with "also delete data" ticked takes the sign-in cookie with it**, which
+  reads as the site forgetting you on restart. The cookie itself is a 60-day `Max-Age`
+  one (`worker/auth.js`), so a sign-in that does not survive a restart is the browser
+  clearing it - Chrome's "Clear cookies and site data when you close all windows", or an
+  uninstall - rather than anything here.
+
 **You cannot check the app's own settings from outside.** Roblox's `/oauth/v1/authorize` redirects
 to its login page whatever you send it - a wrong `redirect_uri`, or a client id that does not exist
 at all, both come back as the same 302. So a bad redirect URL only shows up as a failure *after*
