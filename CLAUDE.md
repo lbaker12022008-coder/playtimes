@@ -229,6 +229,12 @@ the app and a working sign-in in an ordinary tab, at the same moment, on the sam
   the wrong host to the right one does not rescue an app already installed on it: the app
   is scoped to that origin, so the redirect pops out into a browser tab, and the cookie is
   then set on a domain the app cannot read. Nothing but reinstalling moves an app's origin.
+- **`/auth/login` on any host but `playtimestats.com` now 302s there** (`worker/index.js`,
+  18 Nov 2026), carrying `?back=` with it, so a sign-in can never again start on an address
+  Roblox will refuse. Only `/auth/login`, so the test copy stays browsable, which is what it
+  is for; `localhost` is left alone so `wrangler dev` can still be signed in to. Nothing was
+  lost by it, since sign-in has never worked on the test copy and cannot be made to. It turns
+  the red page into a working sign-in on the real site; it does not move an installed app.
 - **It is not only `workers.dev`.** `wrangler.jsonc` sets `preview_urls: true` and
   `.github/workflows/staging.yml` deploys a second copy, so there are several live hosts
   to install the wrong one from. Only `www` is redirected to the bare name
