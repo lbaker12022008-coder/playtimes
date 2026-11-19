@@ -5,7 +5,7 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Violence District Game Passes and Prices in Robux | PlayTime">
 <meta property="og:description" content="Every Violence District game pass, what the creators say it contains, and the price in Robux and in dollars. Written for parents.">
-<meta property="og:url" content="https://playtimestats.com/passes/violence-district"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-2864a58c935a65e12f5c662fa877c21a/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://playtimestats.com/passes/violence-district"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-1e03ae5fbe8615c9cd06f283b6906125/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-19">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -1202,7 +1202,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
-<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-2864a58c935a65e12f5c662fa877c21a/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-1e03ae5fbe8615c9cd06f283b6906125/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
 <nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
@@ -1242,10 +1242,17 @@ var d=document.documentElement;
    Plain string tests and no regex: these blocks are ordinary Python strings, so a
    backslash in one is eaten before the browser ever sees it. */
 var hp=location.pathname,hs=location.search;
+var hseg=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+/* All EIGHT of them, not the first three (19 Nov 2026). Busy, quiet and popular
+   were marked and Growing, Shrinking, Events, Compare and Plan were not, so
+   standing on one of those five the bar said nothing about where you were - the
+   stylesheet had treated all eight alike from the start and only this knew about
+   three. Each of the five is its own page, so the name of the file is the answer;
+   busy and quiet are the homepage asked a question, so they come off the query. */
 var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
-:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
-return seg==='popular'||seg==='popular.html'})()?'popular':'';
+:(hseg==='popular'||hseg==='growing'||hseg==='shrinking'||hseg==='events'
+||hseg==='compare'||hseg==='plan')?hseg:'';
 /* Every copy of them: the bar on a computer and the three buttons on the phone's
    homepage. classList.add, not className=, because five of the links in the bar
    also carry "more" - the class that keeps them out of a narrow bar - and
@@ -1255,10 +1262,9 @@ function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
-var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
-var tkey=(hseg2==='events')?'events'
-:(hseg2==='plan')?'plan'
-:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+var tkey=(hseg==='events')?'events'
+:(hseg==='plan')?'plan'
+:((hseg===''||hseg==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 

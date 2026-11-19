@@ -1235,13 +1235,13 @@ Sign up to…</p></li><li class=""><b>Plushies &amp; Craft Fair! 🧸</b><span c
 🎨 Craft Fair Event: Load up your truck with products and bring it to the craft fair to sell to your customers!
 ✏️ Two New Products
 
-Sign up to be notified! 🔔</p></li><li class=""><b>Shop Customization! 🖌️</b><span class="d">Decorate your shop!</span><span class="d">Tue 27 Oct &middot; 22 days ago</span><p>🛋️ Change furniture inside your shop! (Click &quot;Expand&quot; -&gt; &quot;Decorate&quot;)
+Sign up to be notified! 🔔</p></li><li class=""><b>Shop Customization! 🖌️</b><span class="d">Decorate your shop!</span><span class="d">Tue 27 Oct &middot; 23 days ago</span><p>🛋️ Change furniture inside your shop! (Click &quot;Expand&quot; -&gt; &quot;Decorate&quot;)
 🎨 Change your shop&#x27;s wallpaper! (Click &quot;Expand&quot; -&gt; &quot;Customize&quot;)
 🖌️ Change your shop&#x27;s outside color! (Click &quot;Expand&quot; -&gt; &quot;Customize&quot;)
 📦 Box decorating gamepass! (Use the customization table in the bedroom)
 🎁 Gamepass &amp; coin gifting to friends
 
-Sign up to be notified! 🔔</p></li><li class=""><b>Goodie Customization! 🎨</b><span class="d">Customize your goodies!</span><span class="d">Sat 24 Oct &middot; 25 days ago</span><p>🎨 Customzie your goodie designs!
+Sign up to be notified! 🔔</p></li><li class=""><b>Goodie Customization! 🎨</b><span class="d">Customize your goodies!</span><span class="d">Sat 24 Oct &middot; 26 days ago</span><p>🎨 Customzie your goodie designs!
 🎃 Exclusive Halloween goodie crate!
 
 Sign up to be notified! 🔔</p></li></ul><h3>Every My Small Business update in order</h3><p class="mut small">All 5 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 24 Oct.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>5</td><td>Commission Orders! 📱</td><td>Sat 7 Nov</td></tr><tr><td>4</td><td>New Design Tools! 🖌️</td><td>Wed 4 Nov</td></tr><tr><td>3</td><td>Plushies &amp; Craft Fair! 🧸</td><td>Sat 31 Oct</td></tr><tr><td>2</td><td>Shop Customization! 🖌️</td><td>Tue 27 Oct</td></tr><tr><td>1</td><td>Goodie Customization! 🎨</td><td>Sat 24 Oct</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795273222" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>Jewelry! 💍</b><span class="d">New jewelry studio!</span><span class="d">Happening now &middot; ends Sat 21 Nov</span><p>💍 Jewelry: Unlock the new Jewelry Studio to design and sell rings, necklaces, and bracelets!
@@ -1922,10 +1922,17 @@ var d=document.documentElement;
    Plain string tests and no regex: these blocks are ordinary Python strings, so a
    backslash in one is eaten before the browser ever sees it. */
 var hp=location.pathname,hs=location.search;
+var hseg=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+/* All EIGHT of them, not the first three (19 Nov 2026). Busy, quiet and popular
+   were marked and Growing, Shrinking, Events, Compare and Plan were not, so
+   standing on one of those five the bar said nothing about where you were - the
+   stylesheet had treated all eight alike from the start and only this knew about
+   three. Each of the five is its own page, so the name of the file is the answer;
+   busy and quiet are the homepage asked a question, so they come off the query. */
 var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
-:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
-return seg==='popular'||seg==='popular.html'})()?'popular':'';
+:(hseg==='popular'||hseg==='growing'||hseg==='shrinking'||hseg==='events'
+||hseg==='compare'||hseg==='plan')?hseg:'';
 /* Every copy of them: the bar on a computer and the three buttons on the phone's
    homepage. classList.add, not className=, because five of the links in the bar
    also carry "more" - the class that keeps them out of a narrow bar - and
@@ -1935,10 +1942,9 @@ function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
-var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
-var tkey=(hseg2==='events')?'events'
-:(hseg2==='plan')?'plan'
-:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+var tkey=(hseg==='events')?'events'
+:(hseg==='plan')?'plan'
+:((hseg===''||hseg==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 

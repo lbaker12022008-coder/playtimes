@@ -1239,10 +1239,17 @@ var d=document.documentElement;
    Plain string tests and no regex: these blocks are ordinary Python strings, so a
    backslash in one is eaten before the browser ever sees it. */
 var hp=location.pathname,hs=location.search;
+var hseg=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+/* All EIGHT of them, not the first three (19 Nov 2026). Busy, quiet and popular
+   were marked and Growing, Shrinking, Events, Compare and Plan were not, so
+   standing on one of those five the bar said nothing about where you were - the
+   stylesheet had treated all eight alike from the start and only this knew about
+   three. Each of the five is its own page, so the name of the file is the answer;
+   busy and quiet are the homepage asked a question, so they come off the query. */
 var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
-:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
-return seg==='popular'||seg==='popular.html'})()?'popular':'';
+:(hseg==='popular'||hseg==='growing'||hseg==='shrinking'||hseg==='events'
+||hseg==='compare'||hseg==='plan')?hseg:'';
 /* Every copy of them: the bar on a computer and the three buttons on the phone's
    homepage. classList.add, not className=, because five of the links in the bar
    also carry "more" - the class that keeps them out of a narrow bar - and
@@ -1252,10 +1259,9 @@ function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
-var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
-var tkey=(hseg2==='events')?'events'
-:(hseg2==='plan')?'plan'
-:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+var tkey=(hseg==='events')?'events'
+:(hseg==='plan')?'plan'
+:((hseg===''||hseg==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 
