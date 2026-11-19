@@ -50,3 +50,7 @@ jobs:
             --message "test copy from ${GITHUB_SHA::7}" 2>&1 | tee upload.log
           echo "### Test copy is up" >> "$GITHUB_STEP_SUMMARY"
           grep -o 'https://[^ ]*workers.dev[^ ]*' upload.log | sort -u | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
+          # Also as annotations, which GitHub shows to anyone, signed in or not -
+          # the summary above is only visible to people signed in to the repo.
+          grep -o 'https://[^ ]*workers.dev[^ ]*' upload.log | sort -u | while read -r u; do echo "::notice title=Test copy::$u"; done
+          grep -i 'version id' upload.log | head -1 | sed 's/^/::notice title=Version::/' || true
