@@ -713,6 +713,19 @@ border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:20p
 .ghead h1{margin:0 0 .2em}.ghead p{margin:.2em 0}
 .btn{display:inline-block;background:linear-gradient(95deg,var(--acc),var(--acc2));color:var(--btnink);padding:11px 20px;border-radius:13px;text-decoration:none;font-weight:700;box-shadow:var(--sh)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+/* The tabs across a game's pages. Written as a BLOCK with nowrap, never a nowrap
+   flex row: a nowrap flex container reports the full width of its items as its own
+   max-content width and drags its parent out with it, even while it scrolls - which
+   is what the category pills did to the homepage on a phone. The rule sits under the
+   whole row and the chosen tab covers its own inch of it, so the two must stay on
+   the same pixel: hence the -1px bottom margin against the row's 1px border. */
+.gtabs{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;
+margin:14px 0 0;border-bottom:1px solid var(--line);scrollbar-width:none}
+.gtabs::-webkit-scrollbar{display:none}
+.gtab{display:inline-block;margin:0 20px -1px 0;padding:9px 1px 10px;color:var(--mut);
+text-decoration:none;font-weight:700;font-size:.97rem;border-bottom:2px solid transparent}
+.gtab:hover,.gtab:focus-visible{color:var(--ink)}
+.gtab.on{color:var(--ink);border-bottom-color:var(--acc)}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
 .fav[aria-pressed=true]{border-color:var(--acc);color:var(--favink);background:var(--favbg)}
 .verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
@@ -839,6 +852,7 @@ h2{font-size:1.06rem}
 .ghead>div{flex:1 1 100%}
 h1{font-size:1.5rem}
 .actions{gap:7px}
+.gtab{margin-right:16px;font-size:.92rem}
 .btn{padding:10px 16px}
 .fav{padding:9px 13px;font-size:.92rem;border-radius:11px}
 .stats{gap:9px}
@@ -3521,7 +3535,7 @@ def anchor(block, sid):
 
 
 def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
-              noindex=False, modified="", tail=""):
+              noindex=False, modified="", tail="", have=None):
     """One of a game's sections, as a page of its own.
 
     Game updates has worked this way for a while and the other three now match it.
@@ -3540,8 +3554,8 @@ def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
         h1[0], (f'<div class="ghead rise">{thumb(name, c["icon"], icon_alt(name), eager=True)}'
                 f'<div><h1>{html.escape(h1[1])}</h1>'
                 f'<p class="mut">{intro}</p>'
-                f'<div class="actions"><a class="fav" href="/game/{s_}">&larr; '
-                f'{html.escape(name)} player count</a>{play}</div></div></div>'
+                f'<div class="actions">{play}</div>'
+                f'{game_tabs(s_, have or {}, slug_folder)}</div></div>'
                 + body
                 + f'<p><a href="/game/{s_}">&larr; Back to {html.escape(name)}</a></p>'),
         h1[2], wide=True, banner=c["banner"], tail=tail,
@@ -3550,20 +3564,35 @@ def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
         schema=extra_schema, noindex=noindex, modified=modified)
 
 
-def side_links(s_, have):
-    """The links to a game's own sections, in the row of buttons under its heading.
+# The order is the order they are offered in, and "Overview" is the game's own page.
+SIDE_TABS = (("updates", "Updates"), ("events", "Events"),
+             ("questions", "Questions"), ("passes", "What costs money"))
 
-    Only the ones that exist: a game whose creators have announced nothing would
-    otherwise offer a link to a page saying so, which is a worse answer than no link.
+
+def game_tabs(s_, have, current=""):
+    """The row of tabs across a game's five pages, the one you are on underlined.
+
+    It replaced a row of buttons that only existed on the game page itself, so the
+    four side pages could be reached from it and not from each other - and getting
+    back meant finding a small arrow link. Every one of the five now carries this
+    same row, so any page is one tap from any other.
+
+    `current` is the folder of the page being drawn, or "" for the game page.
+    Only the sections that exist are offered, which is the rule jump_html() followed:
+    a game whose creators have announced nothing must not be given a tab to a page
+    saying so. One tab on its own is not a row of tabs, so nothing is drawn.
     """
+    tabs = [("", "Overview")] + [(f, label) for f, label in SIDE_TABS if have.get(f)]
+    if len(tabs) < 2:
+        return ""
     out = []
-    for folder, icon, label in (("updates", "&#128221;", "Game updates"),
-                                ("events", "&#128197;", "Events"),
-                                ("passes", "&#128176;", "What costs money"),
-                                ("questions", "&#10067;", "Questions")):
-        if have.get(folder):
-            out.append(f'<a class="fav" href="/{folder}/{s_}">{icon} {label}</a>')
-    return "".join(out)
+    for folder, label in tabs:
+        on = folder == current
+        href = f"/game/{s_}" if not folder else f"/{folder}/{s_}"
+        out.append(f'<a class="gtab{" on" if on else ""}" href="{href}"'
+                   + (' aria-current="page"' if on else "")
+                   + f">{label}</a>")
+    return f'<nav class="gtabs" aria-label="This game">{"".join(out)}</nav>'
 
 
 def jump_html(items):
@@ -3586,9 +3615,9 @@ def jump_html(items):
 # from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
 <p class="mut">__LEAD__</p>
-<div class="actions">__PLAY__<span data-bell="all"></span>__SIDELINKS__
+<div class="actions">__PLAY__<span data-bell="all"></span>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
-</div></div></div>
+</div>__GTABS__</div></div>
 __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
@@ -4811,7 +4840,7 @@ def main():
                       f'{jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>'
                       f'<script>{SHARED_JS}ptCountdowns();</script>'
                       f'<script>{PUSH_JS}</script>'),
-                noindex=thin, modified=iso_day(a["last"])))
+                noindex=thin, modified=iso_day(a["last"]), have=has))
 
         if has["passes"]:
             write(f"passes/{s}.html", side_page(
@@ -4825,7 +4854,7 @@ def main():
                 f"Every game pass the creators sell for {html.escape(name)}, what they say "
                 f"each one contains, and the price in Robux and in dollars.",
                 par_b, play, trail,
-                noindex=thin, modified=iso_day(a["last"])))
+                noindex=thin, modified=iso_day(a["last"]), have=has))
 
         if has["questions"]:
             write(f"questions/{s}.html", side_page(
@@ -4840,7 +4869,7 @@ def main():
                 f"player counts we take ourselves.",
                 faq, play, trail,
                 extra_schema=faq_schema(qa),
-                noindex=thin, modified=iso_day(a["last"])))
+                noindex=thin, modified=iso_day(a["last"]), have=has))
         body = (GAME.replace("__ICON__", thumb(name, c["icon"], icon_alt(name), eager=True))
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
@@ -4848,7 +4877,7 @@ def main():
                 .replace("__FACTS__", facts_html(c, a, facts))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
-                .replace("__SIDELINKS__", side_links(s, has))
+                .replace("__GTABS__", game_tabs(s, has))
                 .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
@@ -4879,8 +4908,8 @@ def main():
             f'<h1>{html.escape(name)} update history</h1>'
             f'<p class="mut">Every update and event the creators have announced, when they '
             f'landed, and the days {html.escape(name)}&rsquo;s player count jumped.</p>'
-            f'<div class="actions"><a class="fav" href="/game/{s}">&larr; '
-            f'{html.escape(name)} player count</a>{play}</div></div></div>'
+            f'<div class="actions">{play}</div>'
+            f'{game_tabs(s, has, "updates")}</div></div>'
             + (upd or '<div class="card"><p class="none">The creators have not announced any '
                       'updates on Roblox for this game yet, and we have not been watching long '
                       'enough to spot a jump in players. Check back soon.</p></div>')
