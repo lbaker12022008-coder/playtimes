@@ -95,6 +95,14 @@ CSS = """:root{__LIGHT__}
    then drops its own search row so the same control is not offered twice. */
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
+.dtop .hnavrow{display:none}
+/* The three ways in move from the panel into the bar, the same swap.
+   `.hdr .hnav`, not `.hnav`: the base `.hnav{display:none}` is a one-class rule
+   written further down the sheet, a media query adds no specificity, and a plain
+   `.hnav` here simply lost to it - the bar stayed empty at every width. Same trap
+   as `.hdr .nots`, `.acct .acctb` and `.shell>.w` before it. */
+.hdr .hnav{display:block}
+.dtop .hnavrow{display:none}
 /* From 900px the bar carries the name, the bell and the magnifier, so the panel
    stops offering the same two things a second time.
    Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
@@ -145,7 +153,7 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    446px, 404px at 1920px). Asking for the full width and capping it with max-width
    makes every page the same width and lines them all up under the header. */
 .w{width:100%;max-width:min(820px,100%);margin:0 auto;padding:8px 16px 56px}
-.w.wide{max-width:min(1400px,100%)}
+.w.wide{max-width:min(1200px,100%)}
 /* The page sits in the middle with a column either side kept for ads, the way most
    game-value sites lay out. The side columns only appear on wide screens, and only
    when there is something to put in them. */
@@ -168,7 +176,7 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    of .shell gives them the weight to survive, the same trick the wide pages got
    for free. Keep them after .shell>*, and keep the min(...,100%) form. */
 .shell>.w{max-width:min(820px,100%)}
-.shell>.w.wide{max-width:min(1400px,100%)}
+.shell>.w.wide{max-width:min(1200px,100%)}
 .rail{display:none}
 .shell.ads{gap:20px}
 /* The rails belong beside the words, not out at the edges of the screen. A 1fr
@@ -178,9 +186,9 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    page actually uses lets justify-content centre all three together instead.
    minmax rather than a flat width, so a screen between 1480 and 1776px shrinks the
    wide pages instead of scrolling sideways. */
-@media(min-width:1480px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
-.shell.ads.wideads{grid-template-columns:168px minmax(0,1400px) 168px}
-.shell.ads .rail{display:block;position:sticky;top:124px;align-self:start;height:600px;overflow:hidden}}
+@media(min-width:1380px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
+.shell.ads.wideads{grid-template-columns:168px minmax(0,1200px) 168px}
+.shell.ads .rail{display:block;position:sticky;top:112px;align-self:start;height:600px;overflow:hidden}}
 /* With the rails up the middle column is no longer 1400px: the three tracks need
    1776px between them, so from 1480 to 1776 the middle one shrinks and the band
    holding the logo has to shrink with it, or the logo drifts left of the words
@@ -188,7 +196,7 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    gaps. .wideads is only put on the header when the rails are up AND the page is
    wide, so this can never reach a reading page (which stays capped at 820px by
    .hdr.narrow, a selector of exactly the same weight). */
-@media(min-width:1480px){.hdr.wideads .in{max-width:min(1400px,calc(100% - 376px))}}
+@media(min-width:1380px){.hdr.wideads .in{max-width:min(1200px,calc(100% - 376px))}}
 /* The strip along the bottom only exists at all when ads are switched on, and it is
    the ONLY ad slot a phone or a tablet ever sees: the side rails need 1480px. It used
    to start at 900px, which meant every phone and an iPad held upright showed no ads
@@ -264,8 +272,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
-/* One slim bar, about 62px tall, holding four things. */
-.hdr .in{max-width:min(1400px,100%);margin:0 auto;padding:11px 16px}
+/* One slim bar, about 52px tall, holding four things. */
+.hdr .in{max-width:min(1200px,100%);margin:0 auto;padding:7px 16px}
 /* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
    the words below it start, and the phone block already pairs them at 14px. */
 /* The bar's contents sit over the page's contents, so the band holding the logo
@@ -277,6 +285,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    moves, so the bar does not change shape from page to page. */
 .hdr.narrow .in{max-width:min(820px,100%)}
 .hrow{display:flex;align-items:center;gap:12px}
+/* The same shape as the tabs across a game's pages, because they do the same job:
+   here is where you are, here is what else there is. Hidden below 900px, where the
+   bar has room for the logo, the game picker and two buttons and nothing else -
+   the panel behind the three lines carries the same three links at that width, the
+   trick the search magnifier and the bell already use. */
+.hnav{display:none;margin-left:4px;white-space:nowrap}
+.hnav a{display:inline-block;margin:0 14px 0 0;padding:6px 1px 7px;color:var(--mut);
+text-decoration:none;font-weight:700;font-size:.93rem;position:relative}
+.hnav a:hover,.hnav a:focus-visible{color:var(--ink)}
+.hnav a.on{color:var(--ink)}
+.hnav a.on::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+border-radius:3px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
 .hrow .gap{flex:1 1 auto}
 /* The account lives in the bar, beside the search, rather than inside the panel
    behind the three lines: it is the one control that says something about the
@@ -1397,6 +1418,15 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<div class="notsrow"></div>'
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
+              # The bar carries these three from 900px up, so the panel drops them
+              # there - one of each at every width, the rule search and the bell
+              # already follow.
+              f'<a class="drow hnavrow" href="/?for=busy">{ICON_GRID}'
+              f'<span>Busy right now</span></a>'
+              f'<a class="drow hnavrow" href="/?for=quiet">{ICON_GRID}'
+              f'<span>Quiet right now</span></a>'
+              f'<a class="drow hnavrow" href="/popular">{ICON_LIST}'
+              f'<span>Popular games</span></a>'
               # The footer has linked /install since it was built, but the footer is
               # at the bottom of a long page and this menu is how people actually get
               # about: without a row here the page could only be reached by typing it.
@@ -1464,7 +1494,10 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
 {banner_html(banner)}<header class="hdr{band}"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
-<div class="gpick" id="gpick"></div><div class="gap"></div>
+<div class="gpick" id="gpick"></div>
+<nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
+<a href="/?for=quiet" data-hn="quiet">Quiet now</a>
+<a href="/popular" data-hn="popular">Popular</a></nav><div class="gap"></div>
 {buttons}</div></div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}{' wideads' if SHOW_RAILS and wide else ''}">{ad_rail('left')}
 <div class="w{' wide' if wide else ''}">{topnav}{body}
@@ -1736,15 +1769,11 @@ def view_toggle():
 def ask_html(lede="Showing the most popular games first."):
     """The busy / quiet / just-browsing chooser. Used on the homepage and on every
     category page, where it narrows that category only."""
-    return ('<h2 style="margin-top:22px">What are you looking for?</h2>'
-            '<div class="ask" id="ask">'
-            '<button class="chip" data-w="busy" aria-pressed="false"><b>Busy right now</b>'
-            '<i>Trading, full servers, live events</i></button>'
-            '<button class="chip" data-w="quiet" aria-pressed="false"><b>Quiet right now</b>'
-            '<i>Claim events, no queues, less lag</i></button>'
-            '<button class="chip" data-w="" aria-pressed="true"><b>Just browsing</b>'
-            '<i>Show the most popular games</i></button></div>'
-            '<div id="asknote" class="note" hidden></div>'
+    # The three chips became Busy now / Quiet now / Popular in the header bar, where
+    # they are on every page instead of halfway down one. What is left is the two
+    # lines the filter writes into: which games are being shown, and the admission
+    # when nothing is properly quiet and the band had to be widened to find any.
+    return ('<div id="asknote" class="note" hidden></div>'
             f'<p id="asktxt" class="mut small">{lede}</p>')
 
 
@@ -1971,6 +2000,7 @@ def sparkline(daily, spikes):
            f'aria-label="Typical players each day over the last {len(pts)} days">'
            f'<polygon points="0,{h} {line} {w},{h}" fill="var(--acc)" opacity=".13"/>'
            f'<polyline points="{line}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
+           f'vector-effect="non-scaling-stroke" '
            f'stroke-linejoin="round" stroke-linecap="round"/>{dots}</svg>')
     texts = [f'<b>{when(d)}</b> &middot; about <b>{v:,}</b> players'
              + (' &middot; much busier than usual' if d in spike_days else '')
@@ -2142,8 +2172,10 @@ def history_lines(pts):
             # reads as the whole range rather than as a second solid shape.
             f'<polygon points="0,{h} {hiline} {w},{h}" fill="var(--alt)" opacity=".10"/>'
             f'<polyline points="{hiline}" fill="none" stroke="var(--alt)" stroke-width="2.5" '
+            f'vector-effect="non-scaling-stroke" '
             f'stroke-linejoin="round" stroke-linecap="round"/>'
             f'<polyline points="{avline}" fill="none" stroke="var(--acc)" stroke-width="2.5" '
+            f'vector-effect="non-scaling-stroke" '
             f'stroke-linejoin="round" stroke-linecap="round"/></svg>')
     texts = [f'<b>{when(d)}</b> &middot; typical <b>{av:,}</b> &middot; highest seen '
              f'<b>{hi:,}</b>' for d, av, hi in pts]
@@ -2876,6 +2908,19 @@ setFavs(f);draw()};PT.ready(draw)})();"""
 CHROME_JS = """(function(){
 var d=document.documentElement;
 
+/* Which of the three ways in the bar offers is the page being looked at, so that
+   one wears the underline. Worked out from the address rather than written into
+   each page, because the bar is one piece of markup shared by all 670 of them.
+   Plain string tests and no regex: these blocks are ordinary Python strings, so a
+   backslash in one is eaten before the browser ever sees it. */
+var hp=location.pathname,hs=location.search;
+var hkey=hs.indexOf('for=busy')>-1?'busy'
+:hs.indexOf('for=quiet')>-1?'quiet'
+:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
+return seg==='popular'||seg==='popular.html'})()?'popular':'';
+if(hkey)Array.prototype.forEach.call(document.querySelectorAll('.hnav a[data-hn]'),
+function(a){if(a.getAttribute('data-hn')===hkey)a.className='on'});
+
 /* Light and dark. Starts on whatever the device prefers; once the button is pressed
    that choice is remembered and wins from then on. */
 function theme(){return d.getAttribute('data-theme')||
@@ -3172,7 +3217,8 @@ Math.round(R.c).toLocaleString()+'</text>'+
 '<text class="gsc" x="'+(W-P)+'" y="'+(bot+17)+'" text-anchor="end">'+
 Math.round(R.f).toLocaleString()+'</text>'+
 '<path d="'+wash+'" fill="url(#wash)"/>'+
-'<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="3" '+
+'<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="2.5" '+
+'vector-effect="non-scaling-stroke" '+
 'stroke-linejoin="round" stroke-linecap="round"/>'+dots+
 '<g class="cursor" opacity="0"><line y1="'+top+'" y2="'+bot+'" stroke="var(--ink)" '+
 'stroke-width="1.5" stroke-dasharray="4 4"/><circle r="6" fill="var(--'+hue+')" '+
@@ -3425,7 +3471,10 @@ G.forEach(function(g){g.lv=+g.l.charAt(cell)});
    the whole list in order instead of an empty page, and say why. */
 var all=$('__GRID__'),original=Array.prototype.slice.call(all.children);
 var by={};G.forEach(function(g){by[g.s]=g});
-var want='',term='';
+/* Set by the Busy now / Quiet now links in the bar. Anything else is ignored, so
+   a made-up address cannot put the page into a state it has no button for. */
+var want=(function(){try{var m=/[?&]for=(busy|quiet)/.exec(location.search);
+return m?m[1]:''}catch(e){return ''}})(),term='';
 function lv(li){var g=by[li.dataset.s];return g?g.lv:0}
 /* strict() is what "quiet" and "busy" really mean: the bottom two of a game's own
    five levels, or the top two. fits() is what we filter on, and it is allowed to
@@ -3488,7 +3537,11 @@ var word=want==='quiet'?'quiet':'busy';
 
 /* Nothing matching is a real answer, not a broken page, so say so clearly and
    say when it changes. Games get busy at roughly the same times, so at 8pm
-   nothing is quiet and at 5am nothing is busy. */
+   nothing is quiet and at 5am nothing is busy.
+   Both branches are gated on `want`: band.relaxed is worked out whether or not
+   anybody has asked for busy or quiet, so without that gate the plain homepage
+   announced "No game is properly busy right now" to somebody who had not asked
+   about busy and was only looking at the list. */
 var note=$('asknote');
 if(note){
 if(loose){
@@ -3499,7 +3552,7 @@ note.innerHTML='<b>We have no player counts for this hour yet.</b> '+
 (nx?('Try again <b>'+nx.when+'</b>. Meanwhile here is '):'Here is ')+
 'every game we track, most popular first.';
 note.hidden=false}
-else if(band.relaxed){
+else if(want&&band.relaxed){
 var nx2=nextGood();
 note.innerHTML='<b>No game is properly '+word+' right now.</b> Nearly every game we track '+
 'is '+(want==='quiet'?'busy':'quiet')+' at this hour, so these are the '+
@@ -3670,7 +3723,9 @@ def side_page(c, slug_folder, h1, intro, body, play, trail, extra_schema=None,
         h1[0], (f'<div class="ghead rise">{thumb(name, c["icon"], icon_alt(name), eager=True)}'
                 f'<div><h1>{html.escape(h1[1])}</h1>'
                 f'<p class="mut">{intro}</p>'
-                f'<div class="actions">{play}</div>'
+                f'<div class="actions">{play}<span data-bell="all"></span>'
+                f'<button class="fav" id="fav" data-s="{s_}" aria-pressed="false">'
+                f'&#9734; Save</button></div>'
                 f'{game_tabs(s_, have or {}, slug_folder)}</div></div>'
                 + body
                 + f'<p><a href="/game/{s_}">&larr; Back to {html.escape(name)}</a></p>'),
@@ -5025,7 +5080,9 @@ def main():
             f'<h1>{html.escape(name)} update history</h1>'
             f'<p class="mut">Every update and event the creators have announced, when they '
             f'landed, and the days {html.escape(name)}&rsquo;s player count jumped.</p>'
-            f'<div class="actions">{play}</div>'
+            f'<div class="actions">{play}<span data-bell="all"></span>'
+            f'<button class="fav" id="fav" data-s="{s}" aria-pressed="false">'
+            f'&#9734; Save</button></div>'
             f'{game_tabs(s, has, "updates")}</div></div>'
             + (upd or '<div class="card"><p class="none">The creators have not announced any '
                       'updates on Roblox for this game yet, and we have not been watching long '
