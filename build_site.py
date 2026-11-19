@@ -681,6 +681,12 @@ background:radial-gradient(44% 150% at 38px 50%,hsl(var(--glow,var(--glowh)) 92%
 .tmeta svg{width:14px;height:14px;vertical-align:-2px;fill:currentColor}
 
 /* charts */
+/* The chooser reads as one question with two answers, instead of a label on one
+   row and two buttons on another. */
+.planpick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 2px}
+.planpick .days{margin:0}
+#session .cd{font-size:1.5rem}
+#session #plantxt{margin:6px 0 2px}
 .days{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .days button{font-size:.95rem;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--btnink);font-weight:700}
@@ -739,6 +745,10 @@ border:1px solid transparent;font-size:.95rem;font-weight:700;line-height:1.3;
 min-height:46px}
 .actions .fav,.actions .bellb{border-color:var(--line);background:var(--card);color:var(--ink)}
 .actions .bellb svg{width:16px;height:16px}
+.gcat{margin:8px 0 0}
+.gcat a{display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid var(--line);
+background:var(--soft);color:var(--favink);font-size:.84rem;font-weight:700;text-decoration:none}
+.gcat a:hover,.gcat a:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 /* The tabs across a game's pages. Written as a BLOCK with nowrap, never a nowrap
    flex row: a nowrap flex container reports the full width of its items as its own
@@ -817,10 +827,20 @@ input[type=search]{width:100%;padding:13px 17px;border-radius:14px;border:1px so
 .crumbs span[aria-current]{color:var(--ink);font-weight:600}
 /* The facts list under each game's heading. Written into the page by the builder,
    not by the browser, so a search engine reads the numbers without running any code. */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px 18px;margin:10px 0 0}
-.facts div{min-width:0}
-.facts dt{font-size:.85rem;color:var(--mut)}
-.facts dd{margin:1px 0 0;font-weight:700;font-size:1.1rem}
+/* Written in the graph itself, so it needs no room under it. */
+.gsc{fill:var(--mut);font-size:15px;font-weight:700;opacity:.75}
+/* One row per fact: what it is on the left, the number on the right, a hairline
+   between. It used to be a grid of auto-fitting columns, each holding a label, a
+   number and a note stacked three deep - so at two or three columns wide nothing
+   lined up with anything and you could not tell which number belonged to which
+   label. A list reads down; that is the whole fix. */
+.facts{display:block;margin:12px 0 0}
+.facts div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
+.facts div:last-child{border-bottom:0;padding-bottom:0}
+.facts dt{font-size:.95rem;color:var(--ink);font-weight:600;min-width:0}
+.facts dt span{display:block;font-size:.8rem;color:var(--mut);font-weight:400;margin-top:1px}
+.facts dd{margin:0;font-weight:800;font-size:1.12rem;white-space:nowrap;text-align:right}
 /* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
    Collapsed text is still read by search engines, and it works with no JavaScript. */
 .hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
@@ -1924,7 +1944,7 @@ def sparkline(daily, spikes):
     vals = [v for _, v in pts]
     lo, hi = min(vals), max(vals)
     span = (hi - lo) or 1
-    w, h = 600, 80
+    w, h = 600, 150
     x = lambda i: round(i / (len(pts) - 1) * w, 1)
     y = lambda v: round(h - 6 - (v - lo) / span * (h - 14), 1)
     line = " ".join(f"{x(i)},{y(v)}" for i, (_, v) in enumerate(pts))
@@ -1941,9 +1961,7 @@ def sparkline(daily, spikes):
              + (' &middot; much busier than usual' if d in spike_days else '')
              for d, v in pts]
     return (scrub(svg, h, [d for d, _ in pts], [[y(v)] for _, v in pts], texts, ["acc"])
-            + f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}. '
-            f'Each point is a day. The dots mark days that were much busier than usual. '
-            f'Drag across the graph, or tap it, to read any day.</p>')
+            + '<p class="mut small">The dots are days that were much busier than usual.</p>')
 
 
 def levels_string(week):
@@ -2054,8 +2072,7 @@ def facts_html(c, a, f):
             else f'since {when(a["first"])}')
     rows.append(("Player counts collected", f'{c["samples"]:,}', span))
     return ('<dl class="facts">'
-            + "".join(f'<div><dt>{k}</dt><dd>{v}</dd>'
-                      f'<dd class="mut small" style="font-weight:400">{note}</dd></div>'
+            + "".join(f'<div><dt>{k}<span>{note}</span></dt><dd>{v}</dd></div>'
                       for k, v, note in rows)
             + "</dl>")
 
@@ -2137,13 +2154,13 @@ def history_html(name, a, days=21):
     rows = "".join(f'<tr><td>{when(day)}</td><td>{avg:,}</td><td>{hi:,}</td></tr>'
                    for day, avg, hi in reversed(pts))
     return (f'<div class="card"><h2>{html.escape(name)} player count history</h2>'
-            f'<p class="mut small">{when(pts[0][0])} to {when(pts[-1][0])}, one point '
-            f'per day. Drag across the graph, or tap it, to read any day.</p>'
             + history_lines(pts) +
-            f'<p class="hleg"><span class="k acc"></span>Typical &mdash; the average of '
-            f'the counts we took that day. <span class="k alt"></span>Highest &mdash; '
-            f'the largest single count we recorded, so something we saw rather than an '
-            f'estimate.</p>'
+            # Short, but the two still cannot be mixed up: one is an average we
+            # worked out, the other a number we really saw. That distinction is the
+            # point of drawing two lines at all.
+            f'<p class="hleg"><span class="k acc"></span>Typical &mdash; the day&rsquo;s '
+            f'average. <span class="k alt"></span>Highest &mdash; the biggest count we '
+            f'actually saw.</p>'
             f'<details><summary>Every day as a table</summary>'
             f'<div class="wrap"><table class="tbl"><thead><tr><th>Day</th>'
             f'<th>Typical players</th><th>Highest seen</th></tr></thead>'
@@ -3128,6 +3145,17 @@ return '<svg class="graph" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+la
 '<stop offset="0" stop-color="var(--'+hue+')" stop-opacity=".42"/>'+
 '<stop offset="1" stop-color="var(--'+hue+')" stop-opacity=".02"/></linearGradient></defs>'+
 '<line x1="'+P+'" y1="'+bot+'" x2="'+(W-P)+'" y2="'+bot+'" stroke="var(--line)" stroke-width="1.5"/>'+
+/* What the top and the bottom of this box stand for. The axis runs from the week's
+   quietest hour to its busiest rather than from zero, so without these two numbers
+   the shape of a day claims a bigger swing than it has. They are on the graph
+   because a sentence under it was one more thing to read. */
+'<text class="gsc" x="'+(W-P)+'" y="'+(top+12)+'" text-anchor="end">'+
+Math.round(R.c).toLocaleString()+'</text>'+
+/* The floor goes UNDER the baseline, not above it: a quiet late evening drops the
+   line into that corner and the two sat on top of each other. There is room,
+   because the box is 26px taller than the axis it draws. */
+'<text class="gsc" x="'+(W-P)+'" y="'+(bot+17)+'" text-anchor="end">'+
+Math.round(R.f).toLocaleString()+'</text>'+
 '<path d="'+wash+'" fill="url(#wash)"/>'+
 '<path d="'+line+'" fill="none" stroke="var(--'+hue+')" stroke-width="3" '+
 'stroke-linejoin="round" stroke-linecap="round"/>'+dots+
@@ -3304,14 +3332,11 @@ if(!lo||v<lo[1])lo=[h,v];if(!hi||v>hi[1])hi=[h,v]}
 var R=graphRange(B);
 $('bars').innerHTML=dayGraph(L[d],R,DAY[d]+': players through the day','acc');
 graphCursor($('bars').querySelector('.graph'),$('readout'),L[d],R);
-/* An axis that does not start at zero has to say so, or the shape overstates the
-   swing. The numbers are the game's own quietest and busiest hours of the week. */
-var sn=$('scalenote');
-if(sn)sn.textContent='Drag across the graph, or tap it, to read any hour. '+
-'The scale runs from '+Math.round(R.f).toLocaleString()+' to '+
-Math.round(R.c).toLocaleString()+' players, not from zero, so the shape of the day is easier to see.';
+/* The axis does not start at zero, and that still has to be said or the shape
+   overstates the swing - it is said ON the graph now, as the two numbers its top
+   and bottom stand for, rather than as a sentence underneath it. */
 $('dtxt').textContent=lo?'On '+DAY[d]+' it is quietest around '+fmt(lo[0])+' and busiest around '+fmt(hi[0])+
-'. Hover or tap a bar for numbers.':'No player counts for this day yet.'}
+'.':'No player counts for this day yet.'}
 DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
 b.setAttribute('aria-label',n);b.onclick=function(){show(i)};$('days').appendChild(b)});
 
@@ -3650,7 +3675,7 @@ def jump_html(items):
 # next to the session planner, the hourly graph next to the numbers it is drawn
 # from. The week grid is the one full-width card, because it is 24 hours across.
 GAME = """<div class="ghead rise">__ICON__<div><h1>__NAME__ player count and best times to play</h1>
-<p class="mut">__LEAD__</p>
+<p class="mut">__LEAD__</p>__CAT__
 <div class="actions">__PLAY__<span data-bell="all"></span>
 <button class="fav" id="fav" data-s="__SLUG__" aria-pressed="false">&#9734; Save</button>
 </div>__GTABS__</div></div>
@@ -3658,21 +3683,20 @@ __ABOUT__
 <div class="bento">
 <div class="sp7 lstack">
 <div id="answer" class="card ans rise2"><h2>The short answer</h2><p id="now"></p><p id="best">__BEST__</p>
-<p id="quiet">__QUIET__</p>
-<p class="mut small">The times above are in UTC until the page loads, then they switch to your
-own clock. Based on __N__ player counts we took ourselves.__CAT__</p></div>
+<p id="quiet">__QUIET__</p></div>
 <div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2><div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div>
 __SPARK__</div></div>
-<div id="session" class="sp5 card rise3"><h2>Plan my session</h2><span data-bell="plan"></span>
-<p class="mut small">What do you want?</p>
+<div id="session" class="sp5 card rise3"><h2>Plan my session</h2>
+<div class="planpick"><span class="mut small">I want it</span>
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
-<button data-m="busy" aria-pressed="false">Busy</button></div>
+<button data-m="busy" aria-pressed="false">Busy</button></div></div>
 <div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
 <p id="plantxt"></p>
+<span data-bell="plan"></span>
 __NOTIFY__</div>
 <div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p><p class="mut small" id="scalenote">Drag across the graph, or tap it, to read any hour.</p>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div><p class="readout" id="readout"></p>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div></div>
 <div id="stats" class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div id="week" class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
@@ -3970,8 +3994,7 @@ if(!gameBox)return;
 if(!S||!S.available||!slug){gameBox.hidden=true;return}
 var html;
 if(!S.signedIn){
-html='<p class="mut small">Sign in with Roblox to get a notification before this '
-+'game goes quiet or busy, or when it has an event or an update. 13+.</p>'+SIGNIN}
+html='<p class="mut small">The bell above needs a Roblox sign-in. 13+.</p>'}
 else if(!usable()){
 html='<p class="mut small">'+(ios
 ?'Add '+ptEsc(PTSITE)+' to your home screen first.'
@@ -4802,8 +4825,10 @@ def main():
         play = (f'<a class="btn" href="https://www.roblox.com/games/{c["place"]}">'
                 f'Play {html.escape(name)}</a>' if c["place"] and c["place"] > 1 else "")
         in_cat = c["genre"] in cats
-        cat = (f' Category: <a href="/category/{slug(c["genre"])}">{html.escape(c["genre"])}</a>.'
-               if in_cat else "")
+        # At the top with the game rather than in the small print of the short
+        # answer, which is where it used to hide.
+        cat = (f'<p class="gcat"><a href="/category/{slug(c["genre"])}">'
+               f'{html.escape(c["genre"])} games</a></p>' if in_cat else "")
 
         # The opening paragraph. Every number in it comes from our own samples, and the
         # wording keeps "about"/"typical" on the averages and "seen"/"recorded" on the
@@ -4914,7 +4939,6 @@ def main():
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
                 .replace("__GTABS__", game_tabs(s, has))
-                .replace("__N__", f'{c["samples"]:,}')
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
                 .replace("__SLUG__", s)
