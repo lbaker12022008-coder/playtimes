@@ -190,14 +190,11 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
 @media(min-width:1380px){.shell.ads{grid-template-columns:168px minmax(0,820px) 168px}
 .shell.ads.wideads{grid-template-columns:168px minmax(0,1200px) 168px}
 .shell.ads .rail{display:block;position:sticky;top:112px;align-self:start;height:600px;overflow:hidden}}
-/* With the rails up the middle column is no longer 1400px: the three tracks need
-   1776px between them, so from 1480 to 1776 the middle one shrinks and the band
-   holding the logo has to shrink with it, or the logo drifts left of the words
-   again - 88px out at 1600px. 376px is the two 168px rails plus the two 20px
-   gaps. .wideads is only put on the header when the rails are up AND the page is
-   wide, so this can never reach a reading page (which stays capped at 820px by
-   .hdr.narrow, a selector of exactly the same weight). */
-@media(min-width:1380px){.hdr.wideads .in{max-width:min(1200px,calc(100% - 376px))}}
+/* The ad rails used to shrink the bar as well, so the logo kept sitting above the
+   first word: 376px (two 168px rails and two 20px gaps) came off the band between
+   1380 and 1576px. That is 196px at 1440px - the commonest laptop width there is -
+   and it pushed the last two links in the bar off the edge of it. The band holds
+   at 1200px now whatever else is on the page. See the note by .hdr .in. */
 /* The strip along the bottom only exists at all when ads are switched on, and it is
    the ONLY ad slot a phone or a tablet ever sees: the side rails need 1480px. It used
    to start at 900px, which meant every phone and an iPad held upright showed no ads
@@ -304,14 +301,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .hdr .in{max-width:min(1200px,100%);margin:0 auto;padding:7px 16px}
 /* 16px, not 20px, because .w uses 16px: the logo is meant to start exactly where
    the words below it start, and the phone block already pairs them at 14px. */
-/* The bar's contents sit over the page's contents, so the band holding the logo
-   has to be as wide as the column underneath it - 1400px on the wide pages, 820px
-   on the reading ones. Left at 1400px everywhere, the logo on Privacy, Terms,
-   About, Events, Compare and Plan stood about 290px to the left of the words it
-   was supposed to be sitting above, because an 820px column is centred inside a
-   1400px band. .hdr itself still spans the whole screen; only what is inside it
-   moves, so the bar does not change shape from page to page. */
-.hdr.narrow .in{max-width:min(820px,100%)}
+/* The band is the SAME on every page, and that is the point of it. It used to
+   follow the column underneath - 820px on a reading page so the logo sat exactly
+   above the first word - which meant that clicking Events, Compare or Plan in the
+   bar shrank the bar itself by 244px, slid the logo 122px to the right and squeezed
+   the eight links into a scrolling strip. A cap being respected, and it read as the
+   page breaking. The logo now sits left of the words on a reading page, which is
+   what most sites do and what nobody notices, and the bar never changes shape. */
 .hrow{display:flex;align-items:center;gap:12px}
 /* The same shape as the tabs across a game's pages, because they do the same job:
    here is where you are, here is what else there is. Hidden below 900px, where the
@@ -330,13 +326,18 @@ overflow-x:auto;scrollbar-width:none}
    the bar can really hold them. */
 .hnav a.more{display:none}
 @media(min-width:1200px){.hdr .hnav a.more{display:inline-block}}
-.hnav a{display:inline-block;margin:0 14px 0 0;padding:6px 1px 7px;color:var(--mut);
-text-decoration:none;font-weight:700;font-size:.93rem;position:relative}
+/* 11px and .9rem are measured, not chosen: at 12px and .93rem the eight links came
+   to 606px and the bar could spare 595 with somebody signed in, so Plan sat over the
+   edge and the whole strip scrolled. */
+.hnav a{display:inline-block;margin:0 11px 0 0;padding:6px 1px 7px;color:var(--mut);
+text-decoration:none;font-weight:700;font-size:.9rem;position:relative}
 .hnav a:hover,.hnav a:focus-visible{color:var(--ink)}
 .hnav a.on{color:var(--ink)}
-.hnav a.on::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
-border-radius:3px;background:hsl(var(--glowh) 92% 72%);
-box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
+/* Half the height and about a third of the glow of the one on a game's tabs. The
+   same mark at the same size among eight small links read as a highlighter pen. */
+.hnav a.on::after{content:'';position:absolute;left:1px;right:1px;bottom:1px;height:2px;
+border-radius:2px;background:hsl(var(--glowh) 92% 72%);
+box-shadow:0 0 4px hsl(var(--glowh) 92% 72%/.8),0 0 8px hsl(var(--glowh) 92% 72%/.4)}
 .hrow .gap{flex:1 1 auto}
 /* The account lives in the bar, beside the search, rather than inside the panel
    behind the three lines: it is the one control that says something about the
@@ -513,6 +514,14 @@ a.bellb{text-decoration:none}
 .nextline:empty{display:none}
 .nextline .cd{font-variant-numeric:tabular-nums;color:var(--acc)}
 .actions .bellb{margin:0}
+/* A bell on a calendar row: smaller than one under a heading, because it is one of
+   forty and the row above it is the thing being read. :empty is what keeps a row
+   that cannot offer one from holding a gap open - the same trick .acct uses. */
+.evt .evbell{display:block}
+.evt .evbell .bellb{margin:9px 0 2px;padding:5px 12px;font-size:.78rem}
+.evt .evbell .bellb svg{width:13px;height:13px}
+#planbell{margin:12px 0 2px}
+#planbell:empty{display:none}
 .togs{display:flex;gap:7px;flex-wrap:wrap}
 .tog{padding:8px 15px;border:1px solid var(--line);border-radius:999px;
 background:var(--card);color:var(--mut);font:inherit;font-size:.88rem;font-weight:700;
@@ -1556,17 +1565,9 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<span>Saved</span></a>'
               f'<a class="tbb" href="/events" data-tb="events">{ICON_CAL}'
               f'<span>Events</span></a></nav>')
-    # The band holding the logo has to be as wide as the column of words below it, or
-    # the logo does not sit above what it belongs to. A reading page is 820px, a wide
-    # page 1400px, and a wide page with the ad rails up is narrower still between 1480
-    # and 1776px, because the rails and the gaps take 376px of the width. The
-    # stylesheet does each of those; this just says which one this page is.
-    if not wide:
-        band = " narrow"                              # 820px, the reading pages
-    elif SHOW_RAILS:
-        band = " wideads"                             # 1400px, shrinking with the rails
-    else:
-        band = ""                                     # 1400px flat
+    # The bar is the same shape on every page of the site and at every width -
+    # see the note by `.hdr .in` in the stylesheet for why it stopped following the
+    # column of words underneath it.
     crumb_html, crumb_data = crumbs(trail or [])
     # Back and the trail are both "where am I and how do I leave", so they share one
     # line instead of taking a line each. The trail is the one that goes on a phone:
@@ -1600,7 +1601,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <meta name="apple-mobile-web-app-title" content="{html.escape(SITE)}">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
-{banner_html(banner)}<header class="hdr{band}"><div class="in"><div class="hrow">
+{banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
 <nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
@@ -3106,8 +3107,8 @@ if(show){placePanel();var a=dr.querySelector('a');if(a)a.focus()}};
 var am=document.getElementById('amenu');
 /* Put a card under the button it belongs to. Both of these are position:fixed, and
    pinning either to the window edge is wrong on a wide screen: the bar's own band is
-   capped - 1400px on a wide page, 820px on a reading one, narrower again with the ad
-   rails up - so the three-line button can sit hundreds of pixels inside the window.
+   capped - 1200px, narrower again with the ad rails up - so the three-line button
+   can sit hundreds of pixels inside the window.
    Measured at 1920px before this existed: 260px adrift. `edge` is which side of the
    card lines up with which side of the button. */
 function drop(el,btn,edge){
@@ -3591,19 +3592,33 @@ $('hm').innerHTML=g;show(nd);
    whole grid was a picture with no numbers in it. Hover follows the pointer and a
    tap holds, which is why the selected one keeps its ring. */
 var hmo=$('hmout'),hmSel=null;
-function hmSay(c){
+function hmText(c){
 var d=+c.dataset.d,h=+c.dataset.h,v=L[d][h];
-hmo.innerHTML=v==null
+return v==null
 ?'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; no readings for this hour yet'
-:'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; about <b>'+v.toLocaleString()+'</b> players';}
+:'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; about <b>'+v.toLocaleString()+'</b> players'}
+/* The same answer in two places, for the same reason the graphs do it: on a computer
+   it rides beside the pointer, and on a touch screen it stays in the line under the
+   grid, because a finger covers the square it is pointing at. The line is hidden by
+   CSS from 900px up rather than deleted - see .readout.chartout. */
+function hmSay(c,e){
+var txt=hmText(c);hmo.innerHTML=txt;
+if(e&&e.pointerType==='mouse')tipShow(txt,e.clientX,e.clientY)}
 function hmPick(c){
 if(hmSel)hmSel.classList.remove('sel');
 hmSel=c;c.classList.add('sel');hmSay(c)}
 $('hm').addEventListener('pointerover',function(e){
 var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
-if(c&&e.pointerType==='mouse')hmSay(c)});
+if(c&&e.pointerType==='mouse')hmSay(c,e)});
+/* Following the pointer, not just appearing once: the squares are 26px apart, so
+   moving along a day without this left the box behind on the first one. */
+$('hm').addEventListener('pointermove',function(e){
+if(e.pointerType!=='mouse')return;
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c)hmSay(c,e);else tipHide()});
 $('hm').addEventListener('pointerleave',function(e){
-if(e.pointerType==='mouse')hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
+if(e.pointerType!=='mouse')return;tipHide();
+hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
 $('hm').addEventListener('click',function(e){
 var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
 if(c)hmPick(c)});
@@ -3818,6 +3833,11 @@ function draw(){
 var g=find($('g').value);if(!g)return;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.setAttribute('aria-pressed',b.dataset.m===mode)});
+/* The bell is for whichever game is chosen, and it has to be told each time that
+   changes. It is drawn by PUSH_JS, which may not have answered the server yet; it
+   redraws itself when it does. */
+var bp=document.querySelector('#planbell [data-bell]');
+if(bp){bp.setAttribute('data-s',g.s);if(PT.bells)PT.bells()}
 var L=toLocal(g.m),B=bands(L),p=nextBlock(L,mode);
 if(!p){aim=null;
 $('out').innerHTML='<p class="none">Not enough player counts for this game yet.</p>';return}
@@ -3990,7 +4010,7 @@ __NOTIFY__</div>
 <p class="readout" id="readout"></p></div>
 <div id="stats" class="sp4 card"><h2>__NAME__ statistics</h2>__FACTS__</div>
 <div id="week" class="card"><h2>__NAME__ busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
-<p class="readout" id="hmout">Pick a box to see how many play then.</p>
+<p class="readout chartout" id="hmout">Pick a box to see how many play then.</p>
 <div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
 <i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
 <p class="mut small">The outlined square is right now.</p>
@@ -4185,10 +4205,9 @@ if(kind==='updates')return 'Remind me about updates';
 return kind==='busy'?'Remind me before busy':'Remind me before quiet';
 }
 
-function signBell(kind){
-var label=bellLabel(kind==='plan'?planKind():kind,false);
+function signBell(el,kind){
 return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get '
-+'notifications (13+)">'+PTBELL+'<span>'+label+'</span></a>'}
++'notifications (13+)">'+PTBELL+'<span>'+bellWords(el,kind,false)+'</span></a>'}
 /* The bell at the top of a game page goes to the settings rather than toggling
    everything at once. It used to be a master switch - on turned the quiet one on,
    off turned all four off - which is a blunt thing to put at the top of a page when
@@ -4196,14 +4215,25 @@ return '<a class="bellb" href="'+ptLogin()+'" title="Sign in with Roblox to get 
    from, because /notifications otherwise lists only games already followed or saved
    and arriving at a page that does not mention the game you just left reads as a
    broken link. */
-function masterLink(on){
-return '<a class="bellb" href="/notifications?game='+encodeURIComponent(slug||'')+'">'
+function masterLink(on,forSlug){
+return '<a class="bellb" href="/notifications?game='+encodeURIComponent(forSlug||'')+'">'
 +PTBELL+'<span>'+bellLabel('all',on)+'</span></a>'}
 
-function bellBtn(kind,label,on){
+function bellBtn(kind,label,on,forSlug){
 return '<button class="bellb" type="button" data-bk="'+kind+'" '
++'data-s="'+ptEsc(forSlug||'')+'" '
 +'aria-pressed="'+(on?'true':'false')+'"'+(busy?' disabled':'')+'>'
 +PTBELL+'<span>'+label+'</span></button>'}
+
+/* Which game a bell belongs to. Nearly always the page's own - but the event
+   calendar lists every game and Plan my session lets somebody pick one, so a bell
+   may carry its own, and those two pages have no game of their own at all. */
+function bellSlug(el){return el.getAttribute('data-s')||slug}
+/* A bell inside a list has no room for "Remind me before events", and the row it
+   sits in has already said which game and which event it is about. */
+function bellWords(el,kind,on){
+if(el.hasAttribute('data-short'))return on?'Reminder on':'Remind me';
+return bellLabel(kind,on)}
 
 /* Which quiet-or-busy window the countdown in this card is showing. The bell beside
    it means "tell me before THIS window", so it follows that choice rather than
@@ -4248,36 +4278,35 @@ var ALREADY='<details class="already"><summary>I have already added it</summary>
    whose bell cannot work shows nothing at all rather than a button that does not:
    the one explanation lives in the Plan my session card, which every game page has. */
 function drawBells(){
-if(!slug)return;
 var ok=S&&S.available&&S.signedIn&&usable();
 /* Signed out, the bells are still drawn, as links to sign in: a feature nobody can
    see is a feature nobody asks for. Nothing is stored and nothing is asked of the
    browser until they have signed in - the bell is only an address. */
 var out=S&&S.available&&!S.signedIn;
-var w=watchFor(slug)||{};
 Array.prototype.forEach.call(document.querySelectorAll('[data-bell]'),function(el){
-if(out){el.innerHTML=signBell(el.dataset.bell);return}
+var s2=bellSlug(el);
+/* Plan my session before a game has been picked, and nothing else. */
+if(!s2){el.innerHTML='';return}
+/* "plan" means the bell beside a countdown: it follows that card's own Quiet or
+   Busy chooser rather than keeping a third opinion of its own. */
+var kind=el.dataset.bell;
+if(kind==='plan')kind=planKind();
+if(out){el.innerHTML=signBell(el,kind);return}
 /* On an iPhone or iPad in a tab the bells used to be left EMPTY, which reads as the
    site being broken rather than as one step away from working. They are drawn as
    normal now and the click handler opens the install popup instead of switching
    anything on, because on Apple nothing can be switched on until the site is on the
    home screen. */
 if(!ok&&needInstall()&&S&&S.signedIn){
-var nw=watchFor(slug)||{};
-var nk=el.dataset.bell;
-if(nk==='all')el.innerHTML=masterLink(false);
-else if(nk==='plan')el.innerHTML=bellBtn(planKind(),bellLabel(planKind(),false),false);
-else el.innerHTML=bellBtn(nk,bellLabel(nk,false),false);
+if(kind==='all')el.innerHTML=masterLink(false,s2);
+else el.innerHTML=bellBtn(kind,bellWords(el,kind,false),false,s2);
 return}
 if(!ok){el.innerHTML='';return}
-var kind=el.dataset.bell;
+var w=watchFor(s2)||{};
 if(kind==='all'){
 var any=!!(w.quiet||w.busy||w.events||w.updates);
-el.innerHTML=masterLink(any)}
-else if(kind==='plan'){
-var k=planKind();
-el.innerHTML=bellBtn(k,bellLabel(k,w[k]),w[k])}
-else{el.innerHTML=bellBtn(kind,bellLabel(kind,w[kind]),w[kind])}})}
+el.innerHTML=masterLink(any,s2)}
+else el.innerHTML=bellBtn(kind,bellWords(el,kind,w[kind]),w[kind],s2)})}
 
 function drawGame(){
 drawBells();
@@ -4376,7 +4405,10 @@ if(nd){e.preventDefault();openPop(nd);return}}
 var t=e.target.closest('.tog');
 if(t){flip(t.dataset.s,t.dataset.k,t.getAttribute('aria-pressed')!=='true');return}
 var bb=e.target.closest('button.bellb');
-if(bb){flip(slug,bb.dataset.bk,bb.getAttribute('aria-pressed')!=='true');return}
+/* The bell says which game it is for: on the calendar and on the planner that is
+   not the page's own game, because those pages have none. */
+if(bb){flip(bb.dataset.s||slug,bb.dataset.bk,
+bb.getAttribute('aria-pressed')!=='true');return}
 /* Changing the countdown between quiet and busy changes what the bell beside it is
    offering, so it has to be redrawn. */
 if(e.target.closest('#planbtns')){setTimeout(drawBells,0);return}
@@ -4391,6 +4423,9 @@ note='Sent. If nothing appears, your computer is hiding it rather than this site
 if(pageBox){fetch('/games.json').then(function(r){return r.json()}).then(function(all){
 names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
 
+/* The planner changes which game its bell is for every time the dropdown moves, so
+   it needs a way to ask for a redraw. Nothing else uses it. */
+PT.bells=drawBells;
 PT.ready(function(){refresh()});
 })();"""
 
@@ -5483,6 +5518,12 @@ def main():
                        + (f'Happening now, ends {when(e["end"] or e["start"])}' if e["start"] <= now
                           else f'Starts {when(e["start"])}')
                        + '</span>'
+                       # Filled in by PUSH_JS, and empty for anybody it cannot help.
+                       # This is where somebody decides they want telling about a
+                       # game: before this, the only bells on the site were on the
+                       # game's own pages, which is a place they had to go and find.
+                       + f'<span class="evbell" data-bell="events" '
+                         f'data-s="{e["slug"]}" data-short></span>'
                        + '</li>')
         return f'<ul class="evt">{"".join(out)}</ul>' if out else ""
 
@@ -5492,8 +5533,9 @@ def main():
         'themselves have put on the Roblox calendar, for every game we track. Expect these hours to be busy.</p></div>'
         '<section id="myevts" hidden><h2 style="margin-top:22px">Your saved games</h2>'
         '<ul class="evt"></ul>'
-        '<p class="mut small">Want telling before one starts? '
-        '<a href="/notifications">Turn on Events for a game</a>.</p></section>' 
+        '<p class="mut small">The bell on a row tells your browser about that '
+        'game&rsquo;s events, about fifteen minutes before one starts. '
+        '<a href="/notifications">All of yours are here</a>.</p></section>' 
         + (f'<h2 style="margin-top:22px">Happening now</h2>{ev_list(live)}' if live else "")
         + (f'<h2 style="margin-top:26px">Coming up</h2>{ev_list(soon)}' if soon else "")
         + ("" if live or soon else '<p class="none">No events are listed right now. Creators usually '
@@ -5502,7 +5544,7 @@ def main():
         "Every upcoming Roblox game event and update we know about, with the dates they run "
         "and the games they belong to.",
         nav="events", canon="/events",
-        tail=MYEVTS_JS,
+        tail=MYEVTS_JS + f'<script>{PUSH_JS}</script>',
         trail=[("All games", "/"), ("Events", "/events")],
         noindex=not (live or soon), modified=iso_day(now)))
 
@@ -5539,6 +5581,13 @@ def main():
         '<p class="mut small" style="margin-top:14px">What do you want?</p>'
         '<div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>'
         '<button data-m="busy" aria-pressed="false">Busy</button></div>'
+        # Outside #out, which draw() rewrites from scratch every five minutes: a bell
+        # living in there would be torn down mid-press. PLAN_JS points it at whichever
+        # game is chosen, and it follows the Quiet/Busy buttons it sits under, the
+        # same way the one on a game page follows that card. It is above the countdown
+        # rather than under the twelve-hour table, which is most of a screen further
+        # down and nowhere near the choice it belongs to.
+        '<div id="planbell"><span data-bell="plan"></span></div>'
         '<div id="out"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
         '<p><a href="/busiest-hours">When is Roblox busiest overall?</a></p>'
@@ -5547,7 +5596,8 @@ def main():
         "timezone from our hour-by-hour player count history.",
         nav="plan", canon="/plan",
         trail=[("All games", "/"), ("Plan a session", "/plan")],
-        tail=f"<script>{SHARED_JS}</script><script>{PLAN_JS}</script>"))
+        tail=f"<script>{SHARED_JS}</script><script>{PLAN_JS}</script>"
+             f"<script>{PUSH_JS}</script>"))
 
     # ---- when is Roblox busiest, across everything we watch
     write("busiest-hours.html", busy_page(cards, now))
