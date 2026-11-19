@@ -989,6 +989,20 @@ padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
 .facts dt{font-size:.95rem;color:var(--ink);font-weight:600;min-width:0}
 .facts dt span{display:block;font-size:.8rem;color:var(--mut);font-weight:400;margin-top:1px}
 .facts dd{margin:0;font-weight:800;font-size:1.12rem;white-space:nowrap;text-align:right}
+/* Below 900px the stats card is full width and about a screen tall, so only its
+   first three rows show and the rest open behind "More stats". GAME_JS adds .fold,
+   so with no script every row simply shows. The base display:none and the media
+   query sit together because .fold+.morestats must beat .morestats on weight,
+   not on order. From 900px up the card fills its column beside the stack, so
+   nothing folds. */
+.morestats{display:none}
+@media(max-width:899.98px){
+.facts.fold:not(.open)>div.x{display:none}
+.facts.fold:not(.open)>div:nth-child(3){border-bottom:0;padding-bottom:0}
+.facts.fold+.morestats{display:inline-block;margin-top:12px;padding:8px 16px;font:inherit;
+font-size:.92rem;font-weight:700;color:var(--acc);background:none;border:1px solid var(--line);
+border-radius:999px;cursor:pointer}
+}
 /* The hour-by-hour table, kept inside a <details> so it does not crowd the page.
    Collapsed text is still read by search engines, and it works with no JavaScript. */
 .hourtbl{font-size:.8rem;border-collapse:collapse;min-width:620px}
@@ -2309,10 +2323,16 @@ def facts_html(c, a, f, meta=None):
     span = (f'over {a["days"]:.0f} days, since {when(a["first"])}' if a["days"] >= 1
             else f'since {when(a["first"])}')
     rows.append(("Player counts collected", f'{c["samples"]:,}', span))
-    return ('<dl class="facts">'
-            + "".join(f'<div><dt>{k}<span>{note}</span></dt><dd>{v}</dd></div>'
-                      for k, v, note in rows)
-            + "</dl>")
+    # On a phone this card is a whole screen tall, so only the first three rows show
+    # there and the rest open behind "More stats" (see .facts.fold). Everything stays
+    # in the HTML, so search engines read every row.
+    return ('<dl class="facts" id="facts">'
+            + "".join(f'<div{" class=x" if i >= 3 else ""}><dt>{k}<span>{note}</span></dt>'
+                      f'<dd>{v}</dd></div>'
+                      for i, (k, v, note) in enumerate(rows))
+            + "</dl>"
+            + ('<button class="morestats" type="button" aria-controls="facts" '
+               'aria-expanded="false">More stats</button>' if len(rows) > 3 else ""))
 
 
 def hours_table_html(name, week):
@@ -3751,7 +3771,10 @@ hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
 $('hm').addEventListener('click',function(e){
 var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
 if(c)hmPick(c)});
-Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);"""
+Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);
+(function(){var fl=$('facts'),mb=document.querySelector('.morestats');if(!fl||!mb)return;
+fl.classList.add('fold');mb.onclick=function(){var o=fl.classList.toggle('open');
+mb.setAttribute('aria-expanded',o);mb.textContent=o?'Fewer stats':'More stats'}})();"""
 
 HOME_JS = """var G=__GAMES__;
 /* Each game carries 168 digits: one busy-ness level per hour of the week, in UTC.
