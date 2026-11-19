@@ -24,6 +24,13 @@ const MAX_TRIES = 5;            // failed logins allowed...
 const WINDOW_MINUTES = 15;      // ...within this many minutes, per visitor
 const SAFE_PATH = /^\/[A-Za-z0-9/._-]*$/;
 
+// The one address sign-in may run on: the only /auth/callback Roblox has registered.
+// Written down rather than derived, unlike the cookie's Domain, because the whole
+// point is to name the right host when the request arrived on a wrong one.
+const SITE_HOST = "playtimestats.com";
+// ...except on a computer running `wrangler dev`, which is nobody's wrong address.
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$/;
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -38,6 +45,31 @@ export default {
     if (url.hostname.startsWith("www.")) {
       url.hostname = url.hostname.slice(4);
       return Response.redirect(url.toString(), 301);
+    }
+
+    // Sign-in may only START on the real site. redirectUri() in auth.js builds the
+    // address Roblox is asked to send people back to out of the address the request
+    // came in on, so a sign-in begun on the workers.dev test copy asks Roblox to
+    // return to workers.dev - an address Roblox refuses, and will not let anybody
+    // register, because it is a domain anyone can take a subdomain on. The result is
+    // Roblox's red "Redirect URI is invalid for this application" page, which is
+    // exactly what the installed PC app hit on 18 Nov 2026 after being installed from
+    // that address while an ordinary tab signed in perfectly.
+    //
+    // Nothing is lost by sending it home: sign-in has never worked on the test copy
+    // and cannot be made to. This is deliberately only /auth/login - the rest of the
+    // test copy stays browsable, which is what it is for - and it cannot rescue an app
+    // already installed on the wrong host, since that app is scoped to that origin and
+    // an out-of-scope address opens in a browser tab instead. Only reinstalling moves
+    // an app. What it does is turn a dead end into a working sign-in on the real site.
+    if (path === "/auth/login" && url.hostname !== SITE_HOST
+        && !LOCAL_HOST.test(url.hostname)) {
+      url.protocol = "https:";
+      url.hostname = SITE_HOST;
+      url.port = "";
+      // 302, not 301: a browser keeps a 301 for good, and this names a domain that
+      // could one day change.
+      return Response.redirect(url.toString(), 302);
     }
 
     try {
