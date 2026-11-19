@@ -278,7 +278,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    the eight links into a scrolling strip. A cap being respected, and it read as the
    page breaking. The logo now sits left of the words on a reading page, which is
    what most sites do and what nobody notices, and the bar never changes shape. */
-.hrow{display:flex;align-items:center;gap:12px}
+/* The spacing of the bar, in one place (19 Nov 2026, owner's call: "the spacing
+   is off, some things are really close to each other"). It had grown four
+   different gaps with no system behind them - 12px after the logo, 16px before
+   the sections, 24px after them and 12px between the controls at the right end -
+   so a row of 42px squares 12px apart read as neither a group nor four separate
+   buttons. It is three groups now, and the gaps say so:
+     8px   INSIDE a group - the bell, the magnifier and the three lines
+     14px  between the person and those tools
+     18px  between groups - the logo, the game picker, the sections
+     16px  to the edge of the bar, which is what the page below it uses
+   The 8px base is the smallest of them and every wider gap is a margin added on
+   top, so a new control dropped into the bar joins the tools group by default. */
+.hrow{display:flex;align-items:center;gap:8px}
 /* The same shape as the tabs across a game's pages, because they do the same job:
    here is where you are, here is what else there is. Hidden below 900px, where the
    bar has room for the logo, the game picker and two buttons and nothing else -
@@ -291,7 +303,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* flex:0 0 auto - the sections do not shrink. They used to (0 1 auto), which is
    what let a long name squeeze them; the overflow is kept as a last net rather
    than as the usual case. */
-.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 0 auto;
+.hnav{display:none;margin-left:10px;white-space:nowrap;min-width:0;flex:0 0 auto;
 overflow-x:auto;scrollbar-width:none}
 .hnav::-webkit-scrollbar{display:none}
 /* Three links at 900px, all eight once there is room for them. Eight at 900 was
@@ -370,13 +382,29 @@ border:1px solid var(--line);background:var(--shade)}
    below) and the NAME gives way instead: min-width:0 all the way down to .albl,
    which already has the ellipsis. The whole name is still one press away, written
    across the button the menu hangs from. */
-.acctbar{flex:0 1 auto;min-width:0}
+/* 14px, so the person is not jammed against the sections on a narrow window;
+   the bell then sits 8px off it and the two tools 8px off each other, which is
+   what makes the right end read as you-then-tools rather than four loose boxes. */
+.acctbar{flex:0 1 auto;min-width:0;margin-left:14px}
+/* The 6px goes on whichever control starts the tools, so the gap is 14 either
+   way: the bell when somebody is signed in, and the magnifier when they are not
+   and there is no bell to carry it. .nots stays in the page when it is empty -
+   :empty only hides it - so it is still there for the sibling to be next to. */
+.hdr .nots{margin-left:6px}
+.hdr .nots:empty+.iconb{margin-left:6px}
 .acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
-/* Signed out this is an <a>, not a <button>. */
+/* Signed out this is an <a>, not a <button>, and it keeps its words: a lone
+   person-glyph with no label is not an invitation to sign in. Signed in it is the
+   picture alone, the same 42px square as the bell, the magnifier and the three
+   lines beside it - four squares in a row rather than three and a pill. Two
+   classes, because .acctb above and .iconb further down are both one class and a
+   later one-class rule would win. */
 .acctb{text-decoration:none}
+.acctbar .acctb.onlypic{width:42px;padding:0;gap:0;justify-content:center}
+.acctbar .acctb.onlypic .pfp{width:30px;height:30px}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
@@ -396,6 +424,12 @@ box-shadow:var(--sh);animation:dropin .15s ease both}
 .amenu[hidden]{display:none}
 .amenu .asub{display:block;padding:8px 12px 9px;margin:0 0 4px;color:var(--mut);
 font-size:.78rem;border-bottom:1px solid var(--line)}
+/* The name, first line of the menu, since the bar no longer carries it. The
+   ellipsis is here for the same reason it was on the pill: Roblox display names
+   run long, and this box is 218px wide. */
+.amenu .aname{display:block;margin-bottom:2px;color:var(--ink);font-size:.95rem;
+font-weight:800;font-style:normal;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap}
 .amenu form{margin:0}
 /* The panel's Notifications row is the other half of the same arrangement: it shows
    on a phone, where the bell is not in the bar, and hides where the bell is. */
@@ -516,7 +550,7 @@ border-radius:12px;background:var(--shade);font-size:.92rem}
    offer rather than as something already switched on. */
 .svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
 letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap;margin-right:10px}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* The header is logo, name and game picker on the left, then the account, the
@@ -988,7 +1022,7 @@ h2{font-size:1.06rem}
 .drawer{top:63px;right:14px;max-width:calc(100vw - 28px);max-height:calc(100vh - 79px)}
 .iconb{width:38px;height:38px}
 .hrow{gap:9px}
-.logo{font-size:1.2rem}
+.logo{font-size:1.2rem;margin-right:0}
 .logo .mark{width:29px;height:29px}
 .gpick>button{max-width:150px;padding:7px 11px}
 /* two games across even on the narrowest phone, with less air between them */
@@ -1101,8 +1135,14 @@ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
    menu under it. Not available at all - no Roblox keys set - and this writes
    nothing, so the empty .acct collapses and the bar reads as though sign-in had
    never existed.
-   alt is empty on purpose: the name is right beside the picture, and a screen
-   reader announcing it twice is worse than not announcing it at all. */
+   The bar shows the PICTURE AND NOTHING ELSE (19 Nov 2026, owner's call). It
+   carried the name beside it, which made the one control in the bar whose width
+   nobody could predict - a long Roblox name ran it to 182px against the 42px it
+   is now - and it was the only item up there that was not a neat square. The name
+   is not lost: it is the first line of the menu the picture opens, and it is in
+   the panel on a phone, where there is no picture in the bar at all.
+   alt is empty on purpose: the button's own aria-label carries the name, so a
+   screen reader announcing the picture as well would say it twice. */
 function ptPaint(){
 /* The account, in the panel behind the three lines. Nothing at all when the Roblox
    keys are missing, so .acct:empty collapses and the panel reads as though signing
@@ -1151,21 +1191,22 @@ el.innerHTML=bell});
    so this link is the only one there is at that width - see the .dtop .acct rule. */
 var pill=!PT.available?''
 :PT.name
-?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
-+'aria-expanded="false" aria-label="Your account">'
-+(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
-+'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+?'<button class="acctb onlypic" id="acctbar" type="button" aria-controls="amenu" '
++'aria-expanded="false" aria-label="Your account, '+ptEsc(PT.name)+'">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="30" height="30">':PTPERSON)
++'</button>'
 :'<a class="acctb" id="acctbar" href="'+ptLogin()+'" '
 +'aria-label="Sign in with Roblox">'+PTPERSON
 +'<span class="albl">Sign in</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
-/* What drops out of that pill. The name is not repeated inside it - it is written
-   across the button the menu hangs from, and saying it twice on one screen is how
-   the panel copy and this one would start to disagree. */
+/* What drops out of that picture, and the ONE place on a computer the name is
+   written. It used to be across the button and deliberately not repeated here;
+   the button is a bare picture now, so the name moved in rather than vanishing -
+   still said once, just in the other half of the same control. */
 var amenu=document.getElementById('amenu');
 if(amenu)amenu.innerHTML=(PT.available&&PT.name)
-?'<i class="asub">Signed in with Roblox</i>'
+?'<i class="asub"><b class="aname">'+ptEsc(PT.name)+'</b>Signed in with Roblox</i>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'';
@@ -1990,7 +2031,12 @@ var x=edge==='right'?r.right-w:r.left;
 x=Math.min(x,W-w-gap);
 el.style.left=Math.round(Math.max(gap,x))+'px';
 el.style.right='auto'}
-function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
+/* Right edge to right edge, like the panel off the three lines. It used to hang
+   from the button's LEFT edge, which was fine while the button was a 119px pill
+   and is not now it is a 42px picture: a 218px card hung off the left of it ran
+   out past the three-line button and was then shoved back by the keep-it-on-screen
+   clamp, so it lined up with nothing at all. */
+function placeMenu(){drop(am,document.getElementById('acctbar'),'right')}
 function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
 var hit=e.target.closest&&e.target.closest('#acctbar');
