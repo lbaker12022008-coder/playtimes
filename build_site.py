@@ -4113,7 +4113,10 @@ def jump_html(items):
 # card is full width and simply follows the one before. So the HTML runs from what
 # people search for most to least, going by Search Console (Nov 2026): the player
 # count itself (right now, peak, lowest, visits, likes), when it is busiest, the
-# player count graph, "is it dead", then the hourly detail, and planning last.
+# hourly graph, "is it dead", then the day-by-day graph, and planning last. The
+# hourly graph sits above the day-by-day one (19 Nov 2026, owner's call): somebody
+# asking for a player count wants today, and the hourly graph opens on today and
+# answers "how busy around now"; three weeks of daily points answer a later question.
 # On a computer the numbers sit alone in the left column and the next three are
 # stacked in a .lstack beside them; measured with real data the two columns come out
 # within about 40px of each other, where pairing the numbers with "when is it busiest"
@@ -4129,16 +4132,16 @@ __ABOUT__
 <div class="sp7 lstack">
 <div id="answer" class="card ans rise2"><h2>When is __NAME__ busiest?</h2><p id="now"></p><p id="best">__BEST__</p>
 <p id="quiet">__QUIET__</p></div>
-__HISTORY__
+<div id="byhour" class="card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
+<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
+<p class="readout" id="readout"></p></div>
 <div id="dead" class="card rise3"><h2>Is __NAME__ dead?</h2>
 __SPARK__<div class="verdict">
 <span class="vbadge" style="background:__VCOL__">__VLABEL__</span><p style="margin:0;flex:1 1 240px">__VTEXT__</p></div></div>
 </div>
-<div id="byhour" class="sp8 card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
-<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
-<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
-<p class="readout" id="readout"></p></div>
-<div id="session" class="sp4 card rise3"><h2>Plan my session</h2>
+__HISTORY__
+<div id="session" class="__SESSSPAN__ card rise3"><h2>Plan my session</h2>
 <div class="planpick">
 <div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
 <button data-m="busy" aria-pressed="false">Busy</button></div></div>
@@ -5322,7 +5325,7 @@ def main():
         thin = not index_ok(c)
 
         faq, qa = faq_html(c, a, facts, meta, pattern)
-        hist_b = anchor(history_html(name, a), "history")
+        hist_b = anchor(span(history_html(name, a), 8), "history")
 
         # Everything about this game's updates gets its own page, reached from the
         # row of buttons at the top of the game page.
@@ -5411,6 +5414,7 @@ def main():
                 .replace("__FACTS__", facts_html(c, a, facts, meta))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
+                .replace("__SESSSPAN__", "sp4" if hist_b else "")
                 .replace("__GTABS__", game_tabs(s, has))
                 .replace("__CAT__", cat)
                 .replace("__PLAY__", play)
