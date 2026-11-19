@@ -16,6 +16,7 @@ CACHE_DIR = ".cache"
 HEADERS = {"User-Agent": "playtime/1.0 (+static site builder)"}
 
 GAMES_API = "https://games.roblox.com/v1/games?universeIds="
+VOTES_API = "https://games.roblox.com/v1/games/votes?universeIds="
 ICON_API = ("https://thumbnails.roblox.com/v1/games/icons"
             "?size=256x256&format=Webp&isCircular=false&universeIds=")
 # The wide picture Roblox shows on a game's own page. We use it faded out behind the
@@ -144,7 +145,11 @@ def fetch_banners(ids):
 
 
 def fetch_meta(ids):
-    """{universe_id: {description, updated, created, visits, max_players, favorites}}."""
+    """{universe_id: {description, updated, created, visits, max_players, favorites,
+    likes, dislikes}}.
+
+    Likes come from a second endpoint. If that one fails the game simply has no
+    likes figure (0), and the pages leave the line out rather than print a zero."""
     def pull(batch):
         out = {}
         try:
@@ -160,12 +165,19 @@ def fetch_meta(ids):
                 }
         except Exception as e:
             print("  ! could not load game details:", e)
+        try:
+            for v in get_json(VOTES_API + ",".join(map(str, batch))).get("data", []):
+                if str(v["id"]) in out:
+                    out[str(v["id"])]["likes"] = v.get("upVotes") or 0
+                    out[str(v["id"])]["dislikes"] = v.get("downVotes") or 0
+        except Exception as e:
+            print("  ! could not load likes:", e)
         return out
 
     out = {}
     for i in range(0, len(ids), 50):
         batch = ids[i:i + 50]
-        out.update(cached("meta:" + ",".join(map(str, batch)), 6 * HOUR, lambda b=batch: pull(b)))
+        out.update(cached("meta2:" + ",".join(map(str, batch)), 6 * HOUR, lambda b=batch: pull(b)))
     return {int(k): v for k, v in out.items()}
 
 
