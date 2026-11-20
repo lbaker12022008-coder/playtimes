@@ -5,7 +5,7 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="BloxNG Updates in Order: Changelog &amp; Next Update | PlayTime">
 <meta property="og:description" content="Every BloxNG update in order. Changelog, update log and player count jumps.">
-<meta property="og:url" content="https://playtimestats.com/updates/bloxng"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-e4c86fa92ca4703b34fd2d60dfbebd7d/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://playtimestats.com/updates/bloxng"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-4bb7d77fed58db812816caff66198cb0/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-20">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -481,7 +481,7 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
 background:var(--solid);border:1px solid var(--line);border-radius:12px;
 padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
-max-width:260px;white-space:nowrap}
+width:max-content;max-width:calc(100vw - 16px)}
 .chtip.on{opacity:1}
 @media(min-width:900px){.readout.chartout{display:none}}
 /* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
@@ -1243,7 +1243,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
-<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-e4c86fa92ca4703b34fd2d60dfbebd7d/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-4bb7d77fed58db812816caff66198cb0/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
 <nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
@@ -1458,13 +1458,23 @@ function tipEl(){
 if(!chtip){chtip=document.createElement('div');chtip.className='chtip';
 chtip.setAttribute('aria-hidden','true');document.body.appendChild(chtip)}
 return chtip}
+/* Sits to the right of the pointer, and flips to the LEFT of it once there is not
+   room on the right - so near the right edge of the screen it is never cut off.
+   It is measured parked at the top left, because a fixed box near the right edge
+   is squeezed by the edge itself and would report itself narrower than it is.
+   It used to be capped at 260px with nowrap, which let a long readout spill out of
+   the box: the box was measured at 260 while the words ran on past it, so the flip
+   came too late and the end of the line was cut off. The window is measured
+   without its scrollbar (clientWidth), which innerWidth includes. */
 function tipShow(html,cx,cy){
-var t=tipEl();t.innerHTML=html;t.className='chtip on';
-var w=t.offsetWidth,h=t.offsetHeight,pad=14;
+var t=tipEl();t.innerHTML=html;t.style.left='0px';t.style.top='0px';t.className='chtip on';
+var de=document.documentElement,vw=de.clientWidth,vh=de.clientHeight;
+var w=t.offsetWidth,h=t.offsetHeight,pad=14,edge=8;
 var x=cx+pad,y=cy-h-pad;
-if(x+w>window.innerWidth-6)x=cx-w-pad;
-if(x<6)x=6;
-if(y<6)y=cy+pad;
+if(x+w>vw-edge)x=cx-w-pad;
+if(x<edge)x=edge;
+if(y<edge)y=cy+pad;
+if(y+h>vh-edge)y=vh-h-edge;
 t.style.left=x+'px';t.style.top=y+'px'}
 function tipHide(){if(chtip)chtip.className='chtip'}
 

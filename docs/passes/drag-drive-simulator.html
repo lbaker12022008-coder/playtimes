@@ -481,7 +481,7 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
 background:var(--solid);border:1px solid var(--line);border-radius:12px;
 padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
-max-width:260px;white-space:nowrap}
+width:max-content;max-width:calc(100vw - 16px)}
 .chtip.on{opacity:1}
 @media(min-width:900px){.readout.chartout{display:none}}
 /* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
