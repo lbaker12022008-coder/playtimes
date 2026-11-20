@@ -970,9 +970,19 @@ color:var(--mut);text-decoration:none;font-weight:700;font-size:.97rem}
    accent in both themes - light mode's accent is a deep purple that reads as a
    shadow here, not a glow. --glowh is set in the light palette and never
    overridden, so it is the one hue both themes share. */
+/* The glow is thrown UPWARDS, and that is not a style choice - it is the only
+   direction anybody can see it. .gtabs scrolls sideways, and a box that scrolls on
+   one axis clips the other whatever you write, so every pixel of halo below the
+   line is cut off; the game's heading panel sits under the row as well, above it
+   in the stacking order, so it would cover that half even unclipped. Measured on a
+   real page before this: the column of pixels under the line went straight from
+   the bar to the flat page colour, which is a glow with half of itself missing.
+   Offsetting it up puts all of it where it shows. If the row is ever made to not
+   scroll, this can go back to an even halo. */
 .gtab.on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;
 border-radius:3px;background:hsl(var(--glowh) 92% 72%);
-box-shadow:0 0 6px hsl(var(--glowh) 92% 72%/.95),0 0 15px 2px hsl(var(--glowh) 92% 72%/.6)}
+box-shadow:0 -2px 7px hsl(var(--glowh) 92% 72%/.95),
+0 -5px 18px 3px hsl(var(--glowh) 92% 72%/.6)}
 .fav{font-weight:700;padding:10px 17px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
 .fav:hover,.fav:focus-visible{border-color:var(--acc);box-shadow:var(--rim)}
 .btn:hover,.btn:focus-visible{box-shadow:var(--sh),var(--rim)}
