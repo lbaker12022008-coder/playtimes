@@ -573,6 +573,19 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
 .gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
 .gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
+/* On a computer the list is exactly as wide as the "Pick a game" box it hangs from,
+   and a long name ends in an ellipsis (owner's call, 20 Nov 2026). Sized to its
+   longest name it reached 387px from a 240px box and lay over Busy now, Quiet now
+   and Popular, which sit right beside the box from 900px up. A phone's bar has
+   none of those beside it, and a 150px list would show only a few letters of each
+   name, so below 900px it keeps its own width. right:0 works because .gpick is
+   position:relative and exactly as wide as its button. Two classes throughout,
+   because .gmenu's min-width above is one class, and so is the overflow-wrap rule
+   further down that would otherwise break a name over two lines instead of
+   cutting it. The full name is in the row's title, for a mouse to hover. */
+.gpick .gmenu a .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap;overflow-wrap:normal}
+@media(min-width:900px){.gpick .gmenu{right:0;min-width:0;max-width:none}}
 /* round icon button on the right of the header */
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
@@ -1258,9 +1271,9 @@ e.preventDefault();history.back()}});</script></head><body>
 <div class="shell">
 <div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/sweep-the-moon">Sweep The Moon player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-bc3e645da88ee46d84616ae150b086b8/256/256/Image/Webp/noFilter" alt="Sweep The Moon Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Sweep The Moon updates in order</h1><p class="mut">The Sweep The Moon changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Sweep The Moon&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/109576450376407">Play Sweep The Moon</a><span data-bell="all"></span><button class="fav" id="fav" data-s="sweep-the-moon" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/sweep-the-moon">Overview</a><a class="gtab on" href="/updates/sweep-the-moon" aria-current="page">Updates</a><a class="gtab" href="/questions/sweep-the-moon">Questions</a><a class="gtab" href="/passes/sweep-the-moon">Costs</a></nav></div></div><div class="card"><h2>Sweep The Moon changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>6 days ago</b> (Sat 14 Nov).</p><h3>Latest Sweep The Moon updates</h3><ul class="evt"><li class=""><b>NEW: FLYABLE UFO</b><span class="d">NEW: FLYABLE UFO</span><span class="d">Sat 14 Nov &middot; 6 days ago</span><p>New: Flyable UFO Vehicle
 Collect dust from the comfort of your own flying saucer!
-A new highest tier vehicle available for unlock.</p></li><li class=""><b>NEW: RANGER DRONE</b><span class="d">NEW: RANGER DRONE</span><span class="d">Wed 11 Nov &middot; 8 days ago</span><p>New update: Ranger Drone
+A new highest tier vehicle available for unlock.</p></li><li class=""><b>NEW: RANGER DRONE</b><span class="d">NEW: RANGER DRONE</span><span class="d">Wed 11 Nov &middot; 9 days ago</span><p>New update: Ranger Drone
 + Completed Moon&#x27;s now pay Shards!
-+ Tonnes of bug fixes</p></li><li class=""><b>NEW ROBOT: HIVE MITES</b><span class="d">NEW ROBOT: HIVE MITES</span><span class="d">Fri 6 Nov &middot; 13 days ago</span><p>NEW ROBOT: HIVE MITES</p></li></ul><h3>Every Sweep The Moon update in order</h3><p class="mut small">All 3 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 6 Nov.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>3</td><td>NEW: FLYABLE UFO</td><td>Sat 14 Nov</td></tr><tr><td>2</td><td>NEW: RANGER DRONE</td><td>Wed 11 Nov</td></tr><tr><td>1</td><td>NEW ROBOT: HIVE MITES</td><td>Fri 6 Nov</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Sweep The Moon has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/sweep-the-moon">&larr; Back to Sweep The Moon</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
++ Tonnes of bug fixes</p></li><li class=""><b>NEW ROBOT: HIVE MITES</b><span class="d">NEW ROBOT: HIVE MITES</span><span class="d">Fri 6 Nov &middot; 14 days ago</span><p>NEW ROBOT: HIVE MITES</p></li></ul><h3>Every Sweep The Moon update in order</h3><p class="mut small">All 3 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 6 Nov.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>3</td><td>NEW: FLYABLE UFO</td><td>Sat 14 Nov</td></tr><tr><td>2</td><td>NEW: RANGER DRONE</td><td>Wed 11 Nov</td></tr><tr><td>1</td><td>NEW ROBOT: HIVE MITES</td><td>Fri 6 Nov</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Sweep The Moon has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/sweep-the-moon">&larr; Back to Sweep The Moon</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -2122,9 +2135,17 @@ box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspop
 label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
 var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
 menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
-return '<a href="/game/'+ptEsc(g.s)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+return '<a href="/game/'+ptEsc(g.s)+'" title="'+ptEsc(g.n)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
-function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
+/* Below 900px the list keeps its own width (see .gpick .gmenu), but it hangs from a
+   box that starts about 145px in, so at 252px or more it ran off the right of a
+   390px phone. It is held inside the screen here, because how far in the box
+   starts depends on the logo and is not a number CSS can know. */
+function fit(){if(!window.matchMedia||!matchMedia('(max-width:899px)').matches){
+menu.style.maxWidth=menu.style.minWidth='';return}
+var room=document.documentElement.clientWidth-box.getBoundingClientRect().left-10;
+menu.style.maxWidth=room+'px';menu.style.minWidth=Math.min(252,room)+'px'}
+function open(on){if(on)fit();menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
 btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
 document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});

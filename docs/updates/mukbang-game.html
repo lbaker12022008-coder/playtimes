@@ -573,6 +573,19 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
 .gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
 .gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
+/* On a computer the list is exactly as wide as the "Pick a game" box it hangs from,
+   and a long name ends in an ellipsis (owner's call, 20 Nov 2026). Sized to its
+   longest name it reached 387px from a 240px box and lay over Busy now, Quiet now
+   and Popular, which sit right beside the box from 900px up. A phone's bar has
+   none of those beside it, and a 150px list would show only a few letters of each
+   name, so below 900px it keeps its own width. right:0 works because .gpick is
+   position:relative and exactly as wide as its button. Two classes throughout,
+   because .gmenu's min-width above is one class, and so is the overflow-wrap rule
+   further down that would otherwise break a name over two lines instead of
+   cutting it. The full name is in the row's title, for a mouse to hover. */
+.gpick .gmenu a .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap;overflow-wrap:normal}
+@media(min-width:900px){.gpick .gmenu{right:0;min-width:0;max-width:none}}
 /* round icon button on the right of the header */
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
@@ -2220,9 +2233,17 @@ box.innerHTML='<button type="button" id="gbtn" aria-expanded="false" aria-haspop
 label+'<span class="caret">&#9660;</span></button><div class="gmenu" id="gmenu" hidden></div>';
 var btn=document.getElementById('gbtn'),menu=document.getElementById('gmenu');
 menu.innerHTML=(others.length?'<p>Recently viewed</p>'+others.map(function(g){
-return '<a href="/game/'+ptEsc(g.s)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
+return '<a href="/game/'+ptEsc(g.s)+'" title="'+ptEsc(g.n)+'">'+pic(g)+'<span class="nm">'+ptEsc(g.n)+'</span></a>'}).join(''):
 '<p>No games opened yet</p>')+'<a class="all" href="/">Browse all games</a>';
-function open(on){menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
+/* Below 900px the list keeps its own width (see .gpick .gmenu), but it hangs from a
+   box that starts about 145px in, so at 252px or more it ran off the right of a
+   390px phone. It is held inside the screen here, because how far in the box
+   starts depends on the logo and is not a number CSS can know. */
+function fit(){if(!window.matchMedia||!matchMedia('(max-width:899px)').matches){
+menu.style.maxWidth=menu.style.minWidth='';return}
+var room=document.documentElement.clientWidth-box.getBoundingClientRect().left-10;
+menu.style.maxWidth=room+'px';menu.style.minWidth=Math.min(252,room)+'px'}
+function open(on){if(on)fit();menu.hidden=!on;btn.setAttribute('aria-expanded',on?'true':'false')}
 btn.onclick=function(e){e.stopPropagation();open(menu.hidden)};
 document.addEventListener('click',function(e){if(!box.contains(e.target))open(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
