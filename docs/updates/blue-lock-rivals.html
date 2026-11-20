@@ -1386,7 +1386,7 @@ dot.setAttribute('cx',x);dot.setAttribute('cy',y);
 g.setAttribute('opacity','1');
 var txt='<b>'+fmt(i)+'</b> &middot; about <b>'+vals[i].toLocaleString()+'</b> players';
 if(out)out.innerHTML=txt;
-if(gLastMouse)tipShow(txt,gLastMouse[0],gLastMouse[1])}
+if(gLastMouse)tipShow(txt,gLastMouse[0],gLastMouse[1],svg)}
 function fromX(clientX){
 var r=svg.getBoundingClientRect();
 if(!r.width)return -1;
@@ -1458,11 +1458,18 @@ return chtip}
    the box: the box was measured at 260 while the words ran on past it, so the flip
    came too late and the end of the line was cut off. The window is measured
    without its scrollbar (clientWidth), which innerWidth includes. */
-function tipShow(html,cx,cy){
+/* box is the chart being read. Once the pointer is over its RIGHT HALF the box
+   goes on the left of the pointer (owner's call, 20 Nov 2026): flipping only at
+   the edge of the screen never happened on a wide monitor, where the chart ends
+   long before the screen does, and the box then sat over the right-hand end of
+   the line - the part being read. */
+function tipShow(html,cx,cy,box){
 var t=tipEl();t.innerHTML=html;t.style.left='0px';t.style.top='0px';t.className='chtip on';
 var de=document.documentElement,vw=de.clientWidth,vh=de.clientHeight;
 var w=t.offsetWidth,h=t.offsetHeight,pad=14,edge=8;
-var x=cx+pad,y=cy-h-pad;
+var r=box&&box.getBoundingClientRect?box.getBoundingClientRect():null;
+var left=r&&r.width?cx>r.left+r.width/2:false;
+var x=left?cx-w-pad:cx+pad,y=cy-h-pad;
 if(x+w>vw-edge)x=cx-w-pad;
 if(x<edge)x=edge;
 if(y<edge)y=cy+pad;
@@ -1489,7 +1496,7 @@ if(i<0||i>=P.length){el.classList.remove('on');ln.hidden=true;at=-1;rest();retur
 at=i;var p=P[i];ln.style.left=p[0]+'%';ln.hidden=false;
 for(var k=0;k<dots.length;k++){dots[k].style.left=p[0]+'%';dots[k].style.top=p[1][k]+'%'}
 el.classList.add('on');if(out)out.innerHTML=p[2];
-if(lastMouse)tipShow(p[2],lastMouse[0],lastMouse[1])}
+if(lastMouse)tipShow(p[2],lastMouse[0],lastMouse[1],el)}
 function fromX(cx){var r=el.getBoundingClientRect();if(!r.width)return -1;
 return Math.max(0,Math.min(P.length-1,Math.round((cx-r.left)/r.width*(P.length-1))))}
 el.addEventListener('pointerdown',function(e){down=true;
