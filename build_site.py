@@ -95,15 +95,15 @@ CSS = """:root{__LIGHT__}
    then drops its own search row so the same control is not offered twice. */
 .iconb.deskonly{display:grid}
 .dtop .drow[data-search]{display:none}
-.dtop .hnavrow{display:none}
-.dtop .hnavrow{display:none}
-/* The three ways in move from the panel into the bar, the same swap.
+/* The three ways in appear in the bar here. They used to be hidden out of the
+   panel at this width by three identical copies of a `.dtop .hnavrow` rule, all
+   in this one block; the rows are gone from the panel at every width now, so the
+   rule has nothing left to hide.
    `.hdr .hnav`, not `.hnav`: the base `.hnav{display:none}` is a one-class rule
    written further down the sheet, a media query adds no specificity, and a plain
    `.hnav` here simply lost to it - the bar stayed empty at every width. Same trap
    as `.hdr .nots`, `.acct .acctb` and `.shell>.w` before it. */
 .hdr .hnav{display:block}
-.dtop .hnavrow{display:none}
 /* From 900px the bar carries the name, the bell and the magnifier, so the panel
    stops offering the same two things a second time.
    Written `.hdr .nots`, not `.nots`: the base `.nots,.acctbar{display:none}` is a
@@ -1630,15 +1630,14 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
               f'<div class="notsrow"></div>'
               f'<button class="drow" data-search type="button">{ICON_SEARCH}'
               f'<span>Search for a game</span></button>'
-              # The bar carries these three from 900px up, so the panel drops them
-              # there - one of each at every width, the rule search and the bell
-              # already follow.
-              f'<a class="drow hnavrow" href="/?for=busy">{ICON_GRID}'
-              f'<span>Busy right now</span></a>'
-              f'<a class="drow hnavrow" href="/?for=quiet">{ICON_GRID}'
-              f'<span>Quiet right now</span></a>'
-              f'<a class="drow hnavrow" href="/popular">{ICON_LIST}'
-              f'<span>Popular games</span></a>'
+              # Busy, Quiet and Popular are NOT here (19 Nov 2026, owner's call:
+              # "remove them from the side menu since it's on the home page").
+              # They only ever showed below 900px - from 900 up the bar carries
+              # them - and below 900px they are three buttons under the homepage
+              # search box, which is the page everybody starts on. Nothing is cut
+              # off: Popular is in the footer, and busy and quiet are the homepage
+              # asked a question rather than pages of their own, so they are also
+              # the chips the homepage already offers.
               # The footer has linked /install since it was built, but the footer is
               # at the bottom of a long page and this menu is how people actually get
               # about: without a row here the page could only be reached by typing it.

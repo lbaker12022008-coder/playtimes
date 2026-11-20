@@ -1053,6 +1053,18 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
     in the bar also carry `more`, the class that keeps them out of a narrow bar,
     and overwriting it put the one you were on back on screen at widths with no
     room for it.
+    - **And they are out of the panel entirely** (19 Nov 2026, owner's call:
+      "remove them from the side menu since it's on the home page"). The three
+      `hnavrow` rows only ever showed below 900px - from 900 up the bar carries
+      them - so the buttons had left the panel saying the same thing one swipe
+      away on the page everybody starts on. The markup is deleted rather than
+      hidden, which also cleared **three identical copies** of
+      `.dtop .hnavrow{display:none}` sitting in the same 900px block.
+    - **Nothing was orphaned, and that was checked before deleting.** Popular is
+      in the footer; busy and quiet are not pages at all but the homepage asked a
+      question (`/?for=busy`), so they are not in the sitemap and the homepage's
+      own chips still offer them. The cost is one tap: on a phone, on a game
+      page, Busy now is now reached through the homepage rather than the menu.
   - **All EIGHT links wear the mark, not the first three** (19 Nov 2026, owner's
     call). The stylesheet had treated them alike from the start - one `.hnav a.on`
     rule with the underline and its glow - but `hkey` in `CHROME_JS` could only
