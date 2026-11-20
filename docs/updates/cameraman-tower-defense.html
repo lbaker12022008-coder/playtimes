@@ -382,16 +382,18 @@ border:1px solid var(--line);background:var(--shade)}
    below) and the NAME gives way instead: min-width:0 all the way down to .albl,
    which already has the ellipsis. The whole name is still one press away, written
    across the button the menu hangs from. */
-/* 14px, so the person is not jammed against the sections on a narrow window;
-   the bell then sits 8px off it and the two tools 8px off each other, which is
-   what makes the right end read as you-then-tools rather than four loose boxes. */
+/* 14px, so the person is not jammed against the sections on a narrow window.
+   This is the only extra margin left at this end of the bar: the four controls
+   themselves are evenly spaced on .hrow's own 8px. */
 .acctbar{flex:0 1 auto;min-width:0;margin-left:14px}
-/* The 6px goes on whichever control starts the tools, so the gap is 14 either
-   way: the bell when somebody is signed in, and the magnifier when they are not
-   and there is no bell to carry it. .nots stays in the page when it is empty -
-   :empty only hides it - so it is still there for the sibling to be next to. */
-.hdr .nots{margin-left:6px}
-.hdr .nots:empty+.iconb{margin-left:6px}
+/* The bell used to carry a further 6px, to hold the tools off the account at 14
+   while they sat at 8 from each other - which was right while the account was a
+   pill with a name across it and a different shape from everything beside it.
+   Signed in it is now the same 42px square as the bell, the magnifier and the
+   three lines, and one wider gap among four identical squares reads as a mistake
+   rather than as a grouping. They are all 8px apart. The signed-out button still
+   carries its words, but it is the same height and corner radius and sits in the
+   same place, so an even row is right there too. */
 .acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
@@ -1104,6 +1106,24 @@ h1{font-size:1.5rem}
 .crumbs{display:none}
 }
 
+/* A 320px phone cannot hold the bar at the phone sizes above, and the thing that
+   fell off the end was the three-line button - measured 11px of it past the right
+   edge of the window on the live site. 14+122(logo)+9+130(picker)+9+38(button)+14
+   comes to 336 inside 320. The picker is left alone on purpose: it was fixed at one
+   width on 20 Nov 2026 so "Pick a game" never gets an ellipsis of its own, and the
+   brand is the one thing here that can give up a few pixels without losing anything
+   it has to say. Written AFTER the 620px block, because both are one class and a
+   media query adds no specificity - source order is all that decides it, the trap
+   this stylesheet keeps setting.
+   320px is the narrowest screen the site is measured at, so this is the floor
+   rather than a width nobody has. */
+@media(max-width:360px){
+.hdr .in{padding:8px 10px}
+.hrow{gap:7px}
+.logo{font-size:1.05rem;gap:7px}
+.logo .mark{width:26px;height:26px}
+}
+
 /* the gentle opening effects */
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes grow{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
@@ -1290,7 +1310,7 @@ e.preventDefault();history.back()}});</script></head><body>
 3. Titan Cameraman Legendary
 4. New Insane Mode
 5. Trades
-6. New Map Desert</p></li><li class=""><b>Release 1.0.0</b><span class="d">(Today)</span><span class="d">Sat 19 Sep &middot; 2 months ago</span><p>Wait for more info</p></li></ul><h3>Every Cameraman Tower Defense update in order</h3><p class="mut small">All 6 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 19 Sep.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>6</td><td>QOL Update</td><td>Sat 7 Nov</td></tr><tr><td>5</td><td>📺UTTVM Update📺</td><td>Wed 4 Nov</td></tr><tr><td>4</td><td>🎃Hallowen + UTCM🎥</td><td>Mon 19 Oct</td></tr><tr><td>3</td><td>Gems Update</td><td>Fri 9 Oct</td></tr><tr><td>2</td><td>First Update</td><td>Thu 24 Sep</td></tr><tr><td>1</td><td>Release 1.0.0</td><td>Sat 19 Sep</td></tr></table></div><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Fri 13 Nov</td><td>1.5&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr><tr><td>Sun 8 Nov</td><td>1.8&times; busier &ndash; lines up with &ldquo;QOL Update&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795363226" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>100M Visits Event</b><span class="d">Check Description</span><span class="d">Happening now &middot; ends Sat 21 Nov</span><p>More Info will be soon!</p></li><li class="soon"><b>Thanksgiving Event</b><span class="d">Power of Turkeys🦃🦃🦃</span><span class="d">Starts Sun 22 Nov</span></li><li class="soon"><b>Infinity Mode</b><span class="d">Finally , it’s coming…</span><span class="d">Starts Mon 30 Nov</span></li></ul></div><p><a href="/game/cameraman-tower-defense">&larr; Back to Cameraman Tower Defense</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+6. New Map Desert</p></li><li class=""><b>Release 1.0.0</b><span class="d">(Today)</span><span class="d">Sat 19 Sep &middot; 2 months ago</span><p>Wait for more info</p></li></ul><h3>Every Cameraman Tower Defense update in order</h3><p class="mut small">All 6 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 19 Sep.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>6</td><td>QOL Update</td><td>Sat 7 Nov</td></tr><tr><td>5</td><td>📺UTTVM Update📺</td><td>Wed 4 Nov</td></tr><tr><td>4</td><td>🎃Hallowen + UTCM🎥</td><td>Mon 19 Oct</td></tr><tr><td>3</td><td>Gems Update</td><td>Fri 9 Oct</td></tr><tr><td>2</td><td>First Update</td><td>Thu 24 Sep</td></tr><tr><td>1</td><td>Release 1.0.0</td><td>Sat 19 Sep</td></tr></table></div><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Fri 13 Nov</td><td>1.5&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr><tr><td>Sun 8 Nov</td><td>1.8&times; busier &ndash; lines up with &ldquo;QOL Update&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795215639" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>100M Visits Event</b><span class="d">Check Description</span><span class="d">Happening now &middot; ends Sat 21 Nov</span><p>More Info will be soon!</p></li><li class="soon"><b>MEDAL QUEST &amp; COLLAB</b><span class="d">Medal!</span><span class="d">Starts Fri 20 Nov</span><p>Medal</p></li><li class="soon"><b>Thanksgiving Event</b><span class="d">Power of Turkeys🦃🦃🦃</span><span class="d">Starts Sun 22 Nov</span></li><li class="soon"><b>Infinity Mode</b><span class="d">Finally , it’s coming…</span><span class="d">Starts Mon 30 Nov</span></li></ul></div><p><a href="/game/cameraman-tower-defense">&larr; Back to Cameraman Tower Defense</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
