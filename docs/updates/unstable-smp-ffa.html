@@ -558,12 +558,20 @@ letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
    one control still kept in the panel that button opens; search joins it below
    900px, where the bar has no room to offer both. */
 /* the game switcher, top left */
-.gpick{position:relative;min-width:0}
-.gpick>button{display:flex;align-items:center;gap:8px;max-width:240px;min-width:0;padding:8px 13px;border-radius:12px;
+/* The box is ONE size, the size it is when it says "Pick a game", whatever game is
+   picked (owner's call, 20 Nov 2026). It used to grow with the name up to 240px,
+   and signed in - with the person's name taking room at the other end of the bar -
+   the bar squeezed .gpick narrower than the button inside it, so the button spilled
+   out over Busy now. A fixed width cannot grow and flex:none stops the bar
+   squeezing it; the name ends in an ellipsis inside it instead. 134px is the
+   measured "Pick a game" box (133px in WebKit and Chrome) with a pixel spare, so
+   those words never get an ellipsis of their own; the phone rule below is 130. */
+.gpick{position:relative;min-width:0;flex:none}
+.gpick>button{display:flex;align-items:center;gap:8px;width:134px;max-width:134px;min-width:0;padding:8px 13px;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:700}
 .gpick>button:hover{border-color:var(--acc)}
 .gpick img,.gpick .ph{width:24px;height:24px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.8rem}
-.gpick .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gpick .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gpick .caret{color:var(--mut);flex:none;font-size:.7rem}
 .gmenu{position:absolute;left:0;top:calc(100% + 6px);min-width:252px;max-width:84vw;background:var(--solid);
 border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;z-index:20}
@@ -573,19 +581,17 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px
 .gmenu a:hover,.gmenu a:focus-visible{background:var(--shade)}
 .gmenu a img,.gmenu a .ph{width:26px;height:26px;border-radius:7px;flex:none;object-fit:cover;background:var(--line);font-size:.9rem}
 .gmenu .all{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;font-weight:700;color:var(--acc)}
-/* On a computer the list is exactly as wide as the "Pick a game" box it hangs from,
-   and a long name ends in an ellipsis (owner's call, 20 Nov 2026). Sized to its
-   longest name it reached 387px from a 240px box and lay over Busy now, Quiet now
-   and Popular, which sit right beside the box from 900px up. A phone's bar has
-   none of those beside it, and a 150px list would show only a few letters of each
-   name, so below 900px it keeps its own width. right:0 works because .gpick is
-   position:relative and exactly as wide as its button. Two classes throughout,
-   because .gmenu's min-width above is one class, and so is the overflow-wrap rule
+/* A long name in the list ends in an ellipsis rather than stretching it: sized to
+   its longest name the list reached 387px. On a computer it is capped at 300px.
+   It was briefly held to the box's own width, but the box is now a fixed 134px
+   (see .gpick), which would leave a few letters per name - and an open dropdown
+   covering the links beside it is what a dropdown does. Two classes throughout,
+   because .gmenu's own rules are one class, and so is the overflow-wrap rule
    further down that would otherwise break a name over two lines instead of
    cutting it. The full name is in the row's title, for a mouse to hover. */
 .gpick .gmenu a .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
 white-space:nowrap;overflow-wrap:normal}
-@media(min-width:900px){.gpick .gmenu{right:0;min-width:0;max-width:none}}
+@media(min-width:900px){.gpick .gmenu{max-width:300px}}
 /* round icon button on the right of the header */
 .iconb{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
 border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;padding:0}
@@ -1037,7 +1043,7 @@ h2{font-size:1.06rem}
 .hrow{gap:9px}
 .logo{font-size:1.2rem;margin-right:0}
 .logo .mark{width:29px;height:29px}
-.gpick>button{max-width:150px;padding:7px 11px}
+.gpick>button{width:130px;max-width:130px;padding:7px 11px}
 /* two games across even on the narrowest phone, with less air between them */
 .grid{gap:15px 10px;grid-template-columns:repeat(auto-fill,minmax(min(132px,100%),1fr));margin:12px 0}
 /* busy / quiet / browsing becomes one row of three. The line under each one goes:
