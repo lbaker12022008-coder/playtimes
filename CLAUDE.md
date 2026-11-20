@@ -489,10 +489,15 @@ standing rule rather than a rewrite waiting to happen.
     - 12px after the logo, 16px before the sections, 24px after them, 12px between
     the controls at the right end - so a row of 42px squares 12px apart read as
     neither one group nor four separate buttons. The rule now:
-    - **8px inside a group** (the bell, the magnifier, the three lines),
-      **14px between the person and those tools**, **18px between groups** (logo,
-      game picker, sections), **16px to the edge**, which is what the page below
-      the bar uses.
+    - **8px between all four controls** (the picture, the bell, the magnifier,
+      the three lines), **18px between groups** (logo, game picker, sections),
+      **16px to the edge**, which is what the page below the bar uses.
+    - It was 14px between the person and the other three for a few hours on
+      19 Nov 2026, to hold the tools off an account that was a wide pill with a
+      name across it. **The picture is the same 42px square as the rest now, and
+      one wider gap among four identical squares reads as a mistake rather than
+      as a grouping**, so they are even. The `.hdr .nots:empty+.iconb` trick that
+      kept the signed-out gap level went with it.
     - The 8px is `.hrow`'s own gap and **every wider gap is a margin added on
       top**, so a control dropped into the bar joins the tools group by default
       rather than landing at some arbitrary distance.
@@ -503,6 +508,21 @@ standing rule rather than a rewrite waiting to happen.
       sibling selector still has something to sit next to.
     - The phone block zeroes the logo's margin: below 620px the bar holds three
       things and 10px of it is worth more as a gap than as a separation.
+  - **A 320px phone needs its own rule, and `@media(max-width:360px)` is it**
+    (20 Nov 2026). The three-line button was hanging **11px past the right edge
+    of the window** - measured on the live site, not in a preview - because
+    14+122(logo)+9+picker+9+38(button)+14 comes to 336 inside 320. It is only
+    clipped rather than unreachable, since `body{overflow-x:clip}` catches it,
+    which is exactly why it went unnoticed: nothing scrolls sideways and the
+    page looks fine until you count the lines on the button.
+    - **The picker is deliberately not what gives way.** It was fixed at one
+      width that same day so "Pick a game" never gets an ellipsis of its own;
+      the brand is the one thing in the bar that can lose a few pixels without
+      losing anything it has to say, so the block drops the wordmark to 1.05rem
+      and the timer ring to 26px, with the bar's padding at 10px and its gap at
+      7px. 310px of 320 after, with the whole button on screen.
+    - It is written **after** the 620px block, because both are one class and a
+      media query adds no specificity - the same trap as everywhere else here.
   - **`.dtop .acct{display:none}` depends on the bar offering sign-in.** For a few
     hours on 17 Nov 2026 the pill was drawn only for somebody already signed in, and
     hiding this block left a signed-out visitor on a computer with **no way to sign

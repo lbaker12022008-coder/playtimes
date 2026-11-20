@@ -428,16 +428,18 @@ border:1px solid var(--line);background:var(--shade)}
    below) and the NAME gives way instead: min-width:0 all the way down to .albl,
    which already has the ellipsis. The whole name is still one press away, written
    across the button the menu hangs from. */
-/* 14px, so the person is not jammed against the sections on a narrow window;
-   the bell then sits 8px off it and the two tools 8px off each other, which is
-   what makes the right end read as you-then-tools rather than four loose boxes. */
+/* 14px, so the person is not jammed against the sections on a narrow window.
+   This is the only extra margin left at this end of the bar: the four controls
+   themselves are evenly spaced on .hrow's own 8px. */
 .acctbar{flex:0 1 auto;min-width:0;margin-left:14px}
-/* The 6px goes on whichever control starts the tools, so the gap is 14 either
-   way: the bell when somebody is signed in, and the magnifier when they are not
-   and there is no bell to carry it. .nots stays in the page when it is empty -
-   :empty only hides it - so it is still there for the sibling to be next to. */
-.hdr .nots{margin-left:6px}
-.hdr .nots:empty+.iconb{margin-left:6px}
+/* The bell used to carry a further 6px, to hold the tools off the account at 14
+   while they sat at 8 from each other - which was right while the account was a
+   pill with a name across it and a different shape from everything beside it.
+   Signed in it is now the same 42px square as the bell, the magnifier and the
+   three lines, and one wider gap among four identical squares reads as a mistake
+   rather than as a grouping. They are all 8px apart. The signed-out button still
+   carries its words, but it is the same height and corner radius and sits in the
+   same place, so an even row is right there too. */
 .acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
@@ -1148,6 +1150,24 @@ h1{font-size:1.5rem}
 .foot nav{gap:4px 14px}
 /* the trail wraps onto three lines at this width, and Back already covers leaving */
 .crumbs{display:none}
+}
+
+/* A 320px phone cannot hold the bar at the phone sizes above, and the thing that
+   fell off the end was the three-line button - measured 11px of it past the right
+   edge of the window on the live site. 14+122(logo)+9+130(picker)+9+38(button)+14
+   comes to 336 inside 320. The picker is left alone on purpose: it was fixed at one
+   width on 20 Nov 2026 so "Pick a game" never gets an ellipsis of its own, and the
+   brand is the one thing here that can give up a few pixels without losing anything
+   it has to say. Written AFTER the 620px block, because both are one class and a
+   media query adds no specificity - source order is all that decides it, the trap
+   this stylesheet keeps setting.
+   320px is the narrowest screen the site is measured at, so this is the floor
+   rather than a width nobody has. */
+@media(max-width:360px){
+.hdr .in{padding:8px 10px}
+.hrow{gap:7px}
+.logo{font-size:1.05rem;gap:7px}
+.logo .mark{width:26px;height:26px}
 }
 
 /* the gentle opening effects */
