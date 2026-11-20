@@ -1,12 +1,12 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Feed A Mosquito Events | PlayTime</title>
-<meta name="description" content="Every event the creators of Feed A Mosquito have announced on Roblox, when each one starts in your own timezone, and how long it runs."><meta name="theme-color" content="#A855F7">
-<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/events/feed-a-mosquito">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Throw a Seed Player Count Today, Peak &amp; Graph | PlayTime</title>
+<meta name="description" content="25,461 people were playing Throw a Seed at our last check. Peak: 25,898. Lowest this week: 10,610. 7.4M visits. Player count graph, busiest hours and best..."><meta name="theme-color" content="#A855F7">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/game/throw-a-seed">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
-<meta property="og:title" content="Feed A Mosquito Events | PlayTime">
-<meta property="og:description" content="Every event the creators of Feed A Mosquito have announced on Roblox, when each one starts in your own timezone, and how long it runs.">
-<meta property="og:url" content="https://playtimestats.com/events/feed-a-mosquito"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-8b725e2e7b6371c184967e0fbed8e22f/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-19">
+<meta property="og:title" content="Throw a Seed Player Count Today, Peak &amp; Graph | PlayTime">
+<meta property="og:description" content="25,461 people were playing Throw a Seed at our last check. Peak: 25,898. Lowest this week: 10,610. 7.4M visits. Player count graph, busiest hours and best...">
+<meta property="og:url" content="https://playtimestats.com/game/throw-a-seed"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-426b4e704128091c001d8fb7ff48bc69/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
+<meta property="article:modified_time" content="2026-11-20">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -278,7 +278,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    the eight links into a scrolling strip. A cap being respected, and it read as the
    page breaking. The logo now sits left of the words on a reading page, which is
    what most sites do and what nobody notices, and the bar never changes shape. */
-.hrow{display:flex;align-items:center;gap:12px}
+/* The spacing of the bar, in one place (19 Nov 2026, owner's call: "the spacing
+   is off, some things are really close to each other"). It had grown four
+   different gaps with no system behind them - 12px after the logo, 16px before
+   the sections, 24px after them and 12px between the controls at the right end -
+   so a row of 42px squares 12px apart read as neither a group nor four separate
+   buttons. It is three groups now, and the gaps say so:
+     8px   INSIDE a group - the bell, the magnifier and the three lines
+     14px  between the person and those tools
+     18px  between groups - the logo, the game picker, the sections
+     16px  to the edge of the bar, which is what the page below it uses
+   The 8px base is the smallest of them and every wider gap is a margin added on
+   top, so a new control dropped into the bar joins the tools group by default. */
+.hrow{display:flex;align-items:center;gap:8px}
 /* The same shape as the tabs across a game's pages, because they do the same job:
    here is where you are, here is what else there is. Hidden below 900px, where the
    bar has room for the logo, the game picker and two buttons and nothing else -
@@ -291,7 +303,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* flex:0 0 auto - the sections do not shrink. They used to (0 1 auto), which is
    what let a long name squeeze them; the overflow is kept as a last net rather
    than as the usual case. */
-.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 0 auto;
+.hnav{display:none;margin-left:10px;white-space:nowrap;min-width:0;flex:0 0 auto;
 overflow-x:auto;scrollbar-width:none}
 .hnav::-webkit-scrollbar{display:none}
 /* Three links at 900px, all eight once there is room for them. Eight at 900 was
@@ -370,13 +382,29 @@ border:1px solid var(--line);background:var(--shade)}
    below) and the NAME gives way instead: min-width:0 all the way down to .albl,
    which already has the ellipsis. The whole name is still one press away, written
    across the button the menu hangs from. */
-.acctbar{flex:0 1 auto;min-width:0}
+/* 14px, so the person is not jammed against the sections on a narrow window;
+   the bell then sits 8px off it and the two tools 8px off each other, which is
+   what makes the right end read as you-then-tools rather than four loose boxes. */
+.acctbar{flex:0 1 auto;min-width:0;margin-left:14px}
+/* The 6px goes on whichever control starts the tools, so the gap is 14 either
+   way: the bell when somebody is signed in, and the magnifier when they are not
+   and there is no bell to carry it. .nots stays in the page when it is empty -
+   :empty only hides it - so it is still there for the sibling to be next to. */
+.hdr .nots{margin-left:6px}
+.hdr .nots:empty+.iconb{margin-left:6px}
 .acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
-/* Signed out this is an <a>, not a <button>. */
+/* Signed out this is an <a>, not a <button>, and it keeps its words: a lone
+   person-glyph with no label is not an invitation to sign in. Signed in it is the
+   picture alone, the same 42px square as the bell, the magnifier and the three
+   lines beside it - four squares in a row rather than three and a pill. Two
+   classes, because .acctb above and .iconb further down are both one class and a
+   later one-class rule would win. */
 .acctb{text-decoration:none}
+.acctbar .acctb.onlypic{width:42px;padding:0;gap:0;justify-content:center}
+.acctbar .acctb.onlypic .pfp{width:30px;height:30px}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
@@ -396,6 +424,12 @@ box-shadow:var(--sh);animation:dropin .15s ease both}
 .amenu[hidden]{display:none}
 .amenu .asub{display:block;padding:8px 12px 9px;margin:0 0 4px;color:var(--mut);
 font-size:.78rem;border-bottom:1px solid var(--line)}
+/* The name, first line of the menu, since the bar no longer carries it. The
+   ellipsis is here for the same reason it was on the pill: Roblox display names
+   run long, and this box is 218px wide. */
+.amenu .aname{display:block;margin-bottom:2px;color:var(--ink);font-size:.95rem;
+font-weight:800;font-style:normal;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap}
 .amenu form{margin:0}
 /* The panel's Notifications row is the other half of the same arrangement: it shows
    on a phone, where the bell is not in the bar, and hides where the bell is. */
@@ -447,7 +481,7 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
 background:var(--solid);border:1px solid var(--line);border-radius:12px;
 padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
-max-width:260px;white-space:nowrap}
+width:max-content;max-width:calc(100vw - 16px)}
 .chtip.on{opacity:1}
 @media(min-width:900px){.readout.chartout{display:none}}
 /* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
@@ -516,7 +550,7 @@ border-radius:12px;background:var(--shade);font-size:.92rem}
    offer rather than as something already switched on. */
 .svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
 letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap;margin-right:10px}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* The header is logo, name and game picker on the left, then the account, the
@@ -988,7 +1022,7 @@ h2{font-size:1.06rem}
 .drawer{top:63px;right:14px;max-width:calc(100vw - 28px);max-height:calc(100vh - 79px)}
 .iconb{width:38px;height:38px}
 .hrow{gap:9px}
-.logo{font-size:1.2rem}
+.logo{font-size:1.2rem;margin-right:0}
 .logo .mark{width:29px;height:29px}
 .gpick>button{max-width:150px;padding:7px 11px}
 /* two games across even on the narrowest phone, with less air between them */
@@ -1059,7 +1093,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Feed A Mosquito player count","item":"https://playtimestats.com/game/feed-a-mosquito"},{"@type":"ListItem","position":4,"name":"Events","item":"https://playtimestats.com/events/feed-a-mosquito"}]},{"@type":"Event","name":"V7 Update","startDate":"2026-11-20T02:30:55Z","eventAttendanceMode":"https://schema.org/OnlineEventAttendanceMode","eventStatus":"https://schema.org/EventScheduled","location":{"@type":"VirtualLocation","url":"https://www.roblox.com/games/125310131519813"},"organizer":{"@type":"Organization","name":"Feed A Mosquito"},"url":"https://playtimestats.com/game/feed-a-mosquito","endDate":"2026-11-20T05:00:55Z","image":"https://tr.rbxcdn.com/180DAY-7d8ea8741f1066f8a8a634a82b377a0c/256/256/Image/Webp/noFilter"}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"Throw a Seed","item":"https://playtimestats.com/game/throw-a-seed"}]},{"@type":"VideoGame","name":"Throw a Seed","url":"https://playtimestats.com/game/throw-a-seed","gamePlatform":"Roblox","playMode":"MultiPlayer","applicationCategory":"Game","image":"https://tr.rbxcdn.com/180DAY-b36dafc2bbfaa49903b28700f9a9f807/256/256/Image/Webp/noFilter","genre":"Simulation","author":{"@type":"Organization","name":"Fish Time Studios"},"description":"\ud83c\udf31 Throw a seed down the canyon and see what grows!\n\n\ud83c\udfaf Tap at the right moment to throw. The further your seed flies, the luckier your throw gets. Every zone it passes boosts your luck, from the Meadow all the way to Starlight Glade \u2728 When it lands, a fully grown plant shoots up. Will it be a common bush or a 1 in a million Secret? \ud83c\udf40\n\n\ud83d\udcb0 Put your plants in your garden and watch the money roll in, ev","datePublished":"2026-11-07","interactionStatistic":{"@type":"InteractionCounter","interactionType":"https://schema.org/PlayAction","userInteractionCount":7430478}},{"@type":"Dataset","name":"Throw a Seed player count history","description":"Concurrent player counts for the Roblox game Throw a Seed, sampled from the public Roblox player count every few minutes. 213 readings so far.","url":"https://playtimestats.com/game/throw-a-seed","temporalCoverage":"2026-11-17/2026-11-20","measurementTechnique":"Repeated sampling of the public Roblox player count","variableMeasured":"Concurrent players","isAccessibleForFree":true,"license":"https://playtimestats.com/terms","creator":{"@type":"Organization","name":"PlayTime"}}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -1101,8 +1135,14 @@ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
    menu under it. Not available at all - no Roblox keys set - and this writes
    nothing, so the empty .acct collapses and the bar reads as though sign-in had
    never existed.
-   alt is empty on purpose: the name is right beside the picture, and a screen
-   reader announcing it twice is worse than not announcing it at all. */
+   The bar shows the PICTURE AND NOTHING ELSE (19 Nov 2026, owner's call). It
+   carried the name beside it, which made the one control in the bar whose width
+   nobody could predict - a long Roblox name ran it to 182px against the 42px it
+   is now - and it was the only item up there that was not a neat square. The name
+   is not lost: it is the first line of the menu the picture opens, and it is in
+   the panel on a phone, where there is no picture in the bar at all.
+   alt is empty on purpose: the button's own aria-label carries the name, so a
+   screen reader announcing the picture as well would say it twice. */
 function ptPaint(){
 /* The account, in the panel behind the three lines. Nothing at all when the Roblox
    keys are missing, so .acct:empty collapses and the panel reads as though signing
@@ -1151,21 +1191,22 @@ el.innerHTML=bell});
    so this link is the only one there is at that width - see the .dtop .acct rule. */
 var pill=!PT.available?''
 :PT.name
-?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
-+'aria-expanded="false" aria-label="Your account">'
-+(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
-+'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+?'<button class="acctb onlypic" id="acctbar" type="button" aria-controls="amenu" '
++'aria-expanded="false" aria-label="Your account, '+ptEsc(PT.name)+'">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="30" height="30">':PTPERSON)
++'</button>'
 :'<a class="acctb" id="acctbar" href="'+ptLogin()+'" '
 +'aria-label="Sign in with Roblox">'+PTPERSON
 +'<span class="albl">Sign in</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
-/* What drops out of that pill. The name is not repeated inside it - it is written
-   across the button the menu hangs from, and saying it twice on one screen is how
-   the panel copy and this one would start to disagree. */
+/* What drops out of that picture, and the ONE place on a computer the name is
+   written. It used to be across the button and deliberately not repeated here;
+   the button is a bare picture now, so the name moved in rather than vanishing -
+   still said once, just in the other half of the same control. */
 var amenu=document.getElementById('amenu');
 if(amenu)amenu.innerHTML=(PT.available&&PT.name)
-?'<i class="asub">Signed in with Roblox</i>'
+?'<i class="asub"><b class="aname">'+ptEsc(PT.name)+'</b>Signed in with Roblox</i>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'';
@@ -1202,7 +1243,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
-<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-8b725e2e7b6371c184967e0fbed8e22f/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
+<div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-426b4e704128091c001d8fb7ff48bc69/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
 <nav class="hnav" aria-label="Find games"><a href="/?for=busy" data-hn="busy">Busy now</a>
@@ -1215,19 +1256,60 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow hnavrow" href="/?for=busy"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Busy right now</span></a><a class="drow hnavrow" href="/?for=quiet"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Quiet right now</span></a><a class="drow hnavrow" href="/popular"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span>Popular games</span></a><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/feed-a-mosquito">Feed A Mosquito player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Events</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-7d8ea8741f1066f8a8a634a82b377a0c/256/256/Image/Webp/noFilter" alt="Feed A Mosquito Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Feed A Mosquito events</h1><p class="mut">Every event the creators have put on Roblox&rsquo;s calendar for Feed A Mosquito, with a live countdown to the next one.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/125310131519813">Play Feed A Mosquito</a><span data-bell="all"></span><button class="fav" id="fav" data-s="feed-a-mosquito" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/feed-a-mosquito">Overview</a><a class="gtab" href="/updates/feed-a-mosquito">Updates</a><a class="gtab on" href="/events/feed-a-mosquito" aria-current="page">Events</a><a class="gtab" href="/questions/feed-a-mosquito">Questions</a><a class="gtab" href="/passes/feed-a-mosquito">Costs</a></nav></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795141855" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="soon"><b>V7 Update</b><span class="d">New Boss And Weapons</span><span class="d">Starts Fri 20 Nov</span></li></ul></div><p><a href="/game/feed-a-mosquito">&larr; Back to Feed A Mosquito</a></p>
-<footer class="foot"><nav class="small"><a href="/">All games</a>
-<a href="/popular">Most played</a><a href="/trending">Trending</a>
-<a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
-<a href="/busiest-hours">When is Roblox busiest?</a>
-<a href="/events">Event calendar</a><a href="/compare">Compare games</a>
-<a href="/plan">Plan a session</a>
-<a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
-<a href="/terms">Terms of Service</a></nav>
-<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
-shows when people play, not whether a game is good or safe. Questions or problems? Email <a href="mailto:contact@playtimestats.com">contact@playtimestats.com</a>.</p></footer>
-</div></div>
-<script>window.PT_GAME={"s":"feed-a-mosquito","n":"Feed A Mosquito","i":"https://tr.rbxcdn.com/180DAY-7d8ea8741f1066f8a8a634a82b377a0c/256/256/Image/Webp/noFilter"};</script><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+<div class="w wide"><div class="topnav"><a class="back" href="/category/simulation" data-back aria-label="Back to simulation games" title="Back to simulation games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Throw a Seed</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-b36dafc2bbfaa49903b28700f9a9f807/256/256/Image/Webp/noFilter" alt="Throw a Seed Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Throw a Seed player count and best times to play</h1>
+<p class="mut">At our last check (2:37 PM UTC on Fri 20 Nov) <b>25,461 people</b> were playing Throw a Seed. It has about <b>15,179 players</b> at a typical moment, and we have seen as many as <b>25,898</b> at once. Its busiest hour is usually <b>Friday around 1 PM</b> and its quietest <b>Tuesday around 8 AM</b> (UTC). Worked out from 213 player counts taken since Tue 17 Nov.</p><p class="gcat"><a href="/category/simulation">Simulation games</a></p>
+<div class="actions"><a class="btn" href="https://www.roblox.com/games/129081220403721">Play Throw a Seed</a><span data-bell="all"></span>
+<button class="fav" id="fav" data-s="throw-a-seed" aria-pressed="false">&#9734; Save</button>
+</div><nav class="gtabs" aria-label="This game"><a class="gtab on" href="/game/throw-a-seed" aria-current="page">Overview</a><a class="gtab" href="/updates/throw-a-seed">Updates</a><a class="gtab" href="/events/throw-a-seed">Events</a><a class="gtab" href="/questions/throw-a-seed">Questions</a><a class="gtab" href="/passes/throw-a-seed">Costs</a></nav></div></div>
+<details class="gdesc"><summary><h2>What is Throw a Seed?</h2></summary><div class="gdesc-in"><p class="desc">🌱 Throw a seed down the canyon and see what grows!
+
+🎯 Tap at the right moment to throw. The further your seed flies, the luckier your throw gets. Every zone it passes boosts your luck, from the Meadow all the way to Starlight Glade ✨ When it lands, a fully grown plant shoots up. Will it be a common bush or a 1 in a million Secret? 🍀
+
+💰 Put your plants in your garden and watch the money roll in, even while you&#x27;re offline.
+
+💪 Do pull-ups to get stronger and throw even further. Upgrade your bar from Wood to 💎 Diamond, buy better seeds for more luck and grow your garden to fit more plants.
+
+🗺️ 15 zones to reach
+🌸 75+ plants across 10 rarities, from Common to Secret
+🌈 Huge sizes and rare mutations
+📖 Collect them all in the Index
+🎁 Free gifts and daily rewards
+
+🚀 How far can you throw?</p><p class="mut small">Made by Fish Time Studios, first released 12 days ago, 7.4M total visits, up to 5 players per server.</p><p class="mut small">Description written by the game's own creators and shown on Roblox.</p></div></details>
+<div class="bento">
+<div id="stats" class="sp5 card rise2"><h2>Throw a Seed player count stats</h2><dl class="facts" id="facts"><div><dt>Latest player count<span>at 2:37 PM UTC on Fri 20 Nov</span></dt><dd>25,461</dd></div><div><dt>Players at a typical moment<span>average over the last 7 days</span></dt><dd>15,179</dd></div><div><dt>Highest player count ever seen<span>the most we have recorded, on Fri 20 Nov</span></dt><dd>25,898</dd></div><div class=x><dt>Highest this week<span>at 1:17 PM UTC on Fri 20 Nov</span></dt><dd>25,898</dd></div><div class=x><dt>Lowest this week<span>at 8:36 AM UTC on Tue 17 Nov</span></dt><dd>10,610</dd></div><div class=x><dt>Total visits<span>7,430,478, as Roblox reports it</span></dt><dd>7.4M</dd></div><div class=x><dt>Likes<span>95% of 7.8K votes are likes</span></dt><dd>7.4K</dd></div><div class=x><dt>Came out<span>first released 12 days ago</span></dt><dd>Sat 7 Nov</dd></div><div class=x><dt>Compared to last week<span>last 7 days against the 7 before</span></dt><dd><span class="mut">Not enough history yet</span></dd></div><div class=x><dt>Busiest hour<span>in a typical week</span></dt><dd>Friday, 1 PM UTC</dd></div><div class=x><dt>Quietest hour<span>in a typical week</span></dt><dd>Tuesday, 8 AM UTC</dd></div><div class=x><dt>Player counts collected<span>over 3 days, since Tue 17 Nov</span></dt><dd>213</dd></div></dl><button class="morestats" type="button" aria-controls="facts" aria-expanded="false">More stats</button></div>
+<div class="sp7 lstack">
+<div id="answer" class="card ans rise2"><h2>When is Throw a Seed busiest?</h2><p id="now"></p><p id="best">Busiest: <b>Friday around 1 PM</b> <span class="mut">UTC</span> &ndash; about 25,704 players.</p>
+<p id="quiet">Quietest: <b>Tuesday around 8 AM</b> <span class="mut">UTC</span> &ndash; about 10,765 players.</p></div>
+<div id="byhour" class="card"><h2>Throw a Seed player numbers by hour</h2><div class="days" id="days"></div>
+<p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
+<div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
+<p class="readout" id="readout"></p></div>
+<div id="dead" class="card rise3"><h2>Is Throw a Seed dead?</h2>
+<div class="scrub" tabindex="0" role="group" aria-label="Drag across the graph, or use the arrow keys, to read any day" data-scrub="[[0.0,[95.89],&quot;&lt;b&gt;Tue 17 Nov&lt;/b&gt; &amp;middot; about &lt;b&gt;13,757&lt;/b&gt; players&quot;],[33.33,[96.84],&quot;&lt;b&gt;Wed 18 Nov&lt;/b&gt; &amp;middot; about &lt;b&gt;13,696&lt;/b&gt; players&quot;],[66.67,[73.21],&quot;&lt;b&gt;Thu 19 Nov&lt;/b&gt; &amp;middot; about &lt;b&gt;15,222&lt;/b&gt; players&quot;],[100.0,[4.21],&quot;&lt;b&gt;Fri 20 Nov&lt;/b&gt; &amp;middot; about &lt;b&gt;19,671&lt;/b&gt; players&quot;]]"><svg class="spark" viewBox="0 0 600 190" preserveAspectRatio="none" role="img" aria-label="Typical players each day over the last 4 days"><polygon points="0,190 0.0,182.2 200.0,184.0 400.0,139.1 600.0,8.0 600,190" fill="var(--acc)" opacity=".13"/><polyline points="0.0,182.2 200.0,184.0 400.0,139.1 600.0,8.0" fill="none" stroke="var(--acc)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg><i class="sline" hidden></i><b class="pdot" style="left:0.0%;top:95.89%;background:var(--acc)"></b><b class="pdot" style="left:33.33%;top:96.84%;background:var(--acc)"></b><b class="pdot" style="left:66.67%;top:73.21%;background:var(--acc)"></b><b class="pdot" style="left:100.0%;top:4.21%;background:var(--acc)"></b><b class="sdot" style="border-color:var(--acc)"></b></div><p class="readout chartout" aria-live="polite"></p><p class="mut small">The dots are days that were much busier than usual.</p><div class="verdict">
+<span class="vbadge" style="background:var(--l3)">Too new to say</span><p style="margin:0;flex:1 1 240px">We have not been watching this game long enough to say which way it is going. Check back in a week or two.</p></div></div>
+</div>
+<div id="history" class="sp8 card"><h2>Throw a Seed player count graph</h2><div class="scrub" tabindex="0" role="group" aria-label="Drag across the graph, or use the arrow keys, to read any day" data-scrub="[[0.0,[94.27,58.47],&quot;&lt;b&gt;Tue 17 Nov&lt;/b&gt; &amp;middot; typical &lt;b&gt;13,757&lt;/b&gt; &amp;middot; highest seen &lt;b&gt;18,789&lt;/b&gt;&quot;],[33.33,[94.67,59.13],&quot;&lt;b&gt;Wed 18 Nov&lt;/b&gt; &amp;middot; typical &lt;b&gt;13,696&lt;/b&gt; &amp;middot; highest seen &lt;b&gt;18,695&lt;/b&gt;&quot;],[66.67,[83.8,53.33],&quot;&lt;b&gt;Thu 19 Nov&lt;/b&gt; &amp;middot; typical &lt;b&gt;15,222&lt;/b&gt; &amp;middot; highest seen &lt;b&gt;19,519&lt;/b&gt;&quot;],[100.0,[52.2,8.0],&quot;&lt;b&gt;Fri 20 Nov&lt;/b&gt; &amp;middot; typical &lt;b&gt;19,671&lt;/b&gt; &amp;middot; highest seen &lt;b&gt;25,898&lt;/b&gt;&quot;]]"><svg class="hist" viewBox="0 0 600 150" preserveAspectRatio="none" role="img" aria-label="Typical and highest player counts for each of the last 4 days"><polygon points="0,150 0.0,87.7 200.0,88.7 400.0,80.0 600.0,12.0 600,150" fill="var(--alt)" opacity=".10"/><polyline points="0.0,87.7 200.0,88.7 400.0,80.0 600.0,12.0" fill="none" stroke="var(--alt)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/><polyline points="0.0,141.4 200.0,142.0 400.0,125.7 600.0,78.3" fill="none" stroke="var(--acc)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg><i class="sline" hidden></i><b class="pdot" style="left:0.0%;top:94.27%;background:var(--acc)"></b><b class="pdot" style="left:0.0%;top:58.47%;background:var(--alt)"></b><b class="pdot" style="left:33.33%;top:94.67%;background:var(--acc)"></b><b class="pdot" style="left:33.33%;top:59.13%;background:var(--alt)"></b><b class="pdot" style="left:66.67%;top:83.8%;background:var(--acc)"></b><b class="pdot" style="left:66.67%;top:53.33%;background:var(--alt)"></b><b class="pdot" style="left:100.0%;top:52.2%;background:var(--acc)"></b><b class="pdot" style="left:100.0%;top:8.0%;background:var(--alt)"></b><b class="sdot" style="border-color:var(--acc)"></b><b class="sdot" style="border-color:var(--alt)"></b></div><p class="readout chartout" aria-live="polite"></p><p class="hleg"><span class="k acc"></span>Typical &mdash; the day&rsquo;s average. <span class="k alt"></span>Highest &mdash; the biggest count we actually saw.</p><details><summary>Every day as a table</summary><div class="wrap"><table class="tbl"><thead><tr><th>Day</th><th>Typical players</th><th>Highest seen</th></tr></thead><tbody><tr><td>Fri 20 Nov</td><td>19,671</td><td>25,898</td></tr><tr><td>Thu 19 Nov</td><td>15,222</td><td>19,519</td></tr><tr><td>Wed 18 Nov</td><td>13,696</td><td>18,695</td></tr><tr><td>Tue 17 Nov</td><td>13,757</td><td>18,789</td></tr></tbody></table></div></details></div>
+<div id="session" class="sp4 card rise3"><h2>Plan my session</h2>
+<div class="planpick">
+<div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>
+<button data-m="busy" aria-pressed="false">Busy</button></div></div>
+<div id="cdw" hidden><span class="mut small" id="cdlab"></span><span class="cd" id="cd"></span></div>
+<p id="plantxt"></p>
+<span data-bell="plan"></span>
+<div class="notif" id="notif" hidden></div></div>
+<div id="week" class="card"><h2>Throw a Seed busiest hours, the whole week</h2><div class="wrap"><div class="hm" id="hm"></div></div>
+<p class="readout chartout" id="hmout">Pick a box to see how many play then.</p>
+<div class="legend">Quiet <i style="background:var(--l1)"></i><i style="background:var(--l2)"></i>
+<i style="background:var(--l3)"></i><i style="background:var(--l4)"></i><i style="background:var(--l5)"></i> Busy</div>
+<p class="mut small">The outlined square is right now.</p>
+<details><summary>All 168 hours as numbers</summary><p class="mut small">Players in Throw a Seed at a typical moment, hour by hour, in UTC. A dash means we have not collected a player count in that hour yet.</p><div class="wrap"><table class="hourtbl"><thead><tr><th>Day (UTC)</th><th>12 AM</th><th>1 AM</th><th>2 AM</th><th>3 AM</th><th>4 AM</th><th>5 AM</th><th>6 AM</th><th>7 AM</th><th>8 AM</th><th>9 AM</th><th>10 AM</th><th>11 AM</th><th>12 PM</th><th>1 PM</th><th>2 PM</th><th>3 PM</th><th>4 PM</th><th>5 PM</th><th>6 PM</th><th>7 PM</th><th>8 PM</th><th>9 PM</th><th>10 PM</th><th>11 PM</th></tr></thead><tbody><tr><th>Monday</th><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td></tr><tr><th>Tuesday</th><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="very quiet">11,509</td><td title="very quiet">11,363</td><td title="no data">&ndash;</td><td title="very quiet">10,765</td><td title="very quiet">12,115</td><td title="average">14,072</td><td title="busy">15,795</td><td title="busy">18,008</td><td title="very busy">18,468</td><td title="very busy">18,432</td><td title="busy">15,941</td><td title="average">14,312</td><td title="quiet">13,170</td><td title="very quiet">12,521</td><td title="very quiet">12,303</td><td title="very quiet">12,106</td><td title="very quiet">12,333</td><td title="quiet">13,245</td><td title="quiet">13,335</td></tr><tr><th>Wednesday</th><td title="average">13,964</td><td title="average">14,134</td><td title="average">14,487</td><td title="quiet">13,190</td><td title="quiet">12,701</td><td title="very quiet">12,234</td><td title="no data">&ndash;</td><td title="very quiet">11,443</td><td title="very quiet">11,434</td><td title="quiet">13,674</td><td title="average">14,659</td><td title="busy">16,374</td><td title="busy">17,834</td><td title="very busy">18,512</td><td title="very busy">18,257</td><td title="busy">15,371</td><td title="average">13,906</td><td title="quiet">12,757</td><td title="very quiet">11,688</td><td title="very quiet">11,500</td><td title="very quiet">11,511</td><td title="very quiet">11,566</td><td title="very quiet">11,931</td><td title="quiet">13,028</td></tr><tr><th>Thursday</th><td title="quiet">13,502</td><td title="quiet">13,403</td><td title="average">14,523</td><td title="average">14,288</td><td title="quiet">13,734</td><td title="quiet">13,681</td><td title="quiet">13,510</td><td title="quiet">13,264</td><td title="quiet">13,312</td><td title="average">14,480</td><td title="busy">16,250</td><td title="very busy">18,108</td><td title="very busy">19,312</td><td title="very busy">19,128</td><td title="very busy">19,199</td><td title="busy">17,751</td><td title="busy">16,177</td><td title="busy">15,919</td><td title="average">15,172</td><td title="average">14,535</td><td title="average">14,028</td><td title="quiet">13,497</td><td title="average">13,808</td><td title="average">14,057</td></tr><tr><th>Friday</th><td title="busy">15,885</td><td title="busy">15,704</td><td title="busy">17,804</td><td title="very busy">18,181</td><td title="very busy">18,049</td><td title="busy">17,948</td><td title="no data">&ndash;</td><td title="busy">17,122</td><td title="busy">16,210</td><td title="very busy">18,376</td><td title="very busy">19,709</td><td title="very busy">21,820</td><td title="very busy">24,635</td><td title="very busy">25,704</td><td title="very busy">25,546</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td></tr><tr><th>Saturday</th><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td></tr><tr><th>Sunday</th><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td><td title="no data">&ndash;</td></tr></tbody></table></div></details></div>
+</div>
+<div class="rowhead"><h2>Similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other simulation games with about as many players.</p><ul class="grid"><li style="--i:0;--glow:4" data-n="depth incremental" data-s="depth-incremental"><a class="tile" href="/game/depth-incremental"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-a8bf850a680dc0e8824d563d5a41c3db/256/256/Image/Webp/noFilter" alt="Depth Incremental Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Depth Incremental</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 14.8K</span></span></a></li><li style="--i:1;--glow:214" data-n="steal an anime pack" data-s="steal-an-anime-pack"><a class="tile" href="/game/steal-an-anime-pack"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-95c5fff7d68139b6d9097880f77ca68d/256/256/Image/Webp/noFilter" alt="Steal an Anime Pack Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Steal an Anime Pack</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 13.9K</span></span></a></li><li style="--i:2;--glow:42" data-n="grow a garden gag" data-s="grow-a-garden"><a class="tile" href="/game/grow-a-garden"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d59abcda64c7f647cd679c87c67e1f01/256/256/Image/Webp/noFilter" alt="Grow a Garden Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Grow a Garden</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 17K</span></span></a></li><li style="--i:3;--glow:27" data-n="صيد الضبّان" data-s="game"><a class="tile" href="/game/game"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-f726d77a40cee57c934bb7c40e1e024e/256/256/Image/Webp/noFilter" alt="صيد الضبّان Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">صيد الضبّان</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 17K</span><span class="down">&#9660; 9%</span></span></a></li><li style="--i:4;--glow:36" data-n="drag drive simulator" data-s="drag-drive-simulator"><a class="tile" href="/game/drag-drive-simulator"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-739e5f98daa0d50c8a331c5ba7678b58/256/256/Image/Webp/noFilter" alt="Drag Drive Simulator Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Drag Drive Simulator</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 17.3K</span></span></a></li><li style="--i:5;--glow:40" data-n="sweep the moon" data-s="sweep-the-moon"><a class="tile" href="/game/sweep-the-moon"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-bc3e645da88ee46d84616ae150b086b8/256/256/Image/Webp/noFilter" alt="Sweep The Moon Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Sweep The Moon</span><span class="tmeta"><span title="Typical players over the last 7 days"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg> 13.3K</span></span></a></li></ul>
+<p><a href="/">&larr; All Roblox player counts</a> &middot; <a href="/plan?g=throw-a-seed">Plan a session</a>
+&middot; <a href="/busiest-hours">When is Roblox busiest?</a></p>
+<script>window.PT_GAME={"s":"throw-a-seed","n":"Throw a Seed","i":"https://tr.rbxcdn.com/180DAY-b36dafc2bbfaa49903b28700f9a9f807/256/256/Image/Webp/noFilter"};</script>
+<script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -1421,13 +1503,23 @@ function tipEl(){
 if(!chtip){chtip=document.createElement('div');chtip.className='chtip';
 chtip.setAttribute('aria-hidden','true');document.body.appendChild(chtip)}
 return chtip}
+/* Sits to the right of the pointer, and flips to the LEFT of it once there is not
+   room on the right - so near the right edge of the screen it is never cut off.
+   It is measured parked at the top left, because a fixed box near the right edge
+   is squeezed by the edge itself and would report itself narrower than it is.
+   It used to be capped at 260px with nowrap, which let a long readout spill out of
+   the box: the box was measured at 260 while the words ran on past it, so the flip
+   came too late and the end of the line was cut off. The window is measured
+   without its scrollbar (clientWidth), which innerWidth includes. */
 function tipShow(html,cx,cy){
-var t=tipEl();t.innerHTML=html;t.className='chtip on';
-var w=t.offsetWidth,h=t.offsetHeight,pad=14;
+var t=tipEl();t.innerHTML=html;t.style.left='0px';t.style.top='0px';t.className='chtip on';
+var de=document.documentElement,vw=de.clientWidth,vh=de.clientHeight;
+var w=t.offsetWidth,h=t.offsetHeight,pad=14,edge=8;
 var x=cx+pad,y=cy-h-pad;
-if(x+w>window.innerWidth-6)x=cx-w-pad;
-if(x<6)x=6;
-if(y<6)y=cy+pad;
+if(x+w>vw-edge)x=cx-w-pad;
+if(x<edge)x=edge;
+if(y<edge)y=cy+pad;
+if(y+h>vh-edge)y=vh-h-edge;
 t.style.left=x+'px';t.style.top=y+'px'}
 function tipHide(){if(chtip)chtip.className='chtip'}
 
@@ -1468,7 +1560,119 @@ show(at<0?(e.key==='ArrowRight'?0:P.length-1):
 Math.max(0,Math.min(P.length-1,at+(e.key==='ArrowRight'?1:-1))))}
 else if(e.key==='Escape')show(-1)});
 rest()}
-ptCountdowns();</script><script>(function(){
+</script><script>var M=[[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,11509,11363,null,10765,12115,14072,15795,18008,18468,18432,15941,14312,13170,12521,12303,12106,12333,13245,13335],[13964,14134,14487,13190,12701,12234,null,11443,11434,13674,14659,16374,17834,18512,18257,15371,13906,12757,11688,11500,11511,11566,11931,13028],[13502,13403,14523,14288,13734,13681,13510,13264,13312,14480,16250,18108,19312,19128,19199,17751,16177,15919,15172,14535,14028,13497,13808,14057],[15885,15704,17804,18181,18049,17948,null,17122,16210,18376,19709,21820,24635,25704,25546,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],L=toLocal(M),B=bands(L),nd=nowDay(),nh=new Date().getHours();
+var best=null,worst=null,dayq=null;
+for(var d=0;d<7;d++)for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
+if(!best||v<best[2])best=[d,h,v];if(!worst||v>worst[2])worst=[d,h,v];
+if(h>=8&&h<=21&&(!dayq||v<dayq[2]))dayq=[d,h,v]}
+var nl=B.level(L[nd][nh]);
+$('now').innerHTML=nl?'Right now it is usually <b>'+W[nl]+'</b>.':'';
+$('best').innerHTML='Busiest: <b>'+DAY[worst[0]]+' around '+fmt(worst[1])+'</b>.';
+$('quiet').innerHTML='Quietest: <b>'+DAY[best[0]]+' around '+fmt(best[1])+'</b>'+
+(dayq&&(dayq[0]+':'+dayq[1])!=(best[0]+':'+best[1])?' (or <b>'+DAY[dayq[0]]+' around '+fmt(dayq[1])+
+'</b> if you play during the day).':'.');
+
+/* Plan my session: a live countdown to the next quiet or busy stretch.
+   plan() works out which hour we are aiming at; tick() only rewrites the clock, so the
+   digits can move every second without redoing the maths. */
+var mode='quiet',aim=null;
+function plan(){
+Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
+b.setAttribute('aria-pressed',b.dataset.m===mode)});
+var p=nextBlock(L,mode);
+if(!p){aim=null;$('cdw').hidden=true;
+$('plantxt').textContent='Not enough player counts yet to work out the next '+
+(mode==='quiet'?'quiet':'busy')+' stretch.';return}
+aim=new Date(p.t);aim.setMinutes(0,0,0);
+$('cdlab').textContent=(mode==='quiet'?'Quietest':'Busiest')+' window starts in';
+$('plantxt').innerHTML='That is <b>'+DAY[(aim.getDay()+6)%7]+' at '+fmt(aim.getHours())+
+'</b> your time, when it is usually <b>'+W[B.level(p.v)]+'</b> with about '+
+p.v.toLocaleString()+' players. It stays that way for about <b>'+p.len+
+' hour'+(p.len>1?'s':'')+'</b>.';
+$('cdw').hidden=false;tick()}
+
+function tick(){if(!aim)return;
+var ms=aim-new Date();
+if(ms<=0){plan();return}      /* the window has arrived: work out the one after it */
+$('cd').textContent=ticker(ms)}
+Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
+b.onclick=function(){mode=b.dataset.m;plan()}});
+plan();setInterval(tick,1000);setInterval(plan,300000);
+
+/* One day at a time */
+function show(d){
+Array.prototype.forEach.call($('days').querySelectorAll('button'),function(b,i){
+b.setAttribute('aria-pressed',i==d)});
+var lo=null,hi=null;
+for(var h=0;h<24;h++){var v=L[d][h];if(v==null)continue;
+if(!lo||v<lo[1])lo=[h,v];if(!hi||v>hi[1])hi=[h,v]}
+var R=graphRange(B);
+$('bars').innerHTML=dayGraph(L[d],R,DAY[d]+': players through the day','acc');
+graphCursor($('bars').querySelector('.graph'),$('readout'),L[d],R);
+/* The axis does not start at zero, and that still has to be said or the shape
+   overstates the swing - it is said ON the graph now, as the two numbers its top
+   and bottom stand for, rather than as a sentence underneath it. */
+$('dtxt').textContent=lo?'On '+DAY[d]+' it is quietest around '+fmt(lo[0])+' and busiest around '+fmt(hi[0])+
+'.':'No player counts for this day yet.'}
+DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
+b.setAttribute('aria-label',n);b.onclick=function(){show(i)};$('days').appendChild(b)});
+
+/* The whole week */
+var g='<div></div>';['12 AM','6 AM','12 PM','6 PM'].forEach(function(t){
+g+='<span style="grid-column:span 6">'+t+'</span>'});
+for(var d=0;d<7;d++){g+='<div>'+DAY[d].slice(0,3)+'</div>';
+for(var h=0;h<24;h++){var v=L[d][h];
+g+='<div class="c'+(d==nd&&h==nh?' now':'')+'" data-d="'+d+'" data-h="'+h+'" title="'+
+DAY[d]+' '+fmt(h)+': about '+(v||0).toLocaleString()+' players" style="background:'+
+(v==null?'transparent':'var(--l'+B.level(v)+')')+'"></div>'}}
+$('hm').innerHTML=g;show(nd);
+
+/* A square says what it is worth when it is pointed at or pressed. The title
+   attribute said the same thing, but a tooltip takes a second of hovering, never
+   appears on a phone at all, and cannot be read out - so on a touch screen the
+   whole grid was a picture with no numbers in it. Hover follows the pointer and a
+   tap holds, which is why the selected one keeps its ring. */
+var hmo=$('hmout'),hmSel=null;
+function hmText(c){
+var d=+c.dataset.d,h=+c.dataset.h,v=L[d][h];
+return v==null
+?'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; no readings for this hour yet'
+:'<b>'+DAY[d]+' '+fmt(h)+'</b> &middot; about <b>'+v.toLocaleString()+'</b> players'}
+/* The same answer in two places, for the same reason the graphs do it: on a computer
+   it rides beside the pointer, and on a touch screen it stays in the line under the
+   grid, because a finger covers the square it is pointing at. The line is hidden by
+   CSS from 900px up rather than deleted - see .readout.chartout. */
+function hmSay(c,e){
+var txt=hmText(c);hmo.innerHTML=txt;
+if(e&&e.pointerType==='mouse')tipShow(txt,e.clientX,e.clientY)}
+function hmPick(c){
+if(hmSel)hmSel.classList.remove('sel');
+hmSel=c;c.classList.add('sel');hmSay(c)}
+$('hm').addEventListener('pointerover',function(e){
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c&&e.pointerType==='mouse')hmSay(c,e)});
+/* Following the pointer, not just appearing once: the squares are 26px apart, so
+   moving along a day without this left the box behind on the first one. */
+$('hm').addEventListener('pointermove',function(e){
+if(e.pointerType!=='mouse')return;
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c)hmSay(c,e);else tipHide()});
+$('hm').addEventListener('pointerleave',function(e){
+if(e.pointerType!=='mouse')return;tipHide();
+hmSel?hmSay(hmSel):hmo.textContent='Pick a box to see how many play then.'});
+$('hm').addEventListener('click',function(e){
+var c=e.target&&e.target.closest&&e.target.closest('.c[data-d]');
+if(c)hmPick(c)});
+Array.prototype.forEach.call(document.querySelectorAll('[data-scrub]'),scrubChart);
+(function(){var fl=$('facts'),mb=document.querySelector('.morestats');if(!fl||!mb)return;
+fl.classList.add('fold');mb.onclick=function(){var o=fl.classList.toggle('open');
+mb.setAttribute('aria-expanded',o);mb.textContent=o?'Fewer stats':'More stats'}})();ptCountdowns();</script><script>
+(function(){var b=document.getElementById('fav'),k=b.dataset.s;
+function draw(){var on=getFavs().indexOf(k)>-1;b.setAttribute('aria-pressed',on);
+b.innerHTML=on?'&#9733; Saved':'&#9734; Save'}
+b.onclick=function(){var f=getFavs();f=f.indexOf(k)>-1?f.filter(function(x){return x!==k}):f.concat(k);
+setFavs(f);draw()};PT.ready(draw)})();</script>
+<script>(function(){
 var gameBox=document.getElementById('notif');
 var pageBox=document.getElementById('notifpage');
 /* Three kinds of page use this: a game page (#notif), the notifications page
@@ -1848,7 +2052,19 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script><script>(function(){
+})();</script>
+<footer class="foot"><nav class="small"><a href="/">All games</a>
+<a href="/popular">Most played</a><a href="/trending">Trending</a>
+<a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
+<a href="/busiest-hours">When is Roblox busiest?</a>
+<a href="/events">Event calendar</a><a href="/compare">Compare games</a>
+<a href="/plan">Plan a session</a>
+<a href="/about">About</a><a href="/install">Get the app</a><a href="/privacy">Privacy Policy</a>
+<a href="/terms">Terms of Service</a></nav>
+<p class="mut small">Not affiliated with or endorsed by Roblox Corporation. Based on public player counts, so it
+shows when people play, not whether a game is good or safe. Questions or problems? Email <a href="mailto:contact@playtimestats.com">contact@playtimestats.com</a>.</p></footer>
+</div></div>
+<script>(function(){
 var d=document.documentElement;
 
 /* Which of the three ways in the bar offers is the page being looked at, so that
@@ -1857,10 +2073,17 @@ var d=document.documentElement;
    Plain string tests and no regex: these blocks are ordinary Python strings, so a
    backslash in one is eaten before the browser ever sees it. */
 var hp=location.pathname,hs=location.search;
+var hseg=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+/* All EIGHT of them, not the first three (19 Nov 2026). Busy, quiet and popular
+   were marked and Growing, Shrinking, Events, Compare and Plan were not, so
+   standing on one of those five the bar said nothing about where you were - the
+   stylesheet had treated all eight alike from the start and only this knew about
+   three. Each of the five is its own page, so the name of the file is the answer;
+   busy and quiet are the homepage asked a question, so they come off the query. */
 var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
-:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
-return seg==='popular'||seg==='popular.html'})()?'popular':'';
+:(hseg==='popular'||hseg==='growing'||hseg==='shrinking'||hseg==='events'
+||hseg==='compare'||hseg==='plan')?hseg:'';
 /* Every copy of them: the bar on a computer and the three buttons on the phone's
    homepage. classList.add, not className=, because five of the links in the bar
    also carry "more" - the class that keeps them out of a narrow bar - and
@@ -1870,10 +2093,9 @@ function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
-var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
-var tkey=(hseg2==='events')?'events'
-:(hseg2==='plan')?'plan'
-:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+var tkey=(hseg==='events')?'events'
+:(hseg==='plan')?'plan'
+:((hseg===''||hseg==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 
@@ -1958,7 +2180,12 @@ var x=edge==='right'?r.right-w:r.left;
 x=Math.min(x,W-w-gap);
 el.style.left=Math.round(Math.max(gap,x))+'px';
 el.style.right='auto'}
-function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
+/* Right edge to right edge, like the panel off the three lines. It used to hang
+   from the button's LEFT edge, which was fine while the button was a 119px pill
+   and is not now it is a 42px picture: a 218px card hung off the left of it ran
+   out past the three-line button and was then shoved back by the keep-it-on-screen
+   clamp, so it lined up with nothing at all. */
+function placeMenu(){drop(am,document.getElementById('acctbar'),'right')}
 function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
 var hit=e.target.closest&&e.target.closest('#acctbar');
@@ -1986,9 +2213,9 @@ var sheet=document.getElementById('sheet'),GAMES=null;
 if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
-var t=q.value.trim().toLowerCase();
+var t=q.value.trim().toLowerCase().replace(/['’]/g,'');
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
-var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+var hits=GAMES.filter(function(g){return (g.k||g.n.toLowerCase()).indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
 return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+

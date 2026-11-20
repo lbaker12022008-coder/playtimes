@@ -6,7 +6,7 @@
 <meta property="og:title" content="صيد الضبّان Questions | PlayTime">
 <meta property="og:description" content="The questions people ask about صيد الضبّان, answered with the player counts we have taken ourselves.">
 <meta property="og:url" content="https://playtimestats.com/questions/game"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-8c15e062e848c87c65e1fd4094e324e6/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-19">
+<meta property="article:modified_time" content="2026-11-20">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -278,7 +278,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    the eight links into a scrolling strip. A cap being respected, and it read as the
    page breaking. The logo now sits left of the words on a reading page, which is
    what most sites do and what nobody notices, and the bar never changes shape. */
-.hrow{display:flex;align-items:center;gap:12px}
+/* The spacing of the bar, in one place (19 Nov 2026, owner's call: "the spacing
+   is off, some things are really close to each other"). It had grown four
+   different gaps with no system behind them - 12px after the logo, 16px before
+   the sections, 24px after them and 12px between the controls at the right end -
+   so a row of 42px squares 12px apart read as neither a group nor four separate
+   buttons. It is three groups now, and the gaps say so:
+     8px   INSIDE a group - the bell, the magnifier and the three lines
+     14px  between the person and those tools
+     18px  between groups - the logo, the game picker, the sections
+     16px  to the edge of the bar, which is what the page below it uses
+   The 8px base is the smallest of them and every wider gap is a margin added on
+   top, so a new control dropped into the bar joins the tools group by default. */
+.hrow{display:flex;align-items:center;gap:8px}
 /* The same shape as the tabs across a game's pages, because they do the same job:
    here is where you are, here is what else there is. Hidden below 900px, where the
    bar has room for the logo, the game picker and two buttons and nothing else -
@@ -291,7 +303,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* flex:0 0 auto - the sections do not shrink. They used to (0 1 auto), which is
    what let a long name squeeze them; the overflow is kept as a last net rather
    than as the usual case. */
-.hnav{display:none;margin-left:4px;white-space:nowrap;min-width:0;flex:0 0 auto;
+.hnav{display:none;margin-left:10px;white-space:nowrap;min-width:0;flex:0 0 auto;
 overflow-x:auto;scrollbar-width:none}
 .hnav::-webkit-scrollbar{display:none}
 /* Three links at 900px, all eight once there is room for them. Eight at 900 was
@@ -370,13 +382,29 @@ border:1px solid var(--line);background:var(--shade)}
    below) and the NAME gives way instead: min-width:0 all the way down to .albl,
    which already has the ellipsis. The whole name is still one press away, written
    across the button the menu hangs from. */
-.acctbar{flex:0 1 auto;min-width:0}
+/* 14px, so the person is not jammed against the sections on a narrow window;
+   the bell then sits 8px off it and the two tools 8px off each other, which is
+   what makes the right end read as you-then-tools rather than four loose boxes. */
+.acctbar{flex:0 1 auto;min-width:0;margin-left:14px}
+/* The 6px goes on whichever control starts the tools, so the gap is 14 either
+   way: the bell when somebody is signed in, and the magnifier when they are not
+   and there is no bell to carry it. .nots stays in the page when it is empty -
+   :empty only hides it - so it is still there for the sibling to be next to. */
+.hdr .nots{margin-left:6px}
+.hdr .nots:empty+.iconb{margin-left:6px}
 .acctb{display:flex;align-items:center;gap:8px;max-width:210px;min-width:0;height:42px;
 padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);
 color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
 .acctb:hover,.acctb:focus-visible{border-color:var(--acc)}
-/* Signed out this is an <a>, not a <button>. */
+/* Signed out this is an <a>, not a <button>, and it keeps its words: a lone
+   person-glyph with no label is not an invitation to sign in. Signed in it is the
+   picture alone, the same 42px square as the bell, the magnifier and the three
+   lines beside it - four squares in a row rather than three and a pill. Two
+   classes, because .acctb above and .iconb further down are both one class and a
+   later one-class rule would win. */
 .acctb{text-decoration:none}
+.acctbar .acctb.onlypic{width:42px;padding:0;gap:0;justify-content:center}
+.acctbar .acctb.onlypic .pfp{width:30px;height:30px}
 .acctb svg{width:18px;height:18px;flex:none;fill:currentColor}
 .acctbar .pfp{width:26px;height:26px;border-radius:50%;flex:0 0 auto;object-fit:cover;
 border:1px solid var(--line);background:var(--shade)}
@@ -396,6 +424,12 @@ box-shadow:var(--sh);animation:dropin .15s ease both}
 .amenu[hidden]{display:none}
 .amenu .asub{display:block;padding:8px 12px 9px;margin:0 0 4px;color:var(--mut);
 font-size:.78rem;border-bottom:1px solid var(--line)}
+/* The name, first line of the menu, since the bar no longer carries it. The
+   ellipsis is here for the same reason it was on the pill: Roblox display names
+   run long, and this box is 218px wide. */
+.amenu .aname{display:block;margin-bottom:2px;color:var(--ink);font-size:.95rem;
+font-weight:800;font-style:normal;overflow:hidden;text-overflow:ellipsis;
+white-space:nowrap}
 .amenu form{margin:0}
 /* The panel's Notifications row is the other half of the same arrangement: it shows
    on a phone, where the bell is not in the bar, and hides where the bell is. */
@@ -447,7 +481,7 @@ border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh)}
 .chtip{position:fixed;z-index:40;pointer-events:none;opacity:0;transition:opacity .08s;
 background:var(--solid);border:1px solid var(--line);border-radius:12px;
 padding:8px 12px;font-size:.88rem;line-height:1.45;box-shadow:var(--sh);
-max-width:260px;white-space:nowrap}
+width:max-content;max-width:calc(100vw - 16px)}
 .chtip.on{opacity:1}
 @media(min-width:900px){.readout.chartout{display:none}}
 /* The same glow the HTML cursor dot wears, for the one drawn inside an SVG. */
@@ -516,7 +550,7 @@ border-radius:12px;background:var(--shade);font-size:.92rem}
    offer rather than as something already switched on. */
 .svd{display:block;font-style:normal;font-size:.72rem;font-weight:700;
 letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em;white-space:nowrap;margin-right:10px}
 .logo .mark{width:32px;height:32px;flex:none}
 .logo b{background:linear-gradient(95deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* The header is logo, name and game picker on the left, then the account, the
@@ -988,7 +1022,7 @@ h2{font-size:1.06rem}
 .drawer{top:63px;right:14px;max-width:calc(100vw - 28px);max-height:calc(100vh - 79px)}
 .iconb{width:38px;height:38px}
 .hrow{gap:9px}
-.logo{font-size:1.2rem}
+.logo{font-size:1.2rem;margin-right:0}
 .logo .mark{width:29px;height:29px}
 .gpick>button{max-width:150px;padding:7px 11px}
 /* two games across even on the narrowest phone, with less air between them */
@@ -1059,7 +1093,7 @@ h1{font-size:1.5rem}
 .rise2{animation:up .5s cubic-bezier(.2,.75,.3,1) .08s both}
 .rise3{animation:up .5s cubic-bezier(.2,.75,.3,1) .16s both}
 .card{animation:fade .7s both}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 player count","item":"https://playtimestats.com/game/game"},{"@type":"ListItem","position":4,"name":"Questions","item":"https://playtimestats.com/questions/game"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people are playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 right now?","acceptedAnswer":{"@type":"Answer","text":"At our most recent check, at 5:53 PM UTC on Thu 19 Nov, 18,577 people were playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646. We read Roblox's public player count about every ten minutes and refresh this page four times a day, so that number can be a few hours old. At a typical moment over the last week there were about 17,643."}},{"@type":"Question","name":"What is the highest player count \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 has had?","acceptedAnswer":{"@type":"Answer","text":"The most people we have seen in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at once is 48,333, on Fri 13 Nov. This week the highest was 48,333, at 2:04 PM UTC on Fri 13 Nov. We have been counting since Sat 31 Oct, so a record from before then would not show here."}},{"@type":"Question","name":"What is the lowest player count \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 has?","acceptedAnswer":{"@type":"Answer","text":"The fewest people we saw in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 over the last 7 days was 5,032, at 4:10 AM UTC on Mon 16 Nov. That is everybody in the game at that moment, across every server."}},{"@type":"Question","name":"How many people play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"About 17,643 people are in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 48,333. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Monday around 4 AM UTC, when there are usually about 7,041 players. For full servers and trading, Friday around 11 AM UTC is the busiest hour we see, at roughly 39,879 players. Those hours are UTC. The graph on the game page shows them on your own clock."}},{"@type":"Question","name":"When is \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 busiest?","acceptedAnswer":{"@type":"Answer","text":"Friday around 11 AM UTC is its busiest hour in a typical week, with about 39,879 players. Friday is its busiest day overall."}},{"@type":"Question","name":"Do people still play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"Yes. 18,577 people were playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at our last check, at 5:53 PM UTC on Thu 19 Nov. Fewer people are playing than a week ago, though about 17.6K are still in the game at a typical moment."}},{"@type":"Question","name":"How many likes does \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 59,074 likes for \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646, which is 95% of the 62,150 people who voted on it."}},{"@type":"Question","name":"When did \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 come out?","acceptedAnswer":{"@type":"Answer","text":"\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 was first released on Roblox on Sat 3 Oct, 1 month ago."}},{"@type":"Question","name":"How many visits does \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 58,850,978 total visits for \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 so far, and it was first released 1 month ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"All games","item":"https://playtimestats.com/"},{"@type":"ListItem","position":2,"name":"Simulation games","item":"https://playtimestats.com/category/simulation"},{"@type":"ListItem","position":3,"name":"\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 player count","item":"https://playtimestats.com/game/game"},{"@type":"ListItem","position":4,"name":"Questions","item":"https://playtimestats.com/questions/game"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people are playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 right now?","acceptedAnswer":{"@type":"Answer","text":"At our most recent check, at 2:37 PM UTC on Fri 20 Nov, 16,983 people were playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646. We read Roblox's public player count about every ten minutes and refresh this page four times a day, so that number can be a few hours old. At a typical moment over the last week there were about 17,049."}},{"@type":"Question","name":"What is the highest player count \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 has had?","acceptedAnswer":{"@type":"Answer","text":"The most people we have seen in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at once is 48,333, on Fri 13 Nov. This week the highest was 42,731, at 4:38 PM UTC on Tue 17 Nov. We have been counting since Sat 31 Oct, so a record from before then would not show here."}},{"@type":"Question","name":"What is the lowest player count \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 has?","acceptedAnswer":{"@type":"Answer","text":"The fewest people we saw in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 over the last 7 days was 4,994, at 4:38 AM UTC on Fri 20 Nov. That is everybody in the game at that moment, across every server."}},{"@type":"Question","name":"How many people play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"About 17,049 people are in \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 48,333. These are our own readings of Roblox's public player count, taken roughly every ten minutes."}},{"@type":"Question","name":"What is the best time to play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"For quiet servers, aim for Friday around 3 AM UTC, when there are usually about 6,945 players. For full servers and trading, Saturday around 11 AM UTC is the busiest hour we see, at roughly 35,812 players. Those hours are UTC. The graph on the game page shows them on your own clock."}},{"@type":"Question","name":"When is \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 busiest?","acceptedAnswer":{"@type":"Answer","text":"Saturday around 11 AM UTC is its busiest hour in a typical week, with about 35,812 players. Saturday is its busiest day overall."}},{"@type":"Question","name":"Do people still play \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646?","acceptedAnswer":{"@type":"Answer","text":"Yes. 16,983 people were playing \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 at our last check, at 2:37 PM UTC on Fri 20 Nov. Fewer people are playing than a week ago, though about 17K are still in the game at a typical moment."}},{"@type":"Question","name":"How many likes does \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 59,661 likes for \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646, which is 95% of the 62,778 people who voted on it."}},{"@type":"Question","name":"When did \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 come out?","acceptedAnswer":{"@type":"Answer","text":"\u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 was first released on Roblox on Sat 3 Oct, 1 month ago."}},{"@type":"Question","name":"How many visits does \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 have?","acceptedAnswer":{"@type":"Answer","text":"Roblox reports 59,576,148 total visits for \u0635\u064a\u062f \u0627\u0644\u0636\u0628\u0651\u0627\u0646 so far, and it was first released 1 month ago."}}]}]}</script><script>var PT={name:null,available:false,favs:null,cbs:[]};
 /* The sign-in address, carrying the page somebody is on, so Roblox sends them back
    here rather than to the homepage. worker/auth.js checks it is one of our own
    paths before it will redirect there. */
@@ -1101,8 +1135,14 @@ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
    menu under it. Not available at all - no Roblox keys set - and this writes
    nothing, so the empty .acct collapses and the bar reads as though sign-in had
    never existed.
-   alt is empty on purpose: the name is right beside the picture, and a screen
-   reader announcing it twice is worse than not announcing it at all. */
+   The bar shows the PICTURE AND NOTHING ELSE (19 Nov 2026, owner's call). It
+   carried the name beside it, which made the one control in the bar whose width
+   nobody could predict - a long Roblox name ran it to 182px against the 42px it
+   is now - and it was the only item up there that was not a neat square. The name
+   is not lost: it is the first line of the menu the picture opens, and it is in
+   the panel on a phone, where there is no picture in the bar at all.
+   alt is empty on purpose: the button's own aria-label carries the name, so a
+   screen reader announcing the picture as well would say it twice. */
 function ptPaint(){
 /* The account, in the panel behind the three lines. Nothing at all when the Roblox
    keys are missing, so .acct:empty collapses and the panel reads as though signing
@@ -1151,21 +1191,22 @@ el.innerHTML=bell});
    so this link is the only one there is at that width - see the .dtop .acct rule. */
 var pill=!PT.available?''
 :PT.name
-?'<button class="acctb" id="acctbar" type="button" aria-controls="amenu" '
-+'aria-expanded="false" aria-label="Your account">'
-+(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="26" height="26">':PTPERSON)
-+'<span class="albl">'+ptEsc(PT.name)+'</span></button>'
+?'<button class="acctb onlypic" id="acctbar" type="button" aria-controls="amenu" '
++'aria-expanded="false" aria-label="Your account, '+ptEsc(PT.name)+'">'
++(PT.pic?'<img class="pfp" src="'+ptEsc(PT.pic)+'" alt="" width="30" height="30">':PTPERSON)
++'</button>'
 :'<a class="acctb" id="acctbar" href="'+ptLogin()+'" '
 +'aria-label="Sign in with Roblox">'+PTPERSON
 +'<span class="albl">Sign in</span></a>';
 Array.prototype.forEach.call(document.querySelectorAll('.acctbar'),function(el){
 el.innerHTML=pill});
-/* What drops out of that pill. The name is not repeated inside it - it is written
-   across the button the menu hangs from, and saying it twice on one screen is how
-   the panel copy and this one would start to disagree. */
+/* What drops out of that picture, and the ONE place on a computer the name is
+   written. It used to be across the button and deliberately not repeated here;
+   the button is a bare picture now, so the name moved in rather than vanishing -
+   still said once, just in the other half of the same control. */
 var amenu=document.getElementById('amenu');
 if(amenu)amenu.innerHTML=(PT.available&&PT.name)
-?'<i class="asub">Signed in with Roblox</i>'
+?'<i class="asub"><b class="aname">'+ptEsc(PT.name)+'</b>Signed in with Roblox</i>'
 +'<form method="POST" action="/auth/logout">'
 +'<button class="drow" type="submit">Sign out</button></form>'
 :'';
@@ -1215,7 +1256,7 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow hnavrow" href="/?for=busy"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Busy right now</span></a><a class="drow hnavrow" href="/?for=quiet"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span>Quiet right now</span></a><a class="drow hnavrow" href="/popular"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span>Popular games</span></a><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/game">صيد الضبّان player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Questions</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-f726d77a40cee57c934bb7c40e1e024e/256/256/Image/Webp/noFilter" alt="صيد الضبّان Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>صيد الضبّان questions</h1><p class="mut">The things people ask about صيد الضبّان, answered from the player counts we take ourselves.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/82347957379349">Play صيد الضبّان</a><span data-bell="all"></span><button class="fav" id="fav" data-s="game" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/game">Overview</a><a class="gtab" href="/updates/game">Updates</a><a class="gtab on" href="/questions/game" aria-current="page">Questions</a><a class="gtab" href="/passes/game">Costs</a></nav></div></div><div class="card faq"><h2>صيد الضبّان: common questions</h2><h3>How many people are playing صيد الضبّان right now?</h3><p>At our most recent check, at 5:53 PM UTC on Thu 19 Nov, 18,577 people were playing صيد الضبّان. We read Roblox&#x27;s public player count about every ten minutes and refresh this page four times a day, so that number can be a few hours old. At a typical moment over the last week there were about 17,643.</p><p class="small"><a href="/game/game#stats">See the latest count and this week&rsquo;s highs and lows &rarr;</a></p><h3>What is the highest player count صيد الضبّان has had?</h3><p>The most people we have seen in صيد الضبّان at once is 48,333, on Fri 13 Nov. This week the highest was 48,333, at 2:04 PM UTC on Fri 13 Nov. We have been counting since Sat 31 Oct, so a record from before then would not show here.</p><p class="small"><a href="/game/game#history">See the highest count for each day on a graph &rarr;</a></p><h3>What is the lowest player count صيد الضبّان has?</h3><p>The fewest people we saw in صيد الضبّان over the last 7 days was 5,032, at 4:10 AM UTC on Mon 16 Nov. That is everybody in the game at that moment, across every server.</p><p class="small"><a href="/game/game#stats">See this week&rsquo;s lowest and highest &rarr;</a></p><h3>How many people play صيد الضبّان?</h3><p>About 17,643 people are in صيد الضبّان at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 48,333. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><p class="small"><a href="/game/game#history">See the player count day by day &rarr;</a></p><h3>What is the best time to play صيد الضبّان?</h3><p>For quiet servers, aim for Monday around 4 AM UTC, when there are usually about 7,041 players. For full servers and trading, Friday around 11 AM UTC is the busiest hour we see, at roughly 39,879 players. Those hours are UTC. The graph on the game page shows them on your own clock.</p><p class="small"><a href="/game/game#byhour">See every hour on a graph &rarr;</a></p><h3>When is صيد الضبّان busiest?</h3><p>Friday around 11 AM UTC is its busiest hour in a typical week, with about 39,879 players. Friday is its busiest day overall.</p><p class="small"><a href="/game/game#byhour">See every hour on a graph &rarr;</a></p><h3>Do people still play صيد الضبّان?</h3><p>Yes. 18,577 people were playing صيد الضبّان at our last check, at 5:53 PM UTC on Thu 19 Nov. Fewer people are playing than a week ago, though about 17.6K are still in the game at a typical moment.</p><p class="small"><a href="/game/game#dead">See the 45-day trend &rarr;</a></p><h3>How many likes does صيد الضبّان have?</h3><p>Roblox reports 59,074 likes for صيد الضبّان, which is 95% of the 62,150 people who voted on it.</p><p class="small"><a href="/game/game#stats">See all its numbers &rarr;</a></p><h3>When did صيد الضبّان come out?</h3><p>صيد الضبّان was first released on Roblox on Sat 3 Oct, 1 month ago.</p><h3>How many visits does صيد الضبّان have?</h3><p>Roblox reports 58,850,978 total visits for صيد الضبّان so far, and it was first released 1 month ago.</p><p class="small"><a href="/game/game#stats">See all its numbers &rarr;</a></p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div><p><a href="/game/game">&larr; Back to صيد الضبّان</a></p>
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/game">صيد الضبّان player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Questions</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-f726d77a40cee57c934bb7c40e1e024e/256/256/Image/Webp/noFilter" alt="صيد الضبّان Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>صيد الضبّان questions</h1><p class="mut">The things people ask about صيد الضبّان, answered from the player counts we take ourselves.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/82347957379349">Play صيد الضبّان</a><span data-bell="all"></span><button class="fav" id="fav" data-s="game" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/game">Overview</a><a class="gtab" href="/updates/game">Updates</a><a class="gtab on" href="/questions/game" aria-current="page">Questions</a><a class="gtab" href="/passes/game">Costs</a></nav></div></div><div class="card faq"><h2>صيد الضبّان: common questions</h2><h3>How many people are playing صيد الضبّان right now?</h3><p>At our most recent check, at 2:37 PM UTC on Fri 20 Nov, 16,983 people were playing صيد الضبّان. We read Roblox&#x27;s public player count about every ten minutes and refresh this page four times a day, so that number can be a few hours old. At a typical moment over the last week there were about 17,049.</p><p class="small"><a href="/game/game#stats">See the latest count and this week&rsquo;s highs and lows &rarr;</a></p><h3>What is the highest player count صيد الضبّان has had?</h3><p>The most people we have seen in صيد الضبّان at once is 48,333, on Fri 13 Nov. This week the highest was 42,731, at 4:38 PM UTC on Tue 17 Nov. We have been counting since Sat 31 Oct, so a record from before then would not show here.</p><p class="small"><a href="/game/game#history">See the highest count for each day on a graph &rarr;</a></p><h3>What is the lowest player count صيد الضبّان has?</h3><p>The fewest people we saw in صيد الضبّان over the last 7 days was 4,994, at 4:38 AM UTC on Fri 20 Nov. That is everybody in the game at that moment, across every server.</p><p class="small"><a href="/game/game#stats">See this week&rsquo;s lowest and highest &rarr;</a></p><h3>How many people play صيد الضبّان?</h3><p>About 17,049 people are in صيد الضبّان at a typical moment, averaged over the last 7 days. The most we have ever recorded at once is 48,333. These are our own readings of Roblox&#x27;s public player count, taken roughly every ten minutes.</p><p class="small"><a href="/game/game#history">See the player count day by day &rarr;</a></p><h3>What is the best time to play صيد الضبّان?</h3><p>For quiet servers, aim for Friday around 3 AM UTC, when there are usually about 6,945 players. For full servers and trading, Saturday around 11 AM UTC is the busiest hour we see, at roughly 35,812 players. Those hours are UTC. The graph on the game page shows them on your own clock.</p><p class="small"><a href="/game/game#byhour">See every hour on a graph &rarr;</a></p><h3>When is صيد الضبّان busiest?</h3><p>Saturday around 11 AM UTC is its busiest hour in a typical week, with about 35,812 players. Saturday is its busiest day overall.</p><p class="small"><a href="/game/game#byhour">See every hour on a graph &rarr;</a></p><h3>Do people still play صيد الضبّان?</h3><p>Yes. 16,983 people were playing صيد الضبّان at our last check, at 2:37 PM UTC on Fri 20 Nov. Fewer people are playing than a week ago, though about 17K are still in the game at a typical moment.</p><p class="small"><a href="/game/game#dead">See the 45-day trend &rarr;</a></p><h3>How many likes does صيد الضبّان have?</h3><p>Roblox reports 59,661 likes for صيد الضبّان, which is 95% of the 62,778 people who voted on it.</p><p class="small"><a href="/game/game#stats">See all its numbers &rarr;</a></p><h3>When did صيد الضبّان come out?</h3><p>صيد الضبّان was first released on Roblox on Sat 3 Oct, 1 month ago.</p><h3>How many visits does صيد الضبّان have?</h3><p>Roblox reports 59,576,148 total visits for صيد الضبّان so far, and it was first released 1 month ago.</p><p class="small"><a href="/game/game#stats">See all its numbers &rarr;</a></p><p class="mut small">Answers come from our own player counts, which are estimates built from samples, not official Roblox figures.</p></div><p><a href="/game/game">&larr; Back to صيد الضبّان</a></p>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
@@ -1236,10 +1277,17 @@ var d=document.documentElement;
    Plain string tests and no regex: these blocks are ordinary Python strings, so a
    backslash in one is eaten before the browser ever sees it. */
 var hp=location.pathname,hs=location.search;
+var hseg=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
+/* All EIGHT of them, not the first three (19 Nov 2026). Busy, quiet and popular
+   were marked and Growing, Shrinking, Events, Compare and Plan were not, so
+   standing on one of those five the bar said nothing about where you were - the
+   stylesheet had treated all eight alike from the start and only this knew about
+   three. Each of the five is its own page, so the name of the file is the answer;
+   busy and quiet are the homepage asked a question, so they come off the query. */
 var hkey=hs.indexOf('for=busy')>-1?'busy'
 :hs.indexOf('for=quiet')>-1?'quiet'
-:(function(){var seg=hp.substring(hp.lastIndexOf('/')+1);
-return seg==='popular'||seg==='popular.html'})()?'popular':'';
+:(hseg==='popular'||hseg==='growing'||hseg==='shrinking'||hseg==='events'
+||hseg==='compare'||hseg==='plan')?hseg:'';
 /* Every copy of them: the bar on a computer and the three buttons on the phone's
    homepage. classList.add, not className=, because five of the links in the bar
    also carry "more" - the class that keeps them out of a narrow bar - and
@@ -1249,10 +1297,9 @@ function(a){if(a.getAttribute('data-hn')===hkey)a.classList.add('on')});
 /* The bar across the bottom of a phone marks itself the same way. Saved games are
    a block on the homepage rather than a page of their own, so that one lights up
    on the homepage when the address names it. */
-var hseg2=hp.substring(hp.lastIndexOf('/')+1).replace('.html','');
-var tkey=(hseg2==='events')?'events'
-:(hseg2==='plan')?'plan'
-:((hseg2===''||hseg2==='index')&&location.hash==='#favs')?'favs':'';
+var tkey=(hseg==='events')?'events'
+:(hseg==='plan')?'plan'
+:((hseg===''||hseg==='index')&&location.hash==='#favs')?'favs':'';
 if(tkey)Array.prototype.forEach.call(document.querySelectorAll('.tabbar a[data-tb]'),
 function(a){if(a.getAttribute('data-tb')===tkey)a.className='tbb on'});
 
@@ -1337,7 +1384,12 @@ var x=edge==='right'?r.right-w:r.left;
 x=Math.min(x,W-w-gap);
 el.style.left=Math.round(Math.max(gap,x))+'px';
 el.style.right='auto'}
-function placeMenu(){drop(am,document.getElementById('acctbar'),'left')}
+/* Right edge to right edge, like the panel off the three lines. It used to hang
+   from the button's LEFT edge, which was fine while the button was a 119px pill
+   and is not now it is a 42px picture: a 218px card hung off the left of it ran
+   out past the three-line button and was then shoved back by the keep-it-on-screen
+   clamp, so it lined up with nothing at all. */
+function placeMenu(){drop(am,document.getElementById('acctbar'),'right')}
 function placePanel(){drop(dr,document.getElementById('menubtn'),'right')}
 document.addEventListener('click',function(e){
 var hit=e.target.closest&&e.target.closest('#acctbar');
@@ -1365,9 +1417,9 @@ var sheet=document.getElementById('sheet'),GAMES=null;
 if(sheet){
 var q=document.getElementById('q'),qout=document.getElementById('qout');
 function draw(){
-var t=q.value.trim().toLowerCase();
+var t=q.value.trim().toLowerCase().replace(/['’]/g,'');
 if(!GAMES){qout.innerHTML='<p>Loading the list of games&hellip;</p>';return}
-var hits=GAMES.filter(function(g){return g.n.toLowerCase().indexOf(t)>-1}).slice(0,25);
+var hits=GAMES.filter(function(g){return (g.k||g.n.toLowerCase()).indexOf(t)>-1}).slice(0,25);
 qout.innerHTML=hits.length?hits.map(function(g){
 return '<a href="/game/'+ptEsc(g.s)+'">'+(g.i?'<img src="'+ptEsc(g.i)+
 '" alt="" width="30" height="30" loading="lazy">':'<span class="ph" aria-hidden="true">'+

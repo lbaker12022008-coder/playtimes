@@ -462,9 +462,47 @@ standing rule rather than a rewrite waiting to happen.
     which already had the ellipsis. The bar is navigation first, and the whole name
     is one press away on the button the menu hangs from. `longname.js` measures it
     at four widths with a 30-character name.
-  - **The name is NOT repeated inside the menu.** It is written across the button
-    the menu hangs from, and that was the whole complaint about the old
-    arrangement.
+  - **The bar shows the PICTURE and nothing else, and the name is the first line
+    of the menu it opens** (19 Nov 2026, owner's call: "just change it to only
+    display their icon after they log in"). This reverses the rule above it, which
+    said the name was written across the button and deliberately not repeated in
+    the menu - that was right while the button was a pill, and the button is a
+    42px square now, so the name had to move rather than vanish. It is still said
+    **once** on a computer, just in the other half of the same control; below
+    900px there is no picture in the bar at all and the panel keeps the name, as
+    it always did.
+    - The real gain is that the one control in the bar whose width nobody could
+      predict is now a fixed 42px. `longname.js` used to measure the pill at 182px
+      with a 30-character name, which is what pushed Compare and Plan off the end;
+      it measures 42px at every width now, with any name.
+    - `.acctbar .acctb.onlypic` is the icon-only shape, **two classes** because
+      `.acctb` and `.iconb` are both one class and `.iconb` is written further
+      down. The signed-out button keeps its words: a lone person-glyph with no
+      label is not an invitation to sign in.
+    - **`placeMenu()` hangs the card off the button's RIGHT edge now**, not its
+      left. A 218px card hung off the left of a 42px picture ran out past the
+      three-line button, and the keep-it-on-screen clamp then shoved it back, so
+      it lined up with nothing at all.
+  - **The bar's spacing is three groups, and the gaps say which** (19 Nov 2026,
+    owner's call: "fix the spacing across the entire header, it is off, some
+    things are really close to each other"). It had grown four gaps with no system
+    - 12px after the logo, 16px before the sections, 24px after them, 12px between
+    the controls at the right end - so a row of 42px squares 12px apart read as
+    neither one group nor four separate buttons. The rule now:
+    - **8px inside a group** (the bell, the magnifier, the three lines),
+      **14px between the person and those tools**, **18px between groups** (logo,
+      game picker, sections), **16px to the edge**, which is what the page below
+      the bar uses.
+    - The 8px is `.hrow`'s own gap and **every wider gap is a margin added on
+      top**, so a control dropped into the bar joins the tools group by default
+      rather than landing at some arbitrary distance.
+    - **`.hdr .nots:empty+.iconb` is what keeps it 14px when signed out.** The
+      6px that makes 14 sits on whichever control starts the tools - the bell when
+      somebody is signed in, the magnifier when there is no bell to carry it.
+      `.nots` stays in the page when it is empty (`:empty` only hides it), so the
+      sibling selector still has something to sit next to.
+    - The phone block zeroes the logo's margin: below 620px the bar holds three
+      things and 10px of it is worth more as a gap than as a separation.
   - **`.dtop .acct{display:none}` depends on the bar offering sign-in.** For a few
     hours on 17 Nov 2026 the pill was drawn only for somebody already signed in, and
     hiding this block left a signed-out visitor on a computer with **no way to sign
@@ -1015,6 +1053,17 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
     in the bar also carry `more`, the class that keeps them out of a narrow bar,
     and overwriting it put the one you were on back on screen at widths with no
     room for it.
+  - **All EIGHT links wear the mark, not the first three** (19 Nov 2026, owner's
+    call). The stylesheet had treated them alike from the start - one `.hnav a.on`
+    rule with the underline and its glow - but `hkey` in `CHROME_JS` could only
+    ever come out `busy`, `quiet` or `popular`, so standing on Growing,
+    Shrinking, Events, Compare or Plan the bar said nothing about where you were.
+    Each of those five is a page of its own, so the file name is the answer
+    (`hseg`); busy and quiet are the homepage asked a question, so they still come
+    off the query string. **`hseg` is read once and the bottom bar's `tkey` uses
+    the same value** - it had its own identical copy as `hseg2`. If a ninth
+    section is ever added to `TABS`, its name goes in that list or it will be the
+    one page in the bar that never lights up.
   - **The bar across the bottom of a phone is four now: Search, Saved, Events,
     Plan** (19 Nov 2026). Anything in that bar is hidden from the panel below
     900px (`.drawer nav a[data-sec=events]`, `[data-sec=plan]`), because the
