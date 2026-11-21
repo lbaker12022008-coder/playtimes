@@ -6,7 +6,7 @@
 <meta property="og:title" content="DOORS Events: What Is On and When It Starts | PlayTime">
 <meta property="og:description" content="Every event the creators of DOORS have announced on Roblox, when each one starts in your own timezone, and how long it runs.">
 <meta property="og:url" content="https://playtimestats.com/events/doors"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-e822a794752ce011565eca23a280f4dc/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-20">
+<meta property="article:modified_time" content="2026-11-21">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1158,6 +1158,19 @@ try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
 if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
 body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
+/* Coming BACK to a page does not re-run its scripts. The browser keeps the whole
+   page alive and hands it back exactly as it was, so a game un-saved on its own
+   page was still sitting in the saved section of the page behind it until somebody
+   reloaded. PT.again() throws the in-memory list away, so getFavs() reads
+   localStorage afresh, then redraws everything that asked to be kept up to date:
+   the saved grid on the homepage, the saved rows on the event calendar, the Save
+   button itself and the rows on the notifications page.
+   pageshow with persisted is the back button. storage is the same thing done in
+   another tab, and it fires only in the tabs that did not do it, which is exactly
+   the ones holding a stale list. */
+PT.again=function(){PT.favs=null;PT.cbs.forEach(function(fn){try{fn()}catch(e){}})};
+window.addEventListener('pageshow',function(e){if(e.persisted)PT.again()});
+window.addEventListener('storage',function(e){if(!e||!e.key||e.key==='pt_favs')PT.again()});
 /* Is this page running as an installed app, and is this an Apple device? Both
    questions are asked in two places - the Install option in the header panel, and
    the notification panel on a game page - so they are answered here rather than

@@ -6,7 +6,7 @@
 <meta property="og:title" content="Jailbreak ‍ Updates in Order &amp; Changelog | PlayTime">
 <meta property="og:description" content="Every Jailbreak ‍ update in order: 18 since Fri 20 Dec 2024. Latest: The Hunt: Roblox 20 Event (Thu 17 Sep). Next update likely Fri 27 Nov. Changelog, update...">
 <meta property="og:url" content="https://playtimestats.com/updates/jailbreak"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-1115a4adc260333af2378ca5706f4893/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
-<meta property="article:modified_time" content="2026-11-20">
+<meta property="article:modified_time" content="2026-11-21">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1158,6 +1158,19 @@ try{localStorage.setItem('pt_favs',JSON.stringify(f))}catch(e){}
 if(PT.name)fetch('/api/favs',{method:'PUT',headers:{'content-type':'application/json'},
 body:JSON.stringify({favs:f})}).catch(function(){})}
 PT.ready=function(fn){PT.cbs.push(fn);fn()};
+/* Coming BACK to a page does not re-run its scripts. The browser keeps the whole
+   page alive and hands it back exactly as it was, so a game un-saved on its own
+   page was still sitting in the saved section of the page behind it until somebody
+   reloaded. PT.again() throws the in-memory list away, so getFavs() reads
+   localStorage afresh, then redraws everything that asked to be kept up to date:
+   the saved grid on the homepage, the saved rows on the event calendar, the Save
+   button itself and the rows on the notifications page.
+   pageshow with persisted is the back button. storage is the same thing done in
+   another tab, and it fires only in the tabs that did not do it, which is exactly
+   the ones holding a stale list. */
+PT.again=function(){PT.favs=null;PT.cbs.forEach(function(fn){try{fn()}catch(e){}})};
+window.addEventListener('pageshow',function(e){if(e.persisted)PT.again()});
+window.addEventListener('storage',function(e){if(!e||!e.key||e.key==='pt_favs')PT.again()});
 /* Is this page running as an installed app, and is this an Apple device? Both
    questions are asked in two places - the Install option in the header panel, and
    the notification panel on a game page - so they are answered here rather than
@@ -1311,7 +1324,7 @@ Plus:
 + 2 New Vehicles.
 + New Safe Tier 1 items.
 + Keybinds and Kilometers.
-+ New commands and more!</p></li><li class=""><b>REPLAY 4 (Live Event)</b><span class="d">Last Chance!</span><span class="d">Mon 22 Jun &middot; 4 months ago</span><p>Celebrating our biggest update ever. Missed our epic event and want to experience it yourself? Catch 1 of our 4 replays we&#x27;re offering this weekend!
++ New commands and more!</p></li><li class=""><b>REPLAY 4 (Live Event)</b><span class="d">Last Chance!</span><span class="d">Mon 22 Jun &middot; 5 months ago</span><p>Celebrating our biggest update ever. Missed our epic event and want to experience it yourself? Catch 1 of our 4 replays we&#x27;re offering this weekend!
 
 The event begins 5 minutes after the posted start time to give notified players a chance to join and get situated. All replays are automatically triggered by our system to go off at their set times. Thank you!</p></li><li class=""><b>REPLAY 3 (Live Event)</b><span class="d">Last Chance!</span><span class="d">Sun 21 Jun &middot; 5 months ago</span><p>Celebrating our biggest update ever. Missed our epic event and want to experience it yourself? Catch 1 of our 4 replays we&#x27;re offering this weekend!
 
