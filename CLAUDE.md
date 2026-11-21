@@ -317,6 +317,29 @@ standing rule rather than a rewrite waiting to happen.
 - **Light/dark**: the dark palette is written once as `DARK` and dropped into the stylesheet twice, for `@media(prefers-color-scheme:dark)` on `:root:not([data-theme=light])` and for `:root[data-theme=dark]`. The site follows the device until the visitor presses the button, after which their choice is kept in `pt_theme` and wins. **Any new dark-mode rule must use a variable, not its own `prefers-color-scheme` block**, or the manual toggle will not reach it.
 - **Grid or list**: the toggle only sets `data-view` on `<html>` (kept in `pt_view`), and the stylesheet does the rest, so one button anywhere changes every list of games on the site. Grid is the default. `view_toggle()` / `row_head()` place it.
 - `BOOT` runs in the head before anything is drawn, so neither the theme nor the view flashes the wrong way round.
+- **A saved game un-saves itself on the page behind, and `PT.again()` is what does
+  it** (20 Nov 2026). `PT.ready(fn)` registers a redraw and runs it; what was
+  missing was a way to run them all again. Pressing **back** does not re-run a
+  page's scripts - the browser keeps the whole page alive and hands it back exactly
+  as it was - so somebody who saved a game, opened it, pressed Save again to un-save
+  it and went back was looking at a saved section still showing it, with
+  `localStorage` already saying otherwise. Measured on the live site before the fix:
+  the stored list read `[]` and the tile was still there. It was not only a stale
+  grid: `getFavs()` returns `PT.favs` when that is set, so the in-memory list was
+  stale too, which is why `PT.again()` clears it **before** redrawing.
+  - **Two triggers, and neither is a timer.** `pageshow` with `persisted` is the
+    back button, and `storage` is the same thing done in another tab - it fires only
+    in the tabs that did **not** do it, which is exactly the ones holding a stale
+    list. It is guarded to the `pt_favs` key (and to a `clear()`, which arrives with
+    no key), so a theme or recent-games change in another tab redraws nothing.
+  - **Everything registered through `PT.ready` is covered at once**, which is the
+    point of putting it there rather than in the homepage's own script: the saved
+    grid, the saved rows on the event calendar, the Save button itself and the rows
+    on `/notifications` all answer the same question and cannot now disagree.
+  - Tested in a real browser, both journeys, against the preview **and** against
+    the live site to prove the bug was real rather than guessed at. The sweep that
+    goes with it loads every page type and fires both triggers, because `FAVJS` is
+    in the head of all of them.
 - **Game switcher** (top left, `CHROME_JS`): the last 8 games viewed, kept in `pt_recent`. Each game page sets `window.PT_GAME` near the end of its body, which must stay *before* the `CHROME_JS` tag at the end of the page. `CHROME_JS` is on every page, so it may only use helpers from `FAVJS` (which is in the head) such as `ptEsc` - not `esc` from `SHARED_JS`, which only chart pages load.
 - **Ads**: `ad_rail()` gives a left rail, a right rail and a sticky bottom strip, sized but empty, with ids `ad-left`, `ad-right`, `ad-bottom`. The AdSense loader belongs in `ADS` and goes in the page head **once**; the rails must never repeat it. `SHOW_RAILS` means the slots show dashed outlines in previews and are left out of the live site until `ADS` is filled in, so visitors never see empty grey boxes. Rails need 1480px of screen. **The bottom strip runs at every width**, 66px on a phone or a tablet and 98px from 900px up, and it is the only slot a phone ever sees. It used to start at 900px too, on the reasoning that phones should stay clean - which meant every phone and an iPad held upright carried no advertising at all, and since this audience is overwhelmingly on phones that was most of the site's income switched off. It would have shown up only after AdSense was live and the earnings made no sense. 66px is about a 50px banner once the padding and the rule are taken off: a bar on an 844px-tall phone is spending screen the visitor came for, so it takes as little as an ad can take and still be one. `z-index:8` keeps it under the header (9), the scrim (25) and the drawer and sheet (30), so an open menu covers it; `position:sticky` rather than `fixed` means it still takes its space at the end of the page, so the footer is never left hidden underneath it. Measured on emulated devices at 390, 768, 1024, 1280 and 1920 across four page types: present at all twenty, rails still only from 1480, nothing scrolls sideways. **The middle track is capped at the width the page actually uses** - 820px, or 1400px when `page()` adds `wideads` alongside `ads` - rather than `1fr`. A `1fr` middle track swallows every spare pixel, so on a 2560px monitor the reading column stayed 820px in the centre while the ads sat nearly 700px out at the edges, reading as two stray boxes instead of a page; capping it lets `justify-content:center` centre all three together. It must stay `minmax(0,Npx)` and never a flat width, or a screen between 1480 and 1776px scrolls sideways on the wide pages.
 - **The bar is ONE width, 1200px, on every page and at every screen size** (19 Nov
