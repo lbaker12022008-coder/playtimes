@@ -11,7 +11,7 @@ Preview your changes without touching the live site:
     python -m http.server
 Then open http://localhost:8000
 """
-import html, json, math, os, re, sqlite3, statistics, struct, time, zlib
+import html, json, math, os, re, sqlite3, statistics, struct, time, unicodedata, zlib
 from datetime import datetime, timedelta, timezone
 
 import roblox_api
@@ -1767,8 +1767,24 @@ shows when people play, not whether a game is good or safe.{foot_contact()}</p><
 
 # ---------------------------------------------------------------- small helpers
 
-def slug(s):
-    return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or "game"
+def slug(s, fallback="game"):
+    """A name -> the form that goes in an address: "Break In (Story)" -> break-in-story.
+
+    Accents are folded to the plain letter first ("Pokemon" rather than "pok-mon"),
+    because an address is read by people typing it and by Google matching it, and a
+    name's accents carry none of that. NFKD splits an accented letter into the letter
+    plus its mark, and the marks are then dropped. It is stdlib, so the build server
+    still installs nothing.
+
+    Folding does not reach a name written in another script: Arabic, Chinese, Korean
+    and Cyrillic have no ASCII to fall back to, so nothing survives and the caller's
+    fallback is used. Pass one that is unique to the game - see name_slugs(), which
+    passes the universe id. The bare default would put two such games at the same
+    address.
+    """
+    s = unicodedata.normalize("NFKD", s)
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-") or fallback
 
 
 # Pictures and symbols that creators sprinkle through a game's name.
@@ -1833,7 +1849,12 @@ def name_slugs(games):
     out, taken = {}, {}
     for uid, name in sorted((g[0], g[1]) for g in games):
         nice = clean_name(name)
-        key = slug(nice)
+        # The fallback carries the universe id because a name in a non-Latin script
+        # leaves nothing to build an address from. A shared literal ("game") would be
+        # taken by whichever such game sorts first, and the next one to be added would
+        # take it instead - moving a live page to a new address, which prune() then
+        # deletes. The whole point of clean_name() is that an address does not move.
+        key = slug(nice, f"game-{uid}")
         if key in taken:
             key = f"{key}-{uid}"
         taken[key] = uid
