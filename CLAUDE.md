@@ -141,8 +141,16 @@ Cloudflare without passing through anything else. Only `https://playtimestats.co
 every `www` request to the bare name before anything else runs, so `/auth/login` is never reached
 on `www` and a second redirect URL would never be used.
 
+**`www` 301s everything now, and the paragraph below it is the old measurement.**
+Re-measured 20 Nov 2026, twice: `www/`, `www/privacy`, `www/game/doors`, `www/sitemap.xml`,
+`www/popular`, `www/robots.txt`, `www/favicon.svg`, `www/api/me` and `www/admin` **all 301**
+to the bare name. So the live duplicate described below is gone, and a `www` address now costs
+one extra hop rather than being a second copy of the site. It is kept because the reasoning
+still holds: **every canonical tag names the bare domain**, and that is what kept Google
+straight while the duplicate existed, so do not remove those on the strength of the redirect.
+
 **`www` only redirects for addresses the worker actually answers, and the notes used to claim
-otherwise.** Measured 15 Nov 2026: `www/auth/login`, `www/api/me`, `www/admin` and
+otherwise.** Measured 15 Nov 2026, and no longer true - see above: `www/auth/login`, `www/api/me`, `www/admin` and
 `www/reminder.ics` all 301 to the bare name as intended, but `www/`, `www/privacy`,
 `www/game/doors` and `www/sitemap.xml` answer **200** - a complete live duplicate of the static
 site on a second hostname. The reason is `wrangler.jsonc`: `assets` has no `run_worker_first`, so
@@ -981,7 +989,36 @@ before whichever of those is next.
 All of this lives in `build_site.py`. Nothing here is a trick: every number a page claims is one it worked out from our own samples, and nothing is hidden from visitors to feed Google something different.
 
 - **`page()` writes the head for every page.** It takes `canon` (this page's one real address), `image` (the picture for Discord/WhatsApp previews), `trail` (breadcrumbs), `schema` (structured data), `noindex` (keep this one page out of Google) and `modified`. **Every new page must pass `canon`,** or `check_seo.py` fails it.
-- **Addresses carry no `.html`; files on disk still do.** Cloudflare serves the file `game/doors.html` at `/game/doors` and **307s `/game/doors.html` to it**, so the short form is the one every visitor actually lands on - the page-view table proves it, as every row recorded since launch is `/game/steal-an-egg`, never `/game/steal-an-egg.html`. Until 14 Nov 2026 the links, the canonical tags and all 304 sitemap entries said `.html`, which pointed Google at an address that redirects somewhere else on every page of the site, and left the admin dashboard's per-game reading times looking up a path that could never match. `write()` still takes a file name (`privacy.html`); `canon`, `trail`, `href`, `abs_url()` and the sitemap take an address (`/privacy`). The regex sweep that did this keyed on the leading slash, since a file path never has one.
+- **Addresses carry no `.html`; files on disk still do.** Cloudflare serves the file `game/doors.html` at `/game/doors` and **307s `/game/doors.html` to it**, so the short form is the one every visitor actually lands on - the page-view table proves it, as every row recorded since launch is `/game/steal-an-egg`, never `/game/steal-an-egg.html`. Until 14 Nov 2026 the links, the canonical tags and all 304 sitemap entries said `.html`, which pointed Google at an address that redirects somewhere else on every page of the site, and left the admin dashboard's per-game reading times looking up a path that could never match. `write()` still takes a file name (`privacy.html`); `canon`, `trail`, `href`, `abs_url()` and the sitemap take an address (`/privacy`).  The regex sweep that did this keyed on the leading slash, since a file path never has one.
+  - **The redirect is a 301 now, and it comes from two Cloudflare Redirect Rules
+    rather than from Cloudflare's file layer** (20 Nov 2026). The built-in one was a
+    **307**, which in Google's language means *temporary* - the old address stays on
+    its books and gets re-checked for ever instead of being retired - and that is
+    why Search Console was still full of `.html` addresses six days after nothing on
+    the site linked to one. **The 307 cannot be changed in this repo**: it is
+    hardcoded in the asset layer, and the only `html_handling` value that removes it
+    (`none`) also stops `/game/doors` being served from `game/doors.html` at all. A
+    Redirect Rule runs *ahead* of the asset layer, which is what makes it the one
+    place this can be fixed - the same reason that is the suggested fix for `www`.
+  - **Two rules, and the order is load-bearing.** `/index.html` must be caught first
+    and sent to `/`, because the general rule strips the last five characters and
+    would otherwise point it at `/index`, which is not a page. Then
+    `https://playtimestats.com/*.html` to `https://playtimestats.com/${1}`.
+  - **Wildcards, not regular expressions, and that is forced by the plan.**
+    Cloudflare's own availability table gives Single Redirects regex support on
+    Business and Enterprise only - *not* Pro - while wildcards are on every plan
+    including Free, which is what this zone is on. Free allows 10 rules and two are
+    used. So no rule here may use `regex_replace()`, however much tidier it reads.
+  - **An address with a query string still gets the built-in 307**, because the
+    wildcard is matched against the whole URL and `/game/doors.html?x=1` does not
+    end in `.html`. It lands in the right place and keeps its query, so nothing is
+    broken; it is left alone because Google's list is plain addresses and never had
+    a query string on it. Closing it would mean a `/*.html*` pattern.
+  - Measured after: all ten page types 301, every real page still 200, `/404.html`
+    301s to `/404` while a made-up address still gives a real 404, and `/sw.js`,
+    `/data.json`, `/games.json`, `/events.json`, both sitemaps, `robots.txt`, the
+    icons, `/api/me`, `/admin` and `/auth/login` are all untouched. No chain is
+    longer than two hops and none loops.
 - **Three separate switches decide what Google sees**: `NOINDEX` for the whole site while designing, `noindex=True` for one page, and `sitemap.xml` for the list we actually ask Google to look at. `index_ok(card)` is the gate: a game needs 3+ days of history and to have been seen in 48+ of the week's 168 hours. Below that it keeps its page (it still works and is still linked) but is noindexed and left out of the sitemap, so the site never fills up with "too new to say" pages.
 - **The facts are in the HTML, not only in the charts.** Everything from `DAYS` down to `game_schema()` in the "page sections" part of `build_site.py` writes a game's numbers out as text: the opening paragraph, `facts_html`, `short_answer`, `hours_table_html` (all 168 hours as a real table, inside a `<details>`), `history_html` (the day-by-day player count history) and `faq_html`. The charts, the heatmap and the countdown are still drawn by the browser, because only the browser knows the visitor's timezone. **Anything the builder writes is in UTC and says so**; the browser replaces `#best` and `#quiet` with the same fact on the reader's own clock.
 - **Every answer on a questions page links to the part of the game page that
