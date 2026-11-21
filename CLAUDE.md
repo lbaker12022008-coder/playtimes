@@ -1051,6 +1051,24 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **Estimate vs observation.** "Typical"/"about"/"average" is an average of our samples. "Highest seen"/"recorded" is a single reading we really took. Never blur the two, and never add a rating or review to the structured data: we do not collect either.
 - **Structured data** is `jsonld()`: `VideoGame` + `Dataset` + `FAQPage` + `BreadcrumbList` on game pages, `ItemList` on the ranked lists, `WebSite` on the homepage, `Dataset` on `/busiest-hours.html`. **Both `Dataset` blocks carry `license`, pointing at our own `/terms`** - Search Console warned "Missing field license" on 14 Nov 2026 (non-critical) once it had crawled three pages. It is deliberately not an open licence such as CC BY: Terms says personal use and asks people not to copy the site wholesale, and publishing a licence that contradicts our own terms would be worse than the warning. **If the numbers are ever meant to be reusable, change both `Dataset` blocks and the "Using the site" section of Terms together**, and move `POLICY_DATE`.
 - **`clean_name()` and `name_slugs()`**: Roblox creators rename games for every holiday (`[HALLOWEEN PT 3] Grand Piece Online`). The site uses the **core name** for headings, titles and addresses, so `/game/grand-piece-online.html` survives the rename instead of being pruned and rebuilt under a new address every few weeks, losing its links and its standing in Google. Square brackets and emoji are stripped; round brackets are left alone because they are often part of the real name. Ties are broken with the universe id so an address never changes build to build. `c["name"]` is the tidy name, `c["full"]` is what Roblox calls it today, and the game page says so in its opening paragraph.
+  - **A name in another script falls back to the universe id, never to a shared
+    word** (20 Nov 2026). `slug()` used to return the literal `"game"` when a name
+    left no ASCII behind, so the one Arabic-named game on the site was published at
+    `/game/game`, with `/passes/game` and `/questions/game` beside it. That is not
+    just an address nobody would click: it is **one shared address**, taken by
+    whichever such game sorts first, so adding a second non-Latin name would have
+    moved a live page to `game-<uid>` and `prune()` would have deleted the old one -
+    the exact failure this function exists to prevent. The fallback is
+    `f"game-{uid}"`, passed in by `name_slugs()`, which is the only caller that
+    knows the id. The other caller is the category pages, whose names come from
+    Roblox's own genre list and are always plain English.
+  - **Accents are folded before the address is built**, so a future `Pokemon` is
+    `pokemon` rather than `pok-mon`. `unicodedata.normalize("NFKD", ...)` splits an
+    accented letter into the letter plus its mark and the marks are dropped - stdlib,
+    so the build server still installs nothing, the same rule `roblox_api.py` follows.
+    It reaches Latin text only; another script has no ASCII to fall back to, which is
+    what the id fallback above is for. Checked against all 168 live names when it went
+    in: **no existing address moved.**
 - **`/busiest-hours.html`** (`busy_page()`) answers "when is Roblox busiest?" across every game at once. Each game counts as a share of its own peak hour, so one huge game cannot drown out forty small ones. It is linked from the footer, the homepage and every game page, not from `TABS`, which is already full.
 - **`sitemap.xml`** is the real sitemap, with `lastmod` per page. `sitemap.txt` is still written so an address already given to Google keeps working. **Sitemaps need full web addresses**, so they are useless until `DOMAIN` is set; the build prints a warning when it is empty.
 - **`docs/404.html`** is a real page, and `worker/index.js` hands it back with a 404 status through the `ASSETS` binding in `wrangler.jsonc`. Do **not** set `not_found_handling` in `wrangler.jsonc`: Cloudflare would then answer every unmatched address itself and the worker would never run, breaking `/admin`, `/api/*` and sign-in.
