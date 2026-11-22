@@ -1021,6 +1021,8 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt li.live{border-left-color:var(--up)}
 .evt b{display:block}
 .evt .d{font-size:.85rem;color:var(--mut)}
+.evt .esub{display:block}
+.evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
@@ -2838,8 +2840,78 @@ def says_something(t):
     return any(ch.isalnum() for ch in str(t))
 
 
+# Roblox's own name for each kind of update, in words this audience can read.
+# The classification is theirs, not ours, and that is the whole point: a tag saying
+# what WE thought an update was would be a guess, and the rule on this site is that
+# nothing is claimed that the data does not say. Measured 22 Nov 2026 across 388
+# public events - all 14 of these appeared, every event carried one, and only 4%
+# carried a second, which is why only the first is shown.
+#
+# The list is not closed, and that has already been proved rather than guessed at:
+# building the whole site turned up "earlyAccess", which is not in this table, and
+# event_kind() un-camelled it to "Early access" with nothing to fix. Add a name here
+# only when the fallback reads badly.
+EVENT_KIND = {
+    "newContent": "New content",
+    "contentUpdate": "Content update",
+    "newFeature": "New feature",
+    "newMap": "New map",
+    "newLocation": "New place",
+    "locationUpdate": "Place update",
+    "newSeason": "New season",
+    "itemDrop": "New items",
+    "festival": "Festival",
+    "challenge": "Challenge",
+    "quest": "Quest",
+    "activity": "Activity",
+    "expansion": "Expansion",
+    "systemUpdate": "Behind the scenes",
+}
+
+
+def event_kind(cat):
+    """A Roblox event category -> the words that go on the tag.
+
+    One Roblox adds later is un-camelled rather than dropped ("newBiome" becomes
+    "New biome"): their labels are all plain English words stuck together, so this
+    reads properly, and a tag that silently vanished would be far harder to notice
+    than one that reads a little stiffly.
+    """
+    if not cat:
+        return ""
+    if cat in EVENT_KIND:
+        return EVENT_KIND[cat]
+    words = re.sub(r"(?<!^)(?=[A-Z])", " ", cat).strip().lower()
+    return words[:1].upper() + words[1:]
+
+
+def event_notice(e):
+    """"announced 3 days before" - how much warning the creators gave.
+
+    Roblox records when the event was created as well as when it runs, and the gap
+    is the one genuinely new fact in that pair. Only whole days, and only when it
+    looks sane: an event created after it started says nothing worth printing, and
+    a gap of years is a date we should not be repeating.
+    """
+    made = e.get("created")
+    if not made:
+        return ""
+    days = int((e["start"] - made) // 86400)
+    if not 1 <= days <= 120:
+        return ""
+    # Held together with .nb so a phone breaks the line BEFORE the phrase rather
+    # than through the middle of it ("announced / 11 days before"). It is about
+    # 150px at this size, well inside the narrowest card the site has, so it
+    # cannot be the thing that makes a page scroll sideways.
+    # The separator travels INSIDE the span, so a line that wraps ends on the date
+    # and the next one opens with the dot, rather than leaving a dangling "&middot;"
+    # at the end of the first line.
+    return (f' <span class="nb">&middot; announced {days} '
+            f"day{'s' if days != 1 else ''} before</span>")
+
+
 def event_item(e, now, cls=""):
-    """One event in a list: title, when it runs, and what the creators said about it."""
+    """One event in a list: what kind it is, when it ran, and what the creators said."""
     live = e["start"] <= now <= (e["end"] or e["start"] + 86400)
     soon = e["start"] > now
     klass = cls or ("live" if live else "soon" if soon else "")
@@ -2849,14 +2921,21 @@ def event_item(e, now, cls=""):
         label = f"Starts {when(e['start'])}"
     else:
         label = f"{when(e['start'])} &middot; {ago(e['start'], now)}"
+    # 900, not 420. Measured across 388 real events: the median description is 177
+    # characters and the longest is 975, so this keeps nearly all of them whole
+    # while still refusing to let one run away with the page.
     desc = clean_desc(e.get("description") or "")
-    if len(desc) > 420:
-        desc = desc[:420].rsplit(" ", 1)[0] + "…"
-    sub = (f'<span class="d">{html.escape(e["subtitle"])}</span>'
+    if len(desc) > 900:
+        desc = desc[:900].rsplit(" ", 1)[0] + "…"
+    # .esub makes this its own line. Without it the subtitle and the date ran
+    # together with nothing between them - "BOSS FIGHT + WORLD 5Fri 30 Oct".
+    sub = (f'<span class="d esub">{html.escape(e["subtitle"])}</span>'
            if says_something(e.get("subtitle") or "") else "")
+    kind = event_kind(e.get("category"))
+    tag = f'<span class="ptag">{html.escape(kind)}</span>' if kind else ""
     body = f"<p>{html.escape(desc)}</p>" if says_something(desc) else ""
     return (f'<li class="{klass}"><b>{html.escape(e["title"])}</b>{sub}'
-            f'<span class="d">{label}</span>{body}</li>')
+            f'{tag}<span class="d">{label}{event_notice(e)}</span>{body}</li>')
 
 
 # ----------------------------------------------------------------- notifications

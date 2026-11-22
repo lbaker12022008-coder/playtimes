@@ -417,8 +417,9 @@ def fetch_icon_hues(ids):
 def fetch_events(uid):
     """Roblox events for one game, oldest first.
 
-    Each event is {title, subtitle, description, start, end, host}. Developers use these
-    for updates and seasonal events, so the list doubles as a rough changelog.
+    Each event is {title, subtitle, description, start, end, host, category, created}.
+    Developers use these for updates and seasonal events, so the list doubles as a
+    rough changelog.
     Returns [] if the game has none and None if Roblox did not answer.
     """
     def pull():
@@ -433,6 +434,14 @@ def fetch_events(uid):
                     start = _iso(t.get("startUtc"))
                     if not start:
                         continue
+                    # Roblox classifies every event itself. Measured across 388
+                    # public events on 22 Nov 2026: every single one carried a
+                    # category and only 4% carried more than one, so the first is
+                    # kept and the rest dropped. It costs nothing - it is already
+                    # in the answer we fetch - and it is Roblox's own word for
+                    # what kind of update this is rather than our guess.
+                    cats = [c.get("category")
+                            for c in (e.get("eventCategories") or []) if c.get("category")]
                     out.append({
                         "title": (e.get("displayTitle") or e.get("title") or "Event").strip(),
                         "subtitle": (e.get("displaySubtitle") or e.get("subtitle") or "").strip(),
@@ -440,6 +449,9 @@ def fetch_events(uid):
                         "start": start,
                         "end": _iso(t.get("endUtc")),
                         "host": ((e.get("host") or {}).get("hostName") or "").strip(),
+                        "category": cats[0] if cats else "",
+                        # When the creators announced it, which is not when it runs.
+                        "created": _iso(e.get("createdUtc")),
                     })
                 cursor = d.get("nextPageCursor")
                 if not cursor:
@@ -453,4 +465,4 @@ def fetch_events(uid):
             print(f"  ! could not load events for {uid}:", e)
             return None
 
-    return cached(f"events:{uid}", 3 * HOUR, pull)
+    return cached(f"events2:{uid}", 3 * HOUR, pull)

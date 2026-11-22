@@ -1209,6 +1209,40 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - `main()` runs in **two passes**: pass one works out every game's numbers, pass two writes the pages. It has to be this way round because the "Similar games" row on each page needs to know about all the others. The empty-site guard sits between them, so it fires before anything is written.
 - `/events.html` site-wide calendar, `/compare.html` (two games overlaid, loads `/data.json`), `/plan.html`.
 - Events and updates come from `apis.roblox.com/virtual-events/v1/universes/{id}/virtual-events`. Creators use these as a changelog, so past ones are the "recent updates" list and unfinished ones are the calendar. Unofficial endpoint: if it dies, both sections disappear on their own.
+  - **Each update says what KIND it is, and the word is Roblox's own** (22 Nov
+    2026). The same response already carried `eventCategories` and we were throwing
+    it away. Measured across 388 public events before building anything: **every one
+    carried a category** and only 4% carried a second, so `event_item` shows the
+    first as a `.ptag` pill. `EVENT_KIND` turns Roblox's camelCase into words a
+    nine-year-old can read (`systemUpdate` -> "Behind the scenes", `itemDrop` ->
+    "New items"). **The classification must stay theirs** - a tag saying what *we*
+    thought an update was would be a guess, which is the one thing this site does
+    not do.
+    - **An unknown category is un-camelled, not dropped**, and that is not
+      theoretical: building the whole site turned up `earlyAccess`, which was not in
+      the table, and it came out as "Early access" with nothing to fix. Roblox's
+      labels are plain English words stuck together, so this reads properly. Add a
+      name to `EVENT_KIND` only when the fallback reads badly.
+  - **`createdUtc` gives "announced 3 days before"**, which is the one genuinely new
+    fact in the pair of dates Roblox sends: how much warning the creators give.
+    `event_notice()` shows whole days only, and only between 1 and 120 - an event
+    created *after* it started says nothing worth printing. 79% of the 959 items on
+    the built site qualify.
+    - It is wrapped in `.nb` (`white-space:nowrap`) **with its leading dot inside
+      the span**, so a phone breaks the line before the phrase instead of through
+      it, and no line is left ending on a dangling separator. Checked at 320, 390,
+      768 and 1440: one fragment at every width, nothing scrolls sideways.
+  - **A description is cut at 900 characters, not 420.** Median is 177 and the
+    longest of 388 was 975, so the old cap was trimming real text for no reason.
+  - **The subtitle is `.esub` (`display:block`) because it used to jam into the
+    date** - "BOSS FIGHT + WORLD 5Fri 30 Oct", with no space, on 869 items.
+  - **What Roblox does NOT give**, so do not go looking: there is no public API for a
+    developer's real patch notes - place version history is creator-only. The ceiling
+    is whatever the creators chose to announce. Still unused and worth considering:
+    the event **thumbnail** (94% have one, resolves through `thumbnails.roblox.com`
+    like icons do) and the **badges** endpoint, where a newly created badge is
+    usually new content. Group shouts were tested and rejected: often absent, one
+    line, no history, and unmoderated text on a site read by children.
 - Timezones: `tzOff()` in `SHARED_JS` rounds the visitor's offset to whole hours. Every page must use it. The homepage and the game pages convert between local and UTC in opposite directions, and they disagreed by an hour for half-hour timezones (India) until this was shared.
 
 ## To do
