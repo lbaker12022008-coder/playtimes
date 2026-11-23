@@ -72,6 +72,32 @@ keeps up without anyone remembering to check.
 - `worker/index.js` is a Cloudflare Worker deployed alongside the static site. It serves `/admin` (behind an admin code) and `POST /api/hit` (counts page views). Everything else is still plain files from `docs/`.
 - Secrets live in Cloudflare, never in the repo: `ADMIN_CODE` and `SESSION_SECRET` (set with `npx wrangler secret put NAME`).
 - Analytics are stored in the D1 database `playtime-admin` (`worker/schema.sql`). Page views only: path + date, no cookies, no IPs. Login attempts store a salted one-way hash for rate limiting and are deleted after 24h.
+- **A browser driven by a test script is not counted** (22 Nov 2026). `HIT` in
+  `build_site.py` wraps both the view and the reading-time beacon in
+  `if(!navigator.webdriver)`. Until then the dashboard was mostly measuring **us**:
+  on 22 Nov the site recorded 156 views across **114 different pages** in one day,
+  which is a sweep rather than a person, and the header and updates work before it
+  looks the same (105, 104 and 84 distinct pages on the 19th, 20th and 21st).
+  Hundreds of one-second loads had pulled the homepage's average reading time down
+  to 19 seconds while the pages real people had actually read sat at 35-70
+  (`/privacy` 69s, `/install` 56s, `/game/steal-an-egg` 40s) - and `/growing`
+  showed **2.0 seconds across 22 reads**, which no human does.
+  - `navigator.webdriver` is the browser's own flag, set by Puppeteer, Selenium and
+    Playwright and false in an ordinary browser. It is read and thrown away, so
+    nothing further is collected about anybody, the Privacy Policy's promise still
+    holds and `POLICY_DATE` does not move.
+  - **It is not proof against a robot that wants to hide** - the flag can be
+    switched off, and a crawler that runs no JavaScript was never counted in the
+    first place. It is aimed at our own testing, which is what the numbers were
+    actually full of.
+  - **Proven in a real browser, not by reading the source**, the rule the backslash
+    and backtick traps elsewhere in these notes teach. The test serves the built
+    preview, answers `/api/hit` and `/api/time` itself, and loads one page twice:
+    driven, where nothing arrives, and with the flag overridden to false, where
+    both beacons arrive. `robotest.js`, in the scratchpad rather than the repo.
+  - **Everything collected before this date is still polluted, and none of it has
+    been cleaned.** An "all time" figure on the dashboard is therefore mostly us;
+    only 22 Nov 2026 onwards means anything.
 - `build_site.py` writes `worker/stats.js` on every `docs` build; the dashboard reads it. Preview builds skip it.
 - **It looks like the public site, and the colours are not copied by hand.** `build_site.py` also writes `worker/theme.js` on every `docs` build, holding the `LIGHT` and `DARK` palettes as strings, and `worker/index.js` imports them into its `:root` rules. So a colour changed in `build_site.py` reaches the dashboard on the next build and the two cannot drift apart. **Only the colours travel**: the layout is the dashboard's own, because the site is for a visitor reading about one game and the dashboard is for one person reading numbers. The theme button saves to the same `pt_theme` key the site uses, so a choice made on either carries to the other. Preview builds skip `theme.js` as well, and the build workflow commits it alongside `stats.js`.
 - **Four tabs, not one long page** (`Overview`, `Visitors`, `Games & data`, `Launch checklist`). Which one is open is kept in `pt_admin_tab`. The panels are four `<div>`s filled by `render()`, and only the visible one is not `hidden`, so everything is built once from a single `/admin/data` call.

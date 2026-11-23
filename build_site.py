@@ -1502,7 +1502,22 @@ BOOT = ("<script>try{var d=document.documentElement,t=localStorage.getItem('pt_t
         "catch(e){document.documentElement.setAttribute('data-view','grid')}</script>")
 
 # Counts one page view. No cookies, no login, nothing about the visitor is stored.
-HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},'
+#
+# A browser being driven by a test script is not a visitor, and counting one makes
+# the whole dashboard say nothing. On 22 Nov 2026 the figures were mostly us: the
+# site recorded 156 views across 114 DIFFERENT pages in a day, which is a sweep
+# rather than a person, and hundreds of one-second loads had dragged the homepage's
+# average reading time down to 19 seconds while the pages real people had read sat
+# at 35-70. `navigator.webdriver` is the browser's own flag, set by Puppeteer,
+# Selenium and Playwright and false in an ordinary browser, so one check keeps our
+# sweeps out of the numbers. It is read and thrown away: nothing further is
+# collected about anybody, and a visitor who is not a robot is unaffected.
+#
+# It is not proof against a robot that wants to hide - the flag can be switched off,
+# and a crawler that runs no JavaScript was never counted in the first place. It is
+# aimed at our own testing, which is what the numbers were actually full of.
+HIT = ('<script>if(!navigator.webdriver){'
+       'try{fetch("/api/hit",{method:"POST",headers:{"content-type":"text/plain"},'
        'body:location.pathname,keepalive:true})}catch(e){}'
        # Then measure how long the page is actually being looked at, and send the
        # total once, as the visitor leaves. Nothing identifying is sent.
@@ -1515,7 +1530,7 @@ HIT = ('<script>try{fetch("/api/hit",{method:"POST",headers:{"content-type":"tex
        'try{navigator.sendBeacon("/api/time",location.pathname+"|"+s)}catch(e){}}'
        'addEventListener("pagehide",send);'
        'document.addEventListener("visibilitychange",function(){if(document.hidden)send()})})();'
-       '</script>')
+       '}</script>')
 
 # The sections along the top of every page: (key, label, address)
 TABS = [("home", "All games", "/"),
