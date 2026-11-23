@@ -3166,13 +3166,28 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
                      f'<ul class="evt">{"".join(event_item(e, now, cls="") for e in past[:6])}</ul>')
         # Numbered from the first one we know of, so "update 1" stays update 1 as
         # new ones arrive. Newest at the top, because that is what most people want.
+        # The Kind column carries Roblox's own label for each one, the same
+        # event_kind() the rich list above uses. It is here because this table is
+        # what somebody searching "updates in order" actually came for, and
+        # without it a long game's list is unreadable: Adopt Me's 147 rows are
+        # mostly "ADOPT ME 2D TUESDAY!" and "ADOPT ME ADMIN ABUSE!" over and over,
+        # so a reader hunting for real new content has to read every title. With
+        # the label they can see at a glance which are Festivals coming round
+        # every week and which are New content.
+        #
+        # The classification stays Roblox's. We print their word and never decide
+        # for ourselves what an update was - the same rule the pill above follows.
         rows = "".join(f'<tr><td>{len(past) - i}</td><td>{html.escape(e["title"])}</td>'
+                       f'<td>{html.escape(event_kind(e.get("category")))}</td>'
                        f'<td>{when(e["start"])}</td></tr>' for i, e in enumerate(past))
+        kinds = len({event_kind(e.get("category")) for e in past if e.get("category")})
+        mix = (f' Roblox labels them in {kinds} different ways, shown under Kind.'
+               if kinds > 1 else '')
         parts.append(f'<h3>Every {html.escape(name)} update in order</h3>'
                      f'<p class="mut small">All {len(past)} updates and events the creators '
                      f'have put on Roblox, newest first. Number 1 is the first we know of, from '
-                     f'{when(past[-1]["start"])}.</p><div class="wrap"><table class="tbl">'
-                     f'<tr><th>#</th><th>Update or event</th><th>Date</th></tr>{rows}'
+                     f'{when(past[-1]["start"])}.{mix}</p><div class="wrap"><table class="tbl">'
+                     f'<tr><th>#</th><th>Update or event</th><th>Kind</th><th>Date</th></tr>{rows}'
                      f'</table></div>')
     elif events is not None:
         parts.append('<p class="none">The creators have not posted any updates to the Roblox event '
