@@ -140,16 +140,26 @@ function freshness(d, add) {
   const stats = d.stats || {};
   const live = d.live || null;
 
-  /* IDs in games.txt that Roblox would not answer for. These are usually games that
-     have been deleted or made private, and they stay in the file for ever otherwise. */
-  const missing = stats.missing_ids || [];
+  /* IDs in games.txt that Roblox would not answer for - usually a game deleted or made
+     private. They are deliberately LEFT in the file: a private game can be made public
+     again, and because the collector keeps asking, such a game simply starts recording
+     again on its own with no action from anybody. The only cost is one lookup a run.
+
+     So the owner can hide the ones they already know about. Hiding is per ID rather
+     than a switch for the whole warning, which is the point: a game that dies NEXT
+     month is still news, and a warning that has been turned off wholesale would never
+     say so. */
+  const hidden = d.hidden_ids || [];
+  const missing = (stats.missing_ids || []).filter((id) => hidden.indexOf(String(id)) < 0);
   if (missing.length) {
     add("warn", num(missing.length) + " tracked game"
       + (missing.length === 1 ? "" : "s") + " Roblox no longer answers for",
       "They are still listed in games.txt, so every collection run asks about them and gets "
-      + "nothing back. Usually it means the game was deleted or made private.",
+      + "nothing back. Usually it means the game was deleted or made private. Left alone they "
+      + "cost one lookup a run and will start recording again by themselves if the game "
+      + "comes back.",
       { ids: missing.slice(0, 12), total: missing.length },
-      "Remove those IDs from games.txt if they are gone for good.");
+      "Open the Games tab to hide these, or take the IDs out of games.txt if they are gone for good.");
   }
 
   /* The build is what puts fresh numbers on the site; the collector only gathers them.

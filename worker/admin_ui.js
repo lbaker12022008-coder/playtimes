@@ -235,6 +235,9 @@ display:grid;place-items:center;border-radius:50%;background:var(--acc);color:va
 font-size:.75rem;font-weight:800}
 .steps code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:.84em;
 overflow-wrap:anywhere}
+.ids{display:inline-block;margin-top:6px;background:var(--chip);padding:5px 9px;
+border-radius:8px;font-size:.78rem;line-height:1.7;overflow-wrap:anywhere;
+font-variant-numeric:tabular-nums}
 .cmds{display:flex;flex-direction:column;gap:7px;margin:0 0 10px}
 .cmds code{display:block;background:var(--chip);border:1px solid var(--line);
 padding:9px 11px;border-radius:9px;font-size:.8rem;line-height:1.5;
@@ -879,11 +882,7 @@ function pGames() {
     kpi({ label: 'Readings', value: kfmt(t.samples || 0), change: null,
       why: 'Total player-count samples across every tracked game.' }) +
     '</div>' +
-    (missing.length ? '<div class="note-bar" style="margin-top:14px"><span>&#9888;</span><span>' +
-      '<b>' + plural(missing.length, 'ID') + ' Roblox will not answer for.</b> They are still ' +
-      'in games.txt, so every run asks and gets nothing: ' +
-      esc(missing.slice(0, 10).join(', ')) + (missing.length > 10 ? ' and more' : '') +
-      '. Usually the game was deleted or made private.</span></div>' : '') +
+    deadIds(missing) +
     '<div class="sec"><h2>Every tracked game</h2>' +
     '<div class="tools">' +
     '<input type="search" id="gq" placeholder="Search by name or ID" value="' + esc(GQ) + '">' +
@@ -902,6 +901,48 @@ function pGames() {
     'over the last seven days; a game with under fourteen days of history shows no trend ' +
     'rather than a number we do not trust.</p></div>' +
     dl([['games', 'Every game']]);
+}
+
+/* Game IDs Roblox will not answer for.
+
+   They are deliberately LEFT in games.txt rather than removed: a game made private can
+   be made public again, and because the collector keeps asking, such a game simply
+   starts recording again by itself with nobody doing anything. The only cost is one
+   lookup a run. So the owner can hide the ones they already know about, and hiding is
+   PER ID rather than a switch for the whole warning - a game that dies next month is
+   still news, and a warning turned off wholesale would never say so. */
+function deadIds(open) {
+  var hid = D.hidden_ids || [];
+  var all = ((D.stats || {}).missing_ids || []).map(String);
+  var parts = '';
+
+  if (open.length) {
+    parts += '<div class="note-bar" style="margin-top:14px"><span>&#9888;</span><span>' +
+      '<b>' + plural(open.length, 'ID') + ' Roblox will not answer for.</b> ' +
+      'Usually the game was deleted or made private. They stay in games.txt on purpose: ' +
+      'if the game comes back, it starts recording again on its own.<br>' +
+      '<code class="ids">' + esc(open.join('  ')) + '</code><br>' +
+      '<button class="btn ghost" id="hideids" type="button" style="margin-top:8px">' +
+      'Hide these</button> <span class="mut small" id="hidemsg">They will keep being ' +
+      'tracked - this only stops the warning.</span></span></div>';
+  }
+
+  if (hid.length) {
+    parts += '<details class="donelist" style="margin-top:10px"><summary>' +
+      plural(hid.length, 'hidden ID') + ', still tracked in case the game comes back' +
+      '</summary><p class="mut small" style="margin:8px 0 6px">Nothing was removed from ' +
+      'games.txt. Each is still asked about on every run, so one that goes public again ' +
+      'will start recording with no action from you.</p>' +
+      '<code class="ids">' + esc(hid.join('  ')) + '</code><br>' +
+      '<button class="btn ghost" id="showids" type="button" style="margin-top:8px">' +
+      'Show them again</button></details>';
+  }
+  /* All of them hidden and none left over: say so, rather than leaving the section
+     blank and looking as though the check never ran. */
+  if (!open.length && hid.length && all.length === hid.length) {
+    parts += '<p class="flag">No new dead IDs since you last looked.</p>';
+  }
+  return parts;
 }
 
 /* One game on its own, in a panel rather than a page: it is a detail of the table and
@@ -1363,6 +1404,32 @@ function wirePanel() {
     addEventListener('resize', paintBar);
     paintBar();
   })();
+
+  /* Hiding and unhiding dead game IDs. Neither touches games.txt. */
+  var saveIds = function (ids, btn, msgId) {
+    if (btn) btn.disabled = true;
+    var msg = msgId ? $(msgId) : null;
+    if (msg) msg.textContent = 'Saving' + '…';
+    fetch('/admin/hide-ids', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ids: ids })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('that did not work');
+      D.hidden_ids = ids;
+      /* The insights list is built on the server from this, so a reload is what makes
+         the Overview agree with the Games tab rather than the two disagreeing. */
+      return load();
+    }).catch(function () {
+      if (btn) btn.disabled = false;
+      if (msg) msg.textContent = 'That did not work.';
+    });
+  };
+  var hb = $('#hideids');
+  if (hb) hb.onclick = function () {
+    saveIds(((D.stats || {}).missing_ids || []).map(String), hb, '#hidemsg');
+  };
+  var sb = $('#showids');
+  if (sb) sb.onclick = function () { saveIds([], sb, null); };
 
   var rs = $('#resync');
   if (rs) rs.onclick = function () {

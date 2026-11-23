@@ -89,6 +89,7 @@ export default {
       if (path === "/admin/data") return await adminData(request, env);
       if (path === "/admin/sync" && request.method === "POST") return await syncNow(request, env);
       if (path === "/admin/gsc" && request.method === "POST") return await gscNow(request, env);
+      if (path === "/admin/hide-ids" && request.method === "POST") return await setHiddenIds(request, env);
       if (path === "/admin/export") return await exportCsv(request, env);
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
@@ -241,6 +242,43 @@ async function syncNow(request, env) {
   } catch (err) {
     return json({ ok: false, error: (err && err.message) || "that did not work" }, 502);
   }
+}
+
+/** The dead-game IDs that have been acknowledged. Never throws: an unreadable list
+    means every warning shows, which is the safe way round. */
+async function hiddenIds(env) {
+  try {
+    const row = await env.DB.prepare("SELECT v FROM admin_meta WHERE k = ?1")
+      .bind("hidden_ids").first();
+    const list = row && row.v ? JSON.parse(row.v) : [];
+    return Array.isArray(list) ? list.map(String) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * Hide or unhide dead game IDs on the dashboard.
+ *
+ * It never touches games.txt: the IDs stay tracked so a game that comes back starts
+ * recording again on its own. This only decides whether the warning mentions them.
+ */
+async function setHiddenIds(request, env) {
+  if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  const origin = request.headers.get("origin");
+  if (origin && new URL(origin).host !== new URL(request.url).host) return json({ error: "Blocked" }, 403);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Bad request" }, 400); }
+  const list = Array.isArray(body && body.ids) ? body.ids : null;
+  if (!list) return json({ error: "Bad request" }, 400);
+  /* Digits only, de-duplicated, and bounded: this is written straight back out to the
+     dashboard, and games.txt IDs are numbers. */
+  const clean = [...new Set(list.map(String).filter((x) => /^[0-9]{1,20}$/.test(x)))].slice(0, 500);
+  await env.DB.prepare(
+    "INSERT INTO admin_meta (k, v, at) VALUES (?1,?2,?3) " +
+    "ON CONFLICT (k) DO UPDATE SET v = ?2, at = ?3"
+  ).bind("hidden_ids", JSON.stringify(clean), Math.floor(Date.now() / 1000)).run();
+  return json({ ok: true, hidden: clean.length });
 }
 
 /** Fetch Search Console now rather than waiting for the daily sync. Admin-only. */
@@ -469,6 +507,11 @@ async function adminData(request, env) {
        copy in D1, never from GitHub at page-load time: see worker/ops.js. It answers
        available:false rather than throwing if the tables were never created. */
     ops: await readOps(env, 30),
+    /* Dead game IDs the owner has already seen and chosen to leave in games.txt. They
+       stay tracked on purpose - a game made private can come back, and the collector
+       asking every run is what makes that recover by itself - so this only silences
+       the warning for the ones already known about. */
+    hidden_ids: await hiddenIds(env),
     /* Recent events, newest first. Only things that carry a time, which is why
        page views are absent - see worker/feed.js. */
     feed: await readFeed(env, 40),
