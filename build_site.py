@@ -2066,6 +2066,33 @@ def clip(text, limit=158):
     return text[:limit].rsplit(" ", 1)[0].rstrip(",.;:") + "..."
 
 
+def fit_desc(lead, extras, tail, limit=158):
+    """A meta description built to fit, instead of written long and then cut.
+
+    clip() trims to the length Google shows and marks the cut with an ellipsis.
+    That is the right behaviour for prose it is handed, but it meant 96% of game
+    pages and 47% of updates pages ended mid-phrase - and the phrase being eaten
+    was always the last one, which is where the keywords were. Every game page
+    was losing "busiest hours and best time to play" off the end of a sentence it
+    had been given room for.
+
+    So the pieces that must survive are stated: `lead` opens, `tail` closes, and
+    the optional `extras` are added in the order given, each one only if what is
+    left still fits around the tail. The result always ends on a full stop and
+    never on an ellipsis, and the facts that drop out are the least important
+    ones rather than the last ones.
+    """
+    lead, tail = lead.strip(), tail.strip()
+    out = lead
+    for e in extras:
+        e = e.strip()
+        if not e:
+            continue
+        if len(out) + 1 + len(e) + 1 + len(tail) <= limit:
+            out += " " + e
+    return (out + " " + tail).strip()
+
+
 def icon_alt(name):
     """Alt text for a game's picture. Describes it, and says what kind of thing it is."""
     return f"{name} Roblox game icon"
@@ -6522,11 +6549,15 @@ def main():
         past_ev = sorted((e for e in (events or []) if (e["end"] or e["start"] + 86400) < now),
                          key=lambda e: -e["start"])
         nxt = next_update(pattern, now)
-        upd_desc = (f"Every {name} update in order"
-                    + (f": {len(past_ev)} since {when(past_ev[-1]['start'])}. Latest: "
-                       f"{past_ev[0]['title']} ({when(past_ev[0]['start'])})." if past_ev else ".")
-                    + (f" Next update likely {when(nxt)}." if nxt else "")
-                    + " Changelog, update log and player count jumps.")
+        # Ordered by what somebody searching "when is the next X update" actually
+        # wants, because the later ones are the ones that drop out on a long name.
+        upd_desc = fit_desc(
+            f"Every {name} update in order.",
+            [f"Next update likely {when(nxt)}." if nxt else "",
+             f"{len(past_ev)} of them since {when(past_ev[-1]['start'])}." if past_ev else "",
+             f"Latest: {past_ev[0]['title']} ({when(past_ev[0]['start'])})."
+             if past_ev else ""],
+            "Changelog, update log and player count jumps.")
         write(f"updates/{s}.html", page(
             seo_title(f"{name} Updates in Order: Changelog & Next Update",
                       f"{name} Updates in Order & Changelog",
@@ -6554,7 +6585,7 @@ def main():
             # The Updates bell lives on this page, so the notification code has to be
             # here too. PT_GAME above it is what tells it which game it is looking at.
             + f'<script>{PUSH_JS}</script>',
-            clip(upd_desc),
+            upd_desc,
             wide=True, banner=c["banner"],
             canon=f"/updates/{s}", image=c["banner"] or c["icon"] or "",
             trail=trail + [(f"{name} player count", f"/game/{s}"),
@@ -6572,12 +6603,13 @@ def main():
                          f"{name} Player Count"]), body,
             # Leads with the numbers people search for in their own words - how many
             # right now, the record, the lowest - so the snippet answers the search.
-            clip(f"{a['latest'][1]:,} people were playing {name}"
-                 + (f" ({alias})" if alias else "") + " at our last check. "
-                 f"Peak: {a['peak']:,}."
-                 + (f" Lowest this week: {a['low7'][1]:,}." if a["low7"] else "")
-                 + (f" {short(meta['visits'])} visits." if meta and meta.get("visits") else "")
-                 + " Player count graph, busiest hours and best time to play."),
+            fit_desc(f"{a['latest'][1]:,} people were playing {name}"
+                     + (f" ({alias})" if alias else "") + " at our last check.",
+                     [f"Peak: {a['peak']:,}.",
+                      f"Lowest this week: {a['low7'][1]:,}." if a["low7"] else "",
+                      f"{short(meta['visits'])} visits."
+                      if meta and meta.get("visits") else ""],
+                     "Player count graph, busiest hours and best time to play."),
             wide=True, banner=c["banner"], back=where, canon=f"/game/{s}",
             image=c["banner"] or c["icon"] or "", trail=trail + [(name, f"/game/{s}")],
             # The questions and the events are written out on their own pages now,
