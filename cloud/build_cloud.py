@@ -8,7 +8,7 @@ def main(d="datarepo"):
     if os.path.exists("data.db"): os.remove("data.db")
     db = sqlite3.connect("data.db"); init(db)
     db.executemany("INSERT OR REPLACE INTO games VALUES(?,?,?,?)", csv.reader(open(f"{d}/games.csv", newline="", encoding="utf-8")))
-    db.executemany("INSERT INTO samples VALUES(?,?,?)", csv.reader(open(f"{d}/samples.csv", newline="")))
+    db.executemany("INSERT OR IGNORE INTO samples VALUES(?,?,?)", csv.reader(open(f"{d}/samples.csv", newline="")))
     db.commit(); db.close(); build_site.main()
 
 if __name__ == "__main__":

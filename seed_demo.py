@@ -64,7 +64,7 @@ def main():
             if abs(age - spike_day) < 0.6:
                 v *= 2.4
             samples.append((uid, ts, max(1, int(v * rnd.uniform(0.88, 1.12)))))
-    db.executemany("INSERT INTO samples VALUES(?,?,?)", samples)
+    db.executemany("INSERT OR IGNORE INTO samples VALUES(?,?,?)", samples)
     db.commit()
     print(f"Made fake data: {len(rows)} games, {len(samples):,} player counts over {DAYS} days.")
     print("Now run:  python build_site.py")

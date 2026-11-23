@@ -10,7 +10,18 @@ def init(db):
     db.executescript("""
     CREATE TABLE IF NOT EXISTS games(universe_id INTEGER PRIMARY KEY, name TEXT, genre TEXT, place_id INTEGER);
     CREATE TABLE IF NOT EXISTS samples(universe_id INTEGER, ts INTEGER, playing INTEGER);
-    CREATE INDEX IF NOT EXISTS idx ON samples(universe_id, ts);""")
+    CREATE UNIQUE INDEX IF NOT EXISTS idx ON samples(universe_id, ts);""")
+# UNIQUE, and every insert below is OR IGNORE, because the same reading can reach
+# us twice: samples.csv on the data branch is append-only, so a collector run that
+# repeats writes the row again and it can never be taken back out - the same rule
+# the "[TITLE UNAVAILABLE]" guard follows. Measured 23 Nov 2026: 60 such pairs, 70
+# extra rows in 183,924, and all 60 carried an IDENTICAL player count, so ignoring
+# the repeat loses nothing and OR IGNORE needs no tie-break.
+#
+# An existing database keeps whatever index it already has, because IF NOT EXISTS
+# matches on the name alone. That is fine: cloud/build_cloud.py deletes data.db and
+# rebuilds it from the CSVs on every run, so the live site is always built against
+# the unique one.
 
 def fetch(ids):
     req = urllib.request.Request(API + ",".join(map(str, ids)),
@@ -39,7 +50,7 @@ def main():
                 continue
             db.execute("INSERT OR REPLACE INTO games VALUES(?,?,?,?)",
                        (g["id"], g.get("name"), g.get("genre_l1") or g.get("genre"), g.get("rootPlaceId")))
-            db.execute("INSERT INTO samples VALUES(?,?,?)", (g["id"], now, g.get("playing", 0)))
+            db.execute("INSERT OR IGNORE INTO samples VALUES(?,?,?)", (g["id"], now, g.get("playing", 0)))
         db.commit(); time.sleep(1.5)
 
 if __name__ == "__main__":
