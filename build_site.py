@@ -1952,7 +1952,13 @@ def ago(ts, now=None):
     if d < 31:
         return f"{int(d)} days ago"
     if d < 365:
-        m = max(1, int(d / 30.4))
+        # Rounded, not floored. Flooring understated every age by up to a month -
+        # 59 days read as "1 month ago" and 89 days as "2 months ago" - which
+        # always erred towards making things look fresher than they were. On a
+        # site whose whole claim is that its numbers are recent, the rounding
+        # should not lean that way. Capped at 11 so it never says "12 months"
+        # when the next branch would call it a year.
+        m = min(11, max(1, round(d / 30.4)))
         return f"{m} month{'s' if m > 1 else ''} ago"
     y = max(1, round(d / 365))
     return f"{y} year{'s' if y > 1 else ''} ago"
