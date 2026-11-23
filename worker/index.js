@@ -17,6 +17,7 @@ import STATS from "./stats.js";
 import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
 import { handlePush, runPushCron } from "./push.js";
+import { readOps, syncOps } from "./ops.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -80,6 +81,7 @@ export default {
       if (path === "/admin/login" && request.method === "POST") return await login(request, env);
       if (path === "/admin/logout" && request.method === "POST") return await logout(env);
       if (path === "/admin/data") return await adminData(request, env);
+      if (path === "/admin/sync" && request.method === "POST") return await syncNow(request, env);
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
       const notify = await handlePush(request, env, path);
@@ -112,6 +114,16 @@ export default {
       console.log("notification run", JSON.stringify(out));
     } catch (err) {
       console.error("notification run failed", err && err.stack || err);
+    }
+    /* Recording whether the back end ran is a separate job in its own try: it talks to
+       GitHub, which can be rate limited or simply down, and a notification must never
+       be lost because a status panel could not be updated. Second rather than first
+       for the same reason - the notifications are what somebody is waiting for. */
+    try {
+      const ops = await syncOps(env);
+      if (ops.failed.length) console.warn("ops sync partial", JSON.stringify(ops));
+    } catch (err) {
+      console.error("ops sync failed", err && err.stack || err);
     }
   }
 };
@@ -189,6 +201,28 @@ async function setTodo(request, env) {
   if (!/^[a-z0-9_]{1,40}$/.test(key)) return json({ error: "Bad request" }, 400);
   await env.DB.prepare("UPDATE todos SET done = ?2 WHERE key = ?1").bind(key, body.done ? 1 : 0).run();
   return json({ ok: true });
+}
+
+/**
+ * "Refresh system status": fetch the back end's run history from GitHub now rather
+ * than waiting for the ten-minute cron.
+ *
+ * Admin-only and POST-only, with the same cross-site check setTodo uses, because it
+ * spends from a rate limit that is shared with every other Cloudflare customer on
+ * this egress IP - six GitHub calls a press. It reports what came back rather than
+ * answering a bare ok, so a partial failure (GitHub up, one workflow unreadable) is
+ * visible instead of looking like a success.
+ */
+async function syncNow(request, env) {
+  if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  const origin = request.headers.get("origin");
+  if (origin && new URL(origin).host !== new URL(request.url).host) return json({ error: "Blocked" }, 403);
+  try {
+    const out = await syncOps(env);
+    return json({ ok: out.failed.length === 0, synced: out.ok, failed: out.failed });
+  } catch (err) {
+    return json({ ok: false, error: (err && err.message) || "that did not work" }, 502);
+  }
 }
 
 /* ------------------------------------------------------------------ login */
@@ -373,7 +407,16 @@ async function adminData(request, env) {
     },
     kinds, climb,
     stats: STATS,
-    live: await liveCounts()
+    live: await liveCounts(),
+    /* Whether collecting, building and discovering actually ran. Read from our own
+       copy in D1, never from GitHub at page-load time: see worker/ops.js. It answers
+       available:false rather than throwing if the tables were never created. */
+    ops: await readOps(env, 30),
+    /* Visitor numbers before this day include our own automated test browsers - one
+       day in November recorded 156 views across 114 different pages, which is a sweep
+       and not a person. The beacons have skipped automated browsers since, so any
+       chart crossing this line has to say so rather than draw it as growth. */
+    clean_from: "2026-11-22"
   });
 }
 
