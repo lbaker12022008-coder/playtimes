@@ -4699,6 +4699,16 @@ var verdict=qa===qb?'They are about the same on '+DAY[day]+'.':
 $('verdict').innerHTML=verdict+(best?' Both are at their calmest around <b>'+fmt(best[0])+'</b>.':'')+
 '<br><span class="mut small">Bar heights compare each game against its own normal week, '+
 'so the taller bar means "busy for that game", not "more players".</span>';
+/* The address follows what is on screen. The page already READ ?a= and ?b= on
+   the way in but never wrote them, so the one thing anybody wants to do with a
+   comparison - send it to somebody - produced a link back to the default pair.
+   The day goes in too, because "which is quieter on Saturday" is the question
+   the page opens with and a shared link should arrive on the right day.
+   replaceState rather than pushState: changing a dropdown is not a new page,
+   and loading the back button with every twitch of a select is how a tool
+   becomes impossible to leave. */
+try{history.replaceState(null,'','?a='+encodeURIComponent($('ga').value)+
+'&b='+encodeURIComponent($('gb').value)+'&d='+day)}catch(e){}
 $('alab').textContent=a.n;$('blab').textContent=b.n;
 $('nums').innerHTML='<div><span class="mut small">'+esc(a.n)+'</span><b>'+a.a.toLocaleString()+
 '</b><span class="mut small">typical players</span></div><div><span class="mut small">'+esc(b.n)+
@@ -4707,6 +4717,7 @@ fetch('/data.json').then(function(r){return r.json()}).then(function(d){
 DATA=d;if(DATA.games.length<2){$('load').innerHTML='<p class="none">We need at least two games with '+
 'enough player counts before you can compare them.</p>';return}
 var p=new URLSearchParams(location.search);
+var pd=parseInt(p.get('d'),10);if(pd>=0&&pd<=6)day=pd;
 opts($('ga'),p.get('a')||DATA.games[0].s);opts($('gb'),p.get('b')||DATA.games[1].s);
 if($('ga').value===$('gb').value)$('gb').selectedIndex=($('ga').selectedIndex+1)%DATA.games.length;
 DAY.forEach(function(n,i){var b=document.createElement('button');b.textContent=n.slice(0,3);
