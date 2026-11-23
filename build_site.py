@@ -1395,6 +1395,11 @@ def _inside_triangle(x, y):
 
 
 def app_icon(size, supersample=3):
+    """The logo as a square PNG. See _app_icon_pixels for the drawing."""
+    return _png(size, size, _app_icon_pixels(size, supersample))
+
+
+def _app_icon_pixels(size, supersample=3):
     """The logo as a square PNG of the given size.
 
     Full-bleed rather than a circle on transparency: both iOS and Android mask the
@@ -1442,7 +1447,7 @@ def app_icon(size, supersample=3):
             pixels[at + 2] = int(b / n + 0.5)
             pixels[at + 3] = 255
             at += 4
-    return _png(size, size, pixels)
+    return bytes(pixels)
 
 
 # ------------------------------------------------------- the home-screen manifest
@@ -1450,6 +1455,73 @@ def app_icon(size, supersample=3):
 # furniture. On an iPhone or iPad that is not a nicety: Apple only allows web
 # notifications for a site that has been added to the home screen, so without this
 # file notifications could never work on an Apple device at all.
+def og_card(w=1200, h=630, logo=360, supersample=2):
+    """The picture that shows when a link to the site is shared.
+
+    Fourteen pages had none at all - About, Privacy, Terms, Plan, Compare,
+    Busiest hours and the rest - so sharing one in Discord or WhatsApp produced a
+    bare line of text with nothing beside it. This audience shares links in
+    Discord constantly.
+
+    The homepage DID have one and it was the biggest game's icon, which runs into
+    the objection already recorded against giving the homepage a banner: choosing
+    one game there reads as an endorsement. It uses this instead.
+
+    Drawn rather than checked in, so it cannot drift from logo_svg() - the rule
+    the app icons follow. The first attempt pasted app_icon() onto a dark field
+    and looked like a square sticker stuck on a wall, because that icon is
+    deliberately full-bleed for the mask iOS and Android put over it. So this
+    draws the card itself: the brand gradient across the whole 1200x630, running
+    corner to corner as in logo_svg, with the ring and the play button in the
+    near-black the logo uses, centred.
+
+    There is no text on it. Any would need a font, and the build server installs
+    nothing - the same constraint that keeps roblox_api.py and app_icon() free of
+    Pillow. About two seconds to draw, once per build.
+    """
+    scale = 32.0 / logo                 # card pixels -> the logo's 32-unit space
+    cx, cy = w / 2.0, h / 2.0
+    step = 1.0 / (supersample + 1)
+    offsets = [(i + 1) * step for i in range(supersample)]
+    pixels = bytearray(w * h * 4)
+    at = 0
+    for py in range(h):
+        for px in range(w):
+            r = g = b = 0.0
+            for oy in offsets:
+                for ox in offsets:
+                    fx, fy = px + ox, py + oy
+                    # The gradient runs across the whole card, not the logo box.
+                    t = (fx / w + fy / h) / 2.0
+                    cr = 216 + (168 - 216) * t
+                    cg = 180 + (85 - 180) * t
+                    cb = 254 + (247 - 254) * t
+                    u = 16.0 + (fx - cx) * scale
+                    v = 16.0 + (fy - cy) * scale
+                    dx, dy = u - 16.0, v - 16.0
+                    if _inside_triangle(u, v):
+                        cr = cg = 10.0
+                        cb = 15.0
+                    else:
+                        dist = math.hypot(dx, dy)
+                        if abs(dist - 11.0) <= 1.0:
+                            ang = (math.degrees(math.atan2(dy, dx)) + 90.0) % 360.0
+                            if ang <= _ARC:
+                                cr += (10 - cr) * 0.45
+                                cg += (10 - cg) * 0.45
+                                cb += (15 - cb) * 0.45
+                    r += cr
+                    g += cg
+                    b += cb
+            n = float(len(offsets) ** 2)
+            pixels[at] = int(r / n + 0.5)
+            pixels[at + 1] = int(g / n + 0.5)
+            pixels[at + 2] = int(b / n + 0.5)
+            pixels[at + 3] = 255
+            at += 4
+    return _png(w, h, bytes(pixels))
+
+
 def manifest_json():
     return json.dumps({
         # What the installed app is called: its title bar, the Windows taskbar and
@@ -1783,6 +1855,10 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
     # ".html"), which is the only one worth telling Google about.
     url = abs_url(canon or "/")
     social = ""
+    # Every page gets a picture when it is shared. A game page has its own
+    # artwork; everything else falls back to the brand card, because a bare link
+    # with no preview is the one that does not get clicked.
+    image = image or abs_url("/og.png")
     if image:
         social = (f'<meta property="og:image" content="{html.escape(image)}">'
                   f'<meta name="twitter:card" content="summary_large_image">')
@@ -6725,7 +6801,9 @@ def main():
         "Track Roblox game player counts, discover the busiest and quietest times to play, "
         "explore trending games, and compare player activity throughout the day.",
         wide=True, nav="home", back=None, canon="/",
-        image=top["icon"] if top else "",
+        # Deliberately NOT the biggest game's icon, which is what this used to be:
+        # the same reasoning that keeps a game's artwork off the homepage banner.
+        # The default brand card applies.
         schema=[{"@type": "WebSite", "name": SITE, "url": abs_url("/"),
                  "description": ("Player counts and best times to play for popular Roblox "
                                  "games, updated four times a day."),
@@ -7037,6 +7115,7 @@ def main():
     write("sw.js", PUSH_SW)
     # The icons are the same drawing at three sizes: two for the manifest, one for
     # Apple, which ignores SVG. Deterministic, so a rebuild leaves git alone.
+    write_bytes("og.png", og_card())
     write_bytes("icon-192.png", app_icon(192))
     write_bytes("icon-512.png", app_icon(512, supersample=2))
     write_bytes("apple-touch-icon.png", app_icon(180))
