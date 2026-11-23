@@ -865,7 +865,6 @@ function pGames() {
       '</td></tr>';
   }).join('');
 
-  var missing = st.missing_ids || [];
   return '<h2 class="vh">Games</h2>' +
     '<div class="cards">' +
     kpi({ label: 'Tracked', value: num(t.games_tracked || 0), change: null,
@@ -882,7 +881,7 @@ function pGames() {
     kpi({ label: 'Readings', value: kfmt(t.samples || 0), change: null,
       why: 'Total player-count samples across every tracked game.' }) +
     '</div>' +
-    deadIds(missing) +
+    deadIds() +
     '<div class="sec"><h2>Every tracked game</h2>' +
     '<div class="tools">' +
     '<input type="search" id="gq" placeholder="Search by name or ID" value="' + esc(GQ) + '">' +
@@ -911,10 +910,22 @@ function pGames() {
    lookup a run. So the owner can hide the ones they already know about, and hiding is
    PER ID rather than a switch for the whole warning - a game that dies next month is
    still news, and a warning turned off wholesale would never say so. */
-function deadIds(open) {
-  var hid = D.hidden_ids || [];
-  var all = ((D.stats || {}).missing_ids || []).map(String);
+function deadIds() {
+  var hid = (D.hidden_ids || []).map(String);
+  var m = D.missing || {};
+  var confirmed = (m.confirmed || ((D.stats || {}).missing_ids || [])).map(String);
+  var waiting = (m.waiting || []).map(String);
+  var open = confirmed.filter(function (id) { return hid.indexOf(id) < 0; });
   var parts = '';
+
+  /* Games added in the last day that the collector has not reached yet. This is the
+     normal state every morning after discover.py runs and is NOT a fault, so it is a
+     plain note rather than a warning - see trackMissing() in index.js. */
+  if (waiting.length) {
+    parts += '<p class="flag" style="margin-top:14px">' + plural(waiting.length, 'newly added game') +
+      ' not collected yet. That is normal for a day or so after they are found, and ' +
+      'resolves on its own.</p>';
+  }
 
   if (open.length) {
     parts += '<div class="note-bar" style="margin-top:14px"><span>&#9888;</span><span>' +
@@ -937,9 +948,13 @@ function deadIds(open) {
       '<button class="btn ghost" id="showids" type="button" style="margin-top:8px">' +
       'Show them again</button></details>';
   }
-  /* All of them hidden and none left over: say so, rather than leaving the section
-     blank and looking as though the check never ran. */
-  if (!open.length && hid.length && all.length === hid.length) {
+  /* Everything confirmed is hidden: say so, rather than leaving the section blank and
+     looking as though the check never ran.
+     This line referred to a variable that the rewrite above had removed, which threw a
+     ReferenceError and lost the whole Games tab - but ONLY when nothing was left
+     unhidden, because the condition short-circuits before reaching it otherwise. Three
+     browser checks caught it; reading the code did not. */
+  if (!open.length && hid.length) {
     parts += '<p class="flag">No new dead IDs since you last looked.</p>';
   }
   return parts;
@@ -1426,7 +1441,7 @@ function wirePanel() {
   };
   var hb = $('#hideids');
   if (hb) hb.onclick = function () {
-    saveIds(((D.stats || {}).missing_ids || []).map(String), hb, '#hidemsg');
+    saveIds(((D.missing || {}).confirmed || []).map(String), hb, '#hidemsg');
   };
   var sb = $('#showids');
   if (sb) sb.onclick = function () { saveIds([], sb, null); };

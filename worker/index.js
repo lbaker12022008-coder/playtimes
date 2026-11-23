@@ -244,6 +244,57 @@ async function syncNow(request, env) {
   }
 }
 
+/**
+ * Which "Roblox will not answer for this" IDs are really dead, and which are simply
+ * new.
+ *
+ * `stats.missing_ids` is every ID in games.txt with no row from the collector at build
+ * time, and that conflates two completely different things. discover.py adds up to ten
+ * games at 04:00 UTC; the 04:30 build sees them in the file before the collector has
+ * reached them, so they are reported as unanswerable. They are not - they are new, and
+ * they resolve by themselves within a run or two. Measured on 23 Nov 2026: the 05:41
+ * build listed ten such IDs and the 11:28 build listed none, because all ten had been
+ * collected in between. Warning about them every morning is an alarm that is always on
+ * and therefore never read - the same fault the collector cadence had.
+ *
+ * So the first time an ID is seen missing is remembered, and nothing is called dead
+ * until it has stayed missing for a day. A real deletion is reported a day late, which
+ * costs nothing; a new game is never reported at all.
+ */
+const MISSING_GRACE = 24 * 3600;
+
+async function trackMissing(env, stats) {
+  const now = Math.floor(Date.now() / 1000);
+  const current = ((stats && stats.missing_ids) || []).map(String);
+  let seen = {};
+  try {
+    const row = await env.DB.prepare("SELECT v FROM admin_meta WHERE k = ?1")
+      .bind("missing_since").first();
+    seen = row && row.v ? JSON.parse(row.v) : {};
+    if (!seen || typeof seen !== "object") seen = {};
+  } catch (e) { seen = {}; }
+
+  /* Rebuilt rather than merged, so an ID that has come back is forgotten and does not
+     carry an old timestamp if it ever goes missing again. */
+  const next = {};
+  for (const id of current) next[id] = seen[id] || now;
+
+  const before = JSON.stringify(seen), after = JSON.stringify(next);
+  if (before !== after) {
+    try {
+      await env.DB.prepare(
+        "INSERT INTO admin_meta (k, v, at) VALUES (?1,?2,?3) " +
+        "ON CONFLICT (k) DO UPDATE SET v = ?2, at = ?3"
+      ).bind("missing_since", after, now).run();
+    } catch (e) { /* the figures below still work from `next` in memory */ }
+  }
+  return {
+    confirmed: current.filter((id) => now - next[id] >= MISSING_GRACE),
+    waiting: current.filter((id) => now - next[id] < MISSING_GRACE),
+    since: next
+  };
+}
+
 /** The dead-game IDs that have been acknowledged. Never throws: an unreadable list
     means every warning shows, which is the safe way round. */
 async function hiddenIds(env) {
@@ -512,6 +563,9 @@ async function adminData(request, env) {
        asking every run is what makes that recover by itself - so this only silences
        the warning for the ones already known about. */
     hidden_ids: await hiddenIds(env),
+    /* Split into games that are really gone and games the collector has simply not
+       reached yet - see trackMissing(). */
+    missing: await trackMissing(env, STATS),
     /* Recent events, newest first. Only things that carry a time, which is why
        page views are absent - see worker/feed.js. */
     feed: await readFeed(env, 40),

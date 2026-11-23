@@ -150,7 +150,11 @@ function freshness(d, add) {
      month is still news, and a warning that has been turned off wholesale would never
      say so. */
   const hidden = d.hidden_ids || [];
-  const missing = (stats.missing_ids || []).filter((id) => hidden.indexOf(String(id)) < 0);
+  /* Only IDs that have stayed unanswerable for a day, never the ones discover.py added
+     this morning - see trackMissing() in index.js. Falls back to the raw list only if
+     that tracking is absent, so an older payload still reports something. */
+  const pool = (d.missing && d.missing.confirmed) || stats.missing_ids || [];
+  const missing = pool.map(String).filter((id) => hidden.indexOf(id) < 0);
   if (missing.length) {
     add("warn", num(missing.length) + " tracked game"
       + (missing.length === 1 ? "" : "s") + " Roblox no longer answers for",
