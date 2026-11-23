@@ -168,6 +168,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -1880,6 +1893,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <meta name="apple-mobile-web-app-title" content="{html.escape(SITE)}">
 <link rel="preconnect" href="https://tr.rbxcdn.com" crossorigin>
 {BOOT}<style>{CSS}</style>{blocks}<script>{FAVJS}</script>{ADS}</head><body>
+<a class="skip" href="#content">Skip to the page</a>
 {banner_html(banner)}<header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/">{logo_svg()}<span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1893,7 +1907,7 @@ def page(title, body, desc="", wide=False, nav="", tail="", banner="",
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 {buttons}</div></div></header>{extras}
 <div class="shell{' ads' if SHOW_RAILS else ''}{' wideads' if SHOW_RAILS and wide else ''}">{ad_rail('left')}
-<div class="w{' wide' if wide else ''}">{topnav}{body}
+<div class="w{' wide' if wide else ''}">{topnav}<main id="content">{body}</main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
