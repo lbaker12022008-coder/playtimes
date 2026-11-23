@@ -145,6 +145,109 @@ keeps up without anyone remembering to check.
 - Deploy with `npx wrangler deploy` (no `--assets` flag: `wrangler.jsonc` sets it, and passing both is an error).
 - Never commit `.dev.vars` or `.wrangler/`.
 
+### The admin data layer (stage 1 of the dashboard rebuild, 22 Nov 2026)
+The dashboard is being rebuilt into a real analytics tool, and **accuracy was built
+before any of the visuals**, deliberately: a beautiful panel full of numbers nobody
+can trust is worse than the plain one it replaces.
+
+- **`worker/analytics.js` is the only place a visitor number is worked out.** A KPI
+  card and the chart under it must not each compute "views this month" their own way -
+  the first time a boundary moves they disagree and the reader cannot tell which is
+  wrong. `windowFor(from, to)` picks the window **and the equal-length window before
+  it** (a 7-day window against a 30-day one would report a collapse every time), and
+  `change()` is the only percentage on the page.
+  - **`change()` returns `null`, never `Infinity` and never a misleading `0`.** Going
+    from no views to some views is not "up 100%". Not hypothetical on a site this
+    young: `/game/fish-it` had 37 views one week against **0** the week before. The
+    card prints nothing rather than a number that cannot mean anything.
+  - **Every day boundary is UTC**, which is what the two beacons write. A local
+    midnight would double-count one day and lose another.
+  - A window with no rows comes back as a **run of zeroes, not a short array**, or a
+    chart quietly redraws 30 days as 3 and reads as a cliff.
+  - 22 checks cover the window and comparison maths, and the SQL was cross-checked
+    against the live database computed a second way - 1219/323/2115 both ways.
+- **`CLEAN_FROM` is 2026-11-22, and it is load-bearing.** Views before it include our
+  own automated test browsers: one day logged 156 views across 114 different pages,
+  which is a sweep and not a person, and hundreds of one-second loads had dragged the
+  homepage average reading time to 19 seconds while pages real people read sat at
+  35-70. Commit `449d0802` made the beacons skip automated browsers. **Any window
+  reaching back past that day is flagged `includes_test_traffic` and must be
+  caveated, never drawn as growth** - the week of 16-22 Nov reads +695% against the
+  week before, and `/game/doors` +3300%. That is me, not visitors.
+- **`worker/ops.js` answers "is the back end working", which nothing could before.**
+  Collecting, building and discovering happen in GitHub Actions, which this worker
+  cannot see, so a stall could only be *inferred* from how old the data looked - a
+  symptom, and silent about whether a run failed or simply never started.
+  - The repo is **public**, so GitHub's REST API answers **with no token**, and
+    `status=failure` with `per_page=1` gives an all-time failure count in one call.
+  - **It is a D1 table, not a fetch per page load**, for three reasons each sufficient
+    alone: GitHub serves only the last 100 runs of a workflow and `collect` runs 48
+    times a day, so longer history exists only if we keep it; unauthenticated GitHub
+    allows 60 requests an hour **per IP** and a Worker's egress IPs are shared with
+    every other Cloudflare customer, so that budget is not ours to spend on page
+    loads; and the Cache API is per data centre, so a copy warmed by the cron is not
+    the copy a dashboard in another city reads.
+  - **`ok` is 1, 0 or NULL - three states, not two.** A run with no answer yet must
+    never be drawn as a failure.
+  - **Durations are the median, not the mean**, so one run waiting on a Roblox timeout
+    cannot speak for a normal one. First real reading: collecting takes a remarkably
+    steady **20m 46s of its 30-minute window**, building 5m 57s, discovering 31s.
+  - `overdue` allows the workflow's own interval **plus ten minutes**, because the
+    cron that records it runs every ten - a warning nobody can act on is worse than
+    none.
+  - The window count and GitHub's all-time count are reported **separately** and must
+    stay so: the last 100 build runs hold 2 failures while all 151 hold 5, and
+    blending those would be a made-up number.
+  - `WORKFLOWS[].every` is the schedule from `.github/workflows`. **If a cron there
+    changes, this number has to change with it**, or "overdue" is measured against a
+    schedule that no longer exists. `staging` is deliberately absent: it deploys the
+    test copy and must never put a status light on this page.
+- **`POST /admin/sync` is the "refresh system status" button**, admin-only and
+  POST-only with the same cross-site check `setTodo` uses, because one press spends
+  six calls from that shared GitHub budget.
+- **Two indexes were missing and the slowest query had nothing behind it.** `views`
+  and `dwell` are both `PRIMARY KEY (day, path)`, which serves `WHERE day >= ?` and
+  **cannot serve a lookup by path at all** - so reading time per page, a correlated
+  subquery, scanned the whole of `dwell` once per page listed. `idx_dwell_path` and
+  `idx_views_path` are `(path, day)`, that order because it serves both an exact path
+  with a date range and a `LIKE '/game/%'` prefix.
+- **Verifying the admin side needs a throwaway `.dev.vars`, never the real code.**
+  `npx wrangler dev --remote` with an `ADMIN_CODE` and `SESSION_SECRET` generated on
+  the spot reaches the **real** D1, so the queries are tested against real data while
+  the production secrets stay untouched and no code enters a chat transcript. Delete
+  the file afterwards. Two gotchas: **send no `Origin` header** when posting the login
+  from curl, or the cross-site check answers 403; and killing it needs **the whole
+  process tree from the top `bash.exe` down**, because `workerd` respawns if you kill
+  only it - seen twice here, exactly as the note further down warns.
+
+#### What the dashboard must never claim to measure
+Asked for in the Nov 2026 upgrade brief and **deliberately not built**, because the
+Privacy Policy promises the site records "the page address, the date, and that number
+of seconds, and nothing else", and that promise is worth more than the metrics:
+
+- **Unique visitors, sessions, bounce rate, pages per session, new vs returning.** All
+  need to tell one person from another. A signed-out visitor gets **no cookies at
+  all** and much of this audience is nine years old. The firmest no of the lot.
+- **Traffic sources, referrers, organic-search splits.** Need the referrer, and were
+  turned down once already on 18 Nov 2026 for this same reason.
+- **Device, browser, mobile vs desktop.** Need the user agent.
+- **Anything per hour, and "visitors online now".** Need a timestamp; `views` stores a
+  **day**. So a 24-hour option is not offered in the date filter, and must not be.
+- **Website uptime**, which cannot be measured from inside the thing being measured.
+
+The owner was shown each of these with what it would cost and **chose to keep the
+promise as it stands** (22 Nov 2026). None are estimated instead - the panel says what
+it cannot know. If one is ever wanted it means rewriting the Privacy Policy and moving
+`POLICY_DATE`, not a quiet schema change.
+
+**Google Search Console is wanted and is the next integration** (owner's choice,
+22 Nov 2026): it is the one way to get real search queries, impressions,
+click-through rate and average position, and it needs no privacy change because the
+data is Google's aggregate about the site, not anything about a visitor. It needs a
+free Google Cloud service account added as a user on the Search Console property.
+**Dashboard buttons that would write to GitHub were declined** in the same breath, so
+adding or removing a tracked game stays a git edit and no GitHub token is stored.
+
 ## Sign in with Roblox (optional, 13+)
 - `worker/auth.js` serves `/auth/login`, `/auth/callback`, `/auth/logout`, `/api/me`, `/api/favs` and `/api/delete-me`. `worker/index.js` calls `handleAuth()` and does nothing else with it.
 - Purpose: saved games follow a person between devices. **Everything on the site still works signed out**, and a signed-out visitor gets no cookies at all.
