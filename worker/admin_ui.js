@@ -1071,7 +1071,25 @@ function pSearch() {
   }
 
   var t = g.totals || {};
-  var daily = (g.daily || []).map(function (r) { return { day: r.date, n: r.clicks }; });
+  /* Google returns only the days that had something, so a 29-day window can come back
+     as 10 rows. Drawn straight that way the chart would join them up as if they were
+     consecutive. Filling the gaps with zero is honest here, unlike with our own page
+     views: a day Google reports nothing for is a day with no clicks, which really is
+     zero, rather than a day we failed to record. */
+  var daily = (function () {
+    var got = {}, out = [];
+    (g.daily || []).forEach(function (r) { got[r.date] = r.clicks; });
+    var from = Date.parse(g.from + 'T00:00:00Z'), to = Date.parse(g.to + 'T00:00:00Z');
+    if (!from || !to || to < from) {
+      return (g.daily || []).map(function (r) { return { day: r.date, n: r.clicks }; });
+    }
+    for (var d = from; d <= to; d += 864e5) {
+      var k = new Date(d).toISOString().slice(0, 10);
+      out.push({ day: k, n: got[k] || 0 });
+    }
+    return out;
+  })();
+  var withClicks = (g.daily || []).length;
   return head +
     '<div class="tools"><button class="btn ghost" id="gscgo" type="button">Fetch again</button>' +
     '<span class="mut small" id="gscmsg">' + esc(g.from) + ' to ' + esc(g.to) +
@@ -1093,7 +1111,10 @@ function pSearch() {
     '</div>' +
     '<div class="sec"><h2>Clicks over time</h2><div class="card">' +
     lineChart('gschart', daily, 190) +
-    '<p class="readout" id="gsread">Drag across the chart to read a day.</p></div></div>' +
+    '<p class="readout" id="gsread">Drag across the chart to read a day.</p>' +
+    '<p class="flag">' + plural(withClicks, 'day') + ' of the ' + daily.length +
+    ' had at least one click. The rest are drawn as zero, which is what they were.</p>' +
+    '</div></div>' +
     '<div class="row2">' +
     '<div class="card"><h2>What people searched for</h2>' +
     barRows((g.queries || []).slice(0, 15).map(function (q) {

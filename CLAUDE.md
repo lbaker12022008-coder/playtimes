@@ -284,6 +284,67 @@ sent, newest first.
   the year 58,000. Checked against the live database rather than assumed, which is
   what caught `push_sent.at`.
 
+#### Search Console is CONNECTED (23 Nov 2026) and it changed what we know
+`GSC_CLIENT_EMAIL` and `GSC_PRIVATE_KEY` are set in Cloudflare, the service account
+`playtime-admin@serious-bliss-515606-i7.iam.gserviceaccount.com` is a full user on the
+property `sc-domain:playtimestats.com`, and the worker's own cron fetched 23KB of real
+figures within ten minutes. Secrets apply immediately; no deploy was needed.
+
+**First 29 days: 97 clicks from 11,405 impressions, CTR 0.85%, average position 6.9.**
+
+- **Nine of the top ten searches reaching this site are about game UPDATES**, not busy
+  hours: "all adopt me updates in order", "dandys world updates in order", "practical
+  basketball patch notes", "build a boat for treasure update log". The single biggest
+  page is **`/updates/dandy-s-world` with 3,356 impressions**, more than six times the
+  homepage. `/updates/practical-basketball` sits at position 2.
+  - **So do NOT thin out the updates pages.** It was suggested on 22 Nov that the
+    low-word-count sub-pages might be dropped from the sitemap to concentrate Google's
+    attention; this is the measurement that says the opposite. They are the pages
+    winning. The site's own framing ("when is it busiest") is not what brings people.
+- **The audience is NOT overwhelmingly on phones, and the ads note says it is.**
+  Google reports **desktop 45 clicks / 4,650 impressions, mobile 44 / 6,011, tablet
+  8 / 744** - essentially an even split on clicks, with mobile shown more and clicking
+  less. The reasoning under **Ads** above still holds (a phone-only visitor seeing no
+  advertising at all was most of the income switched off), but the phrase
+  "overwhelmingly on phones" is now known to be wrong and should not be used to
+  justify anything further without re-reading these numbers.
+- **One stale address is still earning**: `http://www.playtimestats.com/game/jailbreak`
+  has 2 clicks from 47 impressions. Harmless - it 301s - but it shows Google still
+  holds pre-redirect `www` addresses, the same way it held the `.html` ones.
+
+Setting it up, and what to do if it ever breaks:
+- **The property is discovered, not configured.** Search Console names a domain
+  property `sc-domain:example.com` and a URL-prefix one `https://example.com/`, and
+  asking about the wrong one fails **identically** to having no access at all.
+  `syncGsc()` asks Google which properties the account can see first: none means the
+  service account was never added as a user and the error says exactly that; one means
+  use it; several means name the right one with `GSC_SITE`.
+- **There is a standalone test in the scratchpad that separates our half from
+  Google's** in four steps - sign the assertion, swap it for a token, list the
+  properties, run a real query - reading the key from the JSON file and never printing
+  it. Step 2 failing is our half (API not enabled, or a mangled key); step 3 returning
+  nothing is the Search Console half (the account was never added as a user). Worth
+  rebuilding if sign-in to Google ever misbehaves, for the same reason the Roblox
+  `invalid_grant` test is worth keeping.
+- **`npx` fails in the owner's PowerShell terminal**: "running scripts is disabled on
+  this system", a `PSSecurityException` on `npx.ps1`. Every `npx` command fails there,
+  not just one. **`npx.cmd` works** and needs no system change; `Set-ExecutionPolicy
+  -Scope CurrentUser RemoteSigned` is the permanent fix if ever wanted. Git Bash is
+  unaffected, which is why the same commands work from there.
+- **The private key was piped, never pasted** - `node -e "...private_key" | npx
+  wrangler secret put GSC_PRIVATE_KEY` - so it reached Cloudflare without passing
+  through a clipboard, a terminal history or a chat transcript. Same rule the VAPID
+  pair and the Roblox client secret follow. The downloaded JSON file is a working key
+  and should be deleted once the secrets are set.
+- **Google finalises figures two to three days late**, so the window ends three days
+  ago and `dataState: "final"` is deliberate. Asking for yesterday returns partial
+  numbers that then change, which would read as a collapse and recovery every day.
+- **The clicks chart gap-fills with zero and says how many days had any.** Google
+  returns only days with activity - 10 rows for a 29-day window - and joining those up
+  would draw them as consecutive. Zero is honest here, unlike for our own page views:
+  a day Google reports nothing for really did have no clicks, rather than being a day
+  we failed to record.
+
 #### Exports, insights and Search Console
 - **`worker/export.js`** writes CSVs that honour the dashboard's window and borrow
   `adminData`'s payload, so a download cannot disagree with the screen it came from.
@@ -1567,7 +1628,9 @@ Launch checklist, in order:
      settle near the live count rather than the old 304.
    - **Re-submitting the same address in Search Console -> Sitemaps is what forces a fresh fetch.** Worth doing after any change that moves the page count a long way - the Nov 2026 split, which gave every game its own Events, Questions, What-costs-money and Updates pages, more than doubled the site and none of those were in the list Google held.
    - Still worth checking which property is being looked at. **`www` no longer serves a duplicate** - re-measured 20 Nov 2026, every `www` address 301s to the bare name - but a `www` property in Search Console would still be a separate property reporting on redirects.
-5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
+5. **AdSense** once 20+ pages have real data. **Search Console now says which pages
+   to care about**: the `/updates/` pages carry the traffic (see the Search Console
+   section above), so they are where advertising will actually be seen. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
 6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.
 
 Waiting on data, nothing to do:
