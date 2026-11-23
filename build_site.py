@@ -2237,6 +2237,7 @@ def analyze(rows):
         b = mean([p for age, p in pts if span < age <= span * 2])
         return round((a - b) / b * 100, 1) if a and b else None
 
+    peak_at = max(rows, key=lambda r: r[1])[0]
     return {"week": week, "daily": daily, "peaks": peaks,
             "trend": change(7), "month": change(14),
             "avg7": round(mean([p for age, p in buckets[7]]) or 0),
@@ -2254,7 +2255,23 @@ def analyze(rows):
                         key=lambda r: r[1], default=None),
             "high7": max(((ts, p) for ts, p in rows if now - ts <= 7 * 86400),
                          key=lambda r: r[1], default=None),
-            "peak_at": max(rows, key=lambda r: r[1])[0],
+            "peak_at": peak_at,
+            # What a typical moment looked like on the day we saw that peak.
+            #
+            # The key numbers put the all-time peak directly under today's typical
+            # count, and on a game that has since shrunk the pair reads as nonsense:
+            # The Hollow says 507,606 against 286, which is 1,775x. Measured across
+            # all 140 games on 23 Nov 2026, that gap is almost never the peak being
+            # strange - within a single day no game's peak reached even 10x that
+            # day's own average, and only 12% reached 3x - it is the game having
+            # been a different size then. The Hollow was typically running 96,173
+            # the day it peaked. So the honest context is the level at the time,
+            # not a multiple of a level from weeks later.
+            #
+            # None when the peak fell on a day we did not watch all the way through
+            # (see DAY_HOURS_MIN), because there is then no whole-day figure to
+            # quote and a partial one would be the very artefact we just removed.
+            "peak_day": next((v for t, v in daily if t // 86400 == peak_at // 86400), None),
             "days": round((rows[-1][0] - rows[0][0]) / 86400, 1)}
 
 
@@ -2476,12 +2493,25 @@ def short_answer(name, f):
             f'<span class="mut">UTC</span> &ndash; about {qv:,} players.')
 
 
+def peak_note(a):
+    """", when a typical moment was about 96,000" - or "" when that adds nothing.
+
+    Only written where the all-time peak towers over today's typical count (3x or
+    more, which is 45% of games), because that is the pairing a reader cannot make
+    sense of on its own. Below that the two numbers already sit together sensibly
+    and the extra clause would be noise.
+    """
+    if not a.get("peak_day") or not a["avg7"] or a["peak"] < a["avg7"] * 3:
+        return ""
+    return f', when a typical moment was about {a["peak_day"]:,}'
+
+
 def facts_html(c, a, f, meta=None):
     """The key numbers as a list, so they are in the page itself and not only in a chart."""
     rows = [("Latest player count", f'{a["latest"][1]:,}', f'at {stamp(a["latest"][0])}'),
             ("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
             ("Highest player count ever seen", f'{a["peak"]:,}',
-             f'the most we have recorded, on {when(a["peak_at"])}')]
+             f'the most we have recorded, on {when(a["peak_at"])}{peak_note(a)}')]
     if a["high7"] and a["low7"]:
         rows += [("Highest this week", f'{a["high7"][1]:,}', f'at {stamp(a["high7"][0])}'),
                  ("Lowest this week", f'{a["low7"][1]:,}', f'at {stamp(a["low7"][0])}')]
