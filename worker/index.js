@@ -18,6 +18,7 @@ import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
 import { handlePush, runPushCron } from "./push.js";
 import { readOps, syncOps } from "./ops.js";
+import { CLEAN_FROM, readAnalytics, windowFor } from "./analytics.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -305,6 +306,11 @@ async function adminPage(request, env) {
 
 async function adminData(request, env) {
   if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  /* The window the dashboard is asking about, defaulting to the last 30 days. Both
+     dates are validated in windowFor(), so a hand-typed address cannot break the
+     page - it falls back rather than erroring. */
+  const qs = new URL(request.url).searchParams;
+  const win = windowFor(qs.get("from"), qs.get("to"));
   const today = new Date().toISOString().slice(0, 10);
   const dayBefore = n => new Date(Date.now() - n * 86400e3).toISOString().slice(0, 10);
 
@@ -412,11 +418,15 @@ async function adminData(request, env) {
        copy in D1, never from GitHub at page-load time: see worker/ops.js. It answers
        available:false rather than throwing if the tables were never created. */
     ops: await readOps(env, 30),
+    /* Every visitor figure for the chosen window, plus the same figures for the
+       window before it, all computed in worker/analytics.js so a card and the chart
+       under it cannot work the same number out two different ways. */
+    range: await readAnalytics(env, win),
     /* Visitor numbers before this day include our own automated test browsers - one
        day in November recorded 156 views across 114 different pages, which is a sweep
        and not a person. The beacons have skipped automated browsers since, so any
        chart crossing this line has to say so rather than draw it as growth. */
-    clean_from: "2026-11-22"
+    clean_from: CLEAN_FROM
   });
 }
 
