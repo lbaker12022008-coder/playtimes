@@ -2918,7 +2918,7 @@ def faq_html(c, a, f, meta, pattern):
     lt, lp = a["latest"]
     qa = [(f"How many people are playing {name} right now?",
            f"At our most recent check, at {stamp(lt)}, {lp:,} people were playing {name}. "
-           f"We read Roblox's public player count about every ten minutes and refresh this "
+           f"We read Roblox's public player count about three times an hour and refresh this "
            f"page four times a day, so that number can be a few hours old. At a typical "
            f"moment over the last week there were about {a['avg7']:,}.")]
     qa.append((f"What is the highest player count {name} has had?",
@@ -2937,7 +2937,7 @@ def faq_html(c, a, f, meta, pattern):
            f"About {a['avg7']:,} people are in {name} at a typical moment, averaged over "
            f"the last 7 days. The most we have ever recorded at once is {a['peak']:,}. "
            f"These are our own readings of Roblox's public player count, taken roughly "
-           f"every ten minutes."))
+           f"three times an hour."))
     if f:
         bd, bh, bv = f["busy"]
         qd, qh, qv = f["quiet"]
@@ -5545,7 +5545,7 @@ def about_body():
     return f"""<div class="doc"><h1>About {html.escape(SITE)}</h1>
 <p>{html.escape(SITE)} shows when popular Roblox games are busiest and quietest, hour by hour, so you can pick a good time to play.</p>
 <h2>How it works</h2>
-<p>About every 10 minutes, we check how many people are playing each game, using the player counts Roblox shows publicly.
+<p>About three times an hour, we check how many people are playing each game, using the player counts Roblox shows publicly.
 Over days and weeks, those counts add up to a picture of each game's week: which hours are packed and which are quiet.
 Times are shown in your own timezone.</p>
 <h2>Why use it?</h2>
@@ -5831,8 +5831,8 @@ def plan_help():
     what it cannot know, is the same promise the rest of the site makes.
     """
     return ('<div class="card"><h2>How we work out a good time</h2>'
-            '<p>We take a player count for every game we follow about every ten '
-            'minutes, and we keep them. That gives us a picture of each game hour '
+            '<p>We take a player count for every game we follow about three times '
+            'an hour, and we keep them. That gives us a picture of each game hour '
             'by hour across the week.</p>'
             '<p>A <b>quiet</b> stretch is one where that game is near the bottom of '
             'its own range, and a <b>busy</b> one is near the top. It is each game '
@@ -6609,7 +6609,7 @@ def main():
         # carries every one of them, so none of it is hidden from a search engine.
         + ('<h2 style="margin-top:30px">Where the numbers come from</h2>'
            '<div class="card"><p>Roblox shows how many people are in each game right now. '
-           'We write that number down for every game on our list, about every 10 minutes, and '
+           'We write that number down for every game on our list, about three times an hour, and '
            'we keep it. Roblox does not. It only ever shows you right now, never last Tuesday. '
            'Add our readings up by hour and by day and you can see each game\'s week. Compare '
            'one week with the next and you can see whether a game is growing or shrinking.</p>'
@@ -6670,7 +6670,10 @@ def main():
     write("trending.html", page(
         seo_title("Trending Roblox Games: Gainers and Losers"),
         '<div class="hero"><h1>Trending Roblox games this week</h1>'
-        '<p class="lede">Every night we compare the last 7 days of player counts with the 7 days before. '
+        # "Every night" was true when the build ran once a night. It has run four
+        # times a day since Nov 2026, and this page's own meta description already
+        # said so - the visible lede was the last place that had not been moved.
+        '<p class="lede">Four times a day we compare the last 7 days of player counts with the 7 days before. '
         'These are the games that moved the most.</p></div>'
         + row_head("Biggest gainers") + (grid(up[:12]) if up else none) +
         row_head("Biggest losers") + (grid(down[:12]) if down else none)
