@@ -1634,6 +1634,43 @@ widths) so the answer appears into space already reserved for it.
   test is in the scratchpad: it reports CLS per page and names the elements that
   moved.
 
+### Addresses that come and go, and claims that go stale
+- **A game's events page no longer vanishes when its events end.** It existed only
+  while something was upcoming, so when the last event finished `prune()` deleted
+  it and the address answered 404 - an address that had been in the sitemap.
+  **`/events/adopt-me` and `/events/blox-fruits` answer 404 on the live site
+  today**, and both are long-running games with years of event history. The page
+  now stays for any game that has ever had an event, carrying the "nothing
+  planned right now" state and the habits card, with noindex while it is empty.
+  137 pages instead of 83. A game that has never had an event still gets none.
+- **"About every ten minutes" was the burst, not the day.** Measured across 140
+  games and 177,417 gaps: median 10 minutes, mean 21, **2.82 readings an hour**.
+  Two thirds of gaps are the three readings inside one run and 31% are over half
+  an hour waiting for the next. The claim had been set on the stated grounds that
+  "the collector runs every 30 minutes", which the ops measurement later disproved
+  (62-76 minutes). Every page says **"about three times an hour"** now.
+- **`/trending` said "Every night we compare..."** long after the build went to
+  four times a day - and that page's own meta description already said four times
+  a day, so it was contradicting itself.
+- **`ago()` rounds months now instead of flooring them.** 59 days read as "1 month
+  ago" and 89 days as "2 months ago": an error of up to a month that always made
+  things look fresher than they were. Capped at 11 so it never says "12 months".
+- **`versus_normal()` compares the last reading with a typical moment at that
+  hour** - "about 63% busier than a typical Thursday at 1 PM". It says "when we
+  took it" and **never "right now"**, because the page is built up to six hours
+  before anybody reads it, and it stays silent entirely once `stale_note()` has
+  flagged the reading as old rather than arguing with it. Below 15% it says "about
+  as busy as usual": a quarter of games sit 15% or more from typical at any
+  moment, so the line is not noise, and a 7% gap is not a fact.
+- **The internal link graph is clean.** Of 756 built pages exactly one has nothing
+  linking to it - `/404`, which is correct. The least-linked real page has three
+  inbound links. Worth re-running after adding a kind of page, since an orphan is
+  invisible by eye and gets no share of the site's standing.
+- **Our prose states no hardcoded counts.** Swept every sentence containing a
+  number word, excluding anything inside creators' text: nothing typed in. Five
+  pages still say "every 10 minutes" and **all five are Roblox creators' own event
+  descriptions** - their words, not ours, and not to be rewritten.
+
 ### Checking the branch
 `verify_all.sh` in the scratchpad builds the preview and runs everything in one
 go, printing a line per check: `check_seo`, the two unit suites, every page type
