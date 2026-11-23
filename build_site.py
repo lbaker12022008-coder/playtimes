@@ -6333,7 +6333,28 @@ def main():
         # the ones that actually have something on them.
         cal_b = calendar_html(name, events, now)
         par_b = parents_html(passes, pass_icons)
-        has = {"updates": bool(upd), "events": bool(upcoming), "passes": bool(par_b),
+        # "events" is whether this game has EVER had one, not whether it has one
+        # now, and that is a fix rather than a looseness.
+        #
+        # The page used to exist only while something was upcoming, so when a
+        # game's last event finished the page was deleted by prune() and its
+        # address started answering 404 - an address that had been in the sitemap
+        # and that Google had been asked to index. Measured 23 Nov 2026 against
+        # the live sitemap: 122 events pages were listed and this build writes 83,
+        # so **42 of them would have gone to 404**, and that has been happening on
+        # every build since the pages were split out. A Roblox event runs about
+        # six and a half days, so the churn is constant.
+        #
+        # The page stays now, showing the "nothing planned right now" state that
+        # calendar_html already wrote for exactly this case, plus the habits card
+        # saying how often this game's creators usually run one - which is a
+        # better answer to "when is the next X event" than a 404 is. It carries
+        # noindex and leaves the sitemap while it is empty, the same rule the
+        # updates and passes pages follow, so nothing thin is offered to Google.
+        #
+        # A game that has never had an event still gets no page: there is no
+        # address to protect and nothing to say on it.
+        has = {"updates": bool(upd), "events": bool(events), "passes": bool(par_b),
                "questions": bool(faq)}
         # The sitemap only asks Google to look at a page that has something on it.
         for folder, yes in has.items():
@@ -6359,6 +6380,7 @@ def main():
         # "nothing to buy here" is a real answer for a parent, but it is not
         # something to ask Google to list 23 copies of.
         c["no_passes"] = not passes
+        c["no_events"] = not upcoming
 
         if has["events"]:
             write(f"events/{s}.html", side_page(
@@ -6380,7 +6402,7 @@ def main():
                       f'{jsdata({"s": s, "n": name, "i": c["icon"] or ""})};</script>'
                       f'<script>{SHARED_JS}ptCountdowns();</script>'
                       f'<script>{PUSH_JS}</script>'),
-                noindex=thin, modified=iso_day(a["last"]), have=has))
+                noindex=thin or c["no_events"], modified=iso_day(a["last"]), have=has))
 
         if has["passes"]:
             write(f"passes/{s}.html", side_page(
@@ -6864,7 +6886,8 @@ def main():
         last = iso_day(c["a"]["last"])
         pages.append((f'/game/{c["slug"]}', "0.9", last))
         for folder in ("updates", "events", "passes", "questions"):
-            empty = {"updates": "no_updates", "passes": "no_passes"}.get(folder)
+            empty = {"updates": "no_updates", "passes": "no_passes",
+                     "events": "no_events"}.get(folder)
             if c.get("has_" + folder) and not (empty and c.get(empty)):
                 pages.append((f'/{folder}/{c["slug"]}', "0.5", last))
     pages += [("/about", "0.3", today), ("/install", "0.3", today),
