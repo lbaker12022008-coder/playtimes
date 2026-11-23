@@ -310,6 +310,15 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
 /* The how-much-it-matters line sits under the busiest and quietest hours and is
    a remark on them rather than a third fact of the same weight, so it is smaller
    and muted. Two classes, because .ans p above is one and so is anything later
@@ -4766,7 +4775,7 @@ if(p.get('want')==='busy')mode='busy';
 $('g').onchange=draw;
 Array.prototype.forEach.call(document.querySelectorAll('#planbtns button'),function(b){
 b.onclick=function(){mode=b.dataset.m;draw()}});
-$('load').hidden=true;$('plan').hidden=false;draw();
+draw();
 setInterval(tick,1000);setInterval(draw,300000)})
 .catch(function(){$('load').innerHTML='<p class="none">Could not load the game data. Please reload the page.</p>'});"""
 
@@ -6700,7 +6709,15 @@ def main():
         seo_title("Best Time to Play: Next Quiet or Busy Hours"),
         '<div class="hero"><h1>Plan my Roblox session</h1><p class="lede">Pick a game and say whether you want it '
         'quiet or busy. We will count down to the next good stretch of time, on your own clock.</p></div>'
-        '<div class="card" id="plan" hidden>'
+        # NOT hidden, and #out keeps its height from the start. Hiding the whole
+        # card meant the page drew short, and everything under it then jumped
+        # down a screen when the data arrived. That cost nothing while there was
+        # nothing under it; the two cards added below made it a measured layout
+        # shift of 0.70, seven times what Google calls acceptable, on a page
+        # whose own numbers are the reason anybody links to it. The select and
+        # the buttons are plain markup and can be drawn immediately; only the
+        # answer has to wait.
+        '<div class="card" id="plan">'
         '<label>Game<br><select class="sel" id="g"></select></label>'
         '<p class="mut small" style="margin-top:14px">What do you want?</p>'
         '<div class="days" id="planbtns"><button data-m="quiet" aria-pressed="true">Quiet</button>'
@@ -6712,8 +6729,7 @@ def main():
         # rather than under the twelve-hour table, which is most of a screen further
         # down and nowhere near the choice it belongs to.
         '<div id="planbell"><span data-bell="plan"></span></div>'
-        '<div id="out"></div></div>'
-        '<p class="mut small" id="load">Loading the games&hellip;</p>'
+        '<div id="out"><p class="mut small" id="load">Loading the games&hellip;</p></div></div>'
         + plan_help()
         + plan_table(cards)
         + '<p><a href="/busiest-hours">When is Roblox busiest overall?</a></p>'
