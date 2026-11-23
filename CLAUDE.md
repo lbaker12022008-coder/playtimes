@@ -1454,6 +1454,146 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - **`docs/404.html`** is a real page, and `worker/index.js` hands it back with a 404 status through the `ASSETS` binding in `wrangler.jsonc`. Do **not** set `not_found_handling` in `wrangler.jsonc`: Cloudflare would then answer every unmatched address itself and the worker would never run, breaking `/admin`, `/api/*` and sign-in.
 - **`check_seo.py`** skips `/admin` and `/api/*`, because the worker answers those and there is no file to find. It reads a built folder and reports broken links, missing or duplicated titles and descriptions, a canonical that points at the wrong page, skipped heading levels, pictures with no alt text, structured data that is not valid JSON, and sitemap entries that do not exist. `python check_seo.py preview` after a preview build, `python check_seo.py docs` after a real one. The build workflow runs it and prints the report, but never fails the build on it.
 
+## The site upgrade (branch `site-upgrade`, on the dev copy, NOT live)
+Everything in this section is on the `staging` branch and therefore on
+**https://staging-playtimes.lbaker12022008.workers.dev** only. The owner said
+"upload to dev site until i say go live" on 23 Nov 2026 and then "wait for live"
+when offered one fix early, so **nothing here may be merged to `main` without
+being asked for by name.**
+
+### The week grid has a game's own rise and fall divided out of it
+`analyze()`'s `week` used to be the plain average of every reading ever taken at
+that hour. That silently mixes the rhythm of a week, which is what the grid is
+for, with the game's own growth or collapse, which is not.
+
+- **Measured across 148 games on 23 Nov 2026**: 106 grids were within 20% of the
+  game as it is now, 19 were out by half or more, and **The Hollow** - which fell
+  from 96,000 players a day to 286 in the three weeks we had watched it - had a
+  grid **43 times** its real size. Its page said *"Busiest: Saturday around 5 PM,
+  about 134,407 players"* of a game with about 200 people in it. It says 647 now.
+- Each reading is divided by the game's level at the time, hours are averaged as
+  ratios, and the ratios are scaled back up by `avg7`.
+- **The level is a SEVEN-DAY centred mean and the seven is load-bearing.** A level
+  taken from each day alone divides out Saturday being busier than Tuesday, which
+  is real and is one of the things people come here for. That was not a guess - it
+  was tried, and it scored *worse than doing nothing*.
+- **`HALF_LIFE = 14`**: a reading a fortnight old counts half as much.
+- **Chosen by backtest, and the backtest is the thing to re-run before changing
+  any of it.** Hold back the last 7 days of every game, build the grid from what
+  came before, score each hour against what really happened:
+
+      plain average (what main still ships)  median 18.9%   worst tenth 120.1%
+      recency-weighted average               median 18.2%   worst tenth 113.9%
+      trend divided out                      median 16.3%   worst tenth  88.4%
+      trend divided out, plus recency        median 15.9%   worst tenth  87.2%
+      the day's own mean as the level        median 29.5%   worst tenth 107.7%
+      a blend of day and centred mean        median 20.4%   worst tenth  97.0%
+
+- **Nothing observed is touched**, and there is an assertion for it: `peak`,
+  `daily`, `peaks`, `low7`, `high7` and the coverage count are identical before
+  and after on all 148 games. The estimate and the observation stay apart.
+- Games whose grid was already current moved by at most 7.2%, typically 2.5%.
+- **Everything downstream shares the one grid** - the heatmap, the hourly graph,
+  `levels_string()` for the homepage filter, `data.json` for Compare and Plan, and
+  `week_facts()`. Checked after the change: the game page, `data.json` and the
+  homepage's 168-digit string agree on all 168 hours.
+- **What it does NOT fix, and cannot**: a game whose weekly spike is collapsing.
+  `+1 Speed Keyboard Escape` ran a Saturday 6 PM event at 1.25M, then 920k, then
+  258k; any average of three points spanning a 5x decline overstates the next one.
+  Extrapolating the trend would fix it and is exactly the thing this site does not
+  do. It is one game, and the page is still far closer than it was.
+
+### Roblox events come back OLDEST FIRST, and we were dropping the newest
+`fetch_events()` asked for the default page size (about 22) and gave up after six
+pages, so a game with more than about 130 events kept its oldest and **silently
+lost its newest**. `EVENT_API` now carries `limit=100`, which fetches the lot in
+two pages, and the cache key moved to `events3`.
+
+- **Adopt Me had 187 public events and we were holding 147**, missing every one
+  since late July. Its Events page was **empty**, `events.json` had nothing for it
+  so no event notification could ever fire, the changelog claimed "all 147" of a
+  longer list, and `update_pattern` was predicting from three-month-old dates.
+  Grow a Garden was 11 events from the same cliff.
+- **The rest of `roblox_api.py` was swept for the same fault and is clean.** A
+  batch of 50 universe ids comes back 50 for icons, banners, games meta, votes and
+  PNG icons; the one short answer was the known phantom `id 0`, which `build_site`
+  drops anyway. No game has more than 50 game passes against a ceiling of ten
+  pages of 100.
+
+### Thin pages: measured, and mostly fixed by writing rather than hiding
+Measured with the chrome stripped out, 23 Nov 2026: game pages median 1,193 words,
+questions 619, updates 591, **passes 260 with 104 under 300**, **events 128 with
+81 under 300**, and **`/plan` 79 words**, the thinnest indexed page on the site.
+
+- **The 22 Nov decision not to drop low-word-count sub-pages from the sitemap was
+  honoured.** That decision was taken with Search Console figures showing the
+  `/updates/` pages are the ones winning. Those figures were not available in this
+  branch, so the answer was to make the pages say more, not to hide them.
+- **`/plan` went from 79 words to 612**: a card saying where the numbers come from,
+  that quiet means each game against itself, that the clock is the reader's own and
+  never stored, and that it is a guess not a timetable; then the quietest and
+  busiest hour of the 24 biggest games in UTC, written before any script runs, each
+  row linking to that game.
+- **Events pages gained `event_habits()`** - how often the creators run an event,
+  how long each lasts, how much warning they give, which kind Roblox calls them.
+  All from dates we already fetch, none of it on the updates page. 65 of 83 pages
+  carry it; median 128 to 206 words. **A Roblox "event" is not an hour-long party:
+  the median one runs six and a half days.**
+- **Category pages gained `category_rhythm()`**, and the comparison against the
+  site as a whole is the point: "busiest Saturday at 5 PM" is nearly the same
+  sentence on every category, while "these games fill up 4 hours earlier than
+  Roblox as a whole" is worth reading. Shooters and simulation games do exactly
+  that. Three games minimum - two games averaged is not the habit of a kind of
+  game. `share_week()` is pulled out of `busy_page()` and both call it, so the
+  site-wide page and the category pages cannot drift.
+- **The only thing noindexed was 23 identical pages.** A game with no game passes
+  gets a "What costs money" page of three sentences, and those three sentences are
+  the same on all 23 but for the name. `c["no_passes"]` follows `c["no_updates"]`
+  exactly: the page stays on the site and in the tabs, because "nothing to buy
+  here" is a real answer for a parent, but it leaves the sitemap. 687 to 664.
+- **Short is not the same as empty**, and the line is drawn there. A page whose
+  list is empty is a near-duplicate of every other empty one; a page that is merely
+  brief may still be the page somebody searched for.
+
+### The updates pages, which are the ones bringing the traffic
+- **Every past update opens to what the creators wrote.** 87% of the site's 2,913
+  past updates carry a real description, median 143 characters, and only the newest
+  six were ever shown. The in-order table is now `<ol class="chg">` of `<details>`.
+  Roblox's own `eventCategories` label rides on each row, which is what makes a
+  long list readable: Adopt Me's are 97 Festivals and 44 New content.
+- **There is ONE list now, not two.** The page used to open with "Latest <game>
+  updates", the newest six in full, above a list that then repeated them. The
+  newest three of the long list are open on arrival instead.
+- **`similar_updates_html()` is at the foot of every one**, six other games ranked
+  the way "Similar games" ranks them and filtered to ones that have an update to
+  show. Before it, the body of an updates page linked to nothing but the game it
+  was already about, on the pages Search Console says people arrive at.
+- **Giving a `<summary>` `display:flex` removes the browser's own disclosure
+  triangle.** The intro promised a triangle and 147 rows looked like plain text.
+  Nothing in the markup showed it; only a screenshot did. It is drawn as two
+  rotated borders, the way `.gdesc` and `.howto` do it.
+
+### Smaller things on the branch
+- **`swing_text()`** on every game page: "At its busiest there are about 6.3 times
+  as many players as at its quietest, so picking your moment makes a big
+  difference." 112 of 148 games are 3x or more; 3 barely move all week and are told
+  so. It is arithmetic on the two numbers printed directly above it, so it cannot
+  disagree with them.
+- **The compare page writes `?a=`, `?b=` and `?d=` back to the address.** It read
+  them on the way in and never wrote them, so sharing a comparison handed over a
+  link to the default pair. `replaceState`, not `pushState`.
+- **`tile()` and `grid()` take an optional target and meta line**, defaulting to
+  what every other row shows, so the updates row could point at `/updates/` and say
+  when each game last changed without a second copy of the markup.
+- **`peak_note()`** adds "when a typical moment was about N" to the all-time peak,
+  which is what makes The Hollow's 507,606 record legible next to its 286 players.
+- **`stale_note()`** says when the newest reading is over six hours old, and
+  `facts_html` admits when fewer than 168 hours of the week have been seen.
+- **Duplicate readings are refused** - `samples` has a UNIQUE index on
+  `(universe_id, ts)` and all three writers use `INSERT OR IGNORE`.
+- **A day still in progress is left out of the day-by-day figures** (`DAY_HOURS_MIN
+  = 18`), which was dragging the last point of every history chart down.
+
 ## Files
 - `build_site.py`: all page design (CSS, HTML, JS) lives here. Settings at the top: `SITE`, `MIN_SAMPLES`, `ADS`, `NOINDEX`, `OUT` (reads `SITE_OUT`), `DOMAIN`, `CONTACT`, `SPIKE`.
 - `roblox_api.py`: every Roblox call made while building (icons, descriptions, game passes, events, and the colour each icon reads as). It reads PNGs itself, with the `zlib` that comes with Python, rather than pulling in Pillow: the build server installs nothing, so it must stay dependency-free. Icons are asked for as PNG only for the colour; the pages still use the WebP ones. Answers are cached in `.cache/` (gitignored) so a rebuild is instant; a cold build takes about 40 seconds for 51 games. If an endpoint dies, the function returns `None` and the page quietly leaves that section out.
