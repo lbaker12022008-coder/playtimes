@@ -1024,6 +1024,40 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -3166,29 +3200,56 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
                      f'<ul class="evt">{"".join(event_item(e, now, cls="") for e in past[:6])}</ul>')
         # Numbered from the first one we know of, so "update 1" stays update 1 as
         # new ones arrive. Newest at the top, because that is what most people want.
-        # The Kind column carries Roblox's own label for each one, the same
-        # event_kind() the rich list above uses. It is here because this table is
-        # what somebody searching "updates in order" actually came for, and
-        # without it a long game's list is unreadable: Adopt Me's 147 rows are
-        # mostly "ADOPT ME 2D TUESDAY!" and "ADOPT ME ADMIN ABUSE!" over and over,
-        # so a reader hunting for real new content has to read every title. With
-        # the label they can see at a glance which are Festivals coming round
-        # every week and which are New content.
+        # Every past update, newest first, each one opening to what the creators
+        # actually wrote.
         #
-        # The classification stays Roblox's. We print their word and never decide
-        # for ourselves what an update was - the same rule the pill above follows.
-        rows = "".join(f'<tr><td>{len(past) - i}</td><td>{html.escape(e["title"])}</td>'
-                       f'<td>{html.escape(event_kind(e.get("category")))}</td>'
-                       f'<td>{when(e["start"])}</td></tr>' for i, e in enumerate(past))
+        # It used to be a bare table of number, title and date, which told somebody
+        # searching "patch notes" nothing about what had changed. The text was
+        # there all along - 87% of the site's 2,913 past updates carry a real
+        # description, median 143 characters - but only the newest six were ever
+        # shown. Putting it behind a <details> per entry keeps the list as
+        # scannable as the table was while getting all of that writing onto the
+        # page, where Google reads it as well: the same trick the 168-hour table
+        # uses. Measured cost: nothing at all on half the pages (they have six
+        # updates or fewer) and 32KB on the heaviest, Adopt Me and Car Crushers 2.
+        #
+        # An entry with nothing to say is a plain row rather than a <details> that
+        # opens on emptiness, so the little triangle always means there is more.
+        #
+        # The Kind pill is Roblox's own label. Without one a long game's list is
+        # unreadable - Adopt Me's 147 are 97 Festivals and 44 New content, the
+        # same weekly party announced over and over - and a reader after real new
+        # content had to read every title. We print their word and never decide
+        # for ourselves what an update was.
+        items = []
+        for i, e in enumerate(past):
+            kind = event_kind(e.get("category"))
+            tag = f'<span class="ptag">{html.escape(kind)}</span>' if kind else ""
+            head = (f'<span class="cnum">{len(past) - i}</span>'
+                    f'<span class="ctitle">{html.escape(e["title"])}</span>{tag}'
+                    f'<span class="cdate">{when(e["start"])}{event_notice(e)}</span>')
+            desc = clean_desc(e.get("description") or "")
+            if len(desc) > 900:
+                desc = desc[:900].rsplit(" ", 1)[0] + "\u2026"
+            body = ""
+            if says_something(e.get("subtitle") or ""):
+                body += f'<p class="csub">{html.escape(e["subtitle"])}</p>'
+            if says_something(desc):
+                body += f"<p>{html.escape(desc)}</p>"
+            items.append(f'<li><details><summary>{head}</summary>{body}</details></li>'
+                         if body else f'<li><div class="cflat">{head}</div></li>')
         kinds = len({event_kind(e.get("category")) for e in past if e.get("category")})
-        mix = (f' Roblox labels them in {kinds} different ways, shown under Kind.'
+        mix = (f' Roblox sorts them into {kinds} kinds, shown beside each one.'
                if kinds > 1 else '')
+        told = sum(1 for e in past if says_something(clean_desc(e.get("description") or ""))
+                   or says_something(e.get("subtitle") or ""))
+        opens = (f' Open any of the {told} with a triangle to read what the creators said.'
+                 if told else '')
         parts.append(f'<h3>Every {html.escape(name)} update in order</h3>'
                      f'<p class="mut small">All {len(past)} updates and events the creators '
                      f'have put on Roblox, newest first. Number 1 is the first we know of, from '
-                     f'{when(past[-1]["start"])}.{mix}</p><div class="wrap"><table class="tbl">'
-                     f'<tr><th>#</th><th>Update or event</th><th>Kind</th><th>Date</th></tr>{rows}'
-                     f'</table></div>')
+                     f'{when(past[-1]["start"])}.{mix}{opens}</p>'
+                     f'<ol class="chg">{"".join(items)}</ol>')
     elif events is not None:
         parts.append('<p class="none">The creators have not posted any updates to the Roblox event '
                      'calendar, so we only know the date above.</p>')
