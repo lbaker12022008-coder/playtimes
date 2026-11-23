@@ -5749,6 +5749,71 @@ def item_list(cards, name):
                 for i, c in enumerate(cards[:50])]}
 
 
+def plan_help():
+    """What a quiet window is and where the number comes from.
+
+    The page asks people to trust a countdown. Saying how it was worked out, and
+    what it cannot know, is the same promise the rest of the site makes.
+    """
+    return ('<div class="card"><h2>How we work out a good time</h2>'
+            '<p>We take a player count for every game we follow about every ten '
+            'minutes, and we keep them. That gives us a picture of each game hour '
+            'by hour across the week.</p>'
+            '<p>A <b>quiet</b> stretch is one where that game is near the bottom of '
+            'its own range, and a <b>busy</b> one is near the top. It is each game '
+            'against itself, not against other games: a quiet hour in a huge game '
+            'can still hold more people than a busy hour in a small one.</p>'
+            '<p>The countdown is on your own clock. Your browser works that out; we '
+            'never ask where you are and we do not store it.</p>'
+            '<p>It is a guess from what usually happens, not a timetable. A new '
+            'update, a video or a school holiday can fill a game at an hour it is '
+            'normally empty.</p></div>')
+
+
+def plan_table(cards, n=24):
+    """The quietest and busiest hour of each big game, as a plain table.
+
+    /plan is a tool: a dropdown, two buttons and a countdown, all drawn by script
+    once the visitor has chosen something. That leaves 79 words on the page for
+    anybody who has not chosen yet - measured 23 Nov 2026, the thinnest indexed
+    page on the site, and it is one of the eight sections in TABS and therefore in
+    the sitemap. A search engine reading "Best Time to Play" found a heading, one
+    sentence and the words "Loading the games".
+
+    So the answer the tool gives one game at a time is also written out for the
+    biggest games, in UTC, before any script runs. It is the same two facts their
+    own pages carry, which is why each row links to its game rather than trying to
+    be that page: this is a contents page for a question, not a copy of the
+    answers.
+
+    Not the same as /busiest-hours, which adds every game together into one
+    Roblox-wide rhythm. This one is per game, which is what somebody who already
+    knows what they want to play is asking.
+    """
+    rows = []
+    for c in sorted(cards, key=lambda c: -c["avg"])[:n]:
+        f = c.get("facts")
+        if not f:
+            continue
+        bd, bh, bv = f["busy"]
+        qd, qh, qv = f["quiet"]
+        rows.append(f'<tr><td><a href="/game/{c["slug"]}">{html.escape(c["name"])}</a></td>'
+                    f'<td>{DAYS[qd]} {hour12(qh)}</td><td>{qv:,}</td>'
+                    f'<td>{DAYS[bd]} {hour12(bh)}</td><td>{bv:,}</td></tr>')
+    if len(rows) < 5:
+        return ""
+    return (f'<div class="card"><h2>The quietest and busiest hour of each big game</h2>'
+            f'<p class="mut small">The {len(rows)} games with the most players, and when '
+            f'each one is at its emptiest and its fullest. All times are UTC, because this '
+            f'part of the page is written before we know where you are &ndash; the tool '
+            f'above puts them on your own clock. The player counts are what a typical '
+            f'moment at that hour looks like, at the size the game is now.</p>'
+            f'<div class="wrap"><table class="tbl">'
+            f'<tr><th>Game</th><th>Quietest hour</th><th>Players then</th>'
+            f'<th>Busiest hour</th><th>Players then</th></tr>'
+            + "".join(rows) + '</table></div></div>')
+
+
 def busy_page(cards, now):
     """"When is Roblox busiest?" for every game we watch, added together.
 
@@ -6554,7 +6619,9 @@ def main():
         '<div id="planbell"><span data-bell="plan"></span></div>'
         '<div id="out"></div></div>'
         '<p class="mut small" id="load">Loading the games&hellip;</p>'
-        '<p><a href="/busiest-hours">When is Roblox busiest overall?</a></p>'
+        + plan_help()
+        + plan_table(cards)
+        + '<p><a href="/busiest-hours">When is Roblox busiest overall?</a></p>'
         '<p><a href="/">&larr; All Roblox player counts</a></p>',
         "Find the next quiet or busy hours for any Roblox game, counted down in your own "
         "timezone from our hour-by-hour player count history.",
