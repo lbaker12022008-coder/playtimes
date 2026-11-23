@@ -1573,6 +1573,67 @@ questions 619, updates 591, **passes 260 with 104 under 300**, **events 128 with
   Nothing in the markup showed it; only a screenshot did. It is drawn as two
   rotated borders, the way `.gdesc` and `.howto` do it.
 
+### Measured and deliberately left alone
+Three things were suspected, measured, and found not to be problems. They are
+written down so the measuring does not have to be repeated.
+
+- **The 7-day trend is NOT biased by when the readings were taken.** It is the
+  plain mean of one week's readings against the week before, so an uneven spread
+  of readings across the hours could in principle tilt it without the game
+  moving. Compared against an hour-balanced version (average each hour first,
+  then average the hours) across 140 games: median difference **0.30 percentage
+  points**, worst 2.1, and **the sign never flips**. The trend decides the
+  Growing and Shrinking pages and the "Is X dead?" verdict, so a flip would be a
+  page saying the opposite thing; there are none.
+- **The 79KB of CSS inlined into every page is not worth moving to a file.**
+  Measured on an emulated phone with a throttled connection and a 4x slower CPU:
+  first paint 356-748 ms, LCP 432-1848 ms against Google's 2500 ms limit, on all
+  eight page types. An external stylesheet would be cached between pages but
+  costs a round trip on the first one, and the first one is where visitors
+  arrive from Google. Nothing to win.
+- **The week grid is thinly sampled in only 1.4% of its squares.** Across 24,864
+  game-squares: 95.7% are drawn from 3 or more readings, median 7 over four
+  weeks, 3.0% have none at all (and are drawn as a gap, not a zero). A rule
+  requiring 3 readings before a square may be called the busiest or quietest hour
+  was tried and changed nothing - the extreme swings are real, not thin cells.
+- **`/plan` and `/compare` download `data.json`, which is 164KB raw but 73KB
+  gzipped.** That is the whole site's week for 148 games. It does not delay the
+  paint, because the page is drawn first and the data fills the tool afterwards.
+
+### Correlation is not cause, and half that table was invented
+"Days the player count jumped" matches each flagged day against the creators'
+announced events. Measured 23 Nov 2026: of 98 flagged days across the site,
+**48 line up with an event and 50 do not**.
+
+- For the 48, "lines up with X" is correlation stated as correlation, which is
+  all that can honestly be offered, and it stays.
+- For the 50, the page used to say **"no event was listed, so it was probably an
+  update or a popular video"**. Nothing in this codebase reads update logs or
+  video views, so that was a cause invented out of nothing, on more than half the
+  rows, under a column headed "What we think happened".
+- It now says the creators announced nothing that day, so we cannot say why, and
+  lists an update or a video as possibilities rather than as the answer. The
+  column is "What we can tell you".
+- **Spike detection itself is sound** and was checked at the same time: 98 days
+  across 148 games, median 0 per game and never more than 2, with fast-growing
+  games averaging 1.4 flagged days against 0.8 for flat ones - mildly elevated,
+  on a sample of five games, which is not enough to call growth a false positive.
+
+### A hidden tool makes everything under it jump
+`/plan` hid its whole card until `data.json` arrived. That cost nothing while
+there was nothing underneath it, and became **0.70 of cumulative layout shift** -
+seven times Google's limit - the moment two cards were added below. The select
+and the buttons are plain markup and are drawn immediately now, and `#out` holds
+its own height (about 790px on a phone, 770 on a computer, measured at six
+widths) so the answer appears into space already reserved for it.
+
+- **The live site measured 0.000**, which is how this was known to be a new fault
+  rather than an old one. Measure the live page before blaming yourself, and
+  before blaming anybody else.
+- Anything else that reveals a block after a fetch has the same shape of bug. The
+  test is in the scratchpad: it reports CLS per page and names the elements that
+  moved.
+
 ### Smaller things on the branch
 - **`swing_text()`** on every game page: "At its busiest there are about 6.3 times
   as many players as at its quietest, so picking your moment makes a big

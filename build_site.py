@@ -3509,12 +3509,23 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
         rows = []
         for day, ratio in sorted(spikes, key=lambda s: -s[0])[:6]:
             near = [e for e in (events or []) if abs(e["start"] - day) <= 36 * 3600]
+            # Two different kinds of claim, and they must not be dressed the same.
+            # Where an announced event falls within a day and a half, "lines up
+            # with" is correlation stated as correlation, which is all we can
+            # honestly offer. Where there is nothing, we used to write "probably an
+            # update or a popular video" - a cause with no evidence of any kind
+            # behind it, since nothing here reads update logs or video views.
+            # Measured 23 Nov 2026: 48 of the 98 flagged days match an event and
+            # **50 did not**, so more than half of this table was an invention. It
+            # says what it could be without claiming which, because "we do not
+            # know" is a real answer and a made-up one is not.
             why = (f'lines up with &ldquo;{html.escape(near[0]["title"])}&rdquo;' if near
-                   else "no event was listed, so it was probably an update or a popular video")
+                   else "the creators announced nothing that day, so we cannot say "
+                        "why &ndash; an update, a video or something else")
             rows.append(f'<tr><td>{when(day)}</td><td>{ratio:.1f}&times; busier &ndash; {why}</td></tr>')
         parts.append(f'<h3>Days the player count jumped</h3><p class="mut small">We flag any day that was '
                      f'at least {SPIKE:g} times busier than the week before it.</p><div class="wrap">'
-                     f'<table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr>'
+                     f'<table class="tbl"><tr><th>Day</th><th>What we can tell you</th></tr>'
                      f'{"".join(rows)}</table></div>')
     if not parts:
         return ""
