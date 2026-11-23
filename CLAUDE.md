@@ -285,10 +285,13 @@ sent, newest first.
   what caught `push_sent.at`.
 
 #### Search Console is CONNECTED (23 Nov 2026) and it changed what we know
-`GSC_CLIENT_EMAIL` and `GSC_PRIVATE_KEY` are set in Cloudflare, the service account
-`playtime-admin@serious-bliss-515606-i7.iam.gserviceaccount.com` is a full user on the
-property `sc-domain:playtimestats.com`, and the worker's own cron fetched 23KB of real
-figures within ten minutes. Secrets apply immediately; no deploy was needed.
+`GSC_CLIENT_EMAIL` and `GSC_PRIVATE_KEY` are set in Cloudflare, a Google Cloud service
+account named `playtime-admin` is a full user on the property
+`sc-domain:playtimestats.com`, and the worker's own cron fetched 23KB of real figures
+within ten minutes. Secrets apply immediately; no deploy was needed. **The account's
+full address is not written here on purpose**: this repo is public, and while a
+client_email is not a credential it names the Google Cloud project. Read it back from
+Cloudflare, or from Search Console under Settings then Users and permissions.
 
 **First 29 days: 97 clicks from 11,405 impressions, CTR 0.85%, average position 6.9.**
 
