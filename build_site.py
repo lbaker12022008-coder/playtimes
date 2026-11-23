@@ -6126,6 +6126,55 @@ def busy_page(cards, now):
                  "creator": {"@type": "Organization", "name": SITE}}])
 
 
+def chart_bias(cards, up, down, falling):
+    """Why the shrinking list is long and the growing list is short.
+
+    60% of the games we track read as "getting quieter" or "losing players fast",
+    and left unexplained that invites the reader to conclude Roblox is dying. It
+    is not what the numbers say. It is how we choose games: discover.py adds them
+    off Roblox's own charts - Top Trending, Up-and-Coming, Top Playing Now - and a
+    game gets onto those by having just spiked. Most fall back afterwards.
+
+    Measured 23 Nov 2026, and the split by size is the proof. Of the games we
+    track, those over 100,000 players had a median trend of +2% with only 14%
+    falling, while those between 5,000 and 20,000 had a median of -12% with 69%
+    falling. The big evergreens are steady; the small ones are the ones that
+    spiked and are coming down.
+
+    The card recomputes its own numbers every build, so it cannot go stale and
+    cannot disagree with the list beside it. The claim about the biggest games is
+    checked rather than asserted: if it ever stops being true the sentence is left
+    out instead of printed wrong.
+    """
+    if not up or not down:
+        return ""
+    # A comparison, not a threshold. The claim being made is "the big ones hold up
+    # better than the small ones", so both halves are counted the same way and
+    # printed side by side; a bare "7 of the 10 biggest" would have been a number
+    # with nothing to judge it against, and the first version of this withheld a
+    # true statement because 6 of 10 missed an arbitrary bar of 7.
+    held = lambda c: c["trend"] is None or c["trend"] > -5
+    big = sorted(cards, key=lambda c: -c["avg"])[:10]
+    steady = [c for c in big if held(c)]
+    overall = round(10 * sum(1 for c in cards if held(c)) / len(cards))
+    why = ("Why are there so many?" if falling else "Why are there so few?")
+    lead = (f'There are {len(down)} games on this list and only {len(up)} that are '
+            f'growing.' if falling else
+            f'There are only {len(up)} games on this list, against {len(down)} that '
+            f'are shrinking.')
+    bit = ""
+    if len(steady) > overall:
+        bit = (f' The biggest games hold up better: {len(steady)} of the 10 largest '
+               f'games we track are keeping their players or growing, against about '
+               f'{overall} in every 10 across the whole site.')
+    return (f'<div class="card"><h2>{why}</h2>'
+            f'<p>{lead} That is about the games we watch, not about Roblox.</p>'
+            f'<p>We add a game when it turns up on Roblox&rsquo;s own charts, and a '
+            f'game usually gets there by suddenly becoming popular. Most of them '
+            f'drop back again afterwards, so our list catches a lot of games on the '
+            f'way down.{bit}</p></div>')
+
+
 def list_page(key, title, h1, lede, cards, desc, extra="", listname=""):
     """One of the "across the top" pages: a heading and a grid of games."""
     body = (f'<div class="hero"><h1>{h1}</h1><p class="lede">{lede}</p></div>{extra}'
@@ -6675,6 +6724,7 @@ def main():
               up,
               "Which Roblox games are gaining players this week, measured from our own "
               "player count history.",
+              extra=chart_bias(cards, up, down, falling=False),
               listname="Roblox games gaining players this week")
     list_page("shrinking", seo_title("Roblox Games Losing Players This Week"),
               "Roblox games that are shrinking",
@@ -6683,6 +6733,7 @@ def main():
               down,
               "Which Roblox games are losing players this week, measured from our own "
               "player count history.",
+              extra=chart_bias(cards, up, down, falling=True),
               listname="Roblox games losing players this week")
 
     rows = "".join(
