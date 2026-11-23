@@ -3196,12 +3196,17 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
         parts.append(f'<p>The creators last changed something in the game <b>{ago(meta["updated"], now)}</b> '
                      f'({when(meta["updated"])}).</p>')
     if past:
-        parts.append(f'<h3>Latest {html.escape(name)} updates</h3>'
-                     f'<ul class="evt">{"".join(event_item(e, now, cls="") for e in past[:6])}</ul>')
+        # ONE list, not two. Until the list below carried the creators' own words
+        # this section was preceded by "Latest <game> updates", the newest six laid
+        # out in full - which is now the same six entries, with the same title,
+        # kind, date and description, printed twice on one page a few hundred
+        # pixels apart. The list below says everything it said and 141 more, so it
+        # is the one that stays, with its newest three already open so the page
+        # still starts with something to read rather than a wall of shut rows.
+        #
         # Numbered from the first one we know of, so "update 1" stays update 1 as
         # new ones arrive. Newest at the top, because that is what most people want.
-        # Every past update, newest first, each one opening to what the creators
-        # actually wrote.
+        # Each one opens to what the creators actually wrote.
         #
         # It used to be a bare table of number, title and date, which told somebody
         # searching "patch notes" nothing about what had changed. The text was
@@ -3222,12 +3227,18 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
         # content had to read every title. We print their word and never decide
         # for ourselves what an update was.
         items = []
+        opened = 0
         for i, e in enumerate(past):
             kind = event_kind(e.get("category"))
             tag = f'<span class="ptag">{html.escape(kind)}</span>' if kind else ""
+            # The date AND how long ago it was, which is what the six-item list
+            # above used to give and the table never did: a reader scanning for
+            # "is this game still being worked on" should not have to do date
+            # arithmetic against today.
             head = (f'<span class="cnum">{len(past) - i}</span>'
                     f'<span class="ctitle">{html.escape(e["title"])}</span>{tag}'
-                    f'<span class="cdate">{when(e["start"])}{event_notice(e)}</span>')
+                    f'<span class="cdate">{when(e["start"])} &middot; '
+                    f'{ago(e["start"], now)}{event_notice(e)}</span>')
             desc = clean_desc(e.get("description") or "")
             if len(desc) > 900:
                 desc = desc[:900].rsplit(" ", 1)[0] + "\u2026"
@@ -3236,14 +3247,20 @@ def updates_html(name, events, meta, spikes, now, pattern=None):
                 body += f'<p class="csub">{html.escape(e["subtitle"])}</p>'
             if says_something(desc):
                 body += f"<p>{html.escape(desc)}</p>"
-            items.append(f'<li><details><summary>{head}</summary>{body}</details></li>'
+            op = " open" if i < 3 else ""
+            if op and body:
+                opened += 1
+            items.append(f'<li><details{op}><summary>{head}</summary>{body}</details></li>'
                          if body else f'<li><div class="cflat">{head}</div></li>')
         kinds = len({event_kind(e.get("category")) for e in past if e.get("category")})
         mix = (f' Roblox sorts them into {kinds} kinds, shown beside each one.'
                if kinds > 1 else '')
         told = sum(1 for e in past if says_something(clean_desc(e.get("description") or ""))
                    or says_something(e.get("subtitle") or ""))
-        opens = (f' Open any of the {told} with a triangle to read what the creators said.'
+        opens = (f' The newest are open already; press the triangle on any of the '
+                 f'other {told - opened} to read what the creators said.'
+                 if told > opened > 0 else
+                 f' Open any of the {told} with a triangle to read what the creators said.'
                  if told else '')
         parts.append(f'<h3>Every {html.escape(name)} update in order</h3>'
                      f'<p class="mut small">All {len(past)} updates and events the creators '
