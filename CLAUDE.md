@@ -272,6 +272,25 @@ an eight-line call so the router is a router again. The login page still uses
     box to keep in step and the two cannot disagree. Grabbing the thumb keeps it under
     the finger; pressing the bare track jumps. It hides itself when the table already
     fits.
+- **Dead game IDs are HIDDEN, never removed** (23 Nov 2026, owner's call: "can you
+  just hide them in case they go public again"). Ten IDs in `games.txt` come back
+  empty because the game was deleted or made private, and the dashboard was nagging
+  about them.
+  - **Leaving them in the file is the right answer, not the lazy one.** A private
+    game can be made public again, and because the collector keeps asking, such a
+    game starts recording again **by itself** with nobody doing anything. The cost is
+    one lookup a run. Taking the IDs out would mean noticing by hand that a game had
+    returned, and adding it back.
+  - **Hiding is per ID, and that is the whole design.** A switch that silenced the
+    warning outright would never tell you about a game that dies *next* month.
+    `admin_meta.hidden_ids` holds the acknowledged ones, `insights.js` filters
+    `missing_ids` against it, and a new dead ID still raises a warning.
+  - `POST /admin/hide-ids` is admin-only with the same cross-site check the other
+    writes use, and digits-only on the way in. **Nothing anywhere edits `games.txt`** -
+    that stays a human decision, as the discover.py notes already require.
+  - The hidden ones stay listed in a fold on the Games tab with a button to bring
+    them back, because "which ones did I hide?" is a real question months later - the
+    same reasoning the checklist's finished items follow.
 - **The dashboard is capped at 1560px, not SHELL's 1100px.** Measured at 1100, 1500,
   2000 and 2600px, the reading column stayed **838px at every one**, so the games table
   (1057px) could never fit and a 2560px monitor showed two thirds empty. The rule lives
@@ -1482,6 +1501,13 @@ reads them.
    seconds of every push. A manual deploy uploads the `docs/` folder **on this
    computer**, which may be older than what the build job has committed - and
    nothing anywhere reports that it happened. If one is truly needed, pull first.
+   - **This was broken repeatedly on 22-23 Nov 2026** by the session building the
+     admin dashboard, which deployed by hand after every worker change - about ten
+     times - because the rule did not exist yet when it started. No harm came of it
+     that anyone found, since that session had pulled recently each time and the
+     worker code it was shipping was its own. It is recorded because the next session
+     to be mid-task when this file changes under it should know the rule is new, and
+     check what it has already done rather than assume it complied.
 6. **The live site is not proof.** Before concluding a change failed, check
    `git show origin/main:docs/<file>`; that is the ground truth. The live site
    lags, and after a hand-run deploy it can serve files older than the repo.
