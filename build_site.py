@@ -2104,21 +2104,37 @@ def trend_html(t):
     return '<span class="mut">Steady</span>'
 
 
-def tile(c, i=0):
+def tile(c, i=0, href=None, meta=None):
+    """One game as a tile.
+
+    href and meta exist so a row of tiles can point somewhere other than the game
+    page and say something other than the player count - the updates pages use
+    both. They default to what every other row on the site shows, so a caller that
+    does not care about either writes nothing.
+    """
     # --glow is the hue of this game's own picture, so the glow behind the tile is
     # the game's colour. Left off entirely when the picture has no colour in it, so
     # that the stylesheet's fallback (the site accent) takes over.
     glow = "" if c.get("hue") is None else f';--glow:{c["hue"]}'
+    if meta is None:
+        meta = (f'<span title="Typical players over the last 7 days">{PERSON} '
+                f'{short(c["avg"])}</span>{trend_short(c["trend"])}')
     return (f'<li style="--i:{min(i, 14)}{glow}" data-n="{html.escape(search_key(c))}" data-s="{c["slug"]}">'
-            f'<a class="tile" href="/game/{c["slug"]}">{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
+            f'<a class="tile" href="{href or "/game/" + c["slug"]}">'
+            f'{thumb(c["name"], c["icon"], icon_alt(c["name"]))}'
             f'<span class="tname">{html.escape(c["name"])}</span>'
-            f'<span class="tmeta"><span title="Typical players over the last 7 days">{PERSON} {short(c["avg"])}</span>'
-            f'{trend_short(c["trend"])}</span></a></li>')
+            f'<span class="tmeta">{meta}</span></a></li>')
 
 
-def grid(cards, gid=""):
+def grid(cards, gid="", href=None, meta=None):
+    """A row of game tiles. href and meta, when given, are functions of the card."""
     idattr = f' id="{gid}"' if gid else ""
-    return f'<ul class="grid"{idattr}>{"".join(tile(c, i) for i, c in enumerate(cards))}</ul>'
+    return (f'<ul class="grid"{idattr}>'
+            + "".join(tile(c, i,
+                           href(c) if href else None,
+                           meta(c) if meta else None)
+                      for i, c in enumerate(cards))
+            + '</ul>')
 
 
 def view_toggle():
@@ -3354,6 +3370,38 @@ def similar_html(card, cards):
     # than the same tiles everywhere else on the site.
     return (row_head("Similar games") +
             f'<p class="mut small" style="margin-top:-4px">{note}</p>{grid(picks)}')
+
+
+def similar_updates_html(card, cards, latest, now):
+    """Other games' changelogs, at the foot of a game's updates page.
+
+    Search Console, Nov 2026: the /updates/ pages are what actually brings people
+    to this site - /updates/dandy-s-world alone had 3,356 impressions in 29 days,
+    more than six times the homepage - and until now the body of one linked to
+    nothing but the game it was already about. Somebody who arrived from "dandy's
+    world updates in order" had to go back to Google to read another game's.
+
+    Same category first and closest in size second, which is the ranking the game
+    pages' "Similar games" row already uses, so this is somewhere else you might
+    go rather than a list of whatever happens to be newest. Only a game we have an
+    update to show for is offered, so no tile leads to an empty page, and each one
+    says when that game last changed - which is the question somebody on this page
+    is asking.
+    """
+    picks = [c for c in similar(card, cards, n=len(cards)) if latest.get(c["slug"])][:6]
+    if len(picks) < 2:
+        return ""                         # one lonely suggestion is not worth a heading
+    same = sum(1 for c in picks if card["genre"] and c["genre"] == card["genre"])
+    note = (f'Other {html.escape(card["genre"].lower())} games of about the same size, '
+            f'and when their creators last announced something.'
+            if same >= len(picks) - 1 else
+            'Games with about as many players, and when their creators last '
+            'announced something.')
+    return (row_head("Updates for similar games") +
+            f'<p class="mut small" style="margin-top:-4px">{note}</p>'
+            + grid(picks,
+                   href=lambda c: f'/updates/{c["slug"]}',
+                   meta=lambda c: f'<span>{ago(latest[c["slug"]], now)}</span>'))
 
 
 def pass_tags(p, cheapest, newest):
@@ -5754,6 +5802,18 @@ def main():
             f"The best-covered game has {most} player counts so far.\n"
             f"Lower MIN_SAMPLES in build_site.py, or wait until the games catch up.\n")
 
+    # When each game's creators last announced an update, worked out before the
+    # loop because a game's updates page offers other games' updates pages and so
+    # has to know about games it has not reached yet - the same reason "Similar
+    # games" needs two passes. fetch_events() caches on disk, so this spends
+    # nothing the loop below was not going to spend anyway.
+    latest_update = {}
+    for c in cards:
+        done = [e["start"] for e in (roblox_api.fetch_events(c["uid"]) or [])
+                if (e["end"] or e["start"] + 86400) < now]
+        if done:
+            latest_update[c["slug"]] = max(done)
+
     # Second pass: the game pages themselves.
     all_events = []
     last_update = {}
@@ -5966,6 +6026,7 @@ def main():
                       'updates on Roblox for this game yet, and we have not been watching long '
                       'enough to spot a jump in players. Check back soon.</p></div>')
             + calendar_html(name, events, now)
+            + similar_updates_html(c, cards, latest_update, now)
             + f'<p><a href="/game/{s}">&larr; Back to {html.escape(name)}</a></p>'
             + f'<script>{SHARED_JS}</script>'
             + f'<script>var P={jsdata(pattern)};'
