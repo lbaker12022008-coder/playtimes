@@ -2153,12 +2153,37 @@ def foot_contact():
 
 # ---------------------------------------------------------------- the maths
 
+# A day counts in the day-by-day figures only if we have readings in at least this
+# many of its 24 hours.
+#
+# Those figures bucket samples by calendar day, so the newest bucket is always a day
+# still in progress - and the hours it is missing are the LATE ones, which are the
+# busy ones. Measured 23 Nov 2026 across every game with 500+ readings: a complete
+# day holds readings in 20-24 of its hours (median 24), the newest day holds 14-19
+# (median 14), and the first day we ever saw a game holds 1-24 (median 8). Every one
+# of 57 games tested ended on a partial day reading LOWER than the day before -
+# 2,232 against 2,602 on Work at a Pizza Place, 6,083 against 6,547 on Natural
+# Disaster Survival - so every history chart on the site showed every game dipping
+# today. An artefact, universal, and quietly undercutting the trends this site
+# exists to report.
+#
+# 18 sits in the gap between those two groups: it keeps 100% of complete days and
+# drops 99% of partial ones. It tests COVERAGE rather than how many samples arrived,
+# because gaps in collection are normal - a third of the gaps between readings run
+# over 25 minutes - while missing whole hours is not.
+#
+# It does NOT reach index_ok(), which reads the span of our samples and the 168-hour
+# coverage, so no page can appear or disappear because of this.
+DAY_HOURS_MIN = 18
+
+
 def analyze(rows):
     """Turns a game's player counts into everything the pages need.
 
     rows is [(time, players)] oldest first. Returns a dictionary with:
       week    7x24 table of typical players (Monday first, UTC hours)
-      daily   [(midnight, typical players)] one entry per day, oldest first
+      daily   [(midnight, typical players)] one entry per WHOLE day, oldest
+              first - a day still in progress is left out, see DAY_HOURS_MIN
       trend   % change, last 7 days against the 7 days before
       month   % change, last 14 days against the 14 days before
       avg7    typical players over the last 7 days
@@ -2176,6 +2201,7 @@ def analyze(rows):
     sums = [[0] * 24 for _ in range(7)]
     cnt = [[0] * 24 for _ in range(7)]
     by_day = {}
+    day_hrs = {}
     now = rows[-1][0]
     buckets = {7: [], 14: [], 28: []}
     for ts, p in rows:
@@ -2183,17 +2209,23 @@ def analyze(rows):
         sums[d.weekday()][d.hour] += p
         cnt[d.weekday()][d.hour] += 1
         by_day.setdefault(ts // 86400, []).append(p)
+        day_hrs.setdefault(ts // 86400, set()).add(d.hour)
         age = (now - ts) / 86400
         for span in buckets:
             if age <= span:
                 buckets[span].append((age, p))
 
     week = [[round(sums[d][h] / cnt[d][h]) if cnt[d][h] else None for h in range(24)] for d in range(7)]
-    daily = [(day * 86400, round(sum(v) / len(v))) for day, v in sorted(by_day.items())]
+    # Whole days only - see DAY_HOURS_MIN. A game we have never yet watched through
+    # a full day keeps what it has rather than being left with an empty chart.
+    whole = [d for d in sorted(by_day) if len(day_hrs[d]) >= DAY_HOURS_MIN]
+    if not whole:
+        whole = sorted(by_day)
+    daily = [(d * 86400, round(sum(by_day[d]) / len(by_day[d]))) for d in whole]
     # The same days again, with the highest count we actually saw on each one. The
     # average is our estimate of a typical moment; the maximum is a real observation,
     # and the pages are careful to say which is which.
-    peaks = [(day * 86400, round(sum(v) / len(v)), max(v)) for day, v in sorted(by_day.items())]
+    peaks = [(d * 86400, round(sum(by_day[d]) / len(by_day[d])), max(by_day[d])) for d in whole]
 
     def mean(vals):
         return sum(vals) / len(vals) if vals else None
