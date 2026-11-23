@@ -2506,9 +2506,36 @@ def peak_note(a):
     return f', when a typical moment was about {a["peak_day"]:,}'
 
 
+def stale_note(a):
+    """" - older than usual; we have had no newer count since".
+
+    It names no cause on purpose. A reading can go stale because Roblox stopped
+    answering for that one game, or because our own collector stalled, and from
+    inside the build those look identical - blaming Roblox would be a guess, and
+    on a general outage it would be a guess that is wrong on every page at once.
+    The sentence states only what we know: nothing newer has arrived.
+
+    The collector really runs about every 62 minutes (its cron asks for 30, but a
+    run takes some 21 and scheduled jobs are throttled on a free plan), so at build
+    time the newest reading is normally well under two hours old. Measured 23 Nov
+    2026 across 148 games: the median game was level with the newest reading in the
+    database and exactly ONE sat more than six hours behind, at 42 hours - a game
+    Roblox had quietly stopped answering for.
+
+    Six hours is therefore a wide margin rather than a hair trigger. It is measured
+    from the moment of the BUILD, which can be six hours before the page is read, so
+    a page may understate how old a reading is by one build. It can never overstate
+    it, because the gap only ever grows.
+    """
+    if time.time() - a["latest"][0] < 6 * 3600:
+        return ""
+    return " &ndash; older than usual; we have had no newer count since"
+
+
 def facts_html(c, a, f, meta=None):
     """The key numbers as a list, so they are in the page itself and not only in a chart."""
-    rows = [("Latest player count", f'{a["latest"][1]:,}', f'at {stamp(a["latest"][0])}'),
+    rows = [("Latest player count", f'{a["latest"][1]:,}',
+             f'at {stamp(a["latest"][0])}{stale_note(a)}'),
             ("Players at a typical moment", f'{a["avg7"]:,}', "average over the last 7 days"),
             ("Highest player count ever seen", f'{a["peak"]:,}',
              f'the most we have recorded, on {when(a["peak_at"])}{peak_note(a)}')]
@@ -2536,6 +2563,15 @@ def facts_html(c, a, f, meta=None):
     span = (f'over {a["days"]:.0f} days, since {when(a["first"])}' if a["days"] >= 1
             else f'since {when(a["first"])}')
     rows.append(("Player counts collected", f'{c["samples"]:,}', span))
+    # Only when the picture has holes in it. 95% of games have been seen in all 168
+    # hours of the week (measured 23 Nov 2026), so printing "168 of 168" on every
+    # page would be noise on 140 of them and would train people to skip the row -
+    # the same reason the dashboard's "Needs doing" list refuses advice that is
+    # always true. The eight that fall short are new games still filling in, and on
+    # those it is the honest caveat beside a half-empty heatmap.
+    if a["hours"] < 168:
+        rows.append(("How much of the week we have seen", f'{a["hours"]} of 168 hours',
+                     "an hour we have no reading for shows a dash, not a zero"))
     # On a phone this card is a whole screen tall, so only the first three rows show
     # there and the rest open behind "More stats" (see .facts.fold). Everything stays
     # in the HTML, so search engines read every row.
