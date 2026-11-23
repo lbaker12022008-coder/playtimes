@@ -27,7 +27,18 @@ BANNER_API = ("https://thumbnails.roblox.com/v1/games/multiget/thumbnails"
 ASSET_API = ("https://thumbnails.roblox.com/v1/assets"
              "?size=150x150&format=Png&isCircular=false&assetIds=")
 PASS_API = "https://apis.roblox.com/game-passes/v1/universes/{}/game-passes?passView=Full&pageSize=100"
-EVENT_API = "https://apis.roblox.com/virtual-events/v1/universes/{}/virtual-events"
+# limit=100 is not tidiness, it is a correctness fix. Roblox returns a game's
+# events OLDEST FIRST, about 22 to a page by default, and fetch_events() gives
+# up after 6 pages - so a game with more than about 130 events kept its oldest
+# and silently lost its newest. Measured 23 Nov 2026: Adopt Me has 187 public
+# events and we were holding 147, missing every one since late July. That took
+# its upcoming events off the calendar and its event notifications with them,
+# left the changelog claiming "all 147" of a longer list, and fed a stale set of
+# dates to update_pattern, which is what predicts the next update. Grow a Garden
+# was 11 events from the same cliff. Asking for 100 a page brings the whole list
+# back in two; the page cap below stays as the stop on a runaway loop.
+EVENT_API = ("https://apis.roblox.com/virtual-events/v1/universes/{}/virtual-events"
+             "?limit=100")
 
 HOUR = 3600
 DAY = 24 * HOUR
@@ -426,7 +437,7 @@ def fetch_events(uid):
         out, cursor = [], ""
         try:
             for _ in range(6):
-                d = get_json(EVENT_API.format(uid) + (f"?cursor={cursor}" if cursor else ""))
+                d = get_json(EVENT_API.format(uid) + (f"&cursor={cursor}" if cursor else ""))
                 for e in d.get("data", []):
                     if e.get("eventVisibility") != "public":
                         continue
@@ -465,4 +476,6 @@ def fetch_events(uid):
             print(f"  ! could not load events for {uid}:", e)
             return None
 
-    return cached(f"events2:{uid}", 3 * HOUR, pull)
+    # events3, not events2: the limit above changed what this answer CONTAINS, so a
+    # cache written before it would keep serving the truncated list for hours.
+    return cached(f"events3:{uid}", 3 * HOUR, pull)
