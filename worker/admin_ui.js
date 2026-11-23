@@ -209,6 +209,10 @@ display:grid;place-items:center;border-radius:50%;background:var(--acc);color:va
 font-size:.75rem;font-weight:800}
 .steps code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:.84em;
 overflow-wrap:anywhere}
+.cmds{display:flex;flex-direction:column;gap:7px;margin:0 0 10px}
+.cmds code{display:block;background:var(--chip);border:1px solid var(--line);
+padding:9px 11px;border-radius:9px;font-size:.8rem;line-height:1.5;
+overflow-wrap:anywhere;user-select:all}
 .flag{font-size:.78rem;color:var(--mut);margin-top:3px}
 .donelist{margin-top:14px}
 .donelist summary{cursor:pointer;color:var(--mut);font-size:.88rem}
@@ -1048,8 +1052,14 @@ function pSearch() {
       (g.setup || []).map(function (s) {
         return '<li>' + esc(s).replace(/(npx wrangler secret put [A-Z_]+)/g, '<code>$1</code>') + '</li>';
       }).join('') +
-      '</ol><p class="flag">The property this will ask about is <code>' + esc(g.site) +
-      '</code>.</p></div>';
+      '</ol>' +
+      (g.secrets ? '<h3>The two commands</h3><p class="mut small" style="margin:0 0 6px">' +
+        'Run these in a terminal in the project folder. The second one reads the key ' +
+        'straight out of the file, so it never reaches your clipboard or this screen.</p>' +
+        '<div class="cmds">' + g.secrets.map(function (c) {
+          return '<code>' + esc(c) + '</code>';
+        }).join('') + '</div>' : '') +
+      (g.note ? '<p class="flag">' + esc(g.note) + '</p>' : '') + '</div>';
   }
   if (g.state === 'never_fetched' || g.state === 'error') {
     return head + '<div class="tools"><button class="btn" id="gscgo" type="button">Fetch now</button>' +

@@ -106,8 +106,8 @@ async function accessToken(env) {
 
 /* ---------------------------------------------------------------------- the query */
 
-async function query(env, token, body) {
-  const r = await fetch(API + encodeURIComponent(siteFor(env)) + "/searchAnalytics/query", {
+async function query(site, token, body) {
+  const r = await fetch(API + encodeURIComponent(site) + "/searchAnalytics/query", {
     method: "POST",
     headers: { authorization: "Bearer " + token, "content-type": "application/json" },
     body: JSON.stringify(body)
@@ -118,10 +118,35 @@ async function query(env, token, body) {
     /* 403 here almost always means the service account was never added as a user on
        the property, which is the one setup step that happens outside this repo. */
     throw new Error(r.status === 403
-      ? "Google refused access to " + siteFor(env) + ". Has the service account been added as a user on that property? (" + msg + ")"
+      ? "Google refused access to " + site + ". Has the service account been added as a " +
+        "user on that property? (" + msg + ")"
       : msg);
   }
   return j.rows || [];
+}
+
+/**
+ * Which properties this service account can actually see.
+ *
+ * Search Console has two kinds of property and they are named differently - a domain
+ * property is sc-domain:example.com, a URL-prefix one is https://example.com/ - and
+ * asking about the wrong one fails in exactly the same way as not being given access
+ * at all. Rather than make somebody guess, we ask Google what it will answer for and
+ * say so. If there is exactly one, that is the answer and we use it.
+ */
+async function listSites(env, token) {
+  try {
+    const r = await fetch("https://searchconsole.googleapis.com/webmasters/v3/sites", {
+      headers: { authorization: "Bearer " + token }
+    });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (j.siteEntry || [])
+      .filter((s) => s.permissionLevel && s.permissionLevel !== "siteUnverifiedUser")
+      .map((s) => s.siteUrl);
+  } catch (e) {
+    return [];
+  }
 }
 
 const day = (back) => new Date(Date.now() - back * 86400e3).toISOString().slice(0, 10);
@@ -136,17 +161,38 @@ const day = (back) => new Date(Date.now() - back * 86400e3).toISOString().slice(
 export async function syncGsc(env) {
   if (!gscConfigured(env)) return { skipped: "not configured" };
   const token = await accessToken(env);
+
+  /* Ask Google which property it will answer for before asking it anything else. One
+     property means no guessing; several means use the configured name; none means the
+     service account was never added as a user, which is the one setup step that
+     happens outside this repo and the one most likely to be missed. */
+  const sites = await listSites(env, token);
+  if (!sites.length) {
+    throw new Error("This service account cannot see any Search Console property yet. " +
+      "In Search Console open Settings, then Users and permissions, then Add user, and " +
+      "paste the service account email (the client_email from the JSON key file).");
+  }
+  let site = siteFor(env);
+  if (!sites.includes(site)) {
+    if (sites.length === 1) site = sites[0];
+    else {
+      throw new Error("The property " + site + " is not one this service account can see. " +
+        "It can see: " + sites.join(", ") + ". Set the right one with " +
+        "npx wrangler secret put GSC_SITE");
+    }
+  }
+
   const startDate = day(31);
   const endDate = day(3);
   const base = { startDate, endDate, dataState: "final" };
 
   const [daily, queries, pages, devices] = await Promise.all([
-    query(env, token, { ...base, dimensions: ["date"], rowLimit: 60 }),
-    query(env, token, { ...base, dimensions: ["query"], rowLimit: 100 }),
-    query(env, token, { ...base, dimensions: ["page"], rowLimit: 100 }),
+    query(site, token, { ...base, dimensions: ["date"], rowLimit: 60 }),
+    query(site, token, { ...base, dimensions: ["query"], rowLimit: 100 }),
+    query(site, token, { ...base, dimensions: ["page"], rowLimit: 100 }),
     /* Google's own aggregate split, which is not visitor data of ours and costs
        nothing extra: it is the one honest answer we can give to "mobile or desktop". */
-    query(env, token, { ...base, dimensions: ["device"], rowLimit: 10 })
+    query(site, token, { ...base, dimensions: ["device"], rowLimit: 10 })
   ]);
 
   const tidy = (rows, keyName) => rows.map((r) => ({
@@ -158,7 +204,7 @@ export async function syncGsc(env) {
   }));
 
   const payload = {
-    from: startDate, to: endDate, fetched: now(),
+    site, from: startDate, to: endDate, fetched: now(),
     daily: tidy(daily, "date"),
     queries: tidy(queries, "query"),
     pages: tidy(pages, "page"),
@@ -196,14 +242,28 @@ export async function readGsc(env) {
       /* Written here rather than in the UI so the steps and the code that needs them
          cannot drift apart. */
       setup: [
-        "In Google Cloud Console, create a project (any name) and enable the Search Console API.",
-        "Create a service account, then create a JSON key for it and download that file.",
-        "Open the JSON and copy the client_email value.",
-        "In Search Console, open Settings, then Users and permissions, then Add user. Paste that email and give it Full or Restricted access.",
-        "Back at a terminal: npx wrangler secret put GSC_CLIENT_EMAIL (paste the email).",
-        "Then: npx wrangler secret put GSC_PRIVATE_KEY (paste the whole private_key value, including the BEGIN and END lines).",
-        "Press Refresh on the Search tab. Figures appear within a day."
-      ]
+        "At console.cloud.google.com, create a project (any name will do). It is free.",
+        "In that project, search for Google Search Console API and press Enable.",
+        "Go to Credentials, then Create credentials, then Service account. Give it any name and press Done - it needs no roles and no user access.",
+        "Open the service account, go to its Keys tab, then Add key, then Create new key, and choose JSON. A file downloads.",
+        "Open that file in a text editor and copy the client_email value. It ends in gserviceaccount.com.",
+        "At search.google.com/search-console, open Settings, then Users and permissions, then Add user. Paste that email and choose Full.",
+        "Set the two secrets from a terminal in the project folder (see the note below - do not paste the private key into a chat).",
+        "Come back here and press Fetch now. Google reports two to three days behind, so the newest figures are from three days ago."
+      ],
+      /* Named here rather than in the UI so the wording and the code that needs it
+         cannot drift. Piping beats pasting: the key never reaches the clipboard, the
+         terminal history or a chat transcript - the same rule the VAPID keys and the
+         Roblox client secret follow. */
+      secrets: [
+        "npx wrangler secret put GSC_CLIENT_EMAIL",
+        "node -e \"process.stdout.write(require('./the-file-you-downloaded.json').private_key)\" | npx wrangler secret put GSC_PRIVATE_KEY"
+      ],
+      /* The property is discovered rather than configured: Google is asked what this
+         service account can see, and if there is exactly one that is the one used. */
+      note: "You do not need to tell it which site: it asks Google which properties the " +
+        "service account can see. Delete the downloaded JSON file afterwards, and never " +
+        "commit it."
     };
   }
   let row = null;
