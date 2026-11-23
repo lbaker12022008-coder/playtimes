@@ -170,6 +170,26 @@ export async function readOps(env, days = 30) {
     const lastRun = mine[0] || null;
     const running = mine.filter((r) => r.ok === null).length;
 
+    /* HOW OFTEN IT REALLY RUNS, measured rather than taken from the cron expression.
+       collect.yml says every 30 minutes; the gaps between real runs are about 76,
+       because each run takes some 21 minutes, the concurrency group stops two
+       overlapping, and GitHub throttles scheduled jobs on a free account. Trusting
+       the cron string made "overdue" fire permanently, which is the worst kind of
+       alarm: one that is always on and therefore never read. */
+    const gaps = [];
+    for (let i = 0; i + 1 < mine.length; i++) {
+      const g = mine[i].started - mine[i + 1].started;
+      if (g > 0 && g < 7 * 86400) gaps.push(g);
+    }
+    gaps.sort((a, b) => a - b);
+    const typical = gaps.length >= 3 ? gaps[Math.floor(gaps.length / 2)] : null;
+
+    /* Late means late against whichever is longer: the schedule it asks for, or the
+       cadence it actually keeps. Twice the usual gap, so one skipped turn is not an
+       alarm but a genuine stop is. */
+    const expected = Math.max(wf.every * 60, typical || 0);
+    const slack = expected * 2 + 600;
+
     return {
       key: wf.key, label: wf.label, every: wf.every,
       window: { runs: done.length, ok: good.length, failed: bad.length, running },
@@ -182,10 +202,14 @@ export async function readOps(env, days = 30) {
             event: lastRun.event, n: lastRun.run_no }
         : null,
       last_success: lastGood ? lastGood.started : null,
-      /* Ten minutes of slack, because the cron that records this runs every ten: a run
-         that has only just happened may not be here yet, and a warning nobody can act
-         on is worse than no warning. */
-      overdue: lastGood ? (now() - lastGood.started) > (wf.every + 10) * 60 : null,
+      /* What the schedule asks for, and what it actually achieves. Both are reported,
+         because the gap between them is itself worth knowing: it is how somebody finds
+         out the collector manages about 19 runs a day rather than the 48 its cron
+         implies, and therefore why a game gathers fewer readings than expected. */
+      every_real: typical,
+      /* A run that has only just started may not be in our copy yet - the sync is
+         every ten minutes - which is part of why the slack is generous. */
+      overdue: lastGood ? (now() - lastGood.started) > slack : null,
       all_time: all,
       recent: mine.slice(0, 40).map((r) => ({ at: r.started, ok: r.ok, secs: r.secs })),
       /* One entry per day, for the reliability-over-time chart. */

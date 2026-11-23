@@ -29,6 +29,9 @@ const PAGE_FLOOR = 15;        // views on a single page before it can be called 
 const PAGE_MOVE = 60;
 
 const mins = (s) => Math.round(s / 60);
+/* "1 hours ago" appeared on the live overview and read as a bug in everything beside
+   it, which is roughly what a grammar slip on an alarm does. */
+const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
 const pc = (n) => (n > 0 ? "+" : "") + Math.round(n) + "%";
 const num = (n) => Number(n || 0).toLocaleString("en-GB");
 const agoHours = (unix) => (Date.now() / 1000 - unix) / 3600;
@@ -71,11 +74,21 @@ function backEnd(d, add) {
     /* Overdue is the one that matters: the job is not running at all. */
     if (w.overdue) {
       const h = w.last_success ? agoHours(w.last_success) : null;
+      const when = h === null ? "has never worked"
+        : (h < 24 ? "was " + plural(Math.round(h), "hour") + " ago"
+          : "was " + plural(Math.round(h / 24), "day") + " ago");
+      /* The cadence it actually keeps, not the one its cron asks for. Saying "every
+         30 minutes" when it manages 76 sends somebody hunting for a fault that is
+         really GitHub throttling a scheduled job. */
+      const usual = w.every_real
+        ? "It normally manages one about every " + Math.round(w.every_real / 60)
+          + " minutes (its schedule asks for every " + w.every + ")"
+        : "It should run every " + friendlyEvery(w.every);
       add("fault", w.label + " has stopped running",
-        "It should run every " + friendlyEvery(w.every) + ", and the last one that worked was "
-        + (h === null ? "never" : (h < 24 ? Math.round(h) + " hours ago" : Math.round(h / 24) + " days ago"))
-        + ". While it is stopped the site keeps serving the data it already has, so nothing looks broken to a visitor.",
-        { last_success: w.last_success, every: w.every },
+        usual + ", and the last one that worked " + when
+        + ". While it is stopped the site keeps serving the data it already has, so nothing "
+        + "looks broken to a visitor.",
+        { last_success: w.last_success, every: w.every, every_real: w.every_real },
         "Open GitHub, then Actions, and look at the most recent run for the reason.");
     }
 
