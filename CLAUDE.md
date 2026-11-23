@@ -1295,6 +1295,30 @@ append to it at the end of every task, so it is the one file guaranteed to
 collide. Pull immediately before editing it, and edit it last, when nothing else
 is in flight.
 
+**Who owns what** (23 Nov 2026, owner's call). Rule 2 stops work being *lost*; it
+does nothing about two sessions building the *same thing twice*, which is what
+this divides. It was settled the moment both sessions turned out to be working on
+Google Search Console within the same ten minutes.
+
+- **The public site** - `build_site.py`, `roblox_api.py`, `check_seo.py`,
+  `discover.py`, `collector.py`, `cloud/`: every page a visitor sees, the search
+  engines' view of it, and the accuracy of the numbers printed on it.
+- **The admin dashboard and the worker's insides** - `worker/index.js`,
+  `worker/insights.js`, `worker/gsc.js`, `worker/export.js`, `worker/push.js`,
+  `worker/auth.js`, and the `schema*.sql` files.
+
+Three places the line blurs, and the answer for each:
+- **`worker/theme.js` and `worker/stats.js` are written BY `build_site.py`** on
+  every `docs` build, so they belong to the public-site side despite living in
+  `worker/`. Neither side hand-edits them; change `LIGHT`/`DARK` in
+  `build_site.py` instead.
+- **Search Console falls on both sides.** Pulling its figures into the dashboard
+  is the worker's half (`gsc.js`). What the site puts in front of Google -
+  sitemap, canonical tags, structured data, titles, indexability - is the public
+  site's half.
+- **`wrangler.jsonc` and `.github/workflows/` are shared.** Say so before changing
+  one; a wrong move in either takes the live site down rather than one feature.
+
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
 - **`contact@playtimestats.com` is the site's contact address**, a Cloudflare Email Routing rule that forwards to the owner's own inbox; no mailbox is hosted. It prints at the **foot of every page** through `foot_contact()` (19 Nov 2026, owner's call: it had been a section inside the Terms of Service, which is the last place somebody with a question would think to look), and as a Contact heading on About and Privacy through `contact_html()`. **Terms no longer carries one** - the foot of the page is on that page too. Privacy keeps its own, because a privacy policy that cannot be replied to is not much of one. Setting the address in the first place moved `POLICY_DATE` to 13 Nov 2026; taking it out of Terms moved it again, to 19 Nov 2026. Email Routing only **receives**: replying from the forwarding inbox sends from the owner's personal address, which defeats the point of a non-personal contact, so set up Gmail "Send mail as" before replying to anyone.
