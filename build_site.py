@@ -1029,6 +1029,8 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
 /* The changelog list on /updates/<game>. Every selector is written under .chg
    so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
    this stylesheet, a later one-class rule elsewhere would quietly beat it. */
@@ -3278,6 +3280,87 @@ def calendar_html(name, events, now):
             f'<span data-bell="events"></span>{nxt}'
             f'<p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p>'
             f'<ul class="evt">{items}</ul></div>')
+
+
+def event_habits(name, events, now):
+    """What this game's creators usually do about events.
+
+    An events page with one event on it was about 108 words - measured across all
+    83 of them on 23 Nov 2026, median 128 - which is a page that answers one
+    question and then stops. "How often does this game have events", "how much
+    warning do you get" and "how long do they last" are the questions people
+    actually bring to a calendar, and every one of them is answerable from the
+    dates Roblox already gives us.
+
+    Nothing here is on the updates page, so the two do not repeat each other: that
+    one lists what happened, this one describes the habit.
+
+    Cautious in the same way update_pattern is. Five gaps before it will name a
+    rhythm, four measurements before it will name a length or a notice period, and
+    a kind only when the creators really do lean one way. A game that does not
+    clear a bar simply has that sentence left out, and a game that clears none
+    gets no card at all rather than a card of hedges. Measured across the site:
+    64 of the 113 games with an events page can show a rhythm and 67 a notice.
+    """
+    past = sorted((e for e in (events or []) if (e["end"] or e["start"] + 86400) < now),
+                  key=lambda e: e["start"])
+    if len(past) < 4:
+        return ""
+    bits = []
+
+    starts = [e["start"] for e in past]
+    # A gap of more than three months is a game that stopped and started again
+    # rather than a rhythm, so it is left out of the median instead of dragging it.
+    gaps = sorted((b - a) / 86400 for a, b in zip(starts, starts[1:])
+                  if 0 < b - a < 90 * 86400)
+    if len(gaps) >= 5:
+        g = gaps[len(gaps) // 2]
+        every = ("about every week" if 6 <= g <= 8 else
+                 "about twice a week" if 3 <= g < 6 else
+                 "most days" if g < 3 else
+                 "about every two weeks" if 12 <= g <= 16 else
+                 f"about every {round(g)} days")
+        bits.append(f'The creators put on a new event <b>{every}</b>.')
+
+    dur = sorted((e["end"] - e["start"]) / 3600 for e in past
+                 if e.get("end") and 0 < e["end"] - e["start"] <= 60 * 86400)
+    if len(dur) >= 4:
+        h = dur[len(dur) // 2]
+        how = (f"about {round(h)} hours" if h < 36 else
+               "about a week" if 6 * 24 <= h <= 8 * 24 else
+               f"about {round(h / 24)} days")
+        bits.append(f'Each one usually runs for <b>{how}</b>.')
+
+    notice = sorted((e["start"] - e["created"]) / 86400 for e in past
+                    if e.get("created")
+                    and 1 <= (e["start"] - e["created"]) / 86400 <= 120)
+    if len(notice) >= 4:
+        d = notice[len(notice) // 2]
+        when_ = ("about a week before" if 6 <= d <= 8 else
+                 "a day or two before" if d < 3 else
+                 "about two weeks before" if 12 <= d <= 16 else
+                 f"about {round(d)} days before")
+        bits.append(f'They normally announce one <b>{when_}</b> it starts.')
+
+    kinds = [event_kind(e.get("category")) for e in past if e.get("category")]
+    if len(kinds) >= 4:
+        top = max(set(kinds), key=kinds.count)
+        share = kinds.count(top) / len(kinds)
+        if share >= 0.4:
+            word = "Almost all" if share >= 0.8 else "Most" if share >= 0.6 else "Many"
+            bits.append(f'{word} of them are the kind Roblox calls '
+                        f'<b>{html.escape(top.lower())}</b>.')
+
+    if not bits:
+        return ""
+    seen = (f'<p class="mut small">We have seen {len(past)} finished '
+            f'{"event" if len(past) == 1 else "events"} for {html.escape(name)}, '
+            f'the first on {when(past[0]["start"])}. These are what they add up to. '
+            f'They are what usually happens, not a promise: the creators can change '
+            f'their minds at any time.</p>')
+    return (f'<div class="card"><h2>How often does {html.escape(name)} have events?</h2>'
+            f'{seen}<ul class="habits">'
+            + "".join(f"<li>{b}</li>" for b in bits) + '</ul></div>')
 
 
 def next_update_line():
@@ -6056,7 +6139,7 @@ def main():
                  "Events"),
                 f"Every event the creators have put on Roblox&rsquo;s calendar for "
                 f"{html.escape(name)}, with a live countdown to the next one.",
-                cal_b, play, trail,
+                cal_b + event_habits(name, events, now), play, trail,
                 extra_schema=event_schema(c, upcoming, now),
                 # This page has the events bell on it and the countdown to the next
                 # one, so it needs what drives both. The other two side pages have
