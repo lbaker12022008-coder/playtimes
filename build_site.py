@@ -310,6 +310,11 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -2524,6 +2529,38 @@ def week_facts(week):
             "covered": len(cells)}
 
 
+def swing_text(name, f):
+    """How much the time of day actually matters for this game.
+
+    The whole site answers "when should I play", and until now no page anywhere
+    said whether the answer was worth acting on. Some games are five times busier
+    at their peak than at their lowest point; others barely move all week, and
+    somebody reading about one of those deserves to be told that picking a moment
+    will not change much.
+
+    It is arithmetic on the two numbers printed directly above it, nothing more,
+    so it cannot disagree with them and it claims nothing new. Both are averages,
+    so the wording keeps "about" and "typical" on it - see "Estimate vs
+    observation". The quietest hour can be zero on a game we have barely seen, so
+    a ratio is only drawn when there is something to divide by.
+    """
+    if not f:
+        return ""
+    bv, qv = f["busy"][2], f["quiet"][2]
+    if qv < 1 or bv <= qv:
+        return ""
+    r = bv / qv
+    if r >= 3:
+        verdict = "so picking your moment makes a big difference"
+    elif r >= 1.8:
+        verdict = "so it is worth picking your moment"
+    else:
+        verdict = f"so {html.escape(name)} is fairly steady whenever you play"
+    how = f"{r:.0f}" if r >= 10 else f"{r:.1f}"
+    return (f'At its busiest there are about <b>{how} times</b> as many players as '
+            f'at its quietest, {verdict}.')
+
+
 def short_answer(name, f):
     """The two sentences at the top of a game page, written by the builder.
 
@@ -4679,7 +4716,7 @@ __ABOUT__
 <div id="stats" class="sp5 card rise2"><h2>__NAME__ player count stats</h2>__FACTS__</div>
 <div class="sp7 lstack">
 <div id="answer" class="card ans rise2"><h2>When is __NAME__ busiest?</h2><p id="now"></p><p id="best">__BEST__</p>
-<p id="quiet">__QUIET__</p></div>
+<p id="quiet">__QUIET__</p>__SWING__</div>
 <div id="byhour" class="card"><h2>__NAME__ player numbers by hour</h2><div class="days" id="days"></div>
 <p id="dtxt" class="mut small"></p><div class="bars" id="bars"></div>
 <div class="axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span></div>
@@ -5845,6 +5882,7 @@ def main():
         facts = week_facts(a["week"])
         c["facts"] = facts
         best_txt, quiet_txt = short_answer(name, facts)
+        swing = swing_text(name, facts)
 
         play = (f'<a class="btn" href="https://www.roblox.com/games/{c["place"]}">'
                 f'Play {html.escape(name)}</a>' if c["place"] and c["place"] > 1 else "")
@@ -5971,6 +6009,11 @@ def main():
                 .replace("__LEAD__", lead)
                 .replace("__BEST__", best_txt)
                 .replace("__QUIET__", quiet_txt)
+                # Not inside #best or #quiet: the browser rewrites both of
+                # those in the visitor's own timezone, and this sentence has
+                # no clock in it to rewrite.
+                .replace("__SWING__",
+                         f'<p class="swing">{swing}</p>' if swing else "")
                 .replace("__FACTS__", facts_html(c, a, facts, meta))
                 .replace("__HOURS__", hours_table_html(name, a["week"]))
                 .replace("__HISTORY__", hist_b)
