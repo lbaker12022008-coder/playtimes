@@ -5848,6 +5848,23 @@ def write_bytes(path, data):
     WRITTEN.add(path.replace("\\", "/"))
 
 
+# Pages this build could not write because ROBLOX did not answer, rather than
+# because there is nothing to put on them. prune() leaves these alone.
+#
+# Every section page is written only if its data arrived: no passes, no passes
+# page. roblox_api returns None when a call fails and [] when the game genuinely
+# has none, and the two were being treated the same - so one timeout on one game
+# deleted a page that Google had indexed, and it stayed deleted until the next
+# build six hours later. Nothing reported it; the build succeeded.
+#
+# Keeping yesterday's page is the better of the two wrong answers. Its content is
+# what the creators announced, which changes slowly, and a stale page costs a
+# reader nothing next to a 404. A page that SHOULD go still goes: an empty list
+# is not a failure, and a game that leaves games.txt or is renamed is not in
+# KEEP at all.
+KEEP = set()
+
+
 def prune(folders=("game", "category", "updates", "ics",
                    "events", "passes", "questions")):
     """Deletes pages from an earlier build that this build did not write.
@@ -5860,6 +5877,8 @@ def prune(folders=("game", "category", "updates", "ics",
     Deliberately runs last and only in these two generated folders, so a build that
     stops half way never deletes anything, and files you added by hand at the top
     level (ads.txt, a favicon, CNAME) are never touched.
+
+    Anything in KEEP is spared - see the note above it.
     """
     gone = []
     for folder in folders:
@@ -5867,9 +5886,13 @@ def prune(folders=("game", "category", "updates", "ics",
         if not os.path.isdir(d):
             continue
         for name in sorted(os.listdir(d)):
-            if name.endswith((".html", ".ics")) and f"{folder}/{name}" not in WRITTEN:
+            path = f"{folder}/{name}"
+            if name.endswith((".html", ".ics")) and path not in WRITTEN and path not in KEEP:
                 os.remove(f"{d}/{name}")
-                gone.append(f"{folder}/{name}")
+                gone.append(path)
+    if KEEP:
+        print(f"Kept {len(KEEP)} page(s) Roblox did not answer for this build: "
+              + ", ".join(sorted(KEEP)[:4]) + (" ..." if len(KEEP) > 4 else ""))
     if gone:
         print(f"Removed {len(gone)} page(s) left over from an earlier build: "
               + ", ".join(gone[:4]) + (" ..." if len(gone) > 4 else ""))
@@ -6420,6 +6443,12 @@ def main():
         meta = metas.get(uid)
         events = roblox_api.fetch_events(uid)
         passes = roblox_api.fetch_passes(uid)
+        # None means Roblox did not answer; [] means the game really has none.
+        # Only the first is a reason to keep yesterday's page.
+        if events is None:
+            KEEP.update({f"events/{s}.html", f"updates/{s}.html"})
+        if passes is None:
+            KEEP.add(f"passes/{s}.html")
         # Pictures for the passes, fetched in one go per game. All of them, not
         # just the first few: the card list shows the cheapest passes, which are
         # not the ones Roblox happens to return first.
