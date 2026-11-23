@@ -6127,6 +6127,17 @@ def main():
         # being found for "when is anime adventures update".
         n_updates = sum(1 for e in (events or []) if (e["end"] or e["start"] + 86400) < now)
         c["no_updates"] = n_updates == 0
+        # The same rule, for the same reason, applied to the page that lists what a
+        # game sells. A game with no game passes gets a "What costs money" page of
+        # three sentences - "This game sells no game passes right now", the note
+        # about one-time items and the note about Roblox Parental Controls - and
+        # those three sentences are IDENTICAL on every such page: measured on
+        # 23 Nov 2026, 23 of the 148 passes pages, all 100 to 120 words, differing
+        # only in the game's name. That is a near-duplicate page, which is worse
+        # than a thin one. It stays on the site and in the game's tabs, because
+        # "nothing to buy here" is a real answer for a parent, but it is not
+        # something to ask Google to list 23 copies of.
+        c["no_passes"] = not passes
 
         if has["events"]:
             write(f"events/{s}.html", side_page(
@@ -6162,7 +6173,7 @@ def main():
                 f"Every game pass the creators sell for {html.escape(name)}, what they say "
                 f"each one contains, and the price in Robux and in dollars.",
                 par_b, play, trail,
-                noindex=thin, modified=iso_day(a["last"]), have=has))
+                noindex=thin or c["no_passes"], modified=iso_day(a["last"]), have=has))
 
         if has["questions"]:
             write(f"questions/{s}.html", side_page(
@@ -6617,7 +6628,8 @@ def main():
         last = iso_day(c["a"]["last"])
         pages.append((f'/game/{c["slug"]}', "0.9", last))
         for folder in ("updates", "events", "passes", "questions"):
-            if c.get("has_" + folder) and not (folder == "updates" and c.get("no_updates")):
+            empty = {"updates": "no_updates", "passes": "no_passes"}.get(folder)
+            if c.get("has_" + folder) and not (empty and c.get(empty)):
                 pages.append((f'/{folder}/{c["slug"]}', "0.5", last))
     pages += [("/about", "0.3", today), ("/install", "0.3", today),
               ("/privacy", "0.2", today), ("/terms", "0.2", today)]
