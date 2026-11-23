@@ -220,6 +220,116 @@ can trust is worse than the plain one it replaces.
   process tree from the top `bash.exe` down**, because `workerd` respawns if you kill
   only it - seen twice here, exactly as the note further down warns.
 
+### The dashboard itself (stages 2-7, 22 Nov 2026)
+Seven tabs - Overview, Traffic, Games, System, Search, People, Checklist - in
+**`worker/admin_ui.js`**, which replaced 905 lines of dashboard inside `index.js` with
+an eight-line call so the router is a router again. The login page still uses
+`index.js`'s own `SHELL` and `bar()`, so nothing in the rebuild can break the way in.
+
+- **The two rules that take the whole worker down still apply, and now apply here.**
+  No backtick anywhere in the content (the file is template literals; one ends the
+  string early) and no CSS escape, meaning a backslash followed by a digit, which
+  reads as an octal escape and is a syntax error in a module. The inline script is
+  single quotes and concatenation throughout and must stay that way. **Checking this
+  does not need a browser**: importing `dashboardBody()` in Node, pulling the
+  `<script>` blocks out and running `new Function()` on each catches it in a second,
+  and that check is worth re-running after any edit here.
+- **Every KPI card carries four things**: what it is, the number, how it compares with
+  the equal-length period before, and a tooltip saying exactly how it was worked out.
+  The tooltip is a floating box rather than a `title` attribute, because a `title`
+  never appears on a touch screen.
+- **No comparison is drawn when there is nothing to compare against.** `change()`
+  returns null and the card says "no comparison" rather than 0% or an arrow - see the
+  data-layer notes above.
+- **There is no 24-hour option in the date filter and there must not be**, because
+  page views are stored against a day. Offering one would mean inventing an hour.
+- The game table sorts and filters in the browser, since all 200-odd rows are already
+  there. **A game with no trend yet sorts to the BOTTOM**, not as zero, which would
+  rank it among the genuinely flat ones as though we knew it was flat.
+- Clicking a game opens a **panel, not a page**, so the sort and the search survive it.
+
+#### The collector does NOT run every 30 minutes, and finding that out was the point
+`collect.yml` asks for `*/30`. Measured against GitHub's own run history on
+22 Nov 2026, the real gap between runs is about **62-76 minutes**: a run takes some
+21 minutes, the `concurrency` group stops two overlapping, and GitHub throttles
+scheduled jobs on a free account. So the site gathers roughly **19-23 collection runs
+a day rather than 48**, which is why a game accumulates about 68 readings a day and
+not 144.
+
+- **This is why `overdue` is measured, not assumed.** Written against the cron string
+  it was permanently true, and an alarm that is always on is never read. `readOps()`
+  now takes the **median gap between real runs** and calls a job late only past twice
+  that. Both numbers are shown on the System tab ("Asks to run every 30 min / Actually
+  runs every 62 min"), because the difference between them is itself the useful fact.
+- **If a cron in `.github/workflows` changes, `WORKFLOWS[].every` must change with
+  it** - it is the floor under the learned cadence.
+- A "next expected" time that has already passed is printed as **"any time now"**
+  rather than naming an hour that has gone, which reads as a fault when it is not.
+
+#### The activity feed, and the one thing missing from it
+`worker/feed.js`: collection and build runs, sign-ins, saved games and notifications
+sent, newest first.
+
+- **Page views are not in it and cannot be.** `views` holds a day and a path and no
+  clock. A timestamp per visit is a step towards being able to follow one person
+  around a site read by nine-year-olds, so the panel says that outright rather than
+  leaving a gap that looks like a bug.
+- **Nobody is named.** "Somebody signed in" is the whole of a sign-in event. Game
+  names and slugs appear; display names and Roblox IDs never do.
+- **UNITS ARE THE TRAP HERE.** Everything the site writes uses `Date.now()`, which is
+  **milliseconds**: `users.created`, `users.seen`, `favourites.added` and
+  `push_sent.at`. Only `ops_runs.started` is seconds, because GitHub reports seconds.
+  Mixing them **does not throw** - a millisecond value compared against a second value
+  is simply always greater - so the filter passes every row and the feed sorts into
+  the year 58,000. Checked against the live database rather than assumed, which is
+  what caught `push_sent.at`.
+
+#### Exports, insights and Search Console
+- **`worker/export.js`** writes CSVs that honour the dashboard's window and borrow
+  `adminData`'s payload, so a download cannot disagree with the screen it came from.
+  - **`cell()` is a security measure, not formatting.** Game names come from Roblox
+    creators and a spreadsheet treats a field opening with `=`, `+`, `-` or `@` as a
+    **formula**, which executes when the file is opened. It is neutralised with a
+    leading apostrophe. **Numbers are passed through untouched**, and that is not
+    tidiness: the guard matches a leading minus, so running it over numbers turned all
+    112 negative trend values into TEXT and nothing could be charted.
+- **`worker/insights.js`** ranks what needs attention worst-first. **The guards are
+  the feature.** This site sees about ninety views a day, so a percentage must clear a
+  floor on the **absolute** numbers before it may speak (1 view becoming 5 is not "up
+  400%"), a Roblox trend needs fourteen days behind it, one failure in forty is not a
+  pattern, and any window still holding our own test browsers has its growth claims
+  **suppressed outright** rather than caveated - a caveat on an alarm is an alarm
+  nobody trusts. The collector using 69% of its slot is by design and stays silent.
+- **`worker/gsc.js`** signs a service-account JWT with WebCrypto (RS256, the pattern
+  `push.js` already uses for VAPID), because a Worker cannot run Google's Node
+  libraries. It syncs **once a day, not every ten minutes**: Google finalises figures
+  two to three days late and the API has a quota, so the window ends three days ago
+  and asking more often spends the quota to receive identical numbers.
+  - It reports **four distinct states** - not configured, never fetched, error, ok -
+    because "nothing here" has four different meanings and only one is a fault. The
+    not-configured state carries its own setup steps, so the site is safe to deploy
+    before any of the setup is done, the same rule the Roblox keys follow.
+  - **Still to do by hand**: a free Google Cloud service account, its JSON key, that
+    key's `client_email` added as a user on the Search Console property, then
+    `npx wrangler secret put GSC_CLIENT_EMAIL` and `GSC_PRIVATE_KEY`. The private key
+    arrives with its newlines written as backslash-n depending on how it is pasted;
+    `importKey()` accepts both, which is the single likeliest thing to go wrong.
+
+#### Testing the admin side
+Tests live in the scratchpad, not the repo: the window and comparison maths, the
+insight noise guards, the CSV formula guard and unit handling, and the whole dashboard
+in a real browser across all seven tabs. The browser run checks that every tab renders,
+that nothing throws, that no request 404s, that the table search and sort work, that the
+game panel opens and closes, that a CSV really downloads, and that nothing scrolls
+sideways at 390px.
+- **Use a throwaway `.dev.vars`, never the real admin code**, and delete it afterwards.
+- **`wrangler dev --remote` answers 403 to the login form**, because the worker sees a
+  different host from the page and the cross-site check fires. That is a dev-mode
+  artifact - in production both are the same domain. Mint the session cookie instead:
+  it is `expiry.hmac(SESSION_SECRET, expiry)` and the secret is one you just generated.
+- Killing it needs **the whole process tree from the top down**; `workerd` respawns
+  twice if you kill only it.
+
 #### What the dashboard must never claim to measure
 Asked for in the Nov 2026 upgrade brief and **deliberately not built**, because the
 Privacy Policy promises the site records "the page address, the date, and that number
@@ -1456,7 +1566,7 @@ Launch checklist, in order:
    - **Re-submitted on 17 Nov 2026**, which is what this needed; Discovered URLs should
      settle near the live count rather than the old 304.
    - **Re-submitting the same address in Search Console -> Sitemaps is what forces a fresh fetch.** Worth doing after any change that moves the page count a long way - the Nov 2026 split, which gave every game its own Events, Questions, What-costs-money and Updates pages, more than doubled the site and none of those were in the list Google held.
-   - Still worth checking which property is being looked at: **`www` serves a complete live duplicate of the site** (see the `www` note under Sign in with Roblox), so numbers read from a `www` property are the duplicate's.
+   - Still worth checking which property is being looked at. **`www` no longer serves a duplicate** - re-measured 20 Nov 2026, every `www` address 301s to the bare name - but a `www` property in Search Console would still be a separate property reporting on redirects.
 5. **AdSense** once 20+ pages have real data. Mark the site as child-directed. Paste the script into `ADS`; the Privacy Policy changes its ad wording on its own when `ADS` is set, so re-read it afterwards.
 6. Check `POLICY_DATE` is right whenever the Privacy Policy or Terms change.
 
