@@ -1634,6 +1634,26 @@ widths) so the answer appears into space already reserved for it.
   test is in the scratchpad: it reports CLS per page and names the elements that
   moved.
 
+### Checking the branch
+`verify_all.sh` in the scratchpad builds the preview and runs everything in one
+go, printing a line per check: `check_seo`, the two unit suites, every page type
+in a real browser for thrown errors and 404s, sideways scrolling at 320/390/768,
+the shareable-comparison journey, the contrast of every element added here in
+both themes, and a table of LCP and layout shift on an emulated phone. All seven
+pass and no page comes near Google's limits.
+
+- **Tests live in the scratchpad, not the repo**, which is the rule the push and
+  reading-age suites already follow. The scratchpad is cleared eventually, so the
+  value here is the list of what is worth checking rather than the files.
+- **Contrast was measured from what the browser computes**, not read off the
+  stylesheet, in both themes. Everything new clears its bar; the two with least
+  room are the open changelog title at 4.55:1 and the kind pill at 4.71:1 in dark
+  mode, both accent-on-card, so **anything that darkens `--acc` or lightens
+  `--card` should be re-measured.**
+- **The branch touches six source files and no build output**, so it merges into
+  `main` with no conflict: `main` has moved only in `docs/` and `worker/stats.js`
+  since the branch point, and nothing here goes near either.
+
 ### Smaller things on the branch
 - **`swing_text()`** on every game page: "At its busiest there are about 6.3 times
   as many players as at its quietest, so picking your moment makes a big
