@@ -5814,20 +5814,19 @@ def plan_table(cards, n=24):
             + "".join(rows) + '</table></div></div>')
 
 
-def busy_page(cards, now):
-    """"When is Roblox busiest?" for every game we watch, added together.
+def share_week(cards):
+    """7x24 of how busy a set of games is, each counted against its own peak hour.
 
-    This page exists because it is the one question the whole database can answer and
-    a single game page cannot. Each game is first turned into a share of its own peak,
-    so a game with two million players does not simply drown out forty smaller ones:
-    what we are measuring is when games are busy *relative to themselves*, which is
-    what someone asking "when is Roblox busiest" actually wants to know.
+    A game with two million players must not simply drown out forty smaller ones:
+    what is being measured is when games are busy RELATIVE TO THEMSELVES, which is
+    what "when is this kind of game busiest" actually means. The number in each
+    square is a percentage of a typical game's own busiest hour, so 100 would mean
+    every game peaks at that same hour.
 
-    Everything is in UTC, written by the builder. The little script at the end puts it
-    on the reader's own clock, using the same helpers as every other page.
+    Pulled out of busy_page so the category pages can ask the same question of a
+    handful of games and get an answer worked out the same way. Two copies of this
+    would be two answers that drift.
     """
-    # share[d][h] = the average of every game's player count that hour as a fraction
-    # of that game's own busiest hour. 1.0 would mean every game peaks at once.
     totals = [[0.0] * 24 for _ in range(7)]
     counts = [[0] * 24 for _ in range(7)]
     for c in cards:
@@ -5840,8 +5839,90 @@ def busy_page(cards, now):
                 if week[d][h] is not None:
                     totals[d][h] += week[d][h] / peak
                     counts[d][h] += 1
-    share = [[round(totals[d][h] / counts[d][h] * 100) if counts[d][h] else None
-              for h in range(24)] for d in range(7)]
+    return [[round(totals[d][h] / counts[d][h] * 100) if counts[d][h] else None
+             for h in range(24)] for d in range(7)]
+
+
+def peak_of(share):
+    """(day, hour) of the busiest square in a share grid, or None."""
+    cells = [(d, h, v) for d in range(7) for h, v in enumerate(share[d]) if v is not None]
+    if len(cells) < 24:
+        return None
+    d, h, _ = max(cells, key=lambda c: c[2])
+    return d, h
+
+
+def category_rhythm(name, cg, all_share):
+    """When this kind of game is busy, and whether that differs from Roblox at large.
+
+    A category page was a heading, a sentence and a grid of tiles - 99 to 235 words
+    on 8 of the 12 of them, and near-identical to each other but for the game names.
+    This is the one thing a category page can say that no game page can: these games
+    share a rhythm, and it is not always the site's rhythm. Shopping games and
+    shooters do not fill up at the same hour.
+
+    The comparison against every game we track is the point. "Busiest Saturday at
+    5 PM" on its own is nearly the same sentence on every category; "two hours
+    earlier than Roblox as a whole" is what makes the page worth reading.
+
+    Three games minimum. Two games averaged together is not the habit of a kind of
+    game, it is two games, and the grid above already shows them.
+    """
+    if len(cg) < 3:
+        return ""
+    share = share_week(cg)
+    cells = [(d, h, v) for d in range(7) for h, v in enumerate(share[d]) if v is not None]
+    if len(cells) < 100:
+        return ""
+    bd, bh, _ = max(cells, key=lambda c: c[2])
+    qd, qh, _ = min(cells, key=lambda c: c[2])
+    by_day = {}
+    for d, h, v in cells:
+        by_day.setdefault(d, []).append(v)
+    means = {d: sum(v) / len(v) for d, v in by_day.items() if len(v) >= 12}
+    bits = [f'These games are busiest on <b>{DAYS[bd]} around {hour12(bh)} UTC</b> '
+            f'and quietest on <b>{DAYS[qd]} around {hour12(qh)} UTC</b>.']
+    if means:
+        bits.append(f'<b>{DAYS[max(means, key=means.get)]}</b> is the busiest day of the '
+                    f'week for them and <b>{DAYS[min(means, key=means.get)]}</b> the quietest.')
+    whole = peak_of(all_share)
+    if whole:
+        wd, wh = whole
+        gap = (bh - wh) % 24
+        gap = gap - 24 if gap > 12 else gap
+        if bd == wd and gap == 0:
+            bits.append('That is the same hour Roblox as a whole is busiest.')
+        elif bd == wd:
+            when_ = (f'{abs(gap)} hour' + ('s' if abs(gap) != 1 else '')
+                     + (' later' if gap > 0 else ' earlier'))
+            bits.append(f'Roblox as a whole peaks on {DAYS[wd]} too, but these games '
+                        f'fill up <b>{when_}</b>.')
+        else:
+            bits.append(f'Roblox as a whole is busiest on {DAYS[wd]} around '
+                        f'{hour12(wh)} UTC, so these games keep their own hours.')
+    tot = sum(c["avg"] for c in cg)
+    bits.append(f'Added together the {len(cg)} of them hold about <b>{tot:,} players</b> '
+                f'at a typical moment.')
+    return (f'<div class="card"><h2>When are {html.escape(name.lower())} games busiest?</h2>'
+            f'<p class="mut small">Worked out from the {len(cg)} games on this page, each '
+            f'one counted against its own busiest hour so the biggest does not speak for '
+            f'all of them.</p><ul class="habits">'
+            + "".join(f"<li>{b}</li>" for b in bits) + '</ul></div>')
+
+
+def busy_page(cards, now):
+    """"When is Roblox busiest?" for every game we watch, added together.
+
+    This page exists because it is the one question the whole database can answer and
+    a single game page cannot. Each game is first turned into a share of its own peak,
+    so a game with two million players does not simply drown out forty smaller ones:
+    what we are measuring is when games are busy *relative to themselves*, which is
+    what someone asking "when is Roblox busiest" actually wants to know.
+
+    Everything is in UTC, written by the builder. The little script at the end puts it
+    on the reader's own clock, using the same helpers as every other page.
+    """
+    share = share_week(cards)
     cells = [(d, h, v) for d in range(7) for h, v in enumerate(share[d]) if v is not None]
     if len(cells) < 24:
         return page(seo_title("When Is Roblox Busiest?"),
@@ -6380,6 +6461,8 @@ def main():
 
     # ---- category pages
     cat_pages = []
+    # Worked out once: every category page compares its own rhythm against it.
+    all_share = share_week(cards)
     for g in sorted(cats):
         cg = [c for c in cards if c["genre"] == g]
         if not cg:
@@ -6400,6 +6483,7 @@ def main():
             + row_head("", f'<span class="mut small">{count}</span>')
             + grid(cg, "all")
             + table_of(cg)
+            + category_rhythm(g, cg, all_share)
             + '<p><a href="/">&larr; All Roblox player counts</a></p>'
             + ask_js(cg),
             clip(f"Player counts for {len(cg)} {g.lower()} games on Roblox, and when each one "
