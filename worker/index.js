@@ -23,6 +23,7 @@ import { buildInsights } from "./insights.js";
 import { buildExport, csvResponse } from "./export.js";
 import { maybeSyncGsc, readGsc, refreshGsc } from "./gsc.js";
 import { dashboardBody } from "./admin_ui.js";
+import { readFeed } from "./feed.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -468,6 +469,9 @@ async function adminData(request, env) {
        copy in D1, never from GitHub at page-load time: see worker/ops.js. It answers
        available:false rather than throwing if the tables were never created. */
     ops: await readOps(env, 30),
+    /* Recent events, newest first. Only things that carry a time, which is why
+       page views are absent - see worker/feed.js. */
+    feed: await readFeed(env, 40),
     /* Every visitor figure for the chosen window, plus the same figures for the
        window before it, all computed in worker/analytics.js so a card and the chart
        under it cannot work the same number out two different ways. */

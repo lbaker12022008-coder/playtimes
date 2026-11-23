@@ -1013,7 +1013,25 @@ function pSystem() {
         '</td><td class="n">' + (r.secs ? secs(r.secs) : '-') + '</td></tr>';
     }).join('') : '<tr><td colspan="4" class="empty">No runs recorded yet.</td></tr>') +
     '</tbody></table></div></div></div>' +
+    feedHtml() +
     dl([['runs', 'All runs'], ['errors', 'Failed runs only']]);
+}
+
+/* Recent events, newest first. Deliberately plain rows rather than anything animated:
+   it is a log, and a log that moves is harder to read than one that does not. */
+function feedHtml() {
+  var f = D.feed || {};
+  var ev = f.events || [];
+  var mark = { fault: 'r', ok: 'g', run: '', person: 'a', save: '', bell: '' };
+  return '<div class="sec"><h2>Recent activity</h2><div class="card pad0"><div class="tw">' +
+    '<table><thead><tr><th>When (UTC)</th><th>Ago</th><th>What</th></tr></thead><tbody>' +
+    (ev.length ? ev.map(function (e) {
+      return '<tr><td>' + new Date(e.at * 1000).toISOString().slice(5, 16).replace('T', ' ') +
+        '</td><td>' + ago(e.at) + '</td><td><span class="pill ' + (mark[e.kind] || '') + '">' +
+        esc(e.kind) + '</span> ' + esc(e.text) + '</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="empty">Nothing in the last seven days.</td></tr>') +
+    '</tbody></table></div></div>' +
+    '<p class="flag">' + esc(f.covers || '') + '</p></div>';
 }
 
 /* ======================================================================= SEARCH */
