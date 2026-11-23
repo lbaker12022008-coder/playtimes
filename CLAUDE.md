@@ -1245,7 +1245,55 @@ All of this lives in `build_site.py`. Nothing here is a trick: every number a pa
 - Before editing, pull the latest (the build job commits to `docs/` on `main`).
 - The owner buys domains and creates Cloudflare/AdSense accounts and accepts terms themselves.
 - Past mistake to avoid: pasting one file's contents into another (for example workflow text into `collector.py`). Check the first line of each file after any edit.
-- **`build_site.py` was silently rewritten back to its committed state once** (16 Nov 2026), losing about an hour of edits that had already been built and checked. The cause was never proved - OneDrive was not running, and an editor saving a stale buffer is the likeliest explanation - but the lesson is cheap: **commit as soon as a change builds, before the long tail of testing**, and if a change seems to have vanished, check the file against `git show HEAD:<file>` before assuming the code is wrong. Writing each patch to a file in the scratchpad rather than piping a heredoc is what made it re-appliable in two minutes.
+- **`build_site.py` was silently rewritten back to its committed state once** (16 Nov 2026), losing about an hour of edits that had already been built and checked. The cause was never proved - OneDrive was not running, and an editor saving a stale buffer is the likeliest explanation - but the lesson is cheap: **commit as soon as a change builds, before the long tail of testing**, and if a change seems to have vanished, check the file against `git show HEAD:<file>` before assuming the code is wrong. Writing each patch to a file in the scratchpad rather than piping a heredoc is what made it re-appliable in two minutes. **A second session editing the same folder is now the likeliest explanation** - see "Two sessions at once" below, where rule 2 describes exactly this failure.
+
+### Two sessions at once
+More than one Claude session works in this folder at the same time, and on
+22-23 Nov 2026 three of the four ways that goes wrong happened in one evening:
+HEAD moved three times inside a single task, a hand-run `npx wrangler deploy` put
+pages **older** than `origin/main`'s committed `docs/` on the live site for about
+fifteen minutes, and a test server could not start because something else already
+held the port. These are conventions, not enforcement - nothing in the code can
+catch a broken one, which is exactly why they are written where every session
+reads them.
+
+**The four that prevent lost work:**
+1. **Pull before you start.** `git pull --rebase`. Otherwise an hour goes into a
+   version of a file that stopped being current before it was opened.
+2. **One file, one session.** Never edit a file the other session is in. An edit
+   written from a stale read **overwrites the other's work silently** - no error,
+   no conflict, nothing in git, because git never saw the version that was erased.
+   This is the dangerous one, and it is the only rule here that destroys work that
+   was already finished.
+3. **Commit the moment something builds**, before the long tail of testing. An
+   uncommitted change is the only thing that can vanish without trace; once it is
+   committed, git will defend it.
+4. **Never run a whole-tree git command** - `git reset --hard`,
+   `git checkout -- .`, `git stash`, `git clean`. They act on every file in the
+   folder, including the other session's half-finished work, which is then gone
+   for good. Undo one file by name instead.
+
+**The two about publishing:**
+5. **Never run `npx wrangler deploy` by hand.** Cloudflare deploys `main` within
+   seconds of every push. A manual deploy uploads the `docs/` folder **on this
+   computer**, which may be older than what the build job has committed - and
+   nothing anywhere reports that it happened. If one is truly needed, pull first.
+6. **The live site is not proof.** Before concluding a change failed, check
+   `git show origin/main:docs/<file>`; that is the ground truth. The live site
+   lags, and after a hand-run deploy it can serve files older than the repo.
+
+**The three that prevent confusion:**
+7. **Your own preview folder** (`SITE_OUT=preview2`). Two builds writing into one
+   folder produce a jumble that reads convincingly as a code bug.
+8. **Your own port.** Do not assume 8000 or 8777 is free.
+9. **Do not kill processes by name.** `taskkill /IM node.exe` and the like take
+   down the other session's servers and background jobs too. Kill only the one
+   process tree you started.
+
+**`CLAUDE.md` is rule 2's permanent exception**, because every session wants to
+append to it at the end of every task, so it is the one file guaranteed to
+collide. Pull immediately before editing it, and edit it last, when nothing else
+is in flight.
 
 ## Current status
 - Collecting data (140 games in `games.txt`, all Roblox maturity "Minimal" or "Mild"). **The domain is bought and live: `playtimestats.com`** (Nov 2026), on Cloudflare's own nameservers, answering on both the apex and `www`, with the `workers.dev` address still working too. `DOMAIN` and `CONTACT` are set, so `sitemap.xml` finally carries full web addresses. **`NOINDEX = False` since 13 Nov 2026**, so the site is open to Google: `robots.txt` allows everything but `/admin` and `/api/` and names the sitemap by its full address, and the only page still carrying `noindex` is `404.html`, deliberately.
