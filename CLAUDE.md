@@ -272,6 +272,32 @@ an eight-line call so the router is a router again. The login page still uses
     box to keep in step and the two cannot disagree. Grabbing the thumb keeps it under
     the finger; pressing the bare track jumps. It hides itself when the table already
     fits.
+- **`missing_ids` is NOT a list of dead games, and treating it as one cried wolf
+  every morning** (23 Nov 2026). It is every ID in `games.txt` with no collector row
+  at build time, which conflates two unrelated things: a game Roblox really will not
+  answer for, and a game `discover.py` added at 04:00 that the collector has not
+  reached yet.
+  - **Proved, not guessed.** The 05:41 build listed ten unanswerable IDs; the 11:28
+    build listed **none**, because all ten had been collected in between. They were
+    the ten `discover.py` added that morning. The notes under "Finding new games"
+    already say a new ID has no page for about a day and a half - this is the same
+    fact arriving as a false alarm on the dashboard.
+  - **`trackMissing()` in `index.js` remembers when an ID was first seen missing** and
+    calls nothing dead until it has stayed missing for `MISSING_GRACE` (24 hours). A
+    real deletion is reported a day late, which costs nothing; a new game is never
+    reported at all. The map lives in `admin_meta.missing_since` and is **rebuilt
+    rather than merged**, so an ID that comes back is forgotten and cannot carry a
+    stale timestamp if it ever goes missing again.
+  - The payload carries `missing.confirmed` and `missing.waiting` separately. The
+    Games tab shows the waiting ones as a **calm note that says it resolves itself**,
+    never a warning, and the Hide button sends only the confirmed ones - hiding a
+    game that was added this morning would bury it before anyone knew whether it was
+    really gone.
+  - A browser check caught a **ReferenceError in the new code that only fired when
+    every dead ID was hidden**, because the condition short-circuits before reaching
+    it otherwise. The tab rendered its "something went wrong" fallback and no error
+    reached the console. Reading the code did not catch it; three failing assertions
+    did.
 - **Dead game IDs are HIDDEN, never removed** (23 Nov 2026, owner's call: "can you
   just hide them in case they go public again"). Ten IDs in `games.txt` come back
   empty because the game was deleted or made private, and the dashboard was nagging
@@ -828,7 +854,9 @@ standing rule rather than a rewrite waiting to happen.
   bound handler for the reason `.already` is one - `ptPaint()` replaces this markup
   every time `/api/me` answers, and a handler put on the row would be thrown away
   with it. **A closed `<details>` keeps its contents out of `innerText`**, which is
-  what three tests had to learn.
+  what four tests have now had to learn - the most recent being the admin
+  dashboard's fold of hidden game IDs on 23 Nov 2026. Assert against
+  `textContent` for anything inside a `<details>` that starts closed.
 - **The name in the bar opens its own menu, and the panel then drops the account**
   (17 Nov 2026, owner's call, replacing the rule that the name should open the
   panel). The old rule was right while the panel held the name and Sign out: a
