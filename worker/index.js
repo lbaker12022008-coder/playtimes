@@ -19,6 +19,9 @@ import { handleAuth } from "./auth.js";
 import { handlePush, runPushCron } from "./push.js";
 import { readOps, syncOps } from "./ops.js";
 import { CLEAN_FROM, readAnalytics, windowFor } from "./analytics.js";
+import { buildInsights } from "./insights.js";
+import { buildExport, csvResponse } from "./export.js";
+import { maybeSyncGsc, readGsc, refreshGsc } from "./gsc.js";
 
 const COOKIE = "pt_admin";
 const SESSION_HOURS = 8;
@@ -83,6 +86,8 @@ export default {
       if (path === "/admin/logout" && request.method === "POST") return await logout(env);
       if (path === "/admin/data") return await adminData(request, env);
       if (path === "/admin/sync" && request.method === "POST") return await syncNow(request, env);
+      if (path === "/admin/gsc" && request.method === "POST") return await gscNow(request, env);
+      if (path === "/admin/export") return await exportCsv(request, env);
       const signIn = await handleAuth(request, env, path);
       if (signIn) return signIn;
       const notify = await handlePush(request, env, path);
@@ -125,6 +130,16 @@ export default {
       if (ops.failed.length) console.warn("ops sync partial", JSON.stringify(ops));
     } catch (err) {
       console.error("ops sync failed", err && err.stack || err);
+    }
+    /* Search Console, which decides for itself whether a day has passed: its figures
+       are finalised two to three days late and the API has a daily quota, so fetching
+       on every ten-minute tick would spend that quota to receive identical numbers.
+       Its own try again - a Google outage must not touch notifications or ops. */
+    try {
+      const g = await maybeSyncGsc(env);
+      if (g && g.ok) console.log("search console synced", JSON.stringify(g));
+    } catch (err) {
+      console.error("search console sync failed", err && err.stack || err);
     }
   }
 };
@@ -224,6 +239,40 @@ async function syncNow(request, env) {
   } catch (err) {
     return json({ ok: false, error: (err && err.message) || "that did not work" }, 502);
   }
+}
+
+/** Fetch Search Console now rather than waiting for the daily sync. Admin-only. */
+async function gscNow(request, env) {
+  if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  const origin = request.headers.get("origin");
+  if (origin && new URL(origin).host !== new URL(request.url).host) return json({ error: "Blocked" }, 403);
+  const out = await refreshGsc(env);
+  return json(out, out.ok ? 200 : 502);
+}
+
+/**
+ * A CSV of whatever the dashboard is showing.
+ *
+ * It reassembles the same payload /admin/data serves rather than querying separately,
+ * so a download and the screen it came from cannot disagree. GET rather than POST
+ * because a browser has to be able to navigate to it to save the file; it is still
+ * behind the admin session, and it only ever reads.
+ */
+async function exportCsv(request, env) {
+  if (!(await loggedIn(request, env))) return json({ error: "Not logged in" }, 401);
+  const url = new URL(request.url);
+  const what = url.searchParams.get("what") || "";
+  if (!/^[a-z]{1,16}$/.test(what)) return json({ error: "Bad request" }, 400);
+
+  /* adminData already assembles everything and is the single source for these numbers,
+     so the export borrows its answer instead of growing a second set of queries. */
+  const inner = await adminData(request, env);
+  if (inner.status !== 200) return inner;
+  const data = await inner.json();
+
+  const file = await buildExport(env, what, url.searchParams, data);
+  if (!file) return json({ error: "There is no export called that" }, 404);
+  return csvResponse(file.name, file.body);
 }
 
 /* ------------------------------------------------------------------ login */
@@ -396,7 +445,7 @@ async function adminData(request, env) {
            "WHERE day >= ?2 AND path LIKE '/game/%' GROUP BY path", [dayBefore(6), dayBefore(13)], [])
     ]);
 
-  return json({
+  const payload = {
     views: {
       daily: daily.results || [],
       pages: pages.results || [],
@@ -422,12 +471,20 @@ async function adminData(request, env) {
        window before it, all computed in worker/analytics.js so a card and the chart
        under it cannot work the same number out two different ways. */
     range: await readAnalytics(env, win),
+    /* What people searched for to get here. Four distinct states, one of which is
+       "the secrets are not set yet" carrying its own setup steps - so the panel can
+       explain itself rather than look broken before the owner has done their part. */
+    gsc: await readGsc(env),
     /* Visitor numbers before this day include our own automated test browsers - one
        day in November recorded 156 views across 114 different pages, which is a sweep
        and not a person. The beacons have skipped automated browsers since, so any
        chart crossing this line has to say so rather than draw it as growth. */
     clean_from: CLEAN_FROM
-  });
+  };
+  /* Insights read the finished payload rather than querying again, so a line on the
+     list can never disagree with the card it is pointing at. */
+  payload.insights = buildInsights(payload);
+  return json(payload);
 }
 
 // The collector writes this every ~30 minutes, so these numbers are current even
