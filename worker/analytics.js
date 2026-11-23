@@ -24,13 +24,24 @@
  * guessed, which is also what the dashboard says in its place.
  */
 
-/* Views recorded before this day include our own automated test browsers: one day in
-   November logged 156 views across 114 different pages, which is a test sweep and not
-   a person, and hundreds of one-second loads had dragged the homepage's average
-   reading time to 19 seconds while pages real people read sat at 35-70. The beacons
-   have skipped automated browsers since. Any window reaching back past this has to
-   say so rather than present the difference as growth. */
-export const CLEAN_FROM = "2026-11-22";
+/* THE TEST TRAFFIC IS GONE FROM THE DATABASE (23 Nov 2026), which is why there is no
+   longer a flag for it here.
+
+   Until then the first weeks of `views` and `dwell` were mostly our own automated test
+   browsers: 20 November logged 224 views across 104 pages, 22 November 156 across 114,
+   which is a sweep and not a person. The dashboard flagged any window reaching back
+   into it. At the owner's instruction the rows themselves were deleted instead -
+   645 view rows and 470 reading rows, everything up to and including 22 November - so
+   the record now starts on 23 November with 46 genuine views and nothing to caveat.
+   A copy was written to .backup/ (gitignored) before the delete, in case it is ever
+   wanted back.
+
+   **The old boundary was a day too early and would have mattered.** The commit that
+   made the beacons skip automated browsers was authored 22 Nov 22:01 local, which is
+   23 Nov 05:01 UTC, and only reached the site when that build finished at 05:11 - so
+   22 November was still contaminated while being presented as clean. If test traffic
+   ever has to be excluded again, date it from when the BUILD went live, not from when
+   the commit was written. */
 
 const DAY = 86400e3;
 const isDay = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -60,10 +71,7 @@ export function windowFor(from, to) {
   const prevStart = toDay(dayMs(start) - days * DAY);
   return {
     from: start, to: end, days,
-    prev_from: prevStart, prev_to: prevEnd,
-    /* True when the window reaches back into the period that still counted our own
-       test browsers, so the UI can caveat it instead of the reader trusting it. */
-    includes_test_traffic: dayMs(start) < dayMs(CLEAN_FROM)
+    prev_from: prevStart, prev_to: prevEnd
   };
 }
 

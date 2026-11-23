@@ -26,6 +26,14 @@
 /* ------------------------------------------------------------------------ styles */
 
 const CSS = `<style>
+/* ---- how wide the page is allowed to be
+   SHELL caps everything at 1100px, which is right for the sign-in form and far too
+   narrow here: measured at 1100, 1500, 2000 and 2600px the reading column stayed 838px
+   at every one, so the games table (1057px) could never fit and a 2560px monitor
+   showed two thirds empty. This rule only reaches the dashboard, because this
+   stylesheet is only emitted by dashboardBody() - the sign-in page keeps its 1100. */
+.w{max-width:min(1560px,100%)}
+
 /* ---- the frame: a sidebar on a wide screen, a scrolling strip on a narrow one */
 .adm{display:grid;grid-template-columns:208px minmax(0,1fr);gap:22px;align-items:start}
 @media(max-width:860px){.adm{grid-template-columns:minmax(0,1fr);gap:12px}}
@@ -154,6 +162,24 @@ box-shadow:0 0 0 4px color-mix(in srgb,currentColor 22%,transparent)}
 
 /* ---- tables */
 .tw{overflow-x:auto;margin:0 -1px}
+/* A sideways scroll control ABOVE a wide table. The games table is 200 rows deep, so
+   the real scrollbar at the bottom is a screen and a half from the column headings you
+   are trying to line something up with.
+
+   It is DRAWN, not a second native scrollbar, and that is not decoration. Chrome here
+   uses overlay scrollbars - measured, the strip and the table both report zero gutter
+   (offsetHeight === clientHeight) - so a native bar is invisible until you are already
+   scrolling. A control you cannot see is worse than no control: it is there, it works,
+   and nobody can find it. This one is always visible, and works the same whatever the
+   operating system does with scrollbars.
+
+   Hidden by script when the table already fits, so it never takes space it has not
+   earned. */
+.tscroll{position:relative;height:9px;margin:0 0 3px;border-radius:999px;
+background:var(--chip);cursor:pointer;touch-action:none}
+.tscroll .th{position:absolute;top:0;bottom:0;left:0;min-width:30px;border-radius:999px;
+background:var(--mut);transition:background .12s}
+.tscroll:hover .th,.tscroll.drag .th{background:var(--acc)}
 table{border-collapse:collapse;width:100%;font-size:.88rem}
 th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);
 white-space:nowrap}
@@ -578,14 +604,6 @@ function windowWords() {
   var w = D.range.window;
   return w.days === 1 ? w.from : (w.from + ' to ' + w.to + ', ' + w.days + ' days');
 }
-function testBanner() {
-  if (!D.range.window.includes_test_traffic) return '';
-  return '<div class="note-bar"><span>&#9888;</span><span><b>This period includes our own testing.</b>' +
-    ' Automated test browsers were counted as visitors until ' + esc(D.clean_from) +
-    '. Growth figures that cross that date are not trustworthy, so comparisons here are' +
-    ' hidden or flagged. Pick a start date on or after ' + esc(D.clean_from) +
-    ' for numbers you can rely on.</span></div>';
-}
 </script>`;
 
 export function dashboardBody() {
@@ -662,7 +680,7 @@ function pOverview() {
     }));
   }
 
-  return '<h2 class="vh">Overview</h2>' + rangeBar() + testBanner() +
+  return '<h2 class="vh">Overview</h2>' + rangeBar() +
     insightsHtml() +
     '<div class="sec"><h2>' + esc(windowWords()) + '</h2>' +
     '<div class="cards">' + cards.join('') + '</div></div>' +
@@ -724,10 +742,7 @@ function pTraffic() {
   });
 
   var movers = '';
-  if (r.window.includes_test_traffic) {
-    movers = '<p class="empty">Rising and falling pages are hidden for this period, ' +
-      'because it still contains our own test traffic and the movement would be ours.</p>';
-  } else {
+  {
     var ms = (r.movers || []).filter(function (m) { return m.change !== null; });
     var up = ms.slice().sort(function (a, b) { return b.change - a.change; }).slice(0, 8);
     var dn = ms.slice().sort(function (a, b) { return a.change - b.change; }).slice(0, 8);
@@ -745,7 +760,7 @@ function pTraffic() {
         (newOnes.length > 5 ? ' and more' : '') + '.</p>' : '');
   }
 
-  return '<h2 class="vh">Traffic</h2>' + rangeBar() + testBanner() +
+  return '<h2 class="vh">Traffic</h2>' + rangeBar() +
     '<div class="cards">' +
     kpi({ label: 'Page views', value: num(v.value), change: v.change,
       prevLabel: 'vs ' + num(v.prev) + ' before',
@@ -878,7 +893,9 @@ function pGames() {
       return '<option' + (GFILTER === x ? ' selected' : '') + '>' + esc(x) + '</option>';
     }).join('') + '</select>' +
     '<span class="mut small">' + num(shown.length) + ' shown</span></div>' +
-    '<div class="card pad0"><div class="tw"><table><thead><tr>' + head + '</tr></thead>' +
+    '<div class="card pad0">' +
+    '<div class="tscroll" id="gtop" aria-hidden="true" hidden><span class="th"></span></div>' +
+    '<div class="tw"><table><thead><tr>' + head + '</tr></thead>' +
     '<tbody id="gbody">' + (body || '<tr><td colspan="8" class="empty">No game matches that.</td></tr>') +
     '</tbody></table></div></div>' +
     '<p class="flag">Click any row for that game on its own. Players (avg) is the mean ' +
@@ -1286,6 +1303,66 @@ function wirePanel() {
   $$('tr[data-game]').forEach(function (tr) {
     tr.onclick = function () { openGame(tr.dataset.game); };
   });
+
+  /* The drawn scroll control above the games table. It reads the table's own
+     scrollLeft, so the two can never disagree, and writing to scrollLeft is what moves
+     the table - no second scrollable box to keep in step. */
+  (function () {
+    var track = $('#gtop');
+    if (!track) return;
+    var tw = track.nextElementSibling;
+    var tbl = tw && tw.querySelector('table');
+    if (!tbl) return;
+    var th = track.firstElementChild;
+
+    function paintBar() {
+      var total = tbl.scrollWidth, box = tw.clientWidth;
+      /* Nothing to scroll means no control: a strip above a table that already fits
+         is clutter pretending to be one. */
+      if (total <= box + 1) { track.hidden = true; return; }
+      track.hidden = false;
+      var tw2 = track.clientWidth;
+      var w = Math.max(30, (box / total) * tw2);
+      var room = tw2 - w;
+      var scrollable = total - box;
+      th.style.width = w + 'px';
+      th.style.left = (scrollable ? (tw.scrollLeft / scrollable) * room : 0) + 'px';
+    }
+
+    function moveTo(clientX, grab) {
+      var r = track.getBoundingClientRect();
+      var w = th.offsetWidth;
+      var room = track.clientWidth - w;
+      var left = Math.max(0, Math.min(room, clientX - r.left - grab));
+      var scrollable = tbl.scrollWidth - tw.clientWidth;
+      tw.scrollLeft = room ? (left / room) * scrollable : 0;
+    }
+
+    var dragging = false, grab = 0;
+    track.addEventListener('pointerdown', function (e) {
+      var r = th.getBoundingClientRect();
+      /* Grabbing the thumb keeps it under the finger; pressing the bare track jumps,
+         centring the thumb where it was pressed. */
+      grab = (e.clientX >= r.left && e.clientX <= r.right) ? (e.clientX - r.left) : th.offsetWidth / 2;
+      dragging = true;
+      track.classList.add('drag');
+      try { track.setPointerCapture(e.pointerId); } catch (err) { }
+      moveTo(e.clientX, grab);
+      e.preventDefault();
+    });
+    track.addEventListener('pointermove', function (e) { if (dragging) moveTo(e.clientX, grab); });
+    var stop = function (e) {
+      dragging = false;
+      track.classList.remove('drag');
+      if (e && e.pointerId !== undefined) { try { track.releasePointerCapture(e.pointerId); } catch (err) { } }
+    };
+    track.addEventListener('pointerup', stop);
+    track.addEventListener('pointercancel', stop);
+
+    tw.addEventListener('scroll', paintBar);
+    addEventListener('resize', paintBar);
+    paintBar();
+  })();
 
   var rs = $('#resync');
   if (rs) rs.onclick = function () {

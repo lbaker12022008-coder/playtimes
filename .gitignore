@@ -11,3 +11,6 @@ node_modules/
 
 # Cached answers from Roblox, rebuilt automatically
 .cache/
+
+# Database rows taken out by hand, kept locally in case they are ever wanted back.
+.backup/

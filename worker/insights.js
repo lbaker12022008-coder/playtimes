@@ -208,18 +208,9 @@ function traffic(d, add) {
   if (!r || !r.views) return;
   const v = r.views;
 
-  /* Suppressed outright, not caveated. Until 22 Nov the figures include our own
-     automated test sweeps - one day logged 156 views across 114 pages - so a growth
-     claim from such a window would be measuring me. An alert that cannot be trusted
-     is worse than no alert. */
-  if (r.window.includes_test_traffic) {
-    add("note", "Visitor figures for this period include our own testing",
-      "Automated test browsers were counted as visitors until 22 November 2026, so growth "
-      + "cannot be read from any window reaching back past it. Choose a later start date for "
-      + "a figure you can trust.",
-      { clean_from: "2026-11-22" }, null);
-    return;
-  }
+  /* The test-traffic suppression that used to sit here is gone: those rows were
+     deleted from the database on 23 Nov 2026, so there is nothing left to suppress.
+     See the note at the top of worker/analytics.js. */
 
   if (v.prev >= TRAFFIC_FLOOR && v.change !== null && Math.abs(v.change) >= TRAFFIC_MOVE) {
     const up = v.change > 0;
@@ -245,7 +236,7 @@ function traffic(d, add) {
 
 function pages(d, add) {
   const r = d.range;
-  if (!r || r.window.includes_test_traffic) return;
+  if (!r) return;
 
   const risers = (r.movers || [])
     .filter((m) => m.earlier >= PAGE_FLOOR && m.change !== null && m.change >= PAGE_MOVE)

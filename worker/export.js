@@ -69,16 +69,14 @@ export async function buildExport(env, what, qs, d) {
     return {
       name: name(EXPORTS.traffic),
       body: rows(
-        ["date", "page_views", "reading_seconds", "completed_reads", "average_seconds_per_read",
-         "includes_our_test_traffic"],
+        ["date", "page_views", "reading_seconds", "completed_reads", "average_seconds_per_read"],
         series.map((s) => {
           const t = byDay.get(s.day) || {};
           const secs = Number(t.seconds) || 0;
           const reads = Number(t.reads) || 0;
           return [s.day, s.n, secs, reads,
             /* Empty, not 0: no readings is not an average of zero seconds. */
-            reads ? (secs / reads).toFixed(1) : "",
-            s.day < "2026-11-22" ? "yes" : "no"];
+            reads ? (secs / reads).toFixed(1) : ""];
         }))
     };
   }

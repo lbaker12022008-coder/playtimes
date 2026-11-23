@@ -166,14 +166,26 @@ can trust is worse than the plain one it replaces.
     chart quietly redraws 30 days as 3 and reads as a cliff.
   - 22 checks cover the window and comparison maths, and the SQL was cross-checked
     against the live database computed a second way - 1219/323/2115 both ways.
-- **`CLEAN_FROM` is 2026-11-22, and it is load-bearing.** Views before it include our
-  own automated test browsers: one day logged 156 views across 114 different pages,
-  which is a sweep and not a person, and hundreds of one-second loads had dragged the
-  homepage average reading time to 19 seconds while pages real people read sat at
-  35-70. Commit `449d0802` made the beacons skip automated browsers. **Any window
-  reaching back past that day is flagged `includes_test_traffic` and must be
-  caveated, never drawn as growth** - the week of 16-22 Nov reads +695% against the
-  week before, and `/game/doors` +3300%. That is me, not visitors.
+- **The test traffic was DELETED from the database on 23 Nov 2026**, at the owner's
+  instruction, and `CLEAN_FROM` went with it. Until then the first weeks of `views` and
+  `dwell` were mostly our own automated test browsers - 20 Nov logged 224 views across
+  104 pages, 22 Nov 156 across 114, which is a sweep and not a person - and the
+  dashboard flagged any window reaching into them.
+  - **645 view rows and 470 reading rows went**, everything up to and including
+    22 November: 1,919 of 2,121 views. What is left is 46 genuine views from 23 Nov.
+    A copy was written to `.backup/` (gitignored) first, so it can come back.
+  - **The old boundary was a day too early**, which is worth knowing if this ever has
+    to be done again. The commit that made the beacons skip automated browsers was
+    authored 22 Nov 22:01 local - 23 Nov 05:01 UTC - and only reached visitors when
+    that build finished at 05:11. So 22 November was still contaminated while being
+    presented as clean. **Date an exclusion from when the BUILD went live, not from
+    when the commit was written.**
+  - Today's rows were checked before choosing the cutoff rather than assumed: the
+    paths our own tests hit that morning (`/game/doors`, `/privacy`) do not appear in
+    23 November at all, so the filter was working and that day is genuinely clean.
+  - Gone with it: the warning banner, the suppression of growth claims and of the
+    rising/falling lists, and the `includes_our_test_traffic` column in the CSV. The
+    tests that asserted those were updated rather than deleted.
 - **`worker/ops.js` answers "is the back end working", which nothing could before.**
   Collecting, building and discovering happen in GitHub Actions, which this worker
   cannot see, so a stall could only be *inferred* from how old the data looked - a
@@ -247,6 +259,24 @@ an eight-line call so the router is a router again. The login page still uses
   there. **A game with no trend yet sorts to the BOTTOM**, not as zero, which would
   rank it among the genuinely flat ones as though we knew it was flat.
 - Clicking a game opens a **panel, not a page**, so the sort and the search survive it.
+- **The games table has a scroll control ABOVE it as well as below**, because the
+  table is 200 rows deep and the real scrollbar at the bottom is a screen and a half
+  from the column headings you are trying to line something up with.
+  - **It is drawn, not a second native scrollbar, and that is not decoration.** Chrome
+    here uses overlay scrollbars: measured, both the strip and the table report
+    `offsetHeight === clientHeight`, a zero gutter, so a native bar is invisible until
+    you are already scrolling. A control nobody can see is worse than none - it is
+    there, it works, and it cannot be found. The drawn one is always visible and
+    behaves the same whatever the operating system does with scrollbars.
+  - It reads and writes the table's own `scrollLeft`, so there is no second scrollable
+    box to keep in step and the two cannot disagree. Grabbing the thumb keeps it under
+    the finger; pressing the bare track jumps. It hides itself when the table already
+    fits.
+- **The dashboard is capped at 1560px, not SHELL's 1100px.** Measured at 1100, 1500,
+  2000 and 2600px, the reading column stayed **838px at every one**, so the games table
+  (1057px) could never fit and a 2560px monitor showed two thirds empty. The rule lives
+  in the dashboard's own stylesheet, which `dashboardBody()` alone emits, so the
+  **sign-in page keeps its 1100** and is unaffected.
 
 #### The collector does NOT run every 30 minutes, and finding that out was the point
 `collect.yml` asks for `*/30`. Measured against GitHub's own run history on

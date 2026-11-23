@@ -18,7 +18,7 @@ import { LIGHT, DARK } from "./theme.js";
 import { handleAuth } from "./auth.js";
 import { handlePush, runPushCron } from "./push.js";
 import { readOps, syncOps } from "./ops.js";
-import { CLEAN_FROM, readAnalytics, windowFor } from "./analytics.js";
+import { readAnalytics, windowFor } from "./analytics.js";
 import { buildInsights } from "./insights.js";
 import { buildExport, csvResponse } from "./export.js";
 import { maybeSyncGsc, readGsc, refreshGsc } from "./gsc.js";
@@ -480,11 +480,6 @@ async function adminData(request, env) {
        "the secrets are not set yet" carrying its own setup steps - so the panel can
        explain itself rather than look broken before the owner has done their part. */
     gsc: await readGsc(env),
-    /* Visitor numbers before this day include our own automated test browsers - one
-       day in November recorded 156 views across 114 different pages, which is a sweep
-       and not a person. The beacons have skipped automated browsers since, so any
-       chart crossing this line has to say so rather than draw it as growth. */
-    clean_from: CLEAN_FROM
   };
   /* Insights read the finished payload rather than querying again, so a line on the
      list can never disagree with the card it is pointing at. */
