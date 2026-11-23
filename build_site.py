@@ -2231,12 +2231,28 @@ def foot_contact():
 # coverage, so no page can appear or disappear because of this.
 DAY_HOURS_MIN = 18
 
+# How quickly an old reading stops counting towards the week grid, in days. A
+# reading a fortnight old pulls half as hard as one from today, one a month old a
+# quarter as hard. The shape of a game's week is not fixed - creators add a weekend
+# event, a school holiday ends - so the recent shape should win, but slowly enough
+# that a quiet hour is still drawn from several weeks of readings rather than one.
+#
+# Chosen by backtest, not by eye (23 Nov 2026): the last 7 days of all 140 games
+# were held back, the grid built from what came before, and each hour's prediction
+# scored against what really happened. Dividing the trend out took the median error
+# from 18.9% to 16.3% and the worst tenth from 120% to 88%; adding this on top took
+# them to 15.9% and 87.2%. Every alternative tried was worse, including using only
+# the last 14 days of readings.
+HALF_LIFE = 14
+
 
 def analyze(rows):
     """Turns a game's player counts into everything the pages need.
 
     rows is [(time, players)] oldest first. Returns a dictionary with:
-      week    7x24 table of typical players (Monday first, UTC hours)
+      week    7x24 table of typical players (Monday first, UTC hours), scaled to
+              the size the game is now - the rhythm of a week with the game's own
+              rise or fall divided out of it
       daily   [(midnight, typical players)] one entry per WHOLE day, oldest
               first - a day still in progress is left out, see DAY_HOURS_MIN
       trend   % change, last 7 days against the 7 days before
@@ -2253,24 +2269,26 @@ def analyze(rows):
       high7   (time, players) the highest single count in the last 7 days
       peak_at the time we saw `peak`
     """
-    sums = [[0] * 24 for _ in range(7)]
-    cnt = [[0] * 24 for _ in range(7)]
+    def mean(vals):
+        return sum(vals) / len(vals) if vals else None
+
     by_day = {}
     day_hrs = {}
+    stamps = []
     now = rows[-1][0]
     buckets = {7: [], 14: [], 28: []}
     for ts, p in rows:
         d = datetime.fromtimestamp(ts, timezone.utc)
-        sums[d.weekday()][d.hour] += p
-        cnt[d.weekday()][d.hour] += 1
-        by_day.setdefault(ts // 86400, []).append(p)
-        day_hrs.setdefault(ts // 86400, set()).add(d.hour)
+        day = ts // 86400
+        # Kept so the week grid can be built below without converting every
+        # reading's clock a second time.
+        stamps.append((d.weekday(), d.hour, day, p))
+        by_day.setdefault(day, []).append(p)
+        day_hrs.setdefault(day, set()).add(d.hour)
         age = (now - ts) / 86400
         for span in buckets:
             if age <= span:
                 buckets[span].append((age, p))
-
-    week = [[round(sums[d][h] / cnt[d][h]) if cnt[d][h] else None for h in range(24)] for d in range(7)]
     # Whole days only - see DAY_HOURS_MIN. A game we have never yet watched through
     # a full day keeps what it has rather than being left with an empty chart.
     whole = [d for d in sorted(by_day) if len(day_hrs[d]) >= DAY_HOURS_MIN]
@@ -2282,8 +2300,78 @@ def analyze(rows):
     # and the pages are careful to say which is which.
     peaks = [(d * 86400, round(sum(by_day[d]) / len(by_day[d])), max(by_day[d])) for d in whole]
 
-    def mean(vals):
-        return sum(vals) / len(vals) if vals else None
+    # The week grid: what a typical moment at each hour looks like, AT THE SIZE THE
+    # GAME IS NOW.
+    #
+    # It used to be the plain average of every reading we had ever taken at that
+    # hour, which quietly mixed two different things: the daily rhythm, which is
+    # what this grid is for, and the game's own rise or fall, which is not. For a
+    # game that has not moved the two are the same answer. For one that has, the
+    # grid was a memory. Measured on 23 Nov 2026 across 148 games: 106 were within
+    # 20% of the game as it is now, 19 were out by half or more, and The Hollow -
+    # which fell from 96,000 players a day to 209 in the three weeks we watched -
+    # had a grid 43 times its real size. Its page said "Busiest: Saturday around
+    # 5 PM, about 134,407 players" of a game with about 200 in it. That is not a
+    # busy hour, it is a game that died, and the whole point of this site is
+    # telling somebody when to turn up.
+    #
+    # So each reading is divided by the game's level at the time, the hours are
+    # averaged as ratios, and the ratios are scaled back up by what the game is
+    # doing now. What survives is the shape of a week; what is divided out is the
+    # trend.
+    #
+    # The level is a SEVEN-DAY centred mean, and the seven matters: a level taken
+    # from each day on its own would divide out Saturday being busier than Tuesday,
+    # which is a real part of the rhythm and one of the things people come here to
+    # see. A week-wide window holds every weekday once, so it carries the trend and
+    # nothing else.
+    #
+    # Only whole days set the level (see DAY_HOURS_MIN) - a day we only saw the
+    # small hours of would read as a quiet day rather than a short one. Readings on
+    # a part-day borrow the nearest whole day's level.
+    #
+    # Nothing observed is touched by any of this. "Highest seen", "lowest this
+    # week" and the peak are single readings we really took and are still reported
+    # exactly as they came in: the estimate and the observation stay apart, as they
+    # must everywhere on this site.
+    dmean = {d: sum(by_day[d]) / len(by_day[d]) for d in whole}
+    known = sorted(dmean)
+    level = {}
+    for d in known:
+        win = [dmean[x] for x in known if abs(x - d) <= 3]
+        level[d] = sum(win) / len(win)
+    # Every day we hold a reading for, including the part-days at each end.
+    lv = {}
+    for d in by_day:
+        if d in level:
+            lv[d] = level[d]
+        elif known:
+            lv[d] = level[min(known, key=lambda x: abs(x - d))]
+    avg7 = round(mean([p for age, p in buckets[7]]) or 0)
+    # A reading counts for half as much as it would have done a fortnight earlier.
+    # The shape of a week really does change - a game adds a weekend event, a school
+    # holiday ends - and fourteen days was not picked by eye: see HALF_LIFE.
+    rsum = [[0.0] * 24 for _ in range(7)]
+    rcnt = [[0.0] * 24 for _ in range(7)]
+    sums = [[0] * 24 for _ in range(7)]
+    cnt = [[0] * 24 for _ in range(7)]
+    newest = rows[-1][0] // 86400
+    for wd, hr, day, p in stamps:
+        sums[wd][hr] += p
+        cnt[wd][hr] += 1
+        L = lv.get(day)
+        if L:
+            w = 0.5 ** ((newest - day) / HALF_LIFE)
+            rsum[wd][hr] += w * p / L
+            rcnt[wd][hr] += w
+    if len(level) >= 3 and avg7:
+        week = [[round(rsum[d][h] / rcnt[d][h] * avg7) if rcnt[d][h] else None
+                 for h in range(24)] for d in range(7)]
+    else:
+        # Too new to know what its level even is. The plain average is all there is,
+        # and a game this new has no page yet anyway (see index_ok).
+        week = [[round(sums[d][h] / cnt[d][h]) if cnt[d][h] else None
+                 for h in range(24)] for d in range(7)]
 
     def change(span):
         """% difference between the last `span` days and the `span` days before them."""
@@ -2295,7 +2383,7 @@ def analyze(rows):
     peak_at = max(rows, key=lambda r: r[1])[0]
     return {"week": week, "daily": daily, "peaks": peaks,
             "trend": change(7), "month": change(14),
-            "avg7": round(mean([p for age, p in buckets[7]]) or 0),
+            "avg7": avg7,
             "peak": max(p for _, p in rows),
             "spikes": find_spikes(daily),
             "first": rows[0][0], "last": rows[-1][0],
@@ -2689,8 +2777,10 @@ def hours_table_html(name, week):
         body += f"<tr><th>{DAYS[d]}</th>{cells}</tr>"
     return (f'<details><summary>All 168 hours as numbers</summary>'
             f'<p class="mut small">Players in {html.escape(name)} at a typical moment, '
-            f'hour by hour, in UTC. A dash means we have not collected a player count '
-            f'in that hour yet.</p><div class="wrap"><table class="hourtbl">'
+            f'hour by hour, in UTC. The shape comes from every reading we have taken; '
+            f'the size is what the game is now, so a game that has grown or shrunk is '
+            f'not still showing you last month. A dash means we have not collected a '
+            f'player count in that hour yet.</p><div class="wrap"><table class="hourtbl">'
             f'<thead><tr><th>Day (UTC)</th>{head}</tr></thead><tbody>{body}</tbody>'
             f'</table></div></details>')
 
