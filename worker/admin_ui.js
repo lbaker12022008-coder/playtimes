@@ -286,7 +286,8 @@ const BODY = `
     <div id="gbox"></div>
   </div>
 </div>
-<div class="tip" id="tip" role="tooltip"></div>`;
+<div class="tip" id="tip" role="tooltip"></div>
+<div class="tip" id="ctip" role="tooltip"></div>`;
 
 /* ------------------------------------------------------------------------- script */
 
@@ -392,6 +393,40 @@ try { TAB = localStorage.getItem('pt_admin_tab') || 'overview'; } catch (e) {}
   addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
 })();
 
+/* The floating box the charts use, placed at the POINTER rather than over an
+   element, which is what the public site's graphs do and what was asked for.
+   It is a second box rather than the one the question marks use: that one is
+   positioned against an element and hides itself the moment the pointer is not
+   over one, so a chart would have had to fight it on every move.
+
+   Ported from tipShow() in build_site.py, including the two things that
+   function learned the hard way. It is measured parked at the top left, because
+   a fixed box near the right edge is squeezed by the edge and reports itself
+   narrower than it is. And it flips to the left of the pointer once the pointer
+   is past the middle of the chart, not merely at the edge of the screen - on a
+   wide monitor the chart ends long before the screen does, and the box would
+   otherwise sit over the very part of the line being read. */
+function chartTip(html, cx, cy, box) {
+  var t = $('#ctip');
+  if (!t) return;
+  t.innerHTML = html;
+  t.style.left = '0px';
+  t.style.top = '0px';
+  t.classList.add('on');
+  var de = document.documentElement, vw = de.clientWidth, vh = de.clientHeight;
+  var w = t.offsetWidth, h = t.offsetHeight, pad = 14, edge = 8;
+  var r = box && box.getBoundingClientRect ? box.getBoundingClientRect() : null;
+  var flip = r && r.width ? cx > r.left + r.width / 2 : false;
+  var x = flip ? cx - w - pad : cx + pad, y = cy - h - pad;
+  if (x + w > vw - edge) x = cx - w - pad;
+  if (x < edge) x = edge;
+  if (y < edge) y = cy + pad;
+  if (y + h > vh - edge) y = vh - h - edge;
+  t.style.left = x + 'px';
+  t.style.top = y + 'px';
+}
+function chartTipOff() { var t = $('#ctip'); if (t) t.classList.remove('on'); }
+
 /* -------------------------------------------------------------------------- charts
    Built the same way the public site builds its day graph: an SVG line with a
    translucent wash under it, and a gap in the data BREAKS the line rather than being
@@ -471,14 +506,15 @@ function lineChart(id, pts, hue, dots) {
 
 /* Drag, click, hover, touch-drag or arrow keys. The readout names the day and the
    number, because an SVG cannot be read by anything that reads text. */
-function chartCursor(svg, out, pts) {
+function chartCursor(svg, out, pts, noun) {
   if (!svg || !pts.length) return;
   var zl = svg.querySelector('.cz'), dot = svg.querySelector('.cd');
   var step = pts.length > 1 ? (W - PAD * 2) / (pts.length - 1) : 0;
   var vals = pts.map(function (p) { return p.n; });
   var max = Math.max.apply(null, vals.concat([1]));
   var at = -1;
-  function show(i) {
+  var word = noun || 'page view';
+  function show(i, e) {
     i = Math.max(0, Math.min(pts.length - 1, i));
     at = i;
     var p = pts[i];
@@ -487,7 +523,14 @@ function chartCursor(svg, out, pts) {
     dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('opacity', '1');
     var dt = new Date(p.day + 'T00:00:00Z');
     var nm = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dt.getUTCDay()];
-    out.textContent = nm + ', ' + usDate(p.day) + ' (UTC): ' + plural(p.n, 'page view');
+    /* The line under the chart stays, and is the only readout a finger or the
+       arrow keys get: on a touch screen the hand covers the point it is on, and
+       a box under it would be behind the hand. */
+    out.textContent = nm + ', ' + usDate(p.day) + ' (UTC): ' + plural(p.n, word);
+    if (e && e.pointerType === 'mouse') {
+      chartTip(nm + ', ' + usDate(p.day) + ' (UTC)<br><b>' + num(p.n) + '</b> ' +
+        word + (p.n === 1 ? '' : 's'), e.clientX, e.clientY, svg);
+    }
   }
   function fromEvent(e) {
     var r = svg.getBoundingClientRect();
@@ -495,10 +538,12 @@ function chartCursor(svg, out, pts) {
     return Math.round(((cx / r.width) * W - PAD) / (step || 1));
   }
   var down = false;
-  svg.addEventListener('pointerdown', function (e) { down = true; show(fromEvent(e)); });
-  svg.addEventListener('pointermove', function (e) { if (down || e.pointerType === 'mouse') show(fromEvent(e)); });
+  svg.addEventListener('pointerdown', function (e) { down = true; show(fromEvent(e), e); });
+  svg.addEventListener('pointermove', function (e) { if (down || e.pointerType === 'mouse') show(fromEvent(e), e); });
   addEventListener('pointerup', function () { down = false; });
-  svg.addEventListener('touchmove', function (e) { e.preventDefault(); show(fromEvent(e)); }, { passive: false });
+  svg.addEventListener('pointerleave', chartTipOff);
+  addEventListener('scroll', chartTipOff, true);
+  svg.addEventListener('touchmove', function (e) { e.preventDefault(); show(fromEvent(e), e); }, { passive: false });
   svg.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight') { show(at + 1); e.preventDefault(); }
     if (e.key === 'ArrowLeft') { show(at < 0 ? pts.length - 1 : at - 1); e.preventDefault(); }
@@ -1208,6 +1253,12 @@ function pSearch() {
     }
     return out;
   })();
+  /* Kept for wirePanel, so the crosshair reads the SAME array the line was drawn
+     from. It used to be handed g.daily, which is only the days Google reported
+     something for - 10 rows where the chart drew 29 - so the cursor worked out
+     its spacing from a different number of points and pointed at the wrong day
+     everywhere but the left edge. */
+  GSCSERIES = daily;
   var withClicks = (g.daily || []).length;
   return head +
     '<div class="tools"><button class="btn ghost" id="gscgo" type="button">Fetch again</button>' +
@@ -1343,6 +1394,10 @@ function dl(list) {
     'its name.</p></div>';
 }
 
+/* The gap-filled clicks series, set when the Search tab draws and read when its
+   cursor is wired a moment later. */
+var GSCSERIES = [];
+
 var RENDER = {
   overview: pOverview, traffic: pTraffic, games: pGames,
   system: pSystem, search: pSearch, people: pPeople, checklist: pChecklist
@@ -1381,10 +1436,10 @@ function wirePanel() {
   /* Charts. Each needs its cursor bound after the markup exists. */
   [['ovchart', 'ovread', D.range.views.series],
    ['trchart', 'trread', D.range.views.series],
-   ['gschart', 'gsread', ((D.gsc || {}).daily || []).map(function (r) { return { day: r.date, n: r.clicks }; })]
+   ['gschart', 'gsread', GSCSERIES, 'click']
   ].forEach(function (x) {
     var svg = document.getElementById(x[0]), out = document.getElementById(x[1]);
-    if (svg && out) chartCursor(svg, out, x[2]);
+    if (svg && out && x[2] && x[2].length) chartCursor(svg, out, x[2], x[3]);
   });
 
   var q = $('#gq');
