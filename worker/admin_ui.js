@@ -799,13 +799,17 @@ function pOverview() {
     lightsHtml();
 }
 
-/* A 30-day window on a site that has been counting for two would otherwise draw
-   two days with no explanation, which reads as a chart that has broken. */
+/* The window reaches back before anything was recorded, so the left of the chart
+   is a flat run of zeroes. They are days nobody was COUNTING, not days nobody
+   came, and a chart cannot say which of those it means on its own. One sentence
+   does. (The alternative - starting the line at the first recorded day - was
+   tried and the owner preferred the whole window back, which is fair: a 30-day
+   window drawing two days is harder to read than a flat run that is explained.) */
 function startedNote(v) {
   if (!v.starts_early || !v.first_day) return '';
-  return '<p class="flag">The chart starts on ' + esc(usDate(v.first_day)) +
-    ', which is the first day anything was recorded. Days before that are left out ' +
-    'rather than drawn as zero, because nobody was counting then.</p>';
+  return '<p class="flag">Nothing was recorded before ' + esc(usDate(v.first_day)) +
+    ', so the flat stretch before it is days nobody was counting, not days nobody ' +
+    'came.</p>';
 }
 
 function insightsHtml() {

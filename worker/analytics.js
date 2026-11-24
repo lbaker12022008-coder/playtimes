@@ -92,15 +92,13 @@ export function change(current, previous) {
    That holds INSIDE the period we were recording: a day with nobody on the site
    really did have no views.
 
-   It does not hold before it. Asking for 30 days on a site that has been counting
-   for two drew 28 days of zero and then a line, which says "nobody came" when the
-   truth is "we were not looking" - the same invented-zero the clicks chart is
-   careful about at the other end. `first` is the earliest day in the table, and
-   the series starts at whichever of the two is later. The panel says so, because a
-   30-day window quietly drawing two days is the very cliff the paragraph above
-   warns about. */
+   Before it, those zeroes are days nobody was counting rather than days nobody
+   came. Starting the line at the first recorded day was tried (23 Nov 2026) and
+   the owner preferred the full window back: a 30-day window that draws two days
+   is harder to read than a flat run with a sentence under it saying what the flat
+   part is. So `first` is NOT used to trim - it is passed out instead, and the
+   panel writes that sentence. */
 function fillDays(rows, from, to, first) {
-  if (first && first > from) from = first;
   const got = new Map((rows || []).map((r) => [r.day, Number(r.n) || 0]));
   const out = [];
   for (let t = dayMs(from); t <= dayMs(to); t += DAY) {
