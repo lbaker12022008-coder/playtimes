@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Car Crushers 2 - Destruction Updates &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Car Crushers 2 - Destruction update in order: 78 since Fri 16 Aug 2024. Latest: New Car &amp; Challenges 🏁 (Sat 7 Nov). Next update likely Sat 28 Nov..."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Car Crushers 2 - Destruction update in order. Next update likely Sat 28 Nov. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/car-crushers-2-destruction">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Car Crushers 2 - Destruction Updates &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Car Crushers 2 - Destruction update in order: 78 since Fri 16 Aug 2024. Latest: New Car &amp; Challenges 🏁 (Sat 7 Nov). Next update likely Sat 28 Nov...">
+<meta property="og:description" content="Every Car Crushers 2 - Destruction update in order. Next update likely Sat 28 Nov. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/car-crushers-2-destruction"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-b1ad9dbcdc3e7221ab9ccb92d55e1268/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-b1ad9dbcdc3e7221ab9ccb92d55e1268/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,23 +1384,23 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/car-crushers-2-destruction">Car Crushers 2 - Destruction player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5b38c9575e3abb9772353974d60adcbd/256/256/Image/Webp/noFilter" alt="Car Crushers 2 - Destruction Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Car Crushers 2 - Destruction updates in order</h1><p class="mut">The Car Crushers 2 - Destruction changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Car Crushers 2 - Destruction&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/654732683">Play Car Crushers 2 - Destruction</a><span data-bell="all"></span><button class="fav" id="fav" data-s="car-crushers-2-destruction" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/car-crushers-2-destruction">Overview</a><a class="gtab on" href="/updates/car-crushers-2-destruction" aria-current="page">Updates</a><a class="gtab" href="/events/car-crushers-2-destruction">Events</a><a class="gtab" href="/questions/car-crushers-2-destruction">Questions</a><a class="gtab" href="/passes/car-crushers-2-destruction">Costs</a></nav></div></div><div class="card"><h2>Car Crushers 2 - Destruction changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Car Crushers 2 - Destruction update?</h3><p>Most likely <b>Sat 28 Nov around 3 PM UTC</b>. Its updates usually land on a Saturday, roughly every 12 days, going by the last 81 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Latest Car Crushers 2 - Destruction updates</h3><ul class="evt"><li class=""><b>New Car &amp; Challenges 🏁</b><span class="d esub">Use code &#x27;LOWRIDING&#x27;</span><span class="ptag">New items</span><span class="d">Sat 7 Nov &middot; 16 days ago <span class="nb">&middot; announced 2 days before</span></span><p>- Added a Limited Tayatzi Atlas CCL Touring Car
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/car-crushers-2-destruction">Car Crushers 2 - Destruction player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-5b38c9575e3abb9772353974d60adcbd/256/256/Image/Webp/noFilter" alt="Car Crushers 2 - Destruction Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Car Crushers 2 - Destruction updates in order</h1><p class="mut">The Car Crushers 2 - Destruction changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Car Crushers 2 - Destruction&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/654732683">Play Car Crushers 2 - Destruction</a><span data-bell="all"></span><button class="fav" id="fav" data-s="car-crushers-2-destruction" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/car-crushers-2-destruction">Overview</a><a class="gtab on" href="/updates/car-crushers-2-destruction" aria-current="page">Updates</a><a class="gtab" href="/events/car-crushers-2-destruction">Events</a><a class="gtab" href="/questions/car-crushers-2-destruction">Questions</a><a class="gtab" href="/passes/car-crushers-2-destruction">Costs</a></nav></div></div><div class="card"><h2>Car Crushers 2 - Destruction changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Car Crushers 2 - Destruction update?</h3><p>Most likely <b>Sat 28 Nov around 3 PM UTC</b>. Its updates usually land on a Saturday, roughly every 12 days, going by the last 81 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Every Car Crushers 2 - Destruction update in order</h3><p class="mut small">All 78 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 16 Aug 2024. Roblox sorts them into 12 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 75 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">78</span><span class="ctitle">New Car &amp; Challenges 🏁</span><span class="ptag">New items</span><span class="cdate">Sat 7 Nov &middot; 16 days ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Use code &#x27;LOWRIDING&#x27;</p><p>- Added a Limited Tayatzi Atlas CCL Touring Car
 - New &#x27;Exclusive Rim&#x27; Event
 - Removed the Halloween decoration
 - Fixed the &#x27;Find Hidden Location&#x27; task not progressing if you only drive into the hidden area from the Halloween Part 1 event
-- New limiteds will no longer inflate their MP price because of MP you earned the same day</p></li><li class=""><b>Titan Boss Fight 🎃</b><span class="d esub">Use code &#x27;TITANHAVOC&#x27;</span><span class="ptag">New feature</span><span class="d">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 1 day before</span></span><p>Update 91 Part 3 Changelog:
+- New limiteds will no longer inflate their MP price because of MP you earned the same day</p></details></li><li><details open><summary><span class="cnum">77</span><span class="ctitle">Titan Boss Fight 🎃</span><span class="ptag">New feature</span><span class="cdate">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Use code &#x27;TITANHAVOC&#x27;</p><p>Update 91 Part 3 Changelog:
 - Added a &quot;Monster Boss Mode&quot; and bounty system for the event server: When the Boss Wrath is full, the person with the most bounty becomes a giant who can destroy other people&#x27;s cars (Player controlled)
 - Added a W12 Powered luxury concept sedan earned by destroying cars as the Titan
 - Added dialogue for a new Halloween Boss in the event server (Lord Gravebane)
 - Multiplied all Halloween Invasion candy rewards by 1.25x
 - Added code &#x27;TITANHAVOC&#x27;
 
-Everyone will start off with bounty equivalent to your candy amount in the event!</p></li><li class=""><b>New Limited Car 🏎️</b><span class="d esub">Use code &#x27;UNLIMITEDPOWER&#x27;</span><span class="ptag">New items</span><span class="d">Sat 3 Oct &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span><p>- Added the Hannigan Stormarrow Limited Car
+Everyone will start off with bounty equivalent to your candy amount in the event!</p></details></li><li><details open><summary><span class="cnum">76</span><span class="ctitle">New Limited Car 🏎️</span><span class="ptag">New items</span><span class="cdate">Sat 3 Oct &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Use code &#x27;UNLIMITEDPOWER&#x27;</p><p>- Added the Hannigan Stormarrow Limited Car
 - Fixed parts falling off from the Bulwark Armored SWAT Carrier &amp; Brauer GCR 800 in derby&#x27;s dealership
 - Removed the Hayani Garantic from the BTO Series Race
 - Fixed an impossible stunt mission on the Vertical Ramp
 - A land mass begins to appear...
-- Added code &#x27;UNLIMITEDPOWER&#x27;</p></li><li class=""><b>Update 90 Remodels 🧰</b><span class="d esub">Before/After Comparison</span><span class="ptag">New items</span><span class="d">Sat 12 Sep &middot; 2 months ago</span><p>Before/After Comparison of the new remodels added in Update 90</p></li><li class=""><b>Update 90 Release 🚨</b><span class="d esub">New Cars &amp; Global Races</span><span class="ptag">New content</span><span class="d">Sat 12 Sep &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span><p>Update 90 Changelog:
+- Added code &#x27;UNLIMITEDPOWER&#x27;</p></details></li><li><details><summary><span class="cnum">75</span><span class="ctitle">Update 90 Remodels 🧰</span><span class="ptag">New items</span><span class="cdate">Sat 12 Sep &middot; 2 months ago</span></summary><p class="csub">Before/After Comparison</p><p>Before/After Comparison of the new remodels added in Update 90</p></details></li><li><details><summary><span class="cnum">74</span><span class="ctitle">Update 90 Release 🚨</span><span class="ptag">New content</span><span class="cdate">Sat 12 Sep &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Cars &amp; Global Races</p><p>Update 90 Changelog:
 - Added 5 New Cars
 - Added 3 New Remodels
 - Trial Races can now appear as Daily Challenges (Currently only for a few select cars)
@@ -1351,14 +1415,529 @@ Everyone will start off with bounty equivalent to your candy amount in the event
 - Fixed the Drag Race start lights not working
 - Added code &#x27;RAPIDRESPONSE&#x27;
 
-**Global Race Competitions…</p></li><li class=""><b>Update 89 Release 🔥</b><span class="d esub">Use code &#x27;REDLINE&#x27;</span><span class="ptag">New content</span><span class="d">Sat 22 Aug &middot; 3 months ago <span class="nb">&middot; announced 9 days before</span></span><p>Full Changelog:
+**Global Race Competitions…</p></details></li><li><details><summary><span class="cnum">73</span><span class="ctitle">Update 89 Release 🔥</span><span class="ptag">New content</span><span class="cdate">Sat 22 Aug &middot; 3 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">Use code &#x27;REDLINE&#x27;</p><p>Full Changelog:
 - Added 4 new cars
 - Added a setting to enable manual gear shifting (Q and E on PC, L1 and R1 on controllers)
 - Added a new &quot;Race Trial&quot; mission type. These missions face you against a pre-recorded driver similar to boss races, but are single-player with option to change difficulty
 - Added a new permanent event &quot;Apex Trial Series&quot;, with 12 themed Race Trial missions
 - Added several new daily missions involving Race Trial missions and more
 - Changed keyboard powerup activation to C and powerup switching to X (The old Q bind still works for now, except when you&#x27;re mid-air with thrusters equipped)
-- Changed gamepad drifting to B on Xbox and Square on Playstation (Overwrites the delete button until you exit the car)</p></li></ul><h3>Every Car Crushers 2 - Destruction update in order</h3><p class="mut small">All 78 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 16 Aug 2024.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>78</td><td>New Car &amp; Challenges 🏁</td><td>Sat 7 Nov</td></tr><tr><td>77</td><td>Titan Boss Fight 🎃</td><td>Sat 31 Oct</td></tr><tr><td>76</td><td>New Limited Car 🏎️</td><td>Sat 3 Oct</td></tr><tr><td>75</td><td>Update 90 Remodels 🧰</td><td>Sat 12 Sep</td></tr><tr><td>74</td><td>Update 90 Release 🚨</td><td>Sat 12 Sep</td></tr><tr><td>73</td><td>Update 89 Release 🔥</td><td>Sat 22 Aug</td></tr><tr><td>72</td><td>New Barn Find Car 🔍</td><td>Sat 15 Aug</td></tr><tr><td>71</td><td>New Car &amp; Races</td><td>Sat 8 Aug</td></tr><tr><td>70</td><td>4 New Remodels</td><td>Sat 25 Jul</td></tr><tr><td>69</td><td>Update 88 Release 🏖️</td><td>Sat 25 Jul</td></tr><tr><td>68</td><td>New Limited Car &amp; Rewards</td><td>Sat 18 Jul</td></tr><tr><td>67</td><td>Monaco Map &amp; New Cars! ☀️</td><td>Sun 5 Jul</td></tr><tr><td>66</td><td>New Challenge Car 🎯</td><td>Sat 27 Jun</td></tr><tr><td>65</td><td>Limited Tornado IV 🛡️</td><td>Sat 20 Jun</td></tr><tr><td>64</td><td>🌪️ Update 86 Release 🌪️</td><td>Sun 7 Jun</td></tr><tr><td>63</td><td>Returned Super Car 💰</td><td>Sat 30 May</td></tr><tr><td>62</td><td>New Limited Truck</td><td>Sat 23 May</td></tr><tr><td>61</td><td>Update 85 Release 💨</td><td>Sat 9 May</td></tr><tr><td>60</td><td>New Barn Find Car 🧰</td><td>Sat 2 May</td></tr><tr><td>59</td><td>New Limited Offroader 🌵</td><td>Sat 25 Apr</td></tr><tr><td>58</td><td>Limited Easter Shop 🐣</td><td>Sat 11 Apr</td></tr><tr><td>57</td><td>5 New Cars &amp; Eggs Hunt!🥚</td><td>Sat 11 Apr</td></tr><tr><td>56</td><td>New Limited &amp; Event 🌋</td><td>Fri 27 Mar</td></tr><tr><td>55</td><td>Update 83 Release 🔥</td><td>Sat 14 Mar</td></tr><tr><td>54</td><td>Exclusive rims + Credits</td><td>Sat 7 Mar</td></tr><tr><td>53</td><td>2 New Cars &amp; Event! 🌿</td><td>Sat 28 Feb</td></tr><tr><td>52</td><td>Update 82 Release 🔨</td><td>Sat 14 Feb</td></tr><tr><td>51</td><td>Credit Shop &amp; Rewards ☀️</td><td>Thu 12 Feb</td></tr><tr><td>50</td><td>Update 81 Release</td><td>Sat 31 Jan</td></tr><tr><td>49</td><td>2X Money Event</td><td>Sat 10 Jan</td></tr><tr><td>48</td><td>Christmas Shop Opened ❄</td><td>Tue 23 Dec 2025</td></tr><tr><td>47</td><td>Christmas WEEK 1 🎁</td><td>Tue 23 Dec 2025</td></tr><tr><td>46</td><td>Christmas WEEK 2 🎅</td><td>Tue 23 Dec 2025</td></tr><tr><td>45</td><td>Speed Breaker Event 💢</td><td>Sat 6 Dec 2025</td></tr><tr><td>44</td><td>2X Money Weekend</td><td>Sat 15 Nov 2025</td></tr><tr><td>43</td><td>Halloween Part 2 👻</td><td>Fri 31 Oct 2025</td></tr><tr><td>42</td><td>Halloween Event 🎃</td><td>Sun 26 Oct 2025</td></tr><tr><td>41</td><td>Halloween Shop Opened 🪙</td><td>Sat 25 Oct 2025</td></tr><tr><td>40</td><td>New Car &amp; Challenges</td><td>Sat 18 Oct 2025</td></tr><tr><td>39</td><td>2X Money Drops 💰</td><td>Sat 27 Sep 2025</td></tr><tr><td>38</td><td>2 New Cars + Prizes 🔥</td><td>Sat 20 Sep 2025</td></tr><tr><td>37</td><td>Update 76 Part 1 ✨</td><td>Mon 8 Sep 2025</td></tr><tr><td>36</td><td>Update 76 Release 🎉</td><td>Sat 6 Sep 2025</td></tr><tr><td>35</td><td>Community Servers Added🚨</td><td>Sat 23 Aug 2025</td></tr><tr><td>34</td><td>Limited Car &amp; Challenges⌛</td><td>Sat 16 Aug 2025</td></tr><tr><td>33</td><td>Custom Servers Update!</td><td>Sat 2 Aug 2025</td></tr><tr><td>32</td><td>New Cars &amp; Race Track ☀️</td><td>Sat 19 Jul 2025</td></tr><tr><td>31</td><td>3X Parts Drops</td><td>Sat 28 Jun 2025</td></tr><tr><td>30</td><td>Rally Event</td><td>Sat 21 Jun 2025</td></tr><tr><td>29</td><td>Update 73 Launch</td><td>Sat 7 Jun 2025</td></tr><tr><td>28</td><td>2X Money &amp; Platina</td><td>Sat 31 May 2025</td></tr><tr><td>27</td><td>New Limited Truck</td><td>Sat 24 May 2025</td></tr><tr><td>26</td><td>Update 72 Release 💵</td><td>Sat 10 May 2025</td></tr><tr><td>25</td><td>3X Parts Weekend</td><td>Sat 3 May 2025</td></tr><tr><td>24</td><td>Egg Hunt Week 2 🍬</td><td>Sat 19 Apr 2025</td></tr><tr><td>23</td><td>Dirt Event</td><td>Tue 1 Apr 2025</td></tr><tr><td>22</td><td>The Hunt: Mega Edition</td><td>Thu 13 Mar 2025</td></tr><tr><td>21</td><td>The Full Expansion 🗺️</td><td>Sat 8 Mar 2025</td></tr><tr><td>20</td><td>New Limited &amp; Challenges</td><td>Sat 22 Feb 2025</td></tr><tr><td>19</td><td>Update 69 Launch</td><td>Sat 8 Feb 2025</td></tr><tr><td>18</td><td>Vintage Cars Event ✨</td><td>Sat 1 Feb 2025</td></tr><tr><td>17</td><td>Update 68</td><td>Sat 18 Jan 2025</td></tr><tr><td>16</td><td>New Limited Car</td><td>Sat 11 Jan 2025</td></tr><tr><td>15</td><td>2X Money &amp; Platina</td><td>Fri 3 Jan 2025</td></tr><tr><td>14</td><td>Gift Opening + 15 Cars</td><td>Wed 25 Dec 2024</td></tr><tr><td>13</td><td>Christmas Week 2 🎁</td><td>Sun 22 Dec 2024</td></tr><tr><td>12</td><td>Christmas Week 1 ❄️</td><td>Sat 14 Dec 2024</td></tr><tr><td>11</td><td>Car Challenge Event</td><td>Sat 7 Dec 2024</td></tr><tr><td>10</td><td>🏷️ Black Friday Sale</td><td>Fri 29 Nov 2024</td></tr><tr><td>9</td><td>🎉 Map Expansion Update</td><td>Sat 23 Nov 2024</td></tr><tr><td>8</td><td>New Limited Car + Race Challenges 🏆</td><td>Fri 8 Nov 2024</td></tr><tr><td>7</td><td>Update 65 - Halloween Event 🎃</td><td>Fri 25 Oct 2024</td></tr><tr><td>6</td><td>🌿 Update 64 - New Graphics &amp; Cars</td><td>Sat 5 Oct 2024</td></tr><tr><td>5</td><td>⭐ New Limited Car &amp; Challenges</td><td>Thu 26 Sep 2024</td></tr><tr><td>4</td><td>💵 2X Money &amp; Platina</td><td>Sat 21 Sep 2024</td></tr><tr><td>3</td><td>Update 63 now available! 🎉</td><td>Sat 7 Sep 2024</td></tr><tr><td>2</td><td>3X Parts Weekend</td><td>Sat 31 Aug 2024</td></tr><tr><td>1</td><td>Update 62 PART 2 - Mega Vehicles</td><td>Fri 16 Aug 2024</td></tr></table></div><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sun 22 Nov</td><td>2.2&times; busier &ndash; lines up with &ldquo;Update 92 Release 💨&rdquo;</td></tr><tr><td>Sun 15 Nov</td><td>1.5&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795622400" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>Update 92 Release 💨</b><span class="d esub">Use code &#x27;MAYDAY&#x27;</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 5 Dec <span class="nb">&middot; announced 12 days before</span></span><p>Update 92 Changelog:
+- Changed gamepad drifting to B on Xbox and Square on Playstation (Overwrites the delete button until you exit the car)</p></details></li><li><details><summary><span class="cnum">72</span><span class="ctitle">New Barn Find Car 🔍</span><span class="ptag">New items</span><span class="cdate">Sat 15 Aug &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Use code &#x27;VINTAGEFIXUP&#x27;</p><p>- Added a new Barn Find car
+- Fixed the Escape Helicopter sometimes spawning on water near the Lighthouse
+- Fixed the &#x27;All-Category Cup&#x27; Event not having a skip button</p></details></li><li><details><summary><span class="cnum">71</span><span class="ctitle">New Car &amp; Races</span><span class="ptag">New items</span><span class="cdate">Sat 8 Aug &middot; 4 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Use Code CROSSRACING</p><p>- New &quot;All-Category Cup&quot; event
+- 10 new category-specific race lobbies
+- New Limited Vehicle
+- New Rim &amp; 25 MP as event reward
+- Fixed Time Trials not working on &#x27;Classic Sprint&#x27; and &#x27;Volcano Spiral Sprint&#x27;
+- Fixed the Escape Helicopter sometimes spawning inside the Tornado building
+- Fixed the Dune Havoc race preview breaking at a certain point
+- Fixed Camera clipping in the dealership &amp; garage
+- Fixed visual bugs and spoiler clipping for several vehicles
+- Fixed a few visual bugs around the main map
+- Fixed missing collision from the Bowl Derby map&#x27;s lobby
+- Improved collisions near the Oval Arena&#x27;s entrance
+- Improved Tricera X100&#x27;s front hitbox
+- Removed the Vertical Ramp respawn checkpoint from the Stunt Race
+- Added code &#x27;CROSSRACING&#x27;</p></details></li><li><details><summary><span class="cnum">70</span><span class="ctitle">4 New Remodels</span><span class="ptag">New content</span><span class="cdate">Sat 25 Jul &middot; 4 months ago</span></summary><p class="csub">Before/After comparison</p><p>Image-comparison of the new vs old models (from before and after Update 88)
+
+(There is no other purpose of this event)</p></details></li><li><details><summary><span class="cnum">69</span><span class="ctitle">Update 88 Release 🏖️</span><span class="ptag">New content</span><span class="cdate">Sat 25 Jul &middot; 4 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Use code &#x27;ROLLINGHOUSE&#x27;</p><p>Update 88 Changelog:
+- Added 7 New vehicles:
+- New Tier 4: IM Crawler House (6200 Platina with highest part-count and most advanced interior in CC2)
+- 4 New remodels
+- Limited Beach patrol SUV
+- Bulletproof truck
+- Added a new race track: Dune Havoc Trail
+- Added an event with 2 boss races on Dune Havoc Trail
+- Added a new &#x27;Beach Patrol&#x27; title
+- Fixed an issue that made vehicle hitboxes more inaccurate than intended (This also caused collisions to not register properly in some cases)
+- The button that changes difficulty now only changes the difficulty of the clicked task, (Lets you use different difficulties for different tasks)
+- The challenge-difficulty setting now only controls the default difficulty of new challenges
+- Added code &#x27;ROLLINGHOUSE&#x27;</p></details></li><li><details><summary><span class="cnum">68</span><span class="ctitle">New Limited Car &amp; Rewards</span><span class="ptag">New items</span><span class="cdate">Sat 18 Jul &middot; 4 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Use code &#x27;URBANVELOCITY&#x27;</p><p>New limited car, challenges, rewards and more! Here is what this update brings:
+- Added a new limited car
+- Added a &quot;Monaco Speed&quot; event with Speed Traps &amp; Speed Zone challenges on Monaco
+- Added a new Exclusive Rim, 75 MP and Skill Points as rewards for the event
+- Added an optional setting &quot;Force Chat Compatibility&quot; for custom server metadata. Which prevents people from joining the server unless they can chat with yourself. An optional way to ensure everyone in the same server can see each other&#x27;s chats (Currently in beta and may not work properly)
+- Added code &#x27;URBANVELOCITY&#x27;</p></details></li><li><details><summary><span class="cnum">67</span><span class="ctitle">Monaco Map &amp; New Cars! ☀️</span><span class="ptag">New content</span><span class="cdate">Sun 5 Jul &middot; 5 months ago <span class="nb">&middot; announced 10 days before</span></span></summary><p class="csub">Use code &#x27;MONACOPHASE1&#x27;</p><p>Update 87 Changelog:
+- Added 4 new Vehicles
+- Added Monaco as a new map and official server featuring:
+- Huge city spanning more than 30x the size of Palmridge Town
+- Long Narrow city-circuit
+- Marina with yatchs and parking
+- Added a new Monaco Circuit Race with motorsport-themed race lobby
+- You can now choose Monaco or OG Facility as maps in the Server Configurator
+- New permanent &quot;Momentum Rampage&quot; event with crash targets on Monaco
+- New &quot;Monaco Stunting&quot; event for Mission Points
+- Added Code &#x27;MONACOPHASE1&#x27;</p></details></li><li><details><summary><span class="cnum">66</span><span class="ctitle">New Challenge Car 🎯</span><span class="ptag">New items</span><span class="cdate">Sat 27 Jun &middot; 5 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Use code &#x27;CRASHLANDING&#x27;</p><p>A new update just came out! This one adds a brand new car and a new event about stunting. Complete 10 of them and it&#x27;s all yours!
+
+The event includes Skill Points from each of the challenges and an extra 30 MP on completion.</p></details></li><li><details><summary><span class="cnum">65</span><span class="ctitle">Limited Tornado IV 🛡️</span><span class="ptag">New items</span><span class="cdate">Sat 20 Jun &middot; 5 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Use code &#x27;INTOTHESTORM&#x27;</p><p>This update adds an exclusive Tornado Intercept Vehicle as a limited truck! There&#x27;s also a new &#x27;Into the Storm&#x27; event with tornado-themed challenges and a Stormchaser title. Check it out in-game!</p></details></li><li><details><summary><span class="cnum">64</span><span class="ctitle">🌪️ Update 86 Release 🌪️</span><span class="ptag">New content</span><span class="cdate">Sun 7 Jun &middot; 6 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">Use code &#x27;STORMCHASING&#x27;</p><p>Full Changelogs:
+- Added 4 new vehicles
+- Added a Tornado Research Facility:
+- Generates a huge tornado with realistic wind motion
+- Control room to toggle activation
+- Found near the Nature Pit outside Row 3
+- Added a Tornado powerup to the Derby Arenas
+- Car Crushers 2 now pays to have more than 2x server speed (Experimental)
+- The game is now R15-only to comply with Roblox&#x27;s latest requirements and to fund the server-speed increase
+- Improved the detail on the Bulwark Armored SWAT Carrier (Especially the underside)
+- Update all R-keybinds on the F3X build tools to Y instead
+- Added tornado-themed challenges for a 2X money booster
+- Added code &#x27;STORMCHASING&#x27;</p></details></li><li><details><summary><span class="cnum">63</span><span class="ctitle">Returned Super Car 💰</span><span class="ptag">New items</span><span class="cdate">Sat 30 May &middot; 6 months ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Credit shop for 1 week!</p><p>The Credit Shop just reopened! This one brings back an old classic for a short time: The Macedas AMC GTR
+
+We&#x27;ve also returned one rim and temporary playtime rewards for the duration of the Credit Shop (200 Credits and a 10-minute 2X Scraps booster each day)
+
+It concludes next weekend after Update 86 launches, so don&#x27;t miss it if you want it!</p></details></li><li><details><summary><span class="cnum">62</span><span class="ctitle">New Limited Truck</span><span class="ptag">New items</span><span class="cdate">Sat 23 May &middot; 6 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Use code &#x27;POWERHOUSE&#x27;</p><p>A new pickup truck just dropped as limited! 🌴
+
+The update also includes a &quot;Trailblaze&quot; event featuring some new crash targets and boss races for a new rim. Get a bonus of 35 MP by using the code &#x27;POWERHOUSE&#x27;</p></details></li><li><details><summary><span class="cnum">61</span><span class="ctitle">Update 85 Release 💨</span><span class="ptag">New content</span><span class="cdate">Sat 9 May &middot; 7 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Use code &#x27;RUBBERBURN&#x27;</p><p>Update 85 Changelog:
+- Added 4 new Vehicles
+- Added Support for 30-player custom servers
+- Added a new button to copy a link for a custom server (Appears beside the server&#x27;s code)
+- Increased the maximum amount of saved admins from 4 to 6 in the Server Configurator
+- Added 2 Boss races featuring the new Dragsters
+- Added an Update 85 Event involving the new vehicles
+- Added Code &#x27;RUBBERBURN&#x27;
+- Smaller Render Optimizations</p></details></li><li><details><summary><span class="cnum">60</span><span class="ctitle">New Barn Find Car 🧰</span><span class="ptag">New place</span><span class="cdate">Sat 2 May &middot; 7 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Use code &#x27;BARNBEAST&#x27;</p><p>Sources say this old classic has been sighted somewhere on the Car Crushers island. Scavenge the island and restore it to make it yours!</p></details></li><li><details><summary><span class="cnum">59</span><span class="ctitle">New Limited Offroader 🌵</span><span class="ptag">New items</span><span class="cdate">Sat 25 Apr &middot; 7 months ago</span></summary><p class="csub">Includes 5 Custom Races</p><p>A new limited car just dropped! The Jiepo Mudslinger C3
+
+This update also includes a mini-event with 5 custom multiplayer races for an exclusive rim! 5 Multiplayer races, each constrained to it&#x27;s own car brand. Like Gavanni Only, Tessel only and many more</p></details></li><li><details><summary><span class="cnum">58</span><span class="ctitle">Limited Easter Shop 🐣</span><span class="ptag">New items</span><span class="cdate">Sat 11 Apr &middot; 7 months ago</span></summary><p class="csub">8 Returned Limited Cars!</p><p>The Easter shop has come back with 8 returned limited cars and 2 returned Easter Rims!
+
+You can also claim 5 daily playtime rewards each day from this shop (400 Credits, 120 Platina and eggs with random currency prizes)
+
+All original owners of these cars have received the OG Wrap</p></details></li><li><details><summary><span class="cnum">57</span><span class="ctitle">5 New Cars &amp; Eggs Hunt!🥚</span><span class="ptag">New content</span><span class="cdate">Sat 11 Apr &middot; 7 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">Exclusive Easter rewards!</p><p>Update 84 Changelog:
+- Added 5 new vehicles
+- Added a huge Egg Hunt with 131 eggs of 24 types different types to collect
+- Added several Egg Hunt Prizes:
+○ 2 Exclusive Cars
+○ Exclusive Rim
+○ Exclusive Tire
+○ &quot;Easter King&quot; &amp; &quot;Easter Queen&quot; title
+○ Egg Radar gear that shows the location of eggs
+○ ~900 Platina, ~2800 Credits from individual Egg rewards
+- Added a new Barn Hunt activity, featuring a full car restoration process:
+○ Rip away moldy/damaged parts
+○ Restore metal and remove rust
+○ Use a 3D printer to create and install new parts
+○ Look for &#x27;Pristine Scrap&#x27; among your destroyed car parts to fuel the printer
+○ Finish the car&#x27;s paintjob
+- Returned 8 old limited cars in the Seasonal Shop
+- Added 5 Daily Playtime rewards from the Limited Shop
+- Added the OG Wrap material to the 8 returned limiteds
+- Added 3 obbies on the map
+- Added 3 new Boss races
+- Derby FFA rounds now have a…</p></details></li><li><details><summary><span class="cnum">56</span><span class="ctitle">New Limited &amp; Event 🌋</span><span class="ptag">New items</span><span class="cdate">Fri 27 Mar &middot; 8 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Use Code &#x27;VOLCANICSKILL&#x27;</p><p>A new update just released! There is now a new limited car and a &#x27;Volcano Stunting&#x27; event for Skill Points. Plus a new Skill Point achievement for a unique spoiler!</p></details></li><li><details><summary><span class="cnum">55</span><span class="ctitle">Update 83 Release 🔥</span><span class="ptag">New content</span><span class="cdate">Sat 14 Mar &middot; 8 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Use Code &#x27;BLAZINGTORQUE&#x27;</p><p>Update 83 Changelog:
+- Added 4 new vehicles
+- Added Skill Points with 3 belonging achievements:
+○ Exclusive Rim
+○ Exclusive Super Car
+○ &#x27;Unlimited Skill&#x27; title and chat color
+- Replaced the Premium daily mission with a Daily Challenge available to everyone:
+○ Nearly 500 possible challenges so far
+○ Awards Skill Points and Platina or Money on completion (Scales with difficulty)
+- Added 27 new MP Mission variants
+- Added 2 new user settings:
+○ Mission Difficulty: Controls challenge difficulty and how much Skill Points you earn
+○ Excluded Mission Type: Choose to exclude Derby Missions or Multiplayer Racing missions from your Daily Missions
+- Buffed Several Crushers and made them more consistent:
+○ Cannon Shot
+○ Pulse Cannon
+○ Washing Machine
+○ Stairfall
+○ Landslide
+○ Pillar Fall
+○ Train Collision
+- Crushers that deal blunt damage are now more effective against armored vehicles than…</p></details></li><li><details><summary><span class="cnum">54</span><span class="ctitle">Exclusive rims + Credits</span><span class="ptag">New items</span><span class="cdate">Sat 7 Mar &middot; 9 months ago</span></summary><p class="csub">Expires next weekend!</p><p>The credit shop is now back for a limited time, featuring 2 new exclusive rims and daily Credit prizes that you can earn as playtime rewards!</p></details></li><li><details><summary><span class="cnum">53</span><span class="ctitle">2 New Cars &amp; Event! 🌿</span><span class="ptag">New content</span><span class="cdate">Sat 28 Feb &middot; 9 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Use code &#x27;OFFROADCRASH&#x27;</p><p>A new &#x27;Wild Impacts&#x27; event is now available! This involves 14 challenges that take you through stunts and crash targets across the outskirts of the map for some intense offroading 💥
+
+The update includes a new limited car and a new pickup truck as event reward!</p></details></li><li><details><summary><span class="cnum">52</span><span class="ctitle">Update 82 Release 🔨</span><span class="ptag">New content</span><span class="cdate">Sat 14 Feb &middot; 9 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">Build Mode, New Cars ++</p><p>Update 82 Changelog:
+- 4 New Vehicles
+- Added F3X Build tools, which lets you build in designated areas in your private server:
+- 12 different build tools: Lets you create and modify parts, tweak colors and materials, add lighting and more
+- Auto saving. All builds are saved to your private server (Or custom server)
+- Physics Playback: Lets you start/stop physics of your builds
+- Added 17 new Play Areas to the Server Configurator
+- Added an achievement for 100,000 Derby Score
+- Added a &quot;Total Destruction&quot; event with 25 challenges that require you to destroy 100% of your car in different crushers
+- Added Dynamic pricing to the Skip Options in the Mission Hub (The more progress you have, the more the prices will drop)
+- Added Palmridge logos on the Palmridge Town and emergency vehicles
+- Fixed parts of the Admin Panel gamepass being accessible for free in Private Servers (Previous users…</p></details></li><li><details><summary><span class="cnum">51</span><span class="ctitle">Credit Shop &amp; Rewards ☀️</span><span class="ptag">New items</span><span class="cdate">Thu 12 Feb &middot; 9 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Rims &amp; Returned Super Car</p><p>Full changelogs:
+• Added a new &quot;Credit Shop&quot; with:
+• 1 returned limited car (Porettchi 611 P1)
+• 1 returned RWB rim
+• 1 New Exclusive Rim
+• Daily 10-Minute playtime reward: 200 Credits
+• Daily 30-Minute playtime reward: 15m 2X Scraps booster
+• Ends on February 15th
+• Added the OG skin to the original owners of the Porettchi 611 P1
+• Melted away the snow and returned the default Tropical map
+• Added a new &quot;Launch Reward&quot; that gives an exclusive rim next week
+• Added code &quot;TROPICALRETURN&quot;</p></details></li><li><details><summary><span class="cnum">50</span><span class="ctitle">Update 81 Release</span><span class="ptag">New content</span><span class="cdate">Sat 31 Jan &middot; 10 months ago <span class="nb">&middot; announced 21 days before</span></span></summary><p class="csub">5 New Cars &amp; More 🧊</p><p>Full changelogs for Update 81:
+- Added 5 new vehicles
+- Added Rewind Support in races
+- Added a permanent &quot;Speedline Trials&quot; event with 15 Speed Zone challenges (Awards Exclusive car)
+- Added a &quot;Winter Tournament&quot; event with 5 boss races (Awards &quot;Subzero Champion&quot; title)
+- Rewind now engages automatically if you fall off the map
+- Removed Christmas Decorations
+- Added a 15-day Expiration date on Stunt Champion event. The belonging Motoreni reward will become unavailable after this (Like an offsale limited)
+- Reduced the price of the Turbo Scooter
+- Disabled Snowball Fight in the Derby Arenas (Except in Beginner servers)</p></details></li><li><details><summary><span class="cnum">49</span><span class="ctitle">2X Money Event</span><span class="ptag">New items</span><span class="cdate">Sat 10 Jan &middot; 10 months ago</span></summary><p class="csub">Free Money Booster Drops</p><p>A new 2X Money event is live! Free Money boosters are being dropped all weekend:
+- 2X Money Booster every 15 minutes (+1 on join)
+- Each lasts 8 minutes
+- Free drops until Monday
+
+NOTE: The new challenge-event that was supposed to release this weekend had to be delayed until Update 81 instead. So be sure to check back then for all the new cars! We hope this 2X Money lets you get something extra in the meantime</p></details></li><li><details><summary><span class="cnum">48</span><span class="ctitle">Christmas Shop Opened ❄</span><span class="ptag">New items</span><span class="cdate">Tue 23 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">15 Returned Cars!</p><p>The final and biggest seasonal shop of the year is now here! Claim up to 15 returned limited cars and several daily rewards every day until the new year 🎁</p></details></li><li><details><summary><span class="cnum">47</span><span class="ctitle">Christmas WEEK 1 🎁</span><span class="ptag">New season</span><span class="cdate">Tue 23 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 18 days before</span></span></summary><p class="csub">New Cars, Winter &amp; Gifts!</p><p>The first part of Car Crushers 2&#x27;s 2025 Christmas event is now out! Here are the full changelogs:
+- Added 4 New Vehicles (+1 Hidden Car)
+- Added the first part of the Christmas Event with 5 reward tiers
+- Added a gift display to track the event&#x27;s gifts: 2/5 available in this update
+- Added 2 new races on the ice: Ice Ramp Circuit and Shiver Ring
+- Added a new Activity: Treasure Shovelling
+- Added new Ice Ramps and Breakable Target Challenges
+- Overhauled the whole map to look Snowy
+- Added Christmas Decorations everywhere: Facility Building, Dealership, Garage, Main Map, Town, Houses, etc
+- Added a sneak peek of 15 upcoming returning limited cars
+- Original Owners of those cars now have OG wraps for them (Once the Customization update hits, we plan to give original owners another exclusive item in addition to the current OG Wrap)
+- Converted the PVP Anarchy server into a single server…</p></details></li><li><details><summary><span class="cnum">46</span><span class="ctitle">Christmas WEEK 2 🎅</span><span class="ptag">New content</span><span class="cdate">Tue 23 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">Open your gifts now! 🎁</p><p>The Final part of the Christmas event just arrived! Here are the full changelogs:
+- 4 New Vehicles (+1 More Hidden Car)
+- A new Mega Vehicle: IM 1460 Terradrive
+- Added Christmas Week 2 event with 7 rewards, including 2 exclusive rims and a new &quot;Target Terminator&quot; chat color + title
+- New Event place for the Week 2 event (Join from the Custom Servers board)
+- New &#x27;Target Attack&#x27; gamemode:
+○ Gives everyone Rocket Boosters and Air-control Thrusters on a new Mountain Peak Ski-Jump map
+○ Includes 6 possible layouts for targets to destroy
+- New &#x27;Santa&#x27;s Gift Rain&#x27; gamemode: Marks a random location on the Facility Island where Santa drops gifts for rewards
+- New Donation system in the event place
+- New Rewind System in the Vehicle menu:
+○ Can be used any time outside the main Destruction Facility to reverse time in 3s increments
+○ Auto-Repairs the car if it&#x27;s significantly broken</p></details></li><li><details><summary><span class="cnum">45</span><span class="ctitle">Speed Breaker Event 💢</span><span class="ptag">New items</span><span class="cdate">Sat 6 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">New Car + Challenges</p><p>This update adds a new limited car and a &#x27;Speed Breaker&#x27; Event for an exclusive title. Use code &#x27;REDLINEPEAK&#x27; for extra Money/Platina!</p></details></li><li><details><summary><span class="cnum">44</span><span class="ctitle">2X Money Weekend</span><span class="ptag">New items</span><span class="cdate">Sat 15 Nov 2025 &middot; 1 year ago</span></summary><p class="csub">Free 2X Booster Drops</p><p>Free 2X Money boosters are being given out for the rest of this week!
+- Frequency: New Booster every 15 Minutes (+1 When you join),
+- Duration: 8 Minutes,
+- Stock up to 3 at once</p></details></li><li><details><summary><span class="cnum">43</span><span class="ctitle">Halloween Part 2 👻</span><span class="ptag">New content</span><span class="cdate">Fri 31 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Phantom Trials Event</p><p>Haunted Phantom Drivers are taking over the racing scene! Defeat all 6 of them to claim the Midnight Rider&#x27;s exclusive car!
+
+The update also includes a new limited-time race track and additional Credit/Platina/Money rewards</p></details></li><li><details><summary><span class="cnum">42</span><span class="ctitle">Halloween Event 🎃</span><span class="ptag">New season</span><span class="cdate">Sun 26 Oct 2025 &middot; 1 year ago</span></summary><p class="csub">New Cars &amp; Prizes</p><p>The Full release of Update 78 is finally here!
+- Added 4 new vehicles
+- Added a new &#x27;Halloween Invasion&#x27; Event place
+○ Monster Invasions happen every night with periodic boss fights
+○ Includes &#x27;Monster Charge&#x27; and &#x27;Boss Wrath&#x27; meters that control what happens in upcoming Invasion Events
+○ Each invasion uses a randomly selected battle zone
+- Most Halloween monsters are now animated
+- Added a Halloween Invasion event about earning candy from defeating monsters, with 6 rewards:
+○ 2 New Halloween Rims
+○ 500 Credits &amp; Platina
+○ Exclusive truck
+○ &#x27;Twilight Guardian&#x27; title
+- Added a new construction car with pieces scattered across the map
+- Added Halloween decorations on the map
+- Returned 12 old limited vehicles on Sale
+- Added Daily playtime rewards to the seasonal shop</p></details></li><li><details><summary><span class="cnum">41</span><span class="ctitle">Halloween Shop Opened 🪙</span><span class="ptag">New items</span><span class="cdate">Sat 25 Oct 2025 &middot; 1 year ago</span></summary><p class="csub">12 Limited Cars Returned</p><p>The Seasonal Shop has returned for the first time since Easter with a chance to get 12 old limited cars!</p></details></li><li><details><summary><span class="cnum">40</span><span class="ctitle">New Car &amp; Challenges</span><span class="ptag">New items</span><span class="cdate">Sat 18 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Code &#x27;COMPRESSEDPOWER&#x27;</p><p>Full Changelogs:
+- Added a new Limited Car
+- Added new &#x27;Torque Trials&#x27; Challenges for 1000 Credits and Platina
+- Increased the Money/Platina Participation reward from races by 33%
+- Added a countdown/reveal of the upcoming Seasonal Shop next week
+- All the original owners of the revealed cars now have the OG Wrap
+- New Code &#x27;COMPRESSEDPOWER&#x27;</p></details></li><li><details><summary><span class="cnum">39</span><span class="ctitle">2X Money Drops 💰</span><span class="ptag">New items</span><span class="cdate">Sat 27 Sep 2025 &middot; 1 year ago</span></summary><p class="csub">Money Booster Event</p><p>A new 2X Money event is active for this weekend!
+
+This time the Money boosters are given to everyone no matter if you have Platina or not:
+- Duration: 8 Minutes,
+- Frequency: New Booster every 15 Minutes (+1 When you join),
+- Stock up to 3 at once</p></details></li><li><details><summary><span class="cnum">38</span><span class="ctitle">2 New Cars + Prizes 🔥</span><span class="ptag">New content</span><span class="cdate">Sat 20 Sep 2025 &middot; 1 year ago</span></summary><p class="csub">Use code &#x27;SPEEDZONE&#x27;</p><p>A great classic makes a return for a limited time, alongside a new event car that you can get from the 2nd part of the race event!
+
+This event includes new speed zones and several new races with custom vehicle restrictions:
+- Added 2 new cars
+- Added 4 new custom races that can only use specific vehicles
+- Added 5 new Speed Zones on the map
+- Added a &quot;Race Event Part 2&quot; event with 3 rewards and new challenges
+- Added new code &#x27;SPEEDZONE&#x27;</p></details></li><li><details><summary><span class="cnum">37</span><span class="ctitle">Update 76 Part 1 ✨</span><span class="ptag">New content</span><span class="cdate">Mon 8 Sep 2025 &middot; 1 year ago</span></summary><p class="csub">Code &#x27;HYPERACCELERATION&#x27;</p><p>The first part of Update 76 is now released! Here are the full changelogs:
+- Added 3 new cars
+- Added a new challenge-event with an exclusive rim
+- Upgrading vehicle value now costs 60% less on average
+- Increased the required amount of upgrades for the value upgrade achievements
+- You can now convert 1000 platina into 10 MP to unlock limiteds faster
+- All newly purchased currency boosters now have a 60-day expiration time
+- All previous event boosters now have a 30-day expiration time
+- Invited more community server creators
+- The custom servers list now displays 10 servers by default
+- Fixed the &quot;Join&quot; button turning grey permanently after trying to join a full custom server
+- Fixed Custom server Money/Part requirements not being enforced
+- Fixed Team titles above characters not displaying the correct team name in custom servers
+- Fixed Race Competitions sometimes not working in…</p></details></li><li><details><summary><span class="cnum">36</span><span class="ctitle">Update 76 Release 🎉</span><span class="ptag">New content</span><span class="cdate">Sat 6 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">Platina Overhaul &amp; More!</p><p>The 2nd part of Update 76 is now out! Here is what we added:
+- Added 3 more Vehicles
+- You now earn much more Platina from Money
+- Revamped how Supercharged vehicles work:
+○ You now always have one Supercharged vehicle
+○ They now Drop extra Platina as you destroy them, rather than doubling overall income (More Platina with more parts)
+○ The old Supercharge bonus that you got after purchasing Platina vehicles is now called &quot;Hypercharged&quot; (Gives more Platina than Supercharged)
+- Added a setting to automatically respawn the next Supercharged vehicle after the previous one is depleted
+- Added a dedicated Platina reward for upgrading vehicles.
+- Added a &quot;2x Driving Income&quot; upgrade in Value upgrades
+- Increased the maximum Money payout from Energy Core meltdowns &amp; race competitions
+- Removed most old Platina income tasks
+- New achievement for 15,000 Value Upgrades
+- New type of race lobby…</p></details></li><li><details><summary><span class="cnum">35</span><span class="ctitle">Community Servers Added🚨</span><span class="ptag">More levels</span><span class="cdate">Sat 23 Aug 2025 &middot; 1 year ago</span></summary><p class="csub">RP servers and more!</p><p>The Community Server support has now left the beta phase with several new custom servers you can join. Check them out under &quot;Community Servers&quot; in the lobby&#x27;s custom server browser!</p></details></li><li><details><summary><span class="cnum">34</span><span class="ctitle">Limited Car &amp; Challenges⌛</span><span class="ptag">New items</span><span class="cdate">Sat 16 Aug 2025 &middot; 1 year ago</span></summary><p class="csub">Use code &#x27;SOLARVORTEX&#x27;</p><p>A new car update just released! There&#x27;s now a new limited race car along with challenges for an exclusive rim and other prizes. The challenges include custom server gameplay and a boss driver that uses the new car.
+
+We&#x27;ve also added some of the remaining custom server support. Including the ability to invite and join friends when going to custom servers.
+
+Use code SOLARVORTEX for an extra Money/Platina boost!</p></details></li><li><details><summary><span class="cnum">33</span><span class="ctitle">Custom Servers Update!</span><span class="ptag">New content</span><span class="cdate">Sat 2 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Cars &amp; Server browser</p><p>Update 75 Changelog:
+- Added 5 new vehicles
+- Added a new &#x27;Custom servers&#x27; browser in the lobby, which lets you join servers that have been modified by the Server Configurator
+- Added 3 official custom servers:
+○ Freeroam Racing
+○ PVP Anarchy
+○ No Energy Core
+- Owners of the Admin Panel gamepass can now create and publish their own servers into the Custom servers list
+- Player Nametags are now displayed above vehicles when they&#x27;re being driven
+- Added 10+ New Server Configurator settings. Including Character PVP Support, Fall Damage support, Increased Server Size, 6 RP gears, damage settings per team &amp; several more
+- The OG Facility can now be joined from the custom servers browser
+- Rebalanced 40+ Cars that performed better or worse than their handling stat
+- Added new Code CUSTOMBUILT
+- 300k Lifetime Platina Achievement (Awards &#x27;Platina Overlord&#x27; title)
+- 60 Race Wins Achievement…</p></details></li><li><details><summary><span class="cnum">32</span><span class="ctitle">New Cars &amp; Race Track ☀️</span><span class="ptag">New content</span><span class="cdate">Sat 19 Jul 2025 &middot; 1 year ago</span></summary><p class="csub">Use code &#x27;SUMMERDRIVE&#x27;</p><p>A new event update just launched! This one adds new cars and event content including:
+- A New Limited Car
+- A New Event Car
+- New limited-time Race Track
+- New Boss race
+- New Challenges &amp; Prizes
+- New Code &#x27;SUMMERDRIVE&#x27;</p></details></li><li><details><summary><span class="cnum">31</span><span class="ctitle">3X Parts Drops</span><span class="ptag">Quest</span><span class="cdate">Sat 28 Jun 2025 &middot; 1 year ago</span></summary><p class="csub">Free 3X Parts boosters</p><p>3X Parts boosters are being given all weekend! Get one immediately when you join, followed by continued drops for every 15 minutes you play!
+
+Use this to grind new achievements or prepare for the new crushers in Update  74! The new crushers will require this many parts:
+- The Launch Pad: 115,000
+- The Hurricane: 130,000
+- The Wall Scraper: 145,000</p></details></li><li><details><summary><span class="cnum">30</span><span class="ctitle">Rally Event</span><span class="ptag">New items</span><span class="cdate">Sat 21 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">New Car &amp; Challenges</p><p>A new update just released! There&#x27;s now a &#x27;Rally Event&#x27; with a new boss race, new speed zones and other challenges. Including extra difficult challenges for a new &#x27;Rally Driver&#x27; title.
+
+The update includes a new limited rally car given from the event after you earn 270 MP.</p></details></li><li><details><summary><span class="cnum">29</span><span class="ctitle">Update 73 Launch</span><span class="ptag">New content</span><span class="cdate">Sat 7 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Full update logs here!</p><p>Update 73 Changelog:
+- 4 new vehicles
+- 4 New Car Remodels
+- Added Server Configurator for private servers which includes:
+○ Team creation with custom settings per team
+○ 30+ Settings that customize the behaviors and permissions of the server and teams
+○ Join interface that lets players join configured teams
+○ Private server owners can open this through the admin panel
+- New challenge event for one of the new cars
+- You now Earn money from driving vehicles you haven&#x27;t fully unlocked yet (Such as Exclusive cars &amp; borrowed cars)
+- The dealership Owned filter is now &quot;Drive Access&quot;
+- The Inferno and Energy Monster Trucks no longer require VIP
+- Reduced Platina per 10 miles driven: 25 -&gt; 20
+- Players with more than 20B Money now earn 30% less Credits and Platina in Beginner Derby servers
+- Electric vehicles are now completely silent in standby
+- Fixed an issue that caused high ping in the…</p></details></li><li><details><summary><span class="cnum">28</span><span class="ctitle">2X Money &amp; Platina</span><span class="ptag">Quest</span><span class="cdate">Sat 31 May 2025 &middot; 1 year ago</span></summary><p class="csub">This weekend only!</p><p>2X Money &amp; Platina is back! 💵
+
+You now earn Platina Supercharges twice as fast if you have more than 20B Money. And if you need Money you&#x27;ll earn free 2x Boosters:
+- Duration: 8 Minutes,,
+- Frequency: New Booster every 15 Minutes (+1 When you join),,
+- Stock up to 3 at once
+
+It&#x27;s available for this weekend only!</p></details></li><li><details><summary><span class="cnum">27</span><span class="ctitle">New Limited Truck</span><span class="ptag">New items</span><span class="cdate">Sat 24 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Available now!</p><p>A new limited truck just got added!
+
+The update also includes new challenges for 45 MP and code &#x27;SANDSCAPING&#x27;</p></details></li><li><details><summary><span class="cnum">26</span><span class="ctitle">Update 72 Release 💵</span><span class="ptag">New content</span><span class="cdate">Sat 10 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Full Changelogs here!</p><p>Update 72 Changelog:
+- Added 4 New Vehicles
+- Added new Money Per Mile feature that gives passive income while driving outside Facility Building
+- You now get 25 Platina for every 10 Miles (Or 16 KM) driven
+- The Gas Station in the town is now destructible
+- Added 4 New Car Remodels
+*The new Brauer 800G is treated as new vehicle due to the large difference in price and performance compared to the old model
+- Added new Update 72 event for 40 MP and an Exclusive Car
+- Added new Code &#x27;GASHAZARD&#x27;
+- The Tayatzi Correlo KN50 no longer requires VIP
+- Fixed the dealership vehicle bar being slower to scroll than it was a few weeks ago
+- Competition popups will no longer appear while playing a race
+- Fixed an exploit that allowed you to exceed the maximum race class for a race
+- Fixed Personal best lap times not saving
+- Fixed Race Rewards not showing up on the race Results popup
+- Fixed the Race…</p></details></li><li><details><summary><span class="cnum">25</span><span class="ctitle">3X Parts Weekend</span><span class="ptag">New items</span><span class="cdate">Sat 3 May 2025 &middot; 2 years ago</span></summary><p class="csub">3X Booster Drops</p><p>3X Parts is now active for the weekend! Free 7-minute 3X boosters are given for the entire remainder of the week! A great opportunity to get new achievements or unlock new crushers.
+
+You can collect a new booster every time you join, up to once every 15 minutes.</p></details></li><li><details><summary><span class="cnum">24</span><span class="ctitle">Egg Hunt Week 2 🍬</span><span class="ptag">Quest</span><span class="cdate">Sat 19 Apr 2025 &middot; 2 years ago</span></summary><p class="csub">Collect the final eggs!</p><p>The final 3 eggs of the Egg Hunt event are now available! Collect them all to unlock the event&#x27;s final grand prize</p></details></li><li><details><summary><span class="cnum">23</span><span class="ctitle">Dirt Event</span><span class="ptag">New content</span><span class="cdate">Tue 1 Apr 2025 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Get a Wheelbarrow!</p><p>Our April Fools update &#x27;Dirt Event&#x27; is currently available. Grab a shovel and dig dirt for loot to get started!</p></details></li><li><details><summary><span class="cnum">22</span><span class="ctitle">The Hunt: Mega Edition</span><span class="ptag">Quest</span><span class="cdate">Thu 13 Mar 2025 &middot; 2 years ago</span></summary><p class="csub">Quest for The Hunt</p><p>Car Crushers 2 is part of The Hunt: Mega Edition!
+
+To get our token, you need to ascend the giant volcano and make an insane stunt jump. The in-game quest &#x27;The Hunt Token&#x27; will guide you to prepare a stunt car for the journey! 🌋</p></details></li><li><details><summary><span class="cnum">21</span><span class="ctitle">The Full Expansion 🗺️</span><span class="ptag">Expansion</span><span class="cdate">Sat 8 Mar 2025 &middot; 2 years ago <span class="nb">&middot; announced 67 days before</span></span></summary><p class="csub">Full Changelogs here!</p><p>Update 70 Changelog:
+
+- Added 6 new vehicles
+○ Includes new Tier 4 Juggernaut vehicle with functional press
+- Expanded the game&#x27;s map size from 2.8 to 6.85 km² with tons of new areas:
+○ Town with RP buildings, including a Police, Fire &amp; Gas Station
+○ New Stunt Park
+○ Oval Speedway arena
+○ Military Base
+○ Beach House Neighborhood
+○ Suburban Neighborhood
+○ Desert Biome
+○ Ravine
+○ Volcano with spiral road to the top
+○ Highway Circulating the island
+○ Massive amounts of new roads
+○ New Speed Traps &amp; Stunt Jumps
+- Added 8 new Race Tracks
+- Added 14 buildings with interiors
+- Added House Ownership feature
+- Added 92 new possible Energy Core escape helicopter landing locations
+- The bonus escape boat will now always appear in the same region as the helicopter
+- New Permanent Challenge list: Trap Breaker
+- New Permanent Challenge list: Stunt Jump Master
+- Added a permanent keybind for…</p></details></li><li><details><summary><span class="cnum">20</span><span class="ctitle">New Limited &amp; Challenges</span><span class="ptag">New items</span><span class="cdate">Sat 22 Feb 2025 &middot; 2 years ago</span></summary><p class="csub">Plus Expansion Countdown!</p><p>A legendary new limited car is now in the game, the Mazto 848C. This beast comes with a unique engine sound and boasts insane track performance. It is also one of the most expensive limiteds we&#x27;ve added to date.
+
+The update also adds new set of Speed Zone challenges that give you 25 MP and Platina or Money boosters.
+
+The map expansion countdown has now begun with an exact release date as well. Lots of additional images can be found on the countdown screen!</p></details></li><li><details><summary><span class="cnum">19</span><span class="ctitle">Update 69 Launch</span><span class="ptag">New content</span><span class="cdate">Sat 8 Feb 2025 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Catapult, New Cars &amp; More</p><p>Update 69 Full Changelog:
+- Added 5 new Vehicles
+- Added a giant car catapult on Ridge Rock Island that can throw cars in any direction
+- Added Stunt Jumps, which track your jump distance
+- Added Speed Zones, which tracks your average speed between 2 checkpoints
+- Added new &quot;Stunt Challenges&quot; event with 3 prizes
+- Returned the default Tropical setting and removed the Snow and Ice
+- Remove the Ice Circuit race
+- Optimized all the Crushers, which includes slight visual changes to the bottom curbs
+- Improved the intro experience for new players (Testing)
+- The Macedas Odenbach 60S is now archived
+- New code &#x27;BLASTOFF&#x27;</p></details></li><li><details><summary><span class="cnum">18</span><span class="ctitle">Vintage Cars Event ✨</span><span class="ptag">New content</span><span class="cdate">Sat 1 Feb 2025 &middot; 2 years ago</span></summary><p class="csub">2 New Cars &amp; Challenges</p><p>2 New cars just got added to the game! One new limited and one event car that you can get by completing new &#x27;Vintage&#x27; Themed challenges.
+
+The event includes an exclusive Vintage rim along with some new speed trap challenges. There is also a new code &#x27;VINTAGECRUISE&#x27; for a free Money or Platina bonus</p></details></li><li><details><summary><span class="cnum">17</span><span class="ctitle">Update 68</span><span class="ptag">New content</span><span class="cdate">Sat 18 Jan 2025 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">New Cars and more</p><p>Update 68 just launched! Here are the full changelogs:
+- Added 4 New Vehicles
+- Added 4 Vehicle Remodels
+- Added an option to add a vehicle into favorites
+- Added new Dealership filters for Favorites and newly added vehicles
+- Added 5 Speed Traps across the map
+- Added a new &quot;Update 58&quot; Event with Challenges related to Speed Traps and the new cars
+- Added a few wooden ramps across the map
+- Added a basic loading screen when the interface is loading
+- Optimized the game to crash less on Phones and Tablets
+- Reduced lag spikes when approaching the facility building
+- The Tayatzi KJ Roamer is no longer exclusive
+- Updated the information shown to new players when they play for the first time</p></details></li><li><details><summary><span class="cnum">16</span><span class="ctitle">New Limited Car</span><span class="ptag">New items</span><span class="cdate">Sat 11 Jan 2025 &middot; 2 years ago</span></summary><p class="csub">New Limited Car</p><p>A new limited car just got added! The &quot;BWN N1 Competition&quot; is now available for 350 MP in the Mission Hub shop.
+
+This includes code RETRODRIVE that you can redeem for free Platina or Money boost</p></details></li><li><details><summary><span class="cnum">15</span><span class="ctitle">2X Money &amp; Platina</span><span class="ptag">Festival</span><span class="cdate">Fri 3 Jan 2025 &middot; 2 years ago</span></summary><p class="csub">2X Weekend</p><p>A 2X Money &amp; Platina event is now active! Claim free Money Boosters this weekend just by being in the game, or earn Platina Supercharges twice as fast if you have more than 20B Money.
+
+Money Booster Details:
+- Duration: 8 Minutes
+- Frequency: New Booster every 15 Minutes (+1 When you join)
+- Stock up to 3 at once and use any time</p></details></li><li><details><summary><span class="cnum">14</span><span class="ctitle">Gift Opening + 15 Cars</span><span class="ptag">New items</span><span class="cdate">Wed 25 Dec 2024 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">15 Returned Limited cars</p><p>This year&#x27;s legendary gift has a reward unlike any we&#x27;ve given away before.
+
+Get ready to open your collected Gifts on December 25th, and collect up to 15 returned limited cars from the Christmas Shop which opens the same day!
+
+Click &#x27;Notify Me&#x27; on this event to receive a notification when it&#x27;s available.</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">Christmas Week 2 🎁</span><span class="ptag">New content</span><span class="cdate">Sun 22 Dec 2024 &middot; 2 years ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Christmas Week 2</p><p>Update 67 Part 2 is now here! The Christmas festivities have now gotten even bigger with even more prizes, gifts and winter Activities:
+- 4 New Vehicles
+- Week 2 of the Christmas Event with 8 new Prizes:
+- Uncommon Gift
+- 150 Platina or 300 Credits
+- 80 MP
+- Very Rare Gift
+- Christmas Rim or 3X Parts booster
+- Exclusive Super Car
+- Legendary Gift
+- &#x27;Frost Killer&#x27; Title + Chat Color
+- New Activity: Target Destruction
+- New Activity: Snowman Hunt
+- New Derby Gamemode: Snowball Fight
+- New Derby Map: North Pole
+- New Seasonal Christmas Shop with 15 returned limiteds
+- Added new playtime reward system with 5 daily prizes
+- Added randomized currency gifts
+- New OG Material for original owners of limited cars
+- Snowball powerups now appear in every powerup-enabled Derby gamemode
+- One snowball appears for every regular powerup. The rate of regular powerups is unaffected
+- Archived vehicles…</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">Christmas Week 1 ❄️</span><span class="ptag">New content</span><span class="cdate">Sat 14 Dec 2024 &middot; 2 years ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Winter and Christmas ❄️</p><p>Winter has reached the Car Crushers island! The first week of our Christmas event is now available with tons of new cars and activites:
+- Added 3 new Vehicles, including new Tier 4 Juggernaut
+- Added 4 new Remodels
+- Added Snow, Ice and Christmas Decorations on the Facility Island and Dealership/Garage showrooms
+- Added a new race circuit on the ice with snow walls and ice ramps
+- Added Christmas Event Week 1 with 5 prize tiers:
+1. Rare quality gift
+2. 100 Platina or 3X Money booster
+3. Candy Cane tire or 3X Scraps booster
+4. Christmas rim
+5. Epic quality gift
+- Added a new gift display in the lobby
+- The parts leaderboard is temporarily hidden to make space for the gift display
+- Added proper top-down images to the 4 new tracks on Ridge Rock island (Images with yellow paths similar to what the other race tracks have)
+- Fixed the lobby interfaces not being interactible on consoles
+- The…</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">Car Challenge Event</span><span class="ptag">New content</span><span class="cdate">Sat 7 Dec 2024 &middot; 2 years ago</span></summary><p class="csub">Mini Event with prizes</p><p>Get ready for a new challenge event with prizes this Saturday!
+- New Challenges
+- 2 Brand new Cars (one limited and one exclusive event prize)
+- 150 MP, 175 Platina and 2X Boosters as rewards
+
+Click &#x27;Notify Me&#x27; to receive a notification when it&#x27;s out ⏰</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">🏷️ Black Friday Sale</span><span class="ptag">Activity</span><span class="cdate">Fri 29 Nov 2024 &middot; 2 years ago</span></summary><p>There&#x27;s now a sale on Passes and Products in Car Crushers 2!
+
+Get up to 10-40% off on nearly all Passes and 30% more currency from all products like Money, Platina and Credits. Available until Monday next week as a Black Friday themed event.
+
+This is the first sale we&#x27;ve ever done and there&#x27;s no guarantee there will be any others for a while. So don&#x27;t miss it if you&#x27;ve been looking to get something!</p></details></li><li><details><summary><span class="cnum">9</span><span class="ctitle">🎉 Map Expansion Update</span><span class="ptag">Behind the scenes</span><span class="cdate">Sat 23 Nov 2024 &middot; 2 years ago <span class="nb">&middot; announced 86 days before</span></span></summary><p>The Map Expansion update is HERE!
+
+This is the first phase of Car Crushers 2&#x27;s biggest expansion ever. The main facility island has nearly TRIPLED in size with a completely new island:
+- Added 5 new vehicles
+- Added a whole new island of the coast of Row 1 and 3
+- Added 4 new Racing circuits
+- Added new Event with hidden Light Orbs and Race Challenges
+- Added 4 Event Prize tiers
+- Added realistic road paint to the original island&#x27;s roads
+- Added new roads outside Row 2 and Row 3
+- Made the Energy Core Meltdown explosion much bigger
+- Added new landing locations for the Energy Core helicopter
+- Added dynamic map streaming (Objects now unload when far away)
+- Removed the Sea bridge and Sea tunnels to make space for the new island
+Removed the Tracks Around The World and Sea Sprint, since the sea bridge is no longer available (An improved Around the World race will be added when the full…</p></details></li><li><details><summary><span class="cnum">8</span><span class="ctitle">New Limited Car + Race Challenges 🏆</span><span class="ptag">Activity</span><span class="cdate">Fri 8 Nov 2024 &middot; 2 years ago</span></summary><p>A new update just released! There&#x27;s now a new limited car, along with new challenges, new prizes, an exclusive rim and more!
+
+The new challenges are themed around racing with some additional challenges around the Pilu F50 and Derby Arenas. It includes 5 prize tiers in total:
+• 75 Platina (Or 2X Money 5 minutes)
+• 50 MP
+• 150 Platina (Or 200 Credits)
+• 70 MP
+• Exclusive Tuner rim
+
+We&#x27;ve also adjusted Platina income to be more balanced between different playstyles:
+• 5 Vehicles Destroyed: 25 -&gt; 30 Platina
+• 25 Tuning Score: 30 -&gt; 20 Platina
+• 500 Derby Score: 65 -&gt; 60 Platina
+• Supercharges now require 3000 instead of 2000 score in the derby arenas
+• Reduced the maximum amount of Supercharges from 10 to 5</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">Update 65 - Halloween Event 🎃</span><span class="ptag">Activity</span><span class="cdate">Fri 25 Oct 2024 &middot; 2 years ago</span></summary><p>Update 65 is now here with our brand new Halloween event. This update brings tons of content including:
+- Added 6 new vehicles
+- Added Halloween event with 16 prizes
+○ 4 Exclusive Cars
+○ 1300 Platina (Or Credits &amp; Currency boosters)
+○ 50 MP
+○ Bat Spoiler &amp; Skull Rim returned
+○ &quot;Zombie Slayer&quot; title
+- Add a &quot;Monster Invasion&quot; event with 5 types of mobs that chase you and utilize special abilities
+- Added support for health bars on mobs. Heavier and faster crashes deal more damage
+- Added a new car building event with parts scattered across the main facility and derby arenas
+- Added a day/night cycle
+- Added the new race track Hilltop Sprint</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">🌿 Update 64 - New Graphics &amp; Cars</span><span class="ptag">Content update</span><span class="cdate">Sat 5 Oct 2024 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p>Update 64 is now available! Here are the full update logs:
+- Added 5 new vehicles
+- Added 7 new rims to the rim shop
+- Added new Palm Trees, Rocks, Grass, Flowers and other decorations across the Facility Island
+- Upgraded the game&#x27;s lighting
+- Added 2 custom graphics settings to control the detail of island decorations:
+○ World Detail
+○ World View Distance
+- Added new setting to makes you respawn close to your last position while outside the facility building (Enabled by default)
+- Upcoming Race Competitions are now displayed on the Facility building&#x27;s large screens, with information about time remaining, chosen track and credit prizes
+- Fixed a bug that allowed car passengers to respawn inside their seat
+- Fixed teleport issues</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">⭐ New Limited Car &amp; Challenges</span><span class="ptag">Content update</span><span class="cdate">Thu 26 Sep 2024 &middot; 2 years ago</span></summary><p>New update! There&#x27;s now a new limited car, along with challenges that grant you an exclusive rim with 100 MP &amp; more.
+
+Costing 550 MP and 20B+ money, this is the most expensive limited car we&#x27;ve ever added! It will be available for an extra long duration in the shop.
+
+Event Prize list:
+- 100 MP
+- 2X Parts (10m)
+- 100 Credits
+- Exclusive Rim</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">💵 2X Money &amp; Platina</span><span class="ptag">Activity</span><span class="cdate">Sat 21 Sep 2024 &middot; 2 years ago</span></summary><p>💶 Our first ever 2X Platina event is now available! This event will grant you supercharge bonuses at twice the rate, allowing you to grind vehicles at 2X income non-stop!
+
+💵 If you have less than 20B Money, you&#x27;ll earn a free 2X Money booster every 15 minutes, with the first one available to claim immediately when you join! Each booster lasts 8 minutes.</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">Update 63 now available! 🎉</span><span class="ptag">Activity</span><span class="cdate">Sat 7 Sep 2024 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p>More than 8 new cars and remodels are now available in the latest update!
+
+Changelog:
+🚂 5 New Vehicles
+🚙 3 New Car Remodels
+🏆 New Achievement for 30k Lifetime Platina
+⭐ New Missions for 70 MP
+📱 Optimizations for less lag on Phones &amp; Tablets</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">3X Parts Weekend</span><span class="ptag">Activity</span><span class="cdate">Sat 31 Aug 2024 &middot; 2 years ago</span></summary><p>A 3X Parts event is now active for the weekend!
+
+Settings:
+- Booster Duration: 7 Minutes
+- Booster Frequency: 15 Minutes (+1 When you join)
+
+Stock up to 3 at once and use any time 💰</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">Update 62 PART 2 - Mega Vehicles</span><span class="ptag">Behind the scenes</span><span class="cdate">Fri 16 Aug 2024 &middot; 2 years ago <span class="nb">&middot; announced 5 days before</span></span></summary><p>The biggest update of the year so far. Update 62 Part 2 is now out!
+
+- 3 of the game&#x27;s first ever Mega vehicles
+- Derby Tier 4
+- New Garage and Dealership showrooms
+- New Racing features
+- 2 Extra cars
+
+Mega vehicles have some of the most insane stats in the game:
+- Part counts upwards to 600+
+- Up to 1000 Tonnes of weight
+- Up to 10000 Platina in price
+- Total dominance in the Derby Arenas</p></details></li></ol><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we can tell you</th></tr><tr><td>Sun 22 Nov</td><td>2.2&times; busier &ndash; lines up with &ldquo;Update 92 Release 💨&rdquo;</td></tr><tr><td>Sun 15 Nov</td><td>1.5&times; busier &ndash; the creators announced nothing that day, so we cannot say why &ndash; an update, a video or something else</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795622400" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>Update 92 Release 💨</b><span class="d esub">Use code &#x27;MAYDAY&#x27;</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 5 Dec <span class="nb">&middot; announced 12 days before</span></span><p>Update 92 Changelog:
 - 4 new vehicles
 - New customization Add-On: Launch Thrusters
 ○ Jump button that launches the car mid-air (Hold for longer jumps)
@@ -1372,7 +1951,7 @@ Everyone will start off with bounty equivalent to your candy amount in the event
 - New &quot;Request Frenzy&quot; feature:
 ○ Button in each frenzy crusher&#x27;s control room
 ○ Activate to invite the rest of the server to set their spawnpoint to that crusher
-- Temporary Update 92 event for 75 MP &amp; 20m…</p></li><li class="soon"><b>Hit the Turkey!</b><span class="d esub">Thanksgiving Challenge</span><span class="ptag">Quest</span><span class="d">Starts Wed 25 Nov <span class="nb">&middot; announced 4 days before</span></span><p>Mini event that gives you a &quot;Feast Provider&quot; title for Thanksgiving 🦃</p></li></ul></div><p><a href="/game/car-crushers-2-destruction">&larr; Back to Car Crushers 2 - Destruction</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+- Temporary Update 92 event for 75 MP &amp; 20m…</p></li><li class="soon"><b>Hit the Turkey!</b><span class="d esub">Thanksgiving Challenge</span><span class="ptag">Quest</span><span class="d">Starts Wed 25 Nov <span class="nb">&middot; announced 4 days before</span></span><p>Mini event that gives you a &quot;Feast Provider&quot; title for Thanksgiving 🦃</p></li></ul></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other simulation games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:32" data-n="brainrot evolution" data-s="brainrot-evolution"><a class="tile" href="/updates/brainrot-evolution"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-275176cb7eefb31057bee8ea86f7e3c0/256/256/Image/Webp/noFilter" alt="Brainrot Evolution Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Brainrot Evolution</span><span class="tmeta"><span>2 days ago</span></span></a></li><li style="--i:1;--glow:359" data-n="vehicle legends cars" data-s="vehicle-legends-cars"><a class="tile" href="/updates/vehicle-legends-cars"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-26d78be2d39952ac83d472000dcdec82/256/256/Image/Webp/noFilter" alt="Vehicle Legends Cars Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Vehicle Legends Cars</span><span class="tmeta"><span>7 months ago</span></span></a></li><li style="--i:2;--glow:47" data-n="ride a pet" data-s="ride-a-pet"><a class="tile" href="/updates/ride-a-pet"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-19b71ce0a3c617c78601aa8178de0764/256/256/Image/Webp/noFilter" alt="Ride A Pet Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Ride A Pet</span><span class="tmeta"><span>16 days ago</span></span></a></li><li style="--i:3;--glow:208" data-n="theme park tycoon 2 tpt2" data-s="theme-park-tycoon-2"><a class="tile" href="/updates/theme-park-tycoon-2"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-cdddc8bcd502f7c749cd5ea7692ba940/256/256/Image/Webp/noFilter" alt="Theme Park Tycoon 2 Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Theme Park Tycoon 2</span><span class="tmeta"><span>3 months ago</span></span></a></li><li style="--i:4;--glow:358" data-n="car dealership tycoon cdt" data-s="car-dealership-tycoon"><a class="tile" href="/updates/car-dealership-tycoon"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-6fe52779876c317c65888f66fe5c5dd2/256/256/Image/Webp/noFilter" alt="Car Dealership Tycoon Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Car Dealership Tycoon</span><span class="tmeta"><span>30 days ago</span></span></a></li><li style="--i:5;--glow:211" data-n="ride a dino" data-s="ride-a-dino"><a class="tile" href="/updates/ride-a-dino"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d495f95e4744167521cf64b04d627659/256/256/Image/Webp/noFilter" alt="Ride a Dino Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Ride a Dino</span><span class="tmeta"><span>5 days ago</span></span></a></li></ul><p><a href="/game/car-crushers-2-destruction">&larr; Back to Car Crushers 2 - Destruction</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -2032,7 +2611,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>

@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Grand Piece Online Updates in Order &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Grand Piece Online update in order: 16 since Sun 16 Feb 2025. Latest: Halloween Event Part 2 (Sat 17 Oct). Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Grand Piece Online update in order. 16 of them since Sun 16 Feb 2025. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/grand-piece-online">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Grand Piece Online Updates in Order &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Grand Piece Online update in order: 16 since Sun 16 Feb 2025. Latest: Halloween Event Part 2 (Sat 17 Oct). Changelog, update log and player count jumps.">
+<meta property="og:description" content="Every Grand Piece Online update in order. 16 of them since Sun 16 Feb 2025. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/grand-piece-online"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-7ea3d13248b544e712d0dbe4d1bc84e3/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-7ea3d13248b544e712d0dbe4d1bc84e3/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,14 +1384,14 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/rpg">RPG games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/grand-piece-online">Grand Piece Online player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-cf1c46ea9b63b7f1e22d3a50657fe01a/256/256/Image/Webp/noFilter" alt="Grand Piece Online Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Grand Piece Online updates in order</h1><p class="mut">The Grand Piece Online changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Grand Piece Online&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/1730877806">Play Grand Piece Online</a><span data-bell="all"></span><button class="fav" id="fav" data-s="grand-piece-online" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/grand-piece-online">Overview</a><a class="gtab on" href="/updates/grand-piece-online" aria-current="page">Updates</a><a class="gtab" href="/events/grand-piece-online">Events</a><a class="gtab" href="/questions/grand-piece-online">Questions</a><a class="gtab" href="/passes/grand-piece-online">Costs</a></nav></div></div><div class="card"><h2>Grand Piece Online changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>13 days ago</b> (Tue 10 Nov).</p><h3>Latest Grand Piece Online updates</h3><ul class="evt"><li class=""><b>Halloween Event Part 2</b><span class="d esub">Mini update</span><span class="ptag">New content</span><span class="d">Sat 17 Oct &middot; 1 month ago</span><p>• Collect the new tailorable Verity Pet by trick-or-treating on Spooksville Island! Requires level 325.
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/rpg">RPG games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/grand-piece-online">Grand Piece Online player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-cf1c46ea9b63b7f1e22d3a50657fe01a/256/256/Image/Webp/noFilter" alt="Grand Piece Online Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Grand Piece Online updates in order</h1><p class="mut">The Grand Piece Online changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Grand Piece Online&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/1730877806">Play Grand Piece Online</a><span data-bell="all"></span><button class="fav" id="fav" data-s="grand-piece-online" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/grand-piece-online">Overview</a><a class="gtab on" href="/updates/grand-piece-online" aria-current="page">Updates</a><a class="gtab" href="/events/grand-piece-online">Events</a><a class="gtab" href="/questions/grand-piece-online">Questions</a><a class="gtab" href="/passes/grand-piece-online">Costs</a></nav></div></div><div class="card"><h2>Grand Piece Online changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><p>The creators last changed something in the game <b>13 days ago</b> (Tue 10 Nov).</p><h3>Every Grand Piece Online update in order</h3><p class="mut small">All 16 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sun 16 Feb 2025. Roblox sorts them into 3 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 13 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">16</span><span class="ctitle">Halloween Event Part 2</span><span class="ptag">New content</span><span class="cdate">Sat 17 Oct &middot; 1 month ago</span></summary><p class="csub">Mini update</p><p>• Collect the new tailorable Verity Pet by trick-or-treating on Spooksville Island! Requires level 325.
 • Discover three new Epic Candy Shop costumes: 13th, Beetlejuice, and Scarecrow.
 • Get the Traveling Merchant Snail Phone to access his shop from anywhere in your server while he&#x27;s present.
 • Create Trading Signs showing what you&#x27;re offering and looking for, and find trade items with new filters.
 • Try new skill charge indicators, barrage and travel timers, and HUD tooltips.
 • Enjoy a new loading screen, combat VFX, mobile button opacity controls, and a better-fitting Custom Tailor UI on mobile.
 
-Plus balance changes across fruits, fighting styles, and weapons, performance optimizations, and numerous bug fixes!</p></li><li class=""><b>Halloween Event Part 1</b><span class="d esub">Miniupdate</span><span class="ptag">New content</span><span class="d">Fri 2 Oct &middot; 1 month ago</span><p>HIGHLIGHTS
+Plus balance changes across fruits, fighting styles, and weapons, performance optimizations, and numerous bug fixes!</p></details></li><li><details open><summary><span class="cnum">15</span><span class="ctitle">Halloween Event Part 1</span><span class="ptag">New content</span><span class="cdate">Fri 2 Oct &middot; 2 months ago</span></summary><p class="csub">Miniupdate</p><p>HIGHLIGHTS
 • Trick or Treat returns on Spooksville in the First Sea with a night candy bonus and Jackpot Treats
 • NEW Tung Tung Thunder Club skin: exchange your Thunder Club in a rare Tung Tung Tung Sahur encounter
 • NEW Brand of Sacrifice + Nightfall Aura collectable auras, recolorable at the Tailor
@@ -1337,7 +1401,7 @@ Plus balance changes across fruits, fighting styles, and weapons, performance op
 • Halloween fishes return, now also in the Trading and Fishing Hubs
 • Dullahan is rollable during the event
 • Last year&#x27;s candy shop items are back
-• Smoother Factory and Gladiator battles and improved notifications</p></li><li class=""><b>Mini Update 9/26</b><span class="d esub">Mini Update</span><span class="ptag">New content</span><span class="d">Sun 27 Sep &middot; 1 month ago</span><p>GPO • Mini Update — September 26, 2026
+• Smoother Factory and Gladiator battles and improved notifications</p></details></li><li><details open><summary><span class="cnum">14</span><span class="ctitle">Mini Update 9/26</span><span class="ptag">New content</span><span class="cdate">Sun 27 Sep &middot; 2 months ago</span></summary><p class="csub">Mini Update</p><p>GPO • Mini Update — September 26, 2026
 
 HIGHLIGHTS
 • NEW Pretzel Longsword (Legendary, Biscuit Commander drop) + Grip Dummy + Compact Bars
@@ -1355,7 +1419,7 @@ KEY BALANCE CHANGES
 • Mera — Flame Pillar usable in Flame Flight; Hiken and Firefly retuned
 • Zushi — Gravity Push faster windup, higher damage cap
 • Thunder Club — M1, Direct Destruction and Thunder Bagua nerfed
-• Bomb, Dragon, Hie, Tori,…</p></li><li class=""><b>Mini Update</b><span class="d esub">Mini Update</span><span class="ptag">New content</span><span class="d">Sun 13 Sep &middot; 2 months ago</span><p>6 new outfits and accessories from First Sea bosses to help you progress.
+• Bomb, Dragon, Hie, Tori,…</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">Mini Update</span><span class="ptag">New content</span><span class="cdate">Sun 13 Sep &middot; 2 months ago</span></summary><p class="csub">Mini Update</p><p>6 new outfits and accessories from First Sea bosses to help you progress.
 
 Armament training now requires 25 Yetis instead of 50, First Sea bosses are easier, and Axe Hand Logan has a 10% chance to drop a Rare fruit.
 
@@ -1365,7 +1429,7 @@ Enjoy improved ocean waves and quality settings, boss respawn timers, 50-Robux b
 
 Also included: Bomi&#x27;s Log Pose vanity, Battle Royale auto-hide for outfits/accessories, improved trading, and fruit, weapon, fighting style, drink, and Hover Pod balance changes.
 
-Arena ELO is capped at 500 and resets at launch and monthly. Repeat opponents give reduced ELO gains/losses. A full Arena revamp is…</p></li><li class=""><b>UPDATE 13</b><span class="d esub">UPDATE!</span><span class="ptag">New content</span><span class="d">Mon 31 Aug &middot; 2 months ago</span><p>GPO WHOLE CAKE? PART 2? UPDATE
+Arena ELO is capped at 500 and resets at launch and monthly. Repeat opponents give reduced ELO gains/losses. A full Arena revamp is…</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">UPDATE 13</span><span class="ptag">New content</span><span class="cdate">Mon 31 Aug &middot; 3 months ago</span></summary><p class="csub">UPDATE!</p><p>GPO WHOLE CAKE? PART 2? UPDATE
 
 Explore Blossom Falls, a new Second Sea island featuring PvP pads, training dummies, a crew capture point and the Dragon Emperor Dungeon!
 
@@ -1375,10 +1439,56 @@ New content includes Leopard and Biscuit Fruits, Thunder Club, Moonfang Rapier, 
 
 Also added Battle Royale and Impel Down queue autofill, direct Impel Down Shop access, boss drop lists, vanity titles, more Custom Tailor options, performance improvements and many fixes.
 
-Farewell Cupid until next year! We pivoted towards more Dragon Dungeon content than originally planned. Stay tuned for the next updates!</p></li><li class=""><b>Controller Support</b><span class="d esub">Controller Support</span><span class="ptag">New feature</span><span class="d">Sun 17 May &middot; 6 months ago</span><p>Controller Support — Added controller support to the main game. Gamepad players can now use controller input, prompts, and UI navigation.
+Farewell Cupid until next year! We pivoted towards more Dragon Dungeon content than originally planned. Stay tuned for the next updates!</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">Controller Support</span><span class="ptag">New feature</span><span class="cdate">Sun 17 May &middot; 6 months ago</span></summary><p class="csub">Controller Support</p><p>Controller Support — Added controller support to the main game. Gamepad players can now use controller input, prompts, and UI navigation.
 
 Initial rollout — some menus and actions will continue receiving improvements in future updates.
-Recommended: enable the virtual controller cursor to navigate UI.</p></li></ul><h3>Every Grand Piece Online update in order</h3><p class="mut small">All 16 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sun 16 Feb 2025.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>16</td><td>Halloween Event Part 2</td><td>Sat 17 Oct</td></tr><tr><td>15</td><td>Halloween Event Part 1</td><td>Fri 2 Oct</td></tr><tr><td>14</td><td>Mini Update 9/26</td><td>Sun 27 Sep</td></tr><tr><td>13</td><td>Mini Update</td><td>Sun 13 Sep</td></tr><tr><td>12</td><td>UPDATE 13</td><td>Mon 31 Aug</td></tr><tr><td>11</td><td>Controller Support</td><td>Sun 17 May</td></tr><tr><td>10</td><td>EASTER MINI UPDATE</td><td>Mon 20 Apr</td></tr><tr><td>9</td><td>CUPID DUNGEON</td><td>Sun 8 Mar</td></tr><tr><td>8</td><td>[WC] PART 1.90 MINIUPDATE</td><td>Sat 17 Jan</td></tr><tr><td>7</td><td>WHOLE CAKE PART 1 + SANTA</td><td>Thu 25 Dec 2025</td></tr><tr><td>6</td><td>HALLOWEEN PART 3</td><td>Fri 31 Oct 2025</td></tr><tr><td>5</td><td>The Hatch</td><td>Wed 2 Jul 2025</td></tr><tr><td>4</td><td>Battle Royale MAP VOTING</td><td>Sat 7 Jun 2025</td></tr><tr><td>3</td><td>Battle Royale Updates</td><td>Tue 20 May 2025</td></tr><tr><td>2</td><td>Anniversary Event</td><td>Mon 3 Mar 2025</td></tr><tr><td>1</td><td>Cupid&#x27;s Dungeon</td><td>Sun 16 Feb 2025</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>HALLOWEEN PART 3</b><span class="d esub">MINI UPDATE</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 19 Dec</span><p>GPO • Halloween Part 3 — October 25, 2026
+Recommended: enable the virtual controller cursor to navigate UI.</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">EASTER MINI UPDATE</span><span class="ptag">New content</span><span class="cdate">Mon 20 Apr &middot; 7 months ago</span></summary><p class="csub">EASTER MINI UPDATE</p><p>🐣 Easter Event is live until May 1! Hunt eggs across 8 islands in the First and Second Sea.
+
+🎨 Custom Tailor now supports 25 more weapons. Community Preset Browser added — browse, preview, and apply player-made designs in-game. Preset creators can now receive Robux tips.</p></details></li><li><details><summary><span class="cnum">9</span><span class="ctitle">CUPID DUNGEON</span><span class="ptag">New content</span><span class="cdate">Sun 8 Mar &middot; 9 months ago</span></summary><p class="csub">CUPID DUNGEON</p><p>EVENT
+- NEW Cupid Dungeon — New map with new bosses and drops!
+- Top damage dealer gets a random fruit reward
+- Cupid&#x27;s Nemesis title from last year still applies
+
+NEW ITEMS
+- Cupid&#x27;s Chakram + Prestige Cupid&#x27;s Chakram
+- Cupid&#x27;s All Seeing Eye (super rare drop)
+- Leo&#x27;s Inferno Hagoromo + Blazing Regalia + Scarf
+- Virtuous Cupid Queen&#x27;s Outfit + Wings
+- Virtuous Cupid Vanguard Outfit + Helmet
+- Cupid Queen&#x27;s Maid Outfit + Maid Outfit
+- Love Boppers Headband + Love Shades
+- Cupid&#x27;s Harp
+
+COLLECTABLES
+- Prestige Cupid&#x27;s Chakram
+- Cupid Queen&#x27;s Maid Outfit
+- Leo&#x27;s Inferno Hagoromo
+- Cupid&#x27;s All Seeing Eye
+
+Bosses glow when carrying collectable drops!
+
+CHANGES
+- Fishing — Devil fruits now require Rare bait or higher
+- Battle Royale — Legendary chest spawn increased to 1%</p></details></li><li><details><summary><span class="cnum">8</span><span class="ctitle">[WC] PART 1.90 MINIUPDATE</span><span class="ptag">New content</span><span class="cdate">Sat 17 Jan &middot; 10 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Mini Update</p><p>GPO • Whole Cake PART 1.9 — Feb 14, 2026
+
+HIGHLIGHTS
+- NEW Cupid BR Map + Cupid&#x27;s All Seeing Eye + Lovestruck Rod
+- NEW Grappling Hook — Craftable from Factory Raid (5% drop)
+- NEW Unlimited Free Tailoring subscription — $4.99/month
+- Trade Hub — Bounty now tradable
+- Loadouts — Fighting styles, titles, and custom tailor settings now save
+- Customization — 107 new hairs (African American + anime styles)
+- Dominus Ultimus — Eye aura enabled
+
+KEY BALANCE CHANGES
+- Buddha — Hybrid M1s now scale with DF
+- Goru, Ito, Ope, Yuki — Major buffs
+- Soul, Firework Daggers, Dark Blade — Nerfs
+- 20+ weapons — M1 scaling adjusted
+
+PSA: Cupid Dungeon coming soon!
+
+Full patch notes in our Discord.</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">WHOLE CAKE PART 1 + SANTA</span><span class="ptag">New content</span><span class="cdate">Thu 25 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">WHOLE CAKE + CHRISTMAS</p><p>Part 1 of whole cake with Soul and Dragon dropping, along with the Christmas event as well as the new Battle Royale battlepass.</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">HALLOWEEN PART 3</span><span class="ptag">New content</span><span class="cdate">Fri 31 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">HALLOWEEN PART 3</p><p>HALLOWEEN PART 3</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">The Hatch</span><span class="ptag">Challenge</span><span class="cdate">Wed 2 Jul 2025 &middot; 1 year ago</span></summary><p class="csub">The Hatch</p><p>The Hatch</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">Battle Royale MAP VOTING</span><span class="ptag">New feature</span><span class="cdate">Sat 7 Jun 2025 &middot; 1 year ago</span></summary><p class="csub">Battle Royale MAP VOTING</p><p>Adds map voting to battle royale starting with 3 maps. More of the older maps will be added into the pool later on!</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">Battle Royale Updates</span><span class="ptag">New feature</span><span class="cdate">Tue 20 May 2025 &middot; 2 years ago</span></summary><p class="csub">Battle Royale Updates</p><p>Added ziplines and bounty boards into battle royale</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">Anniversary Event</span><span class="ptag">New content</span><span class="cdate">Mon 3 Mar 2025 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Anniversary Dungeon</p><p>Anniversary Dungeon makes a return with new drops! Along with free gifts every 15 mins in first sea!</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">Cupid&#x27;s Dungeon</span><span class="ptag">New content</span><span class="cdate">Sun 16 Feb 2025 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Cupid Queen&#x27;s Return</p><p>Embark on a daring adventure in the Cupid&#x27;s Dungeon, a special event accessible through the Universal Hub.</p></details></li></ol></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>HALLOWEEN PART 3</b><span class="d esub">MINI UPDATE</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 19 Dec</span><p>GPO • Halloween Part 3 — October 25, 2026
 
 HIGHLIGHTS
 • Transylvania returns west of Shells Town! Defeat Ba’al for new gear, including Moonreaver, Prestige Eclipse Moonreaver, and Blood Chains.
@@ -1388,7 +1498,7 @@ HIGHLIGHTS
 • Expanded Custom Tailor support and clearer accessory/outfit previews.
 • New M1 Combo Indicator.
 • Send trade requests directly from Trading Signs.
-• Private BR health/stamina pads now refill your ultimate bar.</p></li></ul></div><p><a href="/game/grand-piece-online">&larr; Back to Grand Piece Online</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+• Private BR health/stamina pads now refill your ultimate bar.</p></li></ul></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other rpg games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:210" data-n="shindo life" data-s="shindo-life"><a class="tile" href="/updates/shindo-life"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-811d588b6816f26a4e873c91c37e7a79/256/256/Image/Webp/noFilter" alt="Shindo Life Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Shindo Life</span><span class="tmeta"><span>2 years ago</span></span></a></li><li style="--i:1;--glow:353" data-n="project slayers 2" data-s="project-slayers-2"><a class="tile" href="/updates/project-slayers-2"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-541187760adcd97b971f3cacf88d7510/256/256/Image/Webp/noFilter" alt="Project Slayers 2 Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Project Slayers 2</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:2;--glow:10" data-n="the forge" data-s="the-forge"><a class="tile" href="/updates/the-forge"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-c3286f674c829e67012d5c98e9294f11/256/256/Image/Webp/noFilter" alt="The Forge Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">The Forge</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:3;--glow:214" data-n="king legacy" data-s="king-legacy"><a class="tile" href="/updates/king-legacy"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-04c84ed09a851c6908c3eb13c90a8529/256/256/Image/Webp/noFilter" alt="King Legacy Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">King Legacy</span><span class="tmeta"><span>8 months ago</span></span></a></li><li style="--i:4;--glow:29" data-n="attack on titan revolution aotr" data-s="attack-on-titan-revolution"><a class="tile" href="/updates/attack-on-titan-revolution"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-71892f9fe174d45e8cd4a297144113ff/256/256/Image/Webp/noFilter" alt="Attack on Titan Revolution Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Attack on Titan Revolution</span><span class="tmeta"><span>23 days ago</span></span></a></li><li style="--i:5;--glow:35" data-n="blox fruits" data-s="blox-fruits"><a class="tile" href="/updates/blox-fruits"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-8c9483d381a2da30608e6b1bce490bef/256/256/Image/Webp/noFilter" alt="Blox Fruits Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Blox Fruits</span><span class="tmeta"><span>23 days ago</span></span></a></li></ul><p><a href="/game/grand-piece-online">&larr; Back to Grand Piece Online</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -2048,7 +2158,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>

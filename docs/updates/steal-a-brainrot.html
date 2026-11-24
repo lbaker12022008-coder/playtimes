@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Steal a Brainrot Updates in Order &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Steal a Brainrot update in order: 64 since Sat 31 May 2025. Latest: NEXT UPD (Sat 7 Nov). Next update likely Sat 28 Nov. Changelog, update log and..."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Steal a Brainrot update in order. Next update likely Sat 28 Nov. 64 of them since Sat 31 May 2025. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/steal-a-brainrot">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Steal a Brainrot Updates in Order &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Steal a Brainrot update in order: 64 since Sat 31 May 2025. Latest: NEXT UPD (Sat 7 Nov). Next update likely Sat 28 Nov. Changelog, update log and...">
+<meta property="og:description" content="Every Steal a Brainrot update in order. Next update likely Sat 28 Nov. 64 of them since Sat 31 May 2025. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/steal-a-brainrot"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-f3d3ecf63519bf0ab85709ed96f1303c/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-f3d3ecf63519bf0ab85709ed96f1303c/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,13 +1384,13 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/steal-a-brainrot">Steal a Brainrot player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-28e6ab0b77c56d60e9f0dc9327ef3cc0/256/256/Image/Webp/noFilter" alt="Steal a Brainrot Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Steal a Brainrot updates in order</h1><p class="mut">The Steal a Brainrot changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Steal a Brainrot&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/109983668079237">Play Steal a Brainrot</a><span data-bell="all"></span><button class="fav" id="fav" data-s="steal-a-brainrot" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/steal-a-brainrot">Overview</a><a class="gtab on" href="/updates/steal-a-brainrot" aria-current="page">Updates</a><a class="gtab" href="/questions/steal-a-brainrot">Questions</a><a class="gtab" href="/passes/steal-a-brainrot">Costs</a></nav></div></div><div class="card"><h2>Steal a Brainrot changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Steal a Brainrot update?</h3><p>Most likely <b>Sat 28 Nov around 7 PM UTC</b>. Its updates usually land on a Saturday, roughly every 7 days, going by the last 65 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Latest Steal a Brainrot updates</h3><ul class="evt"><li class=""><b>NEXT UPD</b><span class="ptag">New content</span><span class="d">Sat 7 Nov &middot; 16 days ago <span class="nb">&middot; announced 4 days before</span></span><p>Follow the event for the next banger :P</p></li><li class=""><b>NEXT UPDATE</b><span class="ptag">New content</span><span class="d">Sat 10 Oct &middot; 1 month ago <span class="nb">&middot; announced 4 days before</span></span><p>FOLLOW THE EVENT FOR THE NEXT BANGER</p></li><li class=""><b>ECLIPSE + HAUNTED FUSE</b><span class="d esub">New Mutation + Fuse</span><span class="ptag">New content</span><span class="d">Sat 3 Oct &middot; 1 month ago <span class="nb">&middot; announced 4 days before</span></span><p>NEW ECLIPSE MUTATION
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/steal-a-brainrot">Steal a Brainrot player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-28e6ab0b77c56d60e9f0dc9327ef3cc0/256/256/Image/Webp/noFilter" alt="Steal a Brainrot Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Steal a Brainrot updates in order</h1><p class="mut">The Steal a Brainrot changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Steal a Brainrot&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/109983668079237">Play Steal a Brainrot</a><span data-bell="all"></span><button class="fav" id="fav" data-s="steal-a-brainrot" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/steal-a-brainrot">Overview</a><a class="gtab on" href="/updates/steal-a-brainrot" aria-current="page">Updates</a><a class="gtab" href="/events/steal-a-brainrot">Events</a><a class="gtab" href="/questions/steal-a-brainrot">Questions</a><a class="gtab" href="/passes/steal-a-brainrot">Costs</a></nav></div></div><div class="card"><h2>Steal a Brainrot changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Steal a Brainrot update?</h3><p>Most likely <b>Sat 28 Nov around 7 PM UTC</b>. Its updates usually land on a Saturday, roughly every 7 days, going by the last 65 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Every Steal a Brainrot update in order</h3><p class="mut small">All 64 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 31 May 2025. Roblox sorts them into 2 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 61 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">64</span><span class="ctitle">NEXT UPD</span><span class="ptag">New content</span><span class="cdate">Sat 7 Nov &middot; 16 days ago <span class="nb">&middot; announced 4 days before</span></span></summary><p>Follow the event for the next banger :P</p></details></li><li><details open><summary><span class="cnum">63</span><span class="ctitle">NEXT UPDATE</span><span class="ptag">New content</span><span class="cdate">Sat 10 Oct &middot; 1 month ago <span class="nb">&middot; announced 4 days before</span></span></summary><p>FOLLOW THE EVENT FOR THE NEXT BANGER</p></details></li><li><details open><summary><span class="cnum">62</span><span class="ctitle">ECLIPSE + HAUNTED FUSE</span><span class="ptag">New content</span><span class="cdate">Sat 3 Oct &middot; 2 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">New Mutation + Fuse</p><p>NEW ECLIPSE MUTATION
 - This can spawn Eclipse Brainrots while active
 - Eclipse Spin Wheel with Eclipse Lucky Blocks, Eclipse Slap, Eclipse Hammer
 - Eclipse Index + Base Skin
 
 NEW HAUNTED FUSE MACHINE
-- 11 NEW BRAINROTS</p></li><li class=""><b>OG CRAFT</b><span class="d esub">Craft Machine + Brainrots</span><span class="ptag">New content</span><span class="d">Sat 12 Sep &middot; 2 months ago <span class="nb">&middot; announced 4 days before</span></span><p>THE OG CRAFT MACHINE IS BACKKK (With new Brainrots)</p></li><li class=""><b>NEXT UPDATE</b><span class="ptag">New content</span><span class="d">Sat 29 Aug &middot; 2 months ago <span class="nb">&middot; announced 7 days before</span></span><p>FOLLOW THE EVENT FOR THE NEXT UPDATE :P</p></li><li class=""><b>REBIRTH 19</b><span class="d esub">New Rebirth + Brainrots</span><span class="ptag">New content</span><span class="d">Sat 15 Aug &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span><p>REBRITH 19 IS FINALLY HERE...
+- 11 NEW BRAINROTS</p></details></li><li><details><summary><span class="cnum">61</span><span class="ctitle">OG CRAFT</span><span class="ptag">New content</span><span class="cdate">Sat 12 Sep &middot; 2 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Craft Machine + Brainrots</p><p>THE OG CRAFT MACHINE IS BACKKK (With new Brainrots)</p></details></li><li><details><summary><span class="cnum">60</span><span class="ctitle">NEXT UPDATE</span><span class="ptag">New content</span><span class="cdate">Sat 29 Aug &middot; 3 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p>FOLLOW THE EVENT FOR THE NEXT UPDATE :P</p></details></li><li><details><summary><span class="cnum">59</span><span class="ctitle">REBIRTH 19</span><span class="ptag">New content</span><span class="cdate">Sat 15 Aug &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Rebirth + Brainrots</p><p>REBRITH 19 IS FINALLY HERE...
 - Extra slot in your base
 - New Grief Shield: This gear allows you to take one hit from griefers before it shatters, this does not apply to the person you steal from
 
@@ -1338,7 +1402,550 @@ NEW HAUNTED FUSE MACHINE
 RNG MACHINE LUCK
 - This will only be activated during AA, not purchasable
 
-+ MORE (including timers being removed from ALL lucky blocks)</p></li></ul><h3>Every Steal a Brainrot update in order</h3><p class="mut small">All 64 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 31 May 2025.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>64</td><td>NEXT UPD</td><td>Sat 7 Nov</td></tr><tr><td>63</td><td>NEXT UPDATE</td><td>Sat 10 Oct</td></tr><tr><td>62</td><td>ECLIPSE + HAUNTED FUSE</td><td>Sat 3 Oct</td></tr><tr><td>61</td><td>OG CRAFT</td><td>Sat 12 Sep</td></tr><tr><td>60</td><td>NEXT UPDATE</td><td>Sat 29 Aug</td></tr><tr><td>59</td><td>REBIRTH 19</td><td>Sat 15 Aug</td></tr><tr><td>58</td><td>RNG MACHINE</td><td>Sat 8 Aug</td></tr><tr><td>57</td><td>NEW RITUAL</td><td>Sat 1 Aug</td></tr><tr><td>56</td><td>NEW MUTATION</td><td>Sat 25 Jul</td></tr><tr><td>55</td><td>LOS TRADERS</td><td>Sat 11 Jul</td></tr><tr><td>54</td><td>FUTBOL UPDATE</td><td>Sat 27 Jun</td></tr><tr><td>53</td><td>SUMMER UPD PT 2</td><td>Sat 20 Jun</td></tr><tr><td>52</td><td>SUMMER UPD PT 1</td><td>Sat 13 Jun</td></tr><tr><td>51</td><td>CAYLUS ADMIN ABUSE</td><td>Sat 6 Jun</td></tr><tr><td>50</td><td>STEAKS ADMIN ABUSE</td><td>Sat 30 May</td></tr><tr><td>49</td><td>SUMMER FUSE</td><td>Sat 23 May</td></tr><tr><td>48</td><td>1 YEAR EVENT</td><td>Sat 16 May</td></tr><tr><td>47</td><td>BACKROOMS</td><td>Sat 9 May</td></tr><tr><td>46</td><td>JOHN PORK</td><td>Sat 2 May</td></tr><tr><td>45</td><td>CYBER UPDATE</td><td>Sat 18 Apr</td></tr><tr><td>44</td><td>EASTER PART 2</td><td>Sat 4 Apr</td></tr><tr><td>43</td><td>EASTER EVENT</td><td>Sat 28 Mar</td></tr><tr><td>42</td><td>RIP MY GRANNY</td><td>Sat 21 Mar</td></tr><tr><td>41</td><td>ST PATRICKS</td><td>Sat 14 Mar</td></tr><tr><td>40</td><td>FUSE MACHINE</td><td>Sat 7 Mar</td></tr><tr><td>39</td><td>DIVINE ADMIN MACHINE</td><td>Sat 28 Feb</td></tr><tr><td>38</td><td>TRADE MACHINE</td><td>Sat 21 Feb</td></tr><tr><td>37</td><td>VALENTINES PT 2</td><td>Sat 14 Feb</td></tr><tr><td>36</td><td>VALENTINES PT 1</td><td>Sat 7 Feb</td></tr><tr><td>35</td><td>AY MI GATITO</td><td>Sat 31 Jan</td></tr><tr><td>34</td><td>THE RETURN...</td><td>Sat 24 Jan</td></tr><tr><td>33</td><td>BRUNO MARS</td><td>Sat 17 Jan</td></tr><tr><td>32</td><td>DUELS</td><td>Sat 10 Jan</td></tr><tr><td>31</td><td>CURSED MUTATION</td><td>Sat 3 Jan</td></tr><tr><td>30</td><td>SKIBIDI</td><td>Sat 27 Dec 2025</td></tr><tr><td>29</td><td>CHRISTMAS DAY</td><td>Thu 25 Dec 2025</td></tr><tr><td>28</td><td>CHRISTMAS EVE</td><td>Thu 25 Dec 2025</td></tr><tr><td>27</td><td>GINGERBREAD TOWN</td><td>Sat 20 Dec 2025</td></tr><tr><td>26</td><td>NORTH POLE</td><td>Sat 13 Dec 2025</td></tr><tr><td>25</td><td>SANTA&#x27;S FUSE</td><td>Sat 6 Dec 2025</td></tr><tr><td>24</td><td>HE&#x27;S COMING BACK</td><td>Sat 29 Nov 2025</td></tr><tr><td>23</td><td>NEW REBIRTH</td><td>Sat 22 Nov 2025</td></tr><tr><td>22</td><td>RADIOACTIVE MUTATION</td><td>Sat 15 Nov 2025</td></tr><tr><td>21</td><td>BRAINROT DEALER</td><td>Sat 8 Nov 2025</td></tr><tr><td>20</td><td>1x1x1x1 RITUAL</td><td>Sat 1 Nov 2025</td></tr><tr><td>19</td><td>INDONESIA EVENT</td><td>Sat 18 Oct 2025</td></tr><tr><td>18</td><td>WITCH FUSE</td><td>Sat 11 Oct 2025</td></tr><tr><td>17</td><td>YIN &amp; YANG</td><td>Sat 27 Sep 2025</td></tr><tr><td>16</td><td>MEXICO EVENT</td><td>Sat 20 Sep 2025</td></tr><tr><td>15</td><td>EXTINCT EVENT</td><td>Sat 13 Sep 2025</td></tr><tr><td>14</td><td>CRAFT MACHINE</td><td>Sat 6 Sep 2025</td></tr><tr><td>13</td><td>NEW BRAINROTS</td><td>Sat 30 Aug 2025</td></tr><tr><td>12</td><td>NEW BRAINROTS</td><td>Fri 15 Aug 2025</td></tr><tr><td>11</td><td>NEW BRAINROTS</td><td>Fri 8 Aug 2025</td></tr><tr><td>10</td><td>FUSE MACHINE</td><td>Fri 1 Aug 2025</td></tr><tr><td>9</td><td>LAVA MUTATION</td><td>Fri 25 Jul 2025</td></tr><tr><td>8</td><td>Bubblegum Machine</td><td>Fri 18 Jul 2025</td></tr><tr><td>7</td><td>LUCKY BLOCKS :3</td><td>Sat 12 Jul 2025</td></tr><tr><td>6</td><td>CANDY MUTATION</td><td>Sat 5 Jul 2025</td></tr><tr><td>5</td><td>TRAITS</td><td>Sat 28 Jun 2025</td></tr><tr><td>4</td><td>Rainbow Mutation</td><td>Sat 21 Jun 2025</td></tr><tr><td>3</td><td>NEW BRAINROTS</td><td>Sat 14 Jun 2025</td></tr><tr><td>2</td><td>Bloodmoon Event</td><td>Sat 7 Jun 2025</td></tr><tr><td>1</td><td>MUTATIONS</td><td>Sat 31 May 2025</td></tr></table></div><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 21 Nov</td><td>2.3&times; busier &ndash; no event was listed, so it was probably an update or a popular video</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Steal a Brainrot has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><p><a href="/game/steal-a-brainrot">&larr; Back to Steal a Brainrot</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
++ MORE (including timers being removed from ALL lucky blocks)</p></details></li><li><details><summary><span class="cnum">58</span><span class="ctitle">RNG MACHINE</span><span class="ptag">New content</span><span class="cdate">Sat 8 Aug &middot; 4 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New Machine + Bee Event</p><p>RNG MACHINE
+- Use cash to spin for random Brainrots
+- You can upgrade your RNG Machine for better luck, mutation luck, and spin speed!
+- Landing on luck will grant a re-spin for a chance to get better Brainrots
+- This includes 42 obtainable Brainrots, with 8 NEW Brainrots
+
+QUEEN BEE EVENT + MERCHANT
+- The Bee event will activate every 2 hours in game
+- When activated, there&#x27;s 4 bee traits that can hit Brainrots (Normal Bee, Ice Bee, Fire Bee, Queen Bee)
+- Bees also have a chance of randomly dropping honey when active, which can be used to buy brainrots from the Queen Bee
+- This includes 6 NEW Brainrots</p></details></li><li><details><summary><span class="cnum">57</span><span class="ctitle">NEW RITUAL</span><span class="ptag">New content</span><span class="cdate">Sat 1 Aug &middot; 4 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Job Job Job Sahur Ritual</p><p>NEW JOB JOB JOB SAHUR RITUAL!
+- This ritual will activate a job event with a job application trait
+- 2 Possible Brainrots can spawn: Yess my Resume, Noo my Resume</p></details></li><li><details><summary><span class="cnum">56</span><span class="ctitle">NEW MUTATION</span><span class="ptag">New content</span><span class="cdate">Sat 25 Jul &middot; 4 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Crystal Mutation + Spain</p><p>CRYSTAL MUTATION
+- This will spawn crystal mutated Brainrots while active
+- Crystal spin wheel with Crystal lucky blocks + Crystal Slap + Crystal Hammer
+- Crystal index + base skin
+
+SPAIN EVENT
+- Since I promised you guys to do an event for whichever country won the world cup :P
+- This event will come with a new Bull trait
+- 2 new Spain themed brainrots
+
+NEW BRAINROTS IN LOS TRADERS
+- 2 New Brainrots
+
+FUSE MACHINE EXTENDED 1 WEEK
+
+TRAIT EXIST COUNTS WILL BE VIEWABLE IN THE GLOSSARY
+- You will be able to view trait exists for Brainrots with a public exist count
+- You&#x27;ll be able to view 1 of 1 trait brainrots, but these wont get a 1 of 1 badge</p></details></li><li><details><summary><span class="cnum">55</span><span class="ctitle">LOS TRADERS</span><span class="ptag">New content</span><span class="cdate">Sat 11 Jul &middot; 4 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">New Brainrots + More</p><p>NEW LOS TRADERS
+- This will release with 6 new Brainrots
+- Stocks will refresh every 30 minutes with new trade offers
+
+TRAIT EXIST COUNTS
+- This is finally fixed...I hope....
+
++ MORE</p></details></li><li><details><summary><span class="cnum">54</span><span class="ctitle">FUTBOL UPDATE</span><span class="ptag">New content</span><span class="cdate">Sat 27 Jun &middot; 5 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">LIVE MATCHES</p><p>LIVE MATCH EVENTS
+- Countries that are playing will be displayed on a live board with real-time live scores.
+- When any team scores a goal, a live celebration event will happen in game for 30 seconds allowing Brainrots to get the country&#x27;s flag as a trait!
+- If a goal is scored Hippo Golazo or Esok Goala will spawn!
+- If a red card is given, Ref Ref Ref Sahur will spawn!
+
+TRADE PLAZA UPDATES
+- You can equip and show off your Brainrots
+- You can now view exist counts of different trait combinations
+- Trading Signs</p></details></li><li><details><summary><span class="cnum">53</span><span class="ctitle">SUMMER UPD PT 2</span><span class="ptag">New season</span><span class="cdate">Sat 20 Jun &middot; 5 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p>COMING SOON :P</p></details></li><li><details><summary><span class="cnum">52</span><span class="ctitle">SUMMER UPD PT 1</span><span class="ptag">New content</span><span class="cdate">Sat 13 Jun &middot; 5 months ago <span class="nb">&middot; announced 20 days before</span></span></summary><p>FOLLOW THE EVENT FOR THIS BIG UPDATE :3</p></details></li><li><details><summary><span class="cnum">51</span><span class="ctitle">CAYLUS ADMIN ABUSE</span><span class="ptag">New content</span><span class="cdate">Sat 6 Jun &middot; 6 months ago</span></summary><p class="csub">New Event + Brainrot</p><p>FOLLOW THE EVENT AND JOIN FOR CAYLUS&#x27;S ADMIN ABUSE :P
+- This will include a new event that only Caylus can activate
+- New Caylusaurus Limited Quantity
++ MORE</p></details></li><li><details><summary><span class="cnum">50</span><span class="ctitle">STEAKS ADMIN ABUSE</span><span class="ptag">New content</span><span class="cdate">Sat 30 May &middot; 6 months ago</span></summary><p class="csub">New Event + Brainrot</p><p>THIS ONE IS GONNA BE A BIG ONE (pun intended)</p></details></li><li><details><summary><span class="cnum">49</span><span class="ctitle">SUMMER FUSE</span><span class="ptag">New content</span><span class="cdate">Sat 23 May &middot; 6 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Fuse Machine</p><p>THE FUSE MACHINE IS BACK....with many new Brainrots
+
+1x1x1x1 Room is here until the summer update</p></details></li><li><details><summary><span class="cnum">48</span><span class="ctitle">1 YEAR EVENT</span><span class="ptag">New content</span><span class="cdate">Sat 16 May &middot; 6 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">1 Year Anniversary</p><p>1 YEAR ANNIVERSARY CELEBRATION
+- This event will cycle through different songs
+- limited time 1YR trait
+- New Mutation rain command
+- New Limited Stock Craft</p></details></li><li><details><summary><span class="cnum">47</span><span class="ctitle">BACKROOMS</span><span class="ptag">New content</span><span class="cdate">Sat 9 May &middot; 7 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">New Event + Brainrots</p><p>The backrooms event will activate every 2 Hours
+- Players will be able to enter the cave and explore the backrooms
+
+Run away from the Evil Sammy entities and bring limited time Backroom Brainrots back to your base</p></details></li><li><details><summary><span class="cnum">46</span><span class="ctitle">JOHN PORK</span><span class="ptag">New content</span><span class="cdate">Sat 2 May &middot; 7 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">John Pork is Calling...</p><p>NEW OG BRAINROT
+- John Pork
+- When John Pork spawns, he will ring and activate an event that applies a &quot;is calling&quot; trait on random Brainrots
+- This event will only be ran 3 times ever in all servers, and one of those times will be during this update</p></details></li><li><details><summary><span class="cnum">45</span><span class="ctitle">CYBER UPDATE</span><span class="ptag">New content</span><span class="cdate">Sat 18 Apr &middot; 7 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">New Mutation + Craft</p><p>NEW CYBER MUTATION
+- This mutation will activate hourly on weekends and every 3 hours on weekdays
+- This will be the new most OP mutation (better than rainbow)
+
+NEW CYBER CRAFT MACHINE
+- The long awaited return of the craft machine....
+- This machine will release with 11 NEW BRAINROTS</p></details></li><li><details><summary><span class="cnum">44</span><span class="ctitle">EASTER PART 2</span><span class="ptag">New content</span><span class="cdate">Sat 4 Apr &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">HUGE UPDATE</p><p>ANOTHER BIG UPDATE FOR YALL....
+
+EASTER EVENT BOARD W/ 2 NEW EVENTS
+- EGG HUNT: This will be a fun event where you can buy double jumps and work your way up to discover new islands and hidden eggs. Including some cool mutated islands that have machines...including an easter base on the top island. Will you find all the eggs in time?
+- EGG CITY: This event will activate a new mini egg trait that can apply to Brainrots. There will be 4 variants with different multis. There is a small chance of an OP Brainrot spawning in one of the egg houses...
+
+EGG LUCKY BLOCK (8 New Brainrots)
+- Bunny Tralala
+- Eggdin Egg Egg Dun
+- Easter Easter Easter Sahur
+- Los Bunitos
+- Baskito
+- Churrito Bunnito
+- Hopilikalika Hopilikalako
+- Hydra Bunny
+
+NEW TRAIT INCUBATOR
+- Store Brainrot here before they hatch for them to have a chance to get traits if there are events active
+
+NEW OP BRAINROT IN THE FUSE…</p></details></li><li><details><summary><span class="cnum">43</span><span class="ctitle">EASTER EVENT</span><span class="ptag">New content</span><span class="cdate">Sat 28 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Part 1</p><p>The Easter Event (Pt1) will be a minor update leading up to the Easter update.
+This update will include an Easter Hour event that gives a bunny ear trait and spawns 1/3 possible brainrots.
+These brainrots include:
+- Buntteo
+- Bunny Bunny Bunny Sahur
+- Noo my Eggs
+
++ Fixes and more</p></details></li><li><details><summary><span class="cnum">42</span><span class="ctitle">RIP MY GRANNY</span><span class="ptag">New content</span><span class="cdate">Sat 21 Mar &middot; 8 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Funeral + Eid Celebration</p><p>GRANNY&#x27;S FUNERAL
+- rest in peace my granny she got hit by a bazooka
+- Kaboom!
+- Kablaow!
+- The funeral will only be ran on Saturday and Sunday, with a granny Brainrot and a limited time Granny trait
+- Shoutout to Miami XO for letting us using this banger song
+
+EID CELEBRATION
+- This celebration will come with a limited time trait
+- First trait to have different tiers and multis depending on the color you get
+- Eid Eid Eid Sahur Brainrot for everyone
+- Chance of an OP Foxini Lanternini spawning when the event is activated</p></details></li><li><details><summary><span class="cnum">41</span><span class="ctitle">ST PATRICKS</span><span class="ptag">New content</span><span class="cdate">Sat 14 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Lucky Pot + Lucky Block</p><p>LUCKY POT W/ NEW TRAIT
+- This will trigger every 2 hours activating a the raining gold trait
+- This will also activate the rainbow, and a random server luck multiplier
+- Small chance of spawning Cloverat Clapat
+
+LEPRECHAUN LUCKY BLOCK (8 BRAINROTS)
+- Patteo (Brainrot God)
+- Clovkur Kurkur (Brainrot God)
+- La Vacca Lepre Lepreino (Secret)
+- Luck Luck Luck Sahur (Secret)
+- Noo my Gold (Secret)
+- Snailo Clovero (Secret)
+- Gold Gold Gold (Secret)
+- Fortunu and Cashuru  (Secret)
+
+POT OF GOLD BASE SKIN
+- Limited Time base skin</p></details></li><li><details><summary><span class="cnum">40</span><span class="ctitle">FUSE MACHINE</span><span class="ptag">New content</span><span class="cdate">Sat 7 Mar &middot; 9 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">FUSE + BRAINROTS</p><p>NEW DIVINE FUSE MACHINE
+THIS NEW FUSE WILL COME WITH 15 NEW BRAINROTS
+- Holy Arepa (Common)
+- Pengolino Nuvoletto (Rare)
+- Gato Celesto (Epic)
+- Buho del Cielo (Legendary)
+- Seraphino Gruyero (Legendary)
+- Harpuccino (Mythic)
+- Berenjello Angello (Mythic)
+- Divino Platypio (Brainrot God)
+- Astrolero Cervalero (Brainrot God)
+- Dumborino Miracello (Brainrot God)
+- Paradiso Axolottino (Secret) - Los Trios
+- ??? (Secret)
+- ??? (Secret)
+- ??? (Secret)
+- ??? (Secret)
+
+REGIONAL + FRIENDS LEADERBOARD
+- Ability to view top players in your region + friends
+
+BUG FIXES + MORE</p></details></li><li><details><summary><span class="cnum">39</span><span class="ctitle">DIVINE ADMIN MACHINE</span><span class="ptag">New content</span><span class="cdate">Sat 28 Feb &middot; 9 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Admin Machine + More</p><p>NEW DIVINE ADMIN MACHINE
+- This includes Sammy&#x27;s Base and a bunch of lucky blocks
+
+NEW BRAINROTS
+- New OP Brainrot in the Secret Lucky Block
+
+HEADLESS HORSEMAN BUFFED TO OG
+- W/ New Base Skin
+
++ ADMIN ABUSE EVENTS + MORE</p></details></li><li><details><summary><span class="cnum">38</span><span class="ctitle">TRADE MACHINE</span><span class="ptag">New content</span><span class="cdate">Sat 21 Feb &middot; 9 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Trading + Divine Mutation</p><p>NEW TRADE MACHINE
+- Send trade requests to other users in your server and globally across servers!
+NEW DIVINE MUTATION
+- When this mutation is active, Divine Brainrots will also have a chance of getting a Halo trait as well
+NEW BRAINROTS IN LUCKY BLOCKS
+- La Food Combinasion (Taco Block)
+- Los Amigos (Los Taco Blocks)
+- Sammyni Fattini (Admin Block)
+- Los Sekolahs (Los Lucky Blocks)</p></details></li><li><details><summary><span class="cnum">37</span><span class="ctitle">VALENTINES PT 2</span><span class="ptag">New content</span><span class="cdate">Sat 14 Feb &middot; 9 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Admin Machine + 25% OFF</p><p>NEW VALENTINES ADMIN MACHINE
+- This will run a random event hourly, spawn a random Brainrot or Lucky block, and run luck!
+- This will include Heart Lucky Blocks
+NEW VALENTINES GIFT SHOP
+- Send gifts to friends at a 20% OFF discount, only available for a short time
+NEW CUPID&#x27;S WINGS GEAR
+- This gear will allow players to go invisible for a duration while flying
+- Only available for a limited time
+VALENTINE&#x27;S BASE SKIN
+- Collect all the valentine themed Brainots to get the base skin
+
++ SECRET FUSE RECIPE AND MORE</p></details></li><li><details><summary><span class="cnum">36</span><span class="ctitle">VALENTINES PT 1</span><span class="ptag">New content</span><span class="cdate">Sat 7 Feb &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Machine + Lucky Block</p><p>NEW VALENTINES HEART LUCKY BLOCK
+Includes 8 new Brainrots:
+- Luv Luv Luv
+- Karkerheart Luvkur
+- Love Love Love Sahur
+- Cupid Hotspot
+- Noo my Heart
+- Chicleteira Cupideira
+- Rosetti Tualetti
+- Rosey and Teddy
+
+NEW CUPIDS MACHINE
+- Use this to obtain Heart Lucky Blocks and some exclusive Valentine&#x27;s Brainrots
+
+NEW ROSE BASE SKIN, 20X LUCK, VALENTINES ADMIN ABUSE EVENT, + MORE!</p></details></li><li><details><summary><span class="cnum">35</span><span class="ctitle">AY MI GATITO</span><span class="ptag">New content</span><span class="cdate">Sat 31 Jan &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Ritual + Brainrots</p><p>NEW AY MI GATITO RITUAL IN THE MAIN GAME + TSUNAMI LTM
+- This will also include a trait that the gatitos can apply to random brainrots :3
+
+NEW OP BRAINROT IN THE FUSE MACHINE
+- Popcuru and Fizzuru</p></details></li><li><details><summary><span class="cnum">34</span><span class="ctitle">THE RETURN...</span><span class="ptag">New content</span><span class="cdate">Sat 24 Jan &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Fuse + LTM + Rebirth</p><p>THE OG FUSE MACHINE RETURNS
+- This will come with the same Brainrots for the lower tier Brainrots (Common-Legendary), letting you guys index them
+- 10 NEW Brainrots for Mythic-Secret
+- Hydra Dragon Cannelloni
+
+NEW TSUNAMI LIMITED TIME MODE
+- Players will be able to collect Brainrots and Lucky Blocks and bring them back to their base
+- Stealing will be disabled here
+- LTM Only Brainrot (Aracadupus)
+
+REBIRTH 18
+- +1 Slot
+- New Flash Teleport Gear</p></details></li><li><details><summary><span class="cnum">33</span><span class="ctitle">BRUNO MARS</span><span class="ptag">New content</span><span class="cdate">Sat 17 Jan &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Concert + More</p><p>Join the admin abuse on Saturday to see Bruno Mars perform for his first appearance on Roblox. Im only spawning the Bruno brainrot ONE TIME so dont miss it :3</p></details></li><li><details><summary><span class="cnum">32</span><span class="ctitle">DUELS</span><span class="ptag">New content</span><span class="cdate">Sat 10 Jan &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Machine</p><p>FOLLOW THE EVENT TO GET NOTIFIED WHEN WE UPDATE :P
+- This update will feature a new Duels machine, allowing players to offer Brainrots and duel against others for them :3</p></details></li><li><details><summary><span class="cnum">31</span><span class="ctitle">CURSED MUTATION</span><span class="ptag">New content</span><span class="cdate">Sat 3 Jan &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Mutation</p><p>CURSED MUTATION
+- This will grant Brainrots a red evil mutation
+- Cursed spin wheel with cursed secret block + new gears!
+- Cursed Index + Cursed base skin
+
+DUELING FOR BRAINROTS COMING NEXT WEEK....
+(we need time to make sure this is perfect, so this weeks update is a bit small)</p></details></li><li><details><summary><span class="cnum">30</span><span class="ctitle">SKIBIDI</span><span class="ptag">New content</span><span class="cdate">Sat 27 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">NEW OG</p><p>NEW OG BRAINROT :3
+- Not much else added this update since we had a lot to do for Christmas,!
+
+Love yall, ty for all the support &lt;3</p></details></li><li><details><summary><span class="cnum">29</span><span class="ctitle">CHRISTMAS DAY</span><span class="ptag">New content</span><span class="cdate">Thu 25 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Admin Abuse</p><p>CHRISTMAS DAY ADMIN ABUSE :P</p></details></li><li><details><summary><span class="cnum">28</span><span class="ctitle">CHRISTMAS EVE</span><span class="ptag">New content</span><span class="cdate">Thu 25 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Admin Abuse</p><p>CHRISTMAS EVE ADMIN ABUSE :P</p></details></li><li><details><summary><span class="cnum">27</span><span class="ctitle">GINGERBREAD TOWN</span><span class="ptag">New content</span><span class="cdate">Sat 20 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Event + New Index</p><p>NEW GINGERBREAD TOWN EVENT
+- This event will be added as one of the hourly Christmas events
+- Ride Santa&#x27;s sleigh around the map and collect candy canes around the sky
+- Small chance of Money Money Reindeer spawning
+
+NEW OP SECRET IN THE FUSE MACHINE
+- Dragon Gingerini
+
+4 NEW BASE SKINS
+- Strawberry base
+- Meowl base
+- Christmas base
+- Gingerbread base</p></details></li><li><details><summary><span class="cnum">26</span><span class="ctitle">NORTH POLE</span><span class="ptag">New content</span><span class="cdate">Sat 13 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">North Pole + New Block</p><p>Take the train to the north pole to collect new Christmas Brainrots...
+and Festive Blocks :P
+
+16 NEW BRAINROTS</p></details></li><li><details><summary><span class="cnum">25</span><span class="ctitle">SANTA&#x27;S FUSE</span><span class="ptag">New content</span><span class="cdate">Sat 6 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Fuse + Event</p><p>SANTA&#x27;S FUSE
+- New Christmas fuse machine with 15 Brainrots!
+- Including 4 new secrets
+
+WINTER HOUR
+- This will happen every 2 hours, spawning a random Christmas brainrot
+- Collect and redeem all 4 Christmas brainrots to claim a limited La Jolly Grande
+
+NEW FESTIVE LUCKY BLOCK NEXT WEEK!</p></details></li><li><details><summary><span class="cnum">24</span><span class="ctitle">HE&#x27;S COMING BACK</span><span class="ptag">New content</span><span class="cdate">Sat 29 Nov 2025 &middot; 11 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Tung Tung Tung Sahur</p><p>TUNG TUNG TUNG SAHUR RETURNS
+
+ADMIN MACHINE
+- This machine will activate a random mutation, activate a random luck multiplier, and spawn a random Brainrot or Lucky Block!
+
+ADVENT CALENDAR
+- Earn daily rewards as we count down to Christmas..!
+
+12X LUCK MULTI!
++ MORE</p></details></li><li><details><summary><span class="cnum">23</span><span class="ctitle">NEW REBIRTH</span><span class="ptag">New content</span><span class="cdate">Sat 22 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Rebirth + Brainrots</p><p>REBIRTH 17
+- +1 Slot
+- Gamma Potion
+
+6 NEW BRAINROTS
+- Puffaball (Legendary)
+- Granchiello Spiritel (Brainrot God)
+- Fishino Clownino (SECRET)
+- Cuadramat and Pakrahmatmamat (SECRET)
+- Los Planitos (SECRET)
+- ??? (SECRET)
+
+NEW LIMITED QUANTITY
+- W or L  (300K STOCK)
+
++ More fixes + gear reworks</p></details></li><li><details><summary><span class="cnum">22</span><span class="ctitle">RADIOACTIVE MUTATION</span><span class="ptag">New content</span><span class="cdate">Sat 15 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Mutation + Fishing</p><p>RADIOACTIVE MUTATION
+- This will grant Brainrots a green radioactive mutation!
+- Radioactive spin wheel with radioactive secret block + new gears!
+- Radioactive Index
+
+BRAINROT TRADER
+- You will be able to trade existing Brainrots for new ones!
+- This trader will restock with new offers every 2 hours
+
+FISHING EVENT
+- This event will occur hourly, allowing you to fish for Brainrots
+- Better fishing rods will grant more luck
+- Aquatic Index: Collect all the aquatic Brainrots to obtain this index!
+
+NEW BRAINROTS
+- Centrucci Nuclucci (Mythic)
+- Swag Soda (Secret)
+- ??? (Secret)</p></details></li><li><details><summary><span class="cnum">21</span><span class="ctitle">BRAINROT DEALER</span><span class="ptag">New content</span><span class="cdate">Sat 8 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">DEALER + 3 PATHS</p><p>NEW BRAINROT DEALER WITH 10 BRAINROTS
+The Brainrot Dealer will restock every 30 minutes with random brainrots to purchase!
+- Cupcake Koala (Rare)
+- Doi Doi Do (Epic)
+- Clickerino Crabo (Legendary)
+- Stoppo Luminino (Mythic)
+- Money Money Man (Brainrot God)
+- Noo La Polizia (Brainrot God)
+- Pirulitoita Bicicleteira (Secret)
+- Los Puggies (Secret)
+- ??? (Secret)
+- ??? (Secret)
+
+NEW ADMIN ABUSE EVENT WITH 3 PATHS
+- This will multiply the path into 3 spawning way more brainrots....
+
+YIN YANG EXTENDED FOR 1 WEEK!</p></details></li><li><details><summary><span class="cnum">20</span><span class="ctitle">1x1x1x1 RITUAL</span><span class="ptag">New content</span><span class="cdate">Sat 1 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Ritual + New Brainrots</p><p>Unlock the behind the scenes of the cave and spawn 1x1x1x1 if you can figure out the ritual...
+
+4 NEW BRAINROTS
+- Wombo Rollo (EPIC)
+- Aquanaut (BRAINROT GOD)
+- Frio Ninja (BRAINROT GOD)
+- 1x1x1x1 (SECRET)
+
+2 NEW RITUAL BRAINROTS
+- ??? (SECRET)
+- ??? (SECRET)
+
++ Bug fixes and optimization!</p></details></li><li><details><summary><span class="cnum">19</span><span class="ctitle">INDONESIA EVENT</span><span class="ptag">New content</span><span class="cdate">Sat 18 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 18 days before</span></span></summary><p class="csub">Indonesia + Meowl</p><p>INDONESIA EVENT
+- 7 New Brainrots
+- New Indonesia themed Brainrots from Aura Farm Boat
+- Panjat Pinang game with a chance of a rare Brainrot!
+
+NEW WITCH FUSE BRAINROTS
+- Frogato Pirato (Epic)
+- Mieteteira Bicicleteira (Secret)
+
+NEW OG BRAINROT
+- Meowl</p></details></li><li><details><summary><span class="cnum">18</span><span class="ctitle">WITCH FUSE</span><span class="ptag">New content</span><span class="cdate">Sat 11 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Fuse + Event</p><p>WITCH FUSE
+- New Halloween fuse with more than 20 Brainrots!
+- Including 4 new fusible Secrets
+
+WITCHING HOUR
+- This will occur every 2 hours, spawning 1 of 4 Halloween themed Brainrots
+- Collect all 4 spooky Brainrots to claim a limited La Spooky Grande (750K Stock)</p></details></li><li><details><summary><span class="cnum">17</span><span class="ctitle">YIN &amp; YANG</span><span class="ptag">New content</span><span class="cdate">Sat 27 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New Mutation + Brainrots</p><p>YIN &amp; YANG MUTATION
+- Yin &amp; Yang Event, granting Brainrots a Yin Yang mutation
+- Hourly Yin &amp; Yang Wheel with a new gear
+
+4 NEW BRAINROTS
+- Toiletto Focaccino (Mythic)
+- Brasilini Berimbini (Brainrot God)
+- Money Money Puggy (Secret)
+- ??? (Secret)
+
+2 CRAFTABLE BRAINROTS
+- Karker Sahur (Secret)
+- ??? (Secret)
+
+DUL DUL DUL RITUAL
+- This ritual will require 4 Dul Dul Dul and can spawn 2 Brainrots...will you pass or fail?</p></details></li><li><details><summary><span class="cnum">16</span><span class="ctitle">MEXICO EVENT</span><span class="ptag">New content</span><span class="cdate">Sat 20 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Event + New Brainrots</p><p>MEXICO EVENT
+- This will be a fun event with a Pinata!
+- Will include candy weapons and a chance of spawning a very rare brainrot....
+
+3 NEW BRAINROTS
+- ??? (SECRET)
+- To to to Sahur (SECRET)
+- Tictac Sahur (SECRET)
+
+4 CRAFTABLE BRAINROTS
+- Sigma Girl (LEGENDARY)
+- Elefanto Frigo (MYTHIC)
+- Dug dug dug (BRAINROT GOD)
+- ??? (SECRET)</p></details></li><li><details><summary><span class="cnum">15</span><span class="ctitle">EXTINCT EVENT</span><span class="ptag">New content</span><span class="cdate">Sat 13 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Event + Ritual</p><p>The new Extinct Event will happen every 2 hours, with 1 of 3 Extinct Brainrots spawning:
+- Extinct Ballerina
+- Extinct Tralalero
+- Extinct Matteo
+
+BE THE FIRST TO COLLECT ALL 3 FOR A LA EXTINCT GRANDE (LIMITED QUANTITY)
+
+CHICLETEIRA RITUAL
+- Use 2 Chicleteiras to do this for Los Chicleteiras
+
++5 MORE BRAINROTS</p></details></li><li><details><summary><span class="cnum">14</span><span class="ctitle">CRAFT MACHINE</span><span class="ptag">New content</span><span class="cdate">Sat 6 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Craft + Rebirth</p><p>This machine will allow you to use your brainrots to craft 20+ new brainrots!
+- Available brainrots will refresh every 30 minutes
+
+Rebirth 15
+- Additional slot and a new gear!</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">NEW BRAINROTS</span><span class="ptag">New content</span><span class="cdate">Sat 30 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Brainrots + New Rarity</p><p>10 NEW BRAINROTS + NEW RARITY!
+
+BRAINROTS
+- Avocadini Antilopini (Epic)
+- Quivioli Ameleonni (Legendary)
+- Cacasito Satalito (Brainrot God)
+- ??? (Secret)
+- Strawberry Elephant (OG)
+
+LUCKY BLOCK BRAINROTS
+- Carrotini Brainini (Mythic)
+- Mastodontico Telepiedone (Brainrot God)
+- Spaghetti Tualetti (Secret)
+
+ADMIN BLOCK BRAINROTS
+- Crabbo Limonetta (Brainrot God)
+- ??? (Secret)
+
+OG RARITY
+- This will be rarer than secret
+- Any time an OG spawns, an event will activate giving brainrots an OP mutation
+
+SPYDERINI RITUAL
+- Use 4 Sammyni Spyderini to perform a ritual for Los Spyderini</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">NEW BRAINROTS</span><span class="ptag">New content</span><span class="cdate">Fri 15 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Brainrots + Events</p><p>5 NEW BRAINROTS
+- Tracoducotulu Delapeladustuz (Mythic)
+- Tralalita tralala (Brainrot God)
+- Urubini Flamenguini (Brainrot God)
+- Los Matteos (Secret)
+- ??? (Secret)
+
+TACO TUESDAY EVENT (ONLY ON TUESDAYS)
+- Feed Sammy taco Brainrots to get a Brainrot God or Secret!
+- 3 New Brainrots
+
+MATTEO RITUAL REWORK
+- Matteo ritual will now give a trait and Los Matteos 👶
+
+2 NEW TRAITS
+- Matteo&#x27;s Hat
+- Brazil Flag
+
++ SURPRISE BRAZIL EVENT!</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">NEW BRAINROTS</span><span class="ptag">New content</span><span class="cdate">Fri 8 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Brainrots + Rebirth</p><p>REBIRTH 14
+- +1 SLOT
+- Gummy Slap ($400M)
+- Subspace Mine ($500M) - Players can place down up to 2 for defense
+
+FUSE MACHINE REWORK
+- The fuse machine will be reworked to have better odds
+- List out the possible Brainrots with the odds
+
+6 NEW BRAINROTS
+- Tob Tobi Tobi (Mythic)
+- Te Te Te Sahur (Mythic)
+- Bulbito Bandito Traktorito (Brainrot God) - LUCKY BLOCK
+- Los Orcalitos (Brainrot God)
+- Los Hotspotsitos (Secret)
+- Esok Sekolah (Secret) - LUCKY BLOCK
+
++ NEW GLOBAL EVENTS (WITH TRAITS)</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">FUSE MACHINE</span><span class="ptag">New content</span><span class="cdate">Fri 1 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Fuse Machine + Brainrots</p><p>This will probably be our biggest update yet, wish us luck :3
+
+FUSE MACHINE
+- Combine up to 4 Brainrots to fuse a Brainrot with 12 new Brainrots from the fuse Machine (2 Secrets)
+
+NEW WEATHER EVENTS
+- Rain
+- Snow
+- Starfall
+
+NEW GRAB SYSTEM
+- Players will be able to grab their own Brainrots to use for the fuse the machine and rituals
+
+NEW BRAINROTS
+- Sigma Boy (Legendary)
+- Trippi Troppi Troppa Trippa (Brainrot God)
+- Dragon Cannelloni (Secret)
+
+SECRET CONCERT EVENT
+- I will start this event 15 minutes after the update, it&#x27;ll also have a new trait that comes with it</p></details></li><li><details><summary><span class="cnum">9</span><span class="ctitle">LAVA MUTATION</span><span class="ptag">New content</span><span class="cdate">Fri 25 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New Mutation + Brainrots</p><p>LAVA MUTATION
+- Lava Event, granting Brainrots a Lava mutation 🌋
+- Hourly Magma Wheel
+
+REBIRTH 13
+- 1 Slot
+- 2 New Weapons
+
+6 NEW BRAINROTS
+- Salamino Penguino (EPIC)
+- Gorillo Watermelondrillo (MYTHICAL)
+- Los Crocodillitos (BRAINROT GOD)
+- Piccione Macchina (BRAINROT GOD)
+- Las Vaquitas Saturnitas (SECRET)
+- Chicleteira Bicicleteira (SECRET)
+
+NEW SURPRISE TRAITS</p></details></li><li><details><summary><span class="cnum">8</span><span class="ctitle">Bubblegum Machine</span><span class="ptag">New content</span><span class="cdate">Fri 18 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">New Traits + Brainrots</p><p>CANDY MUTATION IS HERE FOR ANOTHER WEEK :3
+
+NEW BUBBLEGUM TRAIT MACHINE!
+- This can be activated by depositing 10 Candy Mutated Brainrots!
+- Some Brainrots will have a chance of getting the Bubblegum trait as they walk by
+
+4 NEW BRAINROTS
+- Avocadini Guffo (EPIC)
+- Strawberrelli Flamingelli (LEGENDARY)
+- Ballerino Lololo (BRAINROT GOD)
+- ??? (SECRET)
+
+NEW SURPRISE EVENT</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">LUCKY BLOCKS :3</span><span class="ptag">New content</span><span class="cdate">Sat 12 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Lucky Block Brainrots</p><p>LUCKY BLOCKS
+- Mythic Block
+- Brainrot God Block
+- Secret Block
+
++1 REBIRTH
+- New fun gear +1 Equip Slot
+
+2 NEW BRAINROTS
+- Cacto Hipopotamo (RARE)
+- Pandaccini Bananini (LEGENDARY)
+
+ADMIN GAMEPASS REWORK (NEW TROLL UI)
+- 10 New Commands
+
+NEW SECRET EVENTS</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">CANDY MUTATION</span><span class="ptag">New content</span><span class="cdate">Sat 5 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Candy + Secret Brainrots!</p><p>CANDY MUTATION
+- Hourly Candy Aurora, which will give some brainrots a candy mutation
+- Hourly Candy Wheel
+
+5 NEW BRAINROTS
+- Bandito Bobritto (Rare)
+- Lionel Cactuseli (Legendary)
+Cavallo Virtuoso (Mythical)
+??? (SECRET)
+???  (SECRET)
+
+VC SERVERS
+- Join VC only servers
+
+2 NEW TRAITS
+- Fireworks
+- Zombie
+
+SECRET EVENTS
+- Stay tuned...</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">TRAITS</span><span class="ptag">New content</span><span class="cdate">Sat 28 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Traits + Secret Event</p><p>3 New Traits
+- Cosmetics that will be applied to brainrots, giving them higher value (like a taco...)
+
+Secret Events
+- A secret event that can be triggered in game...(can&#x27;t say more)
++ MORE SURPRISES...
+
+6 New Brainrots
+- Pipi Kiwi (Common)
+- Tric Trac Baraboom (Rare)
+- Perochello Lemonchello (Epic)
+- Trenostruzzo Turbo 3000 (Brainrot God)
++ 2 More
+
++1 REBIRTH
+- New fun gear and +1 Slot
+
+Index Rewards
+- Stackable base multis and gold, diamond, rainbow base colors!</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">Rainbow Mutation</span><span class="ptag">New content</span><span class="cdate">Sat 21 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Rainbow + 3rd Floor</p><p>Rainbow Mutation
+- New rainbow mutation (VERY RARE)
+
+Rainbow Machine
+- Steal Gold brainrots from other players and bring them to Tralalero Tralala to spawn a rainbow!
+
+4 New Brainrots
+- Bambini Crostini (EPIC)
+- Blueberrinni Octopusini (LEGENDARY)
+- Girafa Celestre (BRAINROT GOD)
+- ??? (SECRET)
+
++1 REBIRTH
+- New Gear in the Shop: Glitched Slap, Swap Tool
+- 3rd Floor with +1 Slot</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">NEW BRAINROTS</span><span class="ptag">New content</span><span class="cdate">Sat 14 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Brainrots + Moon Wheel</p><p>The Bloodmoon event will be extended for another week!
+- You&#x27;ll be able to spin a Bloodmoon wheel for OP rewards whenever the Bloodmoon appears.
+
+4 NEW BRAINROTS
+- Talpa Di Fero (COMMON
+- Brri Brri Bicus Dicus Bombicus (EPIC)
+-  Rhino Toasterino (MYTHIC)
+- ??? (SECRET)
+
++1 REBIRTH WITH NEW OP GEAR AND +1 EQUIP SLOT!
+- Galaxy Slap
+- Laser Cape</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">Bloodmoon Event</span><span class="ptag">New content</span><span class="cdate">Sat 7 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Bloodrot Mutation</p><p>New Bloodmoon event with a bloodrot mutation!
+- 3 New Brainrots
+- Base Expansions</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">MUTATIONS</span><span class="ptag">New content</span><span class="cdate">Sat 31 May 2025 &middot; 1 year ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Mutations + More Rebirths</p><p>- 2 new mutations of Brainrots, and +5 New Brainrots (including Odin din din dun)
+- 2 Additional rebirths, with new items in the shop.</p></details></li></ol><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we can tell you</th></tr><tr><td>Sat 21 Nov</td><td>2.3&times; busier &ndash; the creators announced nothing that day, so we cannot say why &ndash; an update, a video or something else</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="none">Steal a Brainrot has no events planned on Roblox right now. When the creators announce one it will show up here.</p></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other simulation games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:24" data-n="pet simulator 99 ps99" data-s="pet-simulator-99"><a class="tile" href="/updates/pet-simulator-99"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-63becb4804c7165e6bbe3c21017590ec/256/256/Image/Webp/noFilter" alt="Pet Simulator 99 Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Pet Simulator 99</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:1;--glow:48" data-n="fisch" data-s="fisch"><a class="tile" href="/updates/fisch"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-03bbba85eed57df4038370765e44cd33/256/256/Image/Webp/noFilter" alt="Fisch Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Fisch</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:2;--glow:200" data-n="fish it" data-s="fish-it"><a class="tile" href="/updates/fish-it"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-ecdc7db5927db86c0961dacf7661507a/256/256/Image/Webp/noFilter" alt="Fish It Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Fish It</span><span class="tmeta"><span>22 days ago</span></span></a></li><li style="--i:3;--glow:215" data-n="bloxng" data-s="bloxng"><a class="tile" href="/updates/bloxng"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-089fb29e7c68e08460e25009ec50228b/256/256/Image/Webp/noFilter" alt="BloxNG Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">BloxNG</span><span class="tmeta"><span>10 days ago</span></span></a></li><li style="--i:4;--glow:187" data-n="tap simulator reborn" data-s="tap-simulator-reborn"><a class="tile" href="/updates/tap-simulator-reborn"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-1a3bafc493f9debd26a118403155b18e/256/256/Image/Webp/noFilter" alt="Tap Simulator REBORN Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tap Simulator REBORN</span><span class="tmeta"><span>16 days ago</span></span></a></li><li style="--i:5;--glow:0" data-n="sols rng" data-s="sol-s-rng"><a class="tile" href="/updates/sol-s-rng"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-0dcb671035a6f9cec76eb00607e3c23d/256/256/Image/Webp/noFilter" alt="Sol&#x27;s RNG Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Sol&#x27;s RNG</span><span class="tmeta"><span>23 days ago</span></span></a></li></ul><p><a href="/game/steal-a-brainrot">&larr; Back to Steal a Brainrot</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -1998,7 +2605,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>

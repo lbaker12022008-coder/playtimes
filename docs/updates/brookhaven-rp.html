@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Brookhaven RP Updates in Order &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Brookhaven RP update in order: 77 since Fri 14 Mar 2025. Latest: LEGO® Construction Site (Fri 13 Nov). Next update likely Fri 27 Nov. Changelog, update..."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Brookhaven RP update in order. Next update likely Fri 27 Nov. 77 of them since Fri 14 Mar 2025. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/brookhaven-rp">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Brookhaven RP Updates in Order &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Brookhaven RP update in order: 77 since Fri 14 Mar 2025. Latest: LEGO® Construction Site (Fri 13 Nov). Next update likely Fri 27 Nov. Changelog, update...">
+<meta property="og:description" content="Every Brookhaven RP update in order. Next update likely Fri 27 Nov. 77 of them since Fri 14 Mar 2025. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/brookhaven-rp"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-6ee25638908aba49f33c6ce6f13fdf3b/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-6ee25638908aba49f33c6ce6f13fdf3b/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,11 +1384,11 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/roleplay-avatar-sim">Roleplay &amp; Avatar Sim games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/brookhaven-rp">Brookhaven RP player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d35bfa465c0ade2afd7c320d17b7474b/256/256/Image/Webp/noFilter" alt="Brookhaven RP Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Brookhaven RP updates in order</h1><p class="mut">The Brookhaven RP changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Brookhaven RP&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/4924922222">Play Brookhaven RP</a><span data-bell="all"></span><button class="fav" id="fav" data-s="brookhaven-rp" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/brookhaven-rp">Overview</a><a class="gtab on" href="/updates/brookhaven-rp" aria-current="page">Updates</a><a class="gtab" href="/events/brookhaven-rp">Events</a><a class="gtab" href="/questions/brookhaven-rp">Questions</a><a class="gtab" href="/passes/brookhaven-rp">Costs</a></nav></div></div><div class="card"><h2>Brookhaven RP changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Brookhaven RP update?</h3><p>Most likely <b>Fri 27 Nov around 6 PM UTC</b>. Its updates usually land on a Friday, roughly every 7 days, going by the last 80 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Latest Brookhaven RP updates</h3><ul class="evt"><li class=""><b>LEGO® Construction Site</b><span class="d esub">Let’s get to work!</span><span class="ptag">New content</span><span class="d">Fri 13 Nov &middot; 10 days ago <span class="nb">&middot; announced 17 days before</span></span><p>Hard hats on, everybody! It&#x27;s time to get DIGGING!
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/roleplay-avatar-sim">Roleplay &amp; Avatar Sim games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/brookhaven-rp">Brookhaven RP player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-d35bfa465c0ade2afd7c320d17b7474b/256/256/Image/Webp/noFilter" alt="Brookhaven RP Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Brookhaven RP updates in order</h1><p class="mut">The Brookhaven RP changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Brookhaven RP&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/4924922222">Play Brookhaven RP</a><span data-bell="all"></span><button class="fav" id="fav" data-s="brookhaven-rp" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/brookhaven-rp">Overview</a><a class="gtab on" href="/updates/brookhaven-rp" aria-current="page">Updates</a><a class="gtab" href="/events/brookhaven-rp">Events</a><a class="gtab" href="/questions/brookhaven-rp">Questions</a><a class="gtab" href="/passes/brookhaven-rp">Costs</a></nav></div></div><div class="card"><h2>Brookhaven RP changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Brookhaven RP update?</h3><p>Most likely <b>Fri 27 Nov around 6 PM UTC</b>. Its updates usually land on a Friday, roughly every 7 days, going by the last 80 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Every Brookhaven RP update in order</h3><p class="mut small">All 77 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 14 Mar 2025. Roblox sorts them into 5 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 73 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">77</span><span class="ctitle">LEGO® Construction Site</span><span class="ptag">New content</span><span class="cdate">Fri 13 Nov &middot; 10 days ago <span class="nb">&middot; announced 17 days before</span></span></summary><p class="csub">Let’s get to work!</p><p>Hard hats on, everybody! It&#x27;s time to get DIGGING!
 
 We&#x27;re laying the foundations for the ultimate LEGO® construction event! Jump behind the wheel of HUGE construction vehicles, dig up the dirt, haul heavy loads and get to work at the brand-new construction site!
 
-LET&#x27;S GET TO WORK! That quarry isn&#x27;t going to dig itself!</p></li><li class=""><b>✨ ART DECO ✨</b><span class="d esub">New houses &amp; props!</span><span class="ptag">New content</span><span class="d">Fri 6 Nov &middot; 17 days ago <span class="nb">&middot; announced 7 days before</span></span><p>🎹 ART DECO HOUSE 🎹
+LET&#x27;S GET TO WORK! That quarry isn&#x27;t going to dig itself!</p></details></li><li><details open><summary><span class="cnum">76</span><span class="ctitle">✨ ART DECO ✨</span><span class="ptag">New content</span><span class="cdate">Fri 6 Nov &middot; 17 days ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New houses &amp; props!</p><p>🎹 ART DECO HOUSE 🎹
 - 3-story mansion including a unique glass-block stair tower and a game lounge
 - Play music on the piano or Brookhaven record player
 
@@ -1339,7 +1403,7 @@ LET&#x27;S GET TO WORK! That quarry isn&#x27;t going to dig itself!</p></li><li 
 - Billiards Table
 
 👜 COACH OUTFIT 👜
-- Exclusive new outfit and handbag added to Avatar Editor in collaboration with Coach!</p></li><li class=""><b>Community Outfits BETA!</b><span class="d esub">Show Off Your Style!</span><span class="ptag">Early access</span><span class="d">Fri 30 Oct &middot; 24 days ago <span class="nb">&middot; announced 7 days before</span></span><p>👑 AVATAR EDITOR COMMUNITY OUTFITS 👑
+- Exclusive new outfit and handbag added to Avatar Editor in collaboration with Coach!</p></details></li><li><details open><summary><span class="cnum">75</span><span class="ctitle">Community Outfits BETA!</span><span class="ptag">Early access</span><span class="cdate">Fri 30 Oct &middot; 24 days ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Show Off Your Style!</p><p>👑 AVATAR EDITOR COMMUNITY OUTFITS 👑
 - Released to 70% of players for now as a BETA test
 - New feature in the avatar editor where you can upload outfits for the whole community to see!
 - Like other player&#x27;s outfits
@@ -1351,7 +1415,7 @@ LET&#x27;S GET TO WORK! That quarry isn&#x27;t going to dig itself!</p></li><li 
 
 🚁 FLYING VEHICLE UPDATE 🚁
 - Helicopters have new blades
-- New VIP Quadcopter</p></li><li class=""><b>🎃 HALLOWEEN 🎃</b><span class="d esub">Trick or Treat!</span><span class="ptag">Festival</span><span class="d">Fri 23 Oct &middot; 1 month ago <span class="nb">&middot; announced 18 days before</span></span><p>Trick or Treat! It&#x27;s time for HALLOWEEN in Brookhaven!</p></li><li class=""><b>WELCOME TO THE SPA ✨</b><span class="d esub">Sooo relaxing!</span><span class="ptag">New content</span><span class="d">Fri 16 Oct &middot; 1 month ago <span class="nb">&middot; announced 11 days before</span></span><p>🧘 WELLNESS HOMES 🧘
+- New VIP Quadcopter</p></details></li><li><details><summary><span class="cnum">74</span><span class="ctitle">🎃 HALLOWEEN 🎃</span><span class="ptag">Festival</span><span class="cdate">Fri 23 Oct &middot; 1 month ago <span class="nb">&middot; announced 18 days before</span></span></summary><p class="csub">Trick or Treat!</p><p>Trick or Treat! It&#x27;s time for HALLOWEEN in Brookhaven!</p></details></li><li><details><summary><span class="cnum">73</span><span class="ctitle">WELCOME TO THE SPA ✨</span><span class="ptag">New content</span><span class="cdate">Fri 16 Oct &middot; 1 month ago <span class="nb">&middot; announced 11 days before</span></span></summary><p class="csub">Sooo relaxing!</p><p>🧘 WELLNESS HOMES 🧘
 New Estate - Run your own spa featuring:
 - An underground grotto
 - An indoor pool
@@ -1372,7 +1436,786 @@ New Free House
 - Wooden Peg Sign
 
 🥤 WELLNESS TOOL 🥤
-- Smoothie Tumbler</p></li><li class=""><b>🏥 HOSPITAL REFRESH! 🏥</b><span class="d esub">New &amp; Improved Hospital!</span><span class="ptag">New content</span><span class="d">Fri 9 Oct &middot; 1 month ago <span class="nb">&middot; announced 7 days before</span></span><p>The Hospital is getting an update after a kind anonymous donation to the town of Brookhaven!</p></li></ul><h3>Every Brookhaven RP update in order</h3><p class="mut small">All 77 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Fri 14 Mar 2025.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>77</td><td>LEGO® Construction Site</td><td>Fri 13 Nov</td></tr><tr><td>76</td><td>✨ ART DECO ✨</td><td>Fri 6 Nov</td></tr><tr><td>75</td><td>Community Outfits BETA!</td><td>Fri 30 Oct</td></tr><tr><td>74</td><td>🎃 HALLOWEEN 🎃</td><td>Fri 23 Oct</td></tr><tr><td>73</td><td>WELCOME TO THE SPA ✨</td><td>Fri 16 Oct</td></tr><tr><td>72</td><td>🏥 HOSPITAL REFRESH! 🏥</td><td>Fri 9 Oct</td></tr><tr><td>71</td><td>🪖 MILITARY + FREE HOUSE</td><td>Fri 2 Oct</td></tr><tr><td>70</td><td>🦖T.REX HUNT 🦖</td><td>Fri 25 Sep</td></tr><tr><td>69</td><td>🦖JURASSIC WORLD EVENT🦕</td><td>Fri 18 Sep</td></tr><tr><td>68</td><td>VEHICLE SAVES &amp; CARS! 🚗</td><td>Fri 11 Sep</td></tr><tr><td>67</td><td>🎂 INTERACTIVE PROPS 🍕</td><td>Fri 4 Sep</td></tr><tr><td>66</td><td>💜 LAVENDER LUXURY 💜</td><td>Fri 28 Aug</td></tr><tr><td>65</td><td>🚓 MAXIMUM SECURITY 🔒</td><td>Fri 21 Aug</td></tr><tr><td>64</td><td>💰 BANK REVAMP! 💰</td><td>Fri 14 Aug</td></tr><tr><td>63</td><td>💙 FUTURISTIC HOMES! 💜</td><td>Fri 7 Aug</td></tr><tr><td>62</td><td>🐱 PETS UPDATE! 🐶</td><td>Fri 31 Jul</td></tr><tr><td>61</td><td>☀️ SUMMER CARNIVAL! 🏁🏎️</td><td>Fri 24 Jul</td></tr><tr><td>60</td><td>☀️ SUMMER CARNIVAL! 🎪</td><td>Fri 17 Jul</td></tr><tr><td>59</td><td>🚗 NEW VEHICLES! 🚗</td><td>Fri 10 Jul</td></tr><tr><td>58</td><td>Fireworks, Castle &amp; More!</td><td>Fri 3 Jul</td></tr><tr><td>57</td><td>MINIONS &amp; MONSTERS WEEK 2</td><td>Fri 26 Jun</td></tr><tr><td>56</td><td>🍌 MINIONS &amp; MONSTERS! 🎬</td><td>Fri 19 Jun</td></tr><tr><td>55</td><td>🚓 POLICE REFRESH! 🚓</td><td>Fri 12 Jun</td></tr><tr><td>54</td><td>🎉 SCHOOL SPIRIT! 🎉</td><td>Fri 5 Jun</td></tr><tr><td>53</td><td>🏠MODERN HOUSES! 🏠</td><td>Fri 29 May</td></tr><tr><td>52</td><td>🚗 Daily Drivers! 🚗</td><td>Fri 22 May</td></tr><tr><td>51</td><td>NEW Auto Mall &amp; Mechanics</td><td>Fri 15 May</td></tr><tr><td>50</td><td>🌴🍗NEW RESTAURANT!🌴🍗</td><td>Fri 8 May</td></tr><tr><td>49</td><td>🎀 PINK PARADISE! 🎀</td><td>Fri 1 May</td></tr><tr><td>48</td><td>LEGO® Event Week 2!</td><td>Fri 24 Apr</td></tr><tr><td>47</td><td>LEGO® Firefighter Event!</td><td>Fri 17 Apr</td></tr><tr><td>46</td><td>🐰 EASTER EVENT WEEK 2 🐣</td><td>Fri 3 Apr</td></tr><tr><td>45</td><td>🐰 EASTER EVENT 🐣</td><td>Fri 27 Mar</td></tr><tr><td>44</td><td>🛻 TRUCKS &amp; TRAILERS 🛻</td><td>Fri 20 Mar</td></tr><tr><td>43</td><td>🌸 CHERRY BLOSSOM 🌸</td><td>Fri 13 Mar</td></tr><tr><td>42</td><td>NEW BOATS! 🛥️🌊</td><td>Fri 6 Mar</td></tr><tr><td>41</td><td>New Houses &amp; props!</td><td>Fri 27 Feb</td></tr><tr><td>40</td><td>UTILITY VEHICLES! 🚧⚡</td><td>Fri 20 Feb</td></tr><tr><td>39</td><td>OLYMPICS EVENT: WEEK 2!</td><td>Fri 13 Feb</td></tr><tr><td>38</td><td>🏂 WINTER OLYMPICS EVENT!</td><td>Fri 6 Feb</td></tr><tr><td>37</td><td>👮 NEW RP OUTFITS! 🧑‍🚒</td><td>Fri 30 Jan</td></tr><tr><td>36</td><td>🎉START A PARTY!🎉</td><td>Fri 23 Jan</td></tr><tr><td>35</td><td>Farm House 👩‍🌾🐔</td><td>Fri 16 Jan</td></tr><tr><td>34</td><td>New Cars + Vehicle Wraps!</td><td>Fri 9 Jan</td></tr><tr><td>33</td><td>🐺 The Wolf Den 🐺</td><td>Fri 2 Jan</td></tr><tr><td>32</td><td>Winter Festival Week 2!</td><td>Fri 26 Dec 2025</td></tr><tr><td>31</td><td>☃️WINTER FESTIVAL☃️</td><td>Fri 19 Dec 2025</td></tr><tr><td>30</td><td>LEGO® Event!</td><td>Fri 5 Dec 2025</td></tr><tr><td>29</td><td>💰RAGS TO RICHES! 💰</td><td>Fri 28 Nov 2025</td></tr><tr><td>28</td><td>🦃 Turkey Hunt! 🦃</td><td>Fri 21 Nov 2025</td></tr><tr><td>27</td><td>🩷Wicked Week 2💚</td><td>Fri 14 Nov 2025</td></tr><tr><td>26</td><td>🩷Wicked: For Good💚</td><td>Fri 7 Nov 2025</td></tr><tr><td>25</td><td>🎃 Halloween Week 2! 🎃</td><td>Fri 31 Oct 2025</td></tr><tr><td>24</td><td>🎃 Halloween! 🎃</td><td>Fri 24 Oct 2025</td></tr><tr><td>23</td><td>Baby Update! 🍼</td><td>Fri 17 Oct 2025</td></tr><tr><td>22</td><td>Woodland House! 🌳</td><td>Fri 10 Oct 2025</td></tr><tr><td>21</td><td>Military Update! 🪖</td><td>Fri 3 Oct 2025</td></tr><tr><td>20</td><td>Big City!</td><td>Fri 26 Sep 2025</td></tr><tr><td>19</td><td>Soccer Stadium!</td><td>Fri 19 Sep 2025</td></tr><tr><td>18</td><td>THREE NEW VEHICLES!</td><td>Fri 12 Sep 2025</td></tr><tr><td>17</td><td>🏛️🪴 New Houses + Props!</td><td>Fri 5 Sep 2025</td></tr><tr><td>16</td><td>☢️POWER PLANT☢️</td><td>Fri 29 Aug 2025</td></tr><tr><td>15</td><td>POWER PLANT UPDATE EVENT!</td><td>Fri 29 Aug 2025</td></tr><tr><td>14</td><td>🏠NEW HOUSES + MORE!🏠</td><td>Fri 15 Aug 2025</td></tr><tr><td>13</td><td>🚗 NEW VEHICLES! 🚗</td><td>Fri 8 Aug 2025</td></tr><tr><td>12</td><td>🏕️SUMMER CAMP!🏕️</td><td>Fri 1 Aug 2025</td></tr><tr><td>11</td><td>🪁 BACKYARD FUN 🪁</td><td>Fri 25 Jul 2025</td></tr><tr><td>10</td><td>🐎 HORSE UPDATE</td><td>Fri 18 Jul 2025</td></tr><tr><td>9</td><td>🎪 SUMMER CARNIVAL!</td><td>Thu 3 Jul 2025</td></tr><tr><td>8</td><td>✨ Summer House &amp; Sparkler</td><td>Fri 20 Jun 2025</td></tr><tr><td>7</td><td>Firing Range Update!</td><td>Fri 6 Jun 2025</td></tr><tr><td>6</td><td>NEW HOUSE!</td><td>Fri 23 May 2025</td></tr><tr><td>5</td><td>🎵 Boombox &amp; Arcade!</td><td>Fri 9 May 2025</td></tr><tr><td>4</td><td>Fashion Show Roleplay 👠</td><td>Fri 25 Apr 2025</td></tr><tr><td>3</td><td>🥚 Easter Event</td><td>Fri 11 Apr 2025</td></tr><tr><td>2</td><td>🎬 Movie Studio Update!</td><td>Fri 28 Mar 2025</td></tr><tr><td>1</td><td>🧁 Cupcakes &amp; Companions!</td><td>Fri 14 Mar 2025</td></tr></table></div><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we think happened</th></tr><tr><td>Sat 21 Nov</td><td>1.5&times; busier &ndash; lines up with &ldquo;BUILD A LEGO® HOUSE!&rdquo;</td></tr><tr><td>Sat 14 Nov</td><td>1.6&times; busier &ndash; lines up with &ldquo;LEGO® Construction Site&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795806006" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>BUILD A LEGO® HOUSE!</b><span class="d esub">Time to BUILD!</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Fri 27 Nov <span class="nb">&middot; announced 24 days before</span></span><p>You&#x27;ve laid the foundations... now it&#x27;s time to BUILD! Week 2 of the LEGO® Construction Event is HERE!
+- Smoothie Tumbler</p></details></li><li><details><summary><span class="cnum">72</span><span class="ctitle">🏥 HOSPITAL REFRESH! 🏥</span><span class="ptag">New content</span><span class="cdate">Fri 9 Oct &middot; 1 month ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New &amp; Improved Hospital!</p><p>The Hospital is getting an update after a kind anonymous donation to the town of Brookhaven!</p></details></li><li><details><summary><span class="cnum">71</span><span class="ctitle">🪖 MILITARY + FREE HOUSE</span><span class="ptag">New content</span><span class="cdate">Fri 2 Oct &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Bundle + Free Villa!</p><p>🥇 MILITARY UPDATE 🥇
+- New house with a launchable missile, helipad, and more!
+- New RPG tool - boost yourself into the air!
+- New armored carrier vehicle
+- New MRAP vehicle
+- 4 new military props
+
+🏡 VILLA HOUSE 🏡
+- New free house with a unique vineyard aesthetic
+- 5 new home decor props</p></details></li><li><details><summary><span class="cnum">70</span><span class="ctitle">🦖T.REX HUNT 🦖</span><span class="ptag">New place</span><span class="cdate">Fri 25 Sep &middot; 2 months ago <span class="nb">&middot; announced 27 days before</span></span></summary><p class="csub">Watch out!!</p><p>Week 2 of the Jurassic World event is here - and the T.rex has finally been released…</p></details></li><li><details><summary><span class="cnum">69</span><span class="ctitle">🦖JURASSIC WORLD EVENT🦕</span><span class="ptag">New place</span><span class="cdate">Fri 18 Sep &middot; 2 months ago <span class="nb">&middot; announced 20 days before</span></span></summary><p class="csub">Life finds a way</p><p>The park gates are OPEN! Step into Jurassic World and come face-to-face with dinosaurs, explore in exciting new vehicles, discover prehistoric surprises, and experience Brookhaven like never before!</p></details></li><li><details><summary><span class="cnum">68</span><span class="ctitle">VEHICLE SAVES &amp; CARS! 🚗</span><span class="ptag">New content</span><span class="cdate">Fri 11 Sep &middot; 2 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Save your car builds!</p><p>You asked, we listened! You can now save your customised vehicles, and we hear Big Franks is releasing THREE new cars to celebrate!
+
+Plus, something new for the House Pet&#x27;s gamepass... 🐢🐇</p></details></li><li><details><summary><span class="cnum">67</span><span class="ctitle">🎂 INTERACTIVE PROPS 🍕</span><span class="ptag">New content</span><span class="cdate">Fri 4 Sep &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Ready, set, cook!</p><p>🍪 HOUSE UPDATE 🍪
+- 8 new foods to bake, share, place, and eat
+- New doorbells with cameras - see who is at your door!
+- New tool and small vehicle shelves in many homes
+- Updated washing machines
+- Discover more house interactions
+
+🌄 MOUNTAIN VIEW 🌄
+- New Land Unlocked plot on the mountain by the beach!</p></details></li><li><details><summary><span class="cnum">66</span><span class="ctitle">💜 LAVENDER LUXURY 💜</span><span class="ptag">New content</span><span class="cdate">Fri 28 Aug &middot; 3 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New houses and more!</p><p>📚 LIBRARY HOUSE 📚
+- New free, cute home with lavender decor
+
+💜 LAVENDER LUXURY 💜
+- New premium home with a movie theatre and karaoke
+- New vehicle pack convertible car with neon flower tail lights
+
+✨ LAVENDER PROPS ✨
+- Glass lantern
+- Room diffuser
+- Wall planter
+- Perfume carousel
+- Book cart
+- Water bottle
+- Heart mirror</p></details></li><li><details><summary><span class="cnum">65</span><span class="ctitle">🚓 MAXIMUM SECURITY 🔒</span><span class="ptag">New content</span><span class="cdate">Fri 21 Aug &middot; 3 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Escape proof (we think..)</p><p>🔐 NEW PRISON LANDMARK 🔐
+Roleplay as...
+- the warden, where you can: trigger lockdowns, work in your private office, chill in your private game room, or equip unique weapons
+- an **inmate**, where you can: cause chaos, explore escape routes, work in the cafeteria, or work out in the yard
+- a **guard officer**, where you can: keep the inmates in order, monitor CCTV cameras, or patrol the facility
+- or anything else, such as a doctor, janitor, and more!
+New items:
+- Warden pistol
+- Warden tear gas launcher
+- Prisoner bus vehicle
+- 3 inmate outfits
+
+👮‍♂️ PRISON TOOLS 👮‍♂️
+- New handcuffs - escort other players
+- New scanner wand - detect if other players have weapons
+- New shank
+
+🚨 PRISON PROPS 🚨
+- New alarm, spotlight, and security scanner
+- 6 new yard props
+- 2 new jail building props</p></details></li><li><details><summary><span class="cnum">64</span><span class="ctitle">💰 BANK REVAMP! 💰</span><span class="ptag">New content</span><span class="cdate">Fri 14 Aug &middot; 3 months ago <span class="nb">&middot; announced 13 days before</span></span></summary><p class="csub">Safer than ever!</p><p>🏦 BANK UPDATE 🏦
+- A new, refreshed Bank is now open in Brookhaven
+- Check out the new Vault &amp; Bank Manager&#x27;s Office!
+
+💳 UPDATED TOOLS 💳
+- Updated Credit Cards &amp; Bank Keycards
+- Updated Cash, Gold &amp; Diamond Bags
+- Brand New Giant Ruby &amp; Diamond Tools
+
+💰 NEW BANK CLOTHES 💰
+- New Bank manager roleplay outfit
+
+🚚 UPDATED TRUCK 🚚
+- The Armored Bank Truck has a brand new look</p></details></li><li><details><summary><span class="cnum">63</span><span class="ctitle">💙 FUTURISTIC HOMES! 💜</span><span class="ptag">New content</span><span class="cdate">Fri 7 Aug &middot; 4 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">So much neon!! 🤖</p><p>🌐 FUTURISTIC HOMES 🌐
+- New house
+- New estate
+- 5 new furniture props
+
+🚀 NEW ROCKET CAR 🚀
+- Special effects that adapt to your speed
+- Unique sounds and galaxy texture!
+- Accessible through VIP
+
+🧱 EMPTY PLOT HOME 🧱
+- Spawn an empty plot with _nothing_ on it to make your own prop builds!</p></details></li><li><details><summary><span class="cnum">62</span><span class="ctitle">🐱 PETS UPDATE! 🐶</span><span class="ptag">New content</span><span class="cdate">Fri 31 Jul &middot; 4 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Soooo cute!</p><p>🐱 PETS UPDATE 🐱
+- 3 new cats
+- 6 new dogs
+- 6 new tools
+- 11 new props
+- All new companions that you can carry, pet, feed, and have follow you!
+
+🗺️ NEW LOCATIONS 🗺️
+- New Adoption Center
+- New Pet Hospital
+- New Post Office
+- Find all of these near the Museum
+- Adopt a pet, perform surgery, or get a consultation!
+
+🐶 HOUSE PETS GAMEPASS 🐶
+- Shiba Inu
+- Golden Retriever
+- German Shepherd
+- Dachshund
+- Bengal</p></details></li><li><details><summary><span class="cnum">61</span><span class="ctitle">☀️ SUMMER CARNIVAL! 🏁🏎️</span><span class="ptag">New content</span><span class="cdate">Fri 24 Jul &middot; 4 months ago <span class="nb">&middot; announced 23 days before</span></span></summary><p class="csub">Go Karts &amp; new Prizes!</p></details></li><li><details><summary><span class="cnum">60</span><span class="ctitle">☀️ SUMMER CARNIVAL! 🎪</span><span class="ptag">New content</span><span class="cdate">Fri 17 Jul &middot; 4 months ago <span class="nb">&middot; announced 16 days before</span></span></summary><p class="csub">IT&#x27;S BACK!</p><p>The event you&#x27;ve all been waiting for, Summer Carnival 2026 arrives in Brookhaven!
+
+Enjoy new rides, returning favorites, and keep an eye out for a very special guest...</p></details></li><li><details><summary><span class="cnum">59</span><span class="ctitle">🚗 NEW VEHICLES! 🚗</span><span class="ptag">New content</span><span class="cdate">Fri 10 Jul &middot; 4 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Three new cars! 🔥</p><p>🚗 3 NEW CARS 🚗
+- Executive Coupe
+- Street Sedan
+- Sporty Hatchback
+
+🚀 NEW VEHICLE BOOST GAMEPASS 🚀
+- Launch your vehicles with new boost controls!
+- Reach new maximum speeds!
+
+🎨 VEHICLE CUSTOMIZATION UPDATE 🎨
+- Change the vehicle boost colors with the Vehicle Customization Gamepass!</p></details></li><li><details><summary><span class="cnum">58</span><span class="ctitle">Fireworks, Castle &amp; More!</span><span class="ptag">New content</span><span class="cdate">Fri 3 Jul &middot; 5 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">KABOOM! 💥</p><p>🏰 CASTLE UPDATE 🏰
+- Massive luxury Royal Castle Estate with hidden surprises
+- Royal Sceptre and Scroll tools
+- Fine china and fancy furniture props
+
+🏡 NEW MODERN HOUSE 🏡
+- Free modern home featuring a loft
+
+🎆 FIREWORKS UPDATE 🎆
+- Firework Stand located at the Mall
+- Free firework tools that you can launch and customize!
+- Exclusive fireworks: Galaxy Spiral &amp; Heart Burst</p></details></li><li><details><summary><span class="cnum">57</span><span class="ctitle">MINIONS &amp; MONSTERS WEEK 2</span><span class="ptag">New content</span><span class="cdate">Fri 26 Jun &middot; 5 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">👀 Keep An Eye Out!</p><p>More minions. More disasters. Even more FUN!
+
+Minions &amp; Monsters is here for a second week!</p></details></li><li><details><summary><span class="cnum">56</span><span class="ctitle">🍌 MINIONS &amp; MONSTERS! 🎬</span><span class="ptag">New content</span><span class="cdate">Fri 19 Jun &middot; 5 months ago <span class="nb">&middot; announced 13 days before</span></span></summary><p class="csub">Lights, Camera, BANANA!</p><p>The Minions have rolled into town… and somehow turned Brookhaven into a full-blown movie studio! Explore film sets, activate disasters, and see what happens when these mischievous yellow friends start making monster movies
+
+Lights... Camera... BANANA!</p></details></li><li><details><summary><span class="cnum">55</span><span class="ctitle">🚓 POLICE REFRESH! 🚓</span><span class="ptag">New content</span><span class="cdate">Fri 12 Jun &middot; 5 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New BHPD &amp; more!</p><p>👮‍♂️ POLICE UPDATE 👮‍♂️
+- Refreshed Police Station
+- Police &amp; SWAT Uniforms
+- Updated Police Vehicles
+
+🚨 UPDATED POLICE TOOLS 🚨
+- New SWAT Shied
+- New Baton
+- Riot Shield
+- Handcuffs
+- Taser
+- Walkie-Talkie
+- Flashlight
+
+😱 BACKROOMS PROPS 😱
+- New Backrooms Wallpaper and Carpet texture options have been added to the foundational building props</p></details></li><li><details><summary><span class="cnum">54</span><span class="ctitle">🎉 SCHOOL SPIRIT! 🎉</span><span class="ptag">New content</span><span class="cdate">Fri 5 Jun &middot; 6 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Go Bobcats, Go!</p><p>📣 SCHOOL SPIRIT 📣
+- New Pom Poms Tool with 6 animations!
+
+👔 NEW SCHOOL CLOTHES 👔
+- 2 School Uniform Blazers
+- 2 School Uniform Sweaters
+- School Uniform Skirt &amp; Pants
+- Varsity Jacket
+- Basketball Uniform
+- Cheer Uniform
+- Bobcat Mascot
+
+🎒 AVATAR EDITOR 🎒
+- New Brookhaven clothes &amp; 3 UGC items added!
+- Skye &amp; Brian have been added!</p></details></li><li><details><summary><span class="cnum">53</span><span class="ctitle">🏠MODERN HOUSES! 🏠</span><span class="ptag">New content</span><span class="cdate">Fri 29 May &middot; 6 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Two new homes!</p><p>🏠 2 NEW MODERN HOMES 🏠
+- A sleek single-story modern home with an open-concept design!
+- A luxurious three-story modern home featuring a premium interior and courtyard!
+
+🥀 NEW PROPS 🥀
+- Wall Terrarium
+- Modern Fountain
+- Modern Mirrors
+- New Houseplant
+- Modern Bird Bath
+- Brookhaven Arch</p></details></li><li><details><summary><span class="cnum">52</span><span class="ctitle">🚗 Daily Drivers! 🚗</span><span class="ptag">New content</span><span class="cdate">Fri 22 May &middot; 6 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Brand new city cars!</p><p>FOUR new daily drivers!</p></details></li><li><details><summary><span class="cnum">51</span><span class="ctitle">NEW Auto Mall &amp; Mechanics</span><span class="ptag">New place</span><span class="cdate">Fri 15 May &middot; 6 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Big Franks!</p><p>🚗 NEW CAR DEALERSHIP 🚗
+- A new car dealership has been added to Brookhaven!
+- Check out Big Frank&#x27;s Motors to view and buy all your favorite cars!
+
+🧰 NEW MECHANIC 🧰
+- Greasy Gary&#x27;s is now in town!
+
+🧱 BIG PROPS UPDATE 🧱
+- 65 new basic building props!
+- New prop texture &amp; color editing option!
+- Prop collisions &amp; scaling available in Private Servers!
+
+🏡 HOUSE SAVES 🏡
+- Save your house settings and prop placements using the new menu!</p></details></li><li><details><summary><span class="cnum">50</span><span class="ctitle">🌴🍗NEW RESTAURANT!🌴🍗</span><span class="ptag">New place</span><span class="cdate">Fri 8 May &middot; 7 months ago <span class="nb">&middot; announced 14 days before</span></span></summary><p class="csub">A brand new recipe!</p><p>🌴🦥 NEW RESTAURANT 🦥🌴
+- Jett&#x27;s Jungle Nuggets is now open for business!
+
+🍦🍗 NEW FOOD 🍗🍦
+- Cook Jungle Nuggets and serve up some Banana Whip!
+- Lots of new ingredients to mix and match...did someone mention a secret item menu?
+
+🎶 NEW MUSIC 🎶
+- Play 3 Jett&#x27;s songs on the jukebox or using the Boombox!
+- &quot;Jett&#x27;s Jungle Nuggets&quot;
+- &quot;Jett&#x27;s Country Nuggets&quot;
+- &quot;Jett&#x27;s Diner Nuggets&quot;
+
+🧢 NEW MERCH 🧢
+- New Jett&#x27;s UGC Items - available on the Roblox Marketplace and in the Brookhaven Avatar Editor!
+- Jett&#x27;s Cap - https://www.roblox.com/catalog/92053664284917/Brookhaven-RP-Jetts-Cap
+- Jett&#x27;s Sloth Backpack - https://www.roblox.com/catalog/128505394496679/Brookhaven-RP-Jetts-Sloth-Backpack
+- Jett&#x27;s Sloth Shoulder Buddy - https://www.roblox.com/catalog/109144944427158/Brookhaven-RP-Jetts-Shoulder-Buddy
+- Find the rest in our store!! -</p></details></li><li><details><summary><span class="cnum">49</span><span class="ctitle">🎀 PINK PARADISE! 🎀</span><span class="ptag">New content</span><span class="cdate">Fri 1 May &middot; 7 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New house and more!</p><p>🎀 PINK PARADISE 🎀
+- New House
+- New Estate
+- 13 New Luxury-themed Props
+- New Yoga Mat Tool
+- New Yoga Poses
+
+👷‍♂️ NEW RESTAURANT 👷‍♂️
+- A brand new restaurant is under construction! Try out the crane!</p></details></li><li><details><summary><span class="cnum">48</span><span class="ctitle">LEGO® Event Week 2!</span><span class="ptag">New content</span><span class="cdate">Fri 24 Apr &middot; 7 months ago <span class="nb">&middot; announced 14 days before</span></span></summary><p class="csub">Now at sea!</p><p>Take the action to the ocean with the LEGO® Fire Rescue Boat! 🌊🚒
+Respond to emergencies at sea and work together to tackle fires beyond the shore</p></details></li><li><details><summary><span class="cnum">47</span><span class="ctitle">LEGO® Firefighter Event!</span><span class="ptag">New place</span><span class="cdate">Fri 17 Apr &middot; 7 months ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">We’re bringing the heat🔥</p><p>✨ LEGO® FIREFIGHTER EVENT ✨
+- Explore the new LEGO Fire Station taking over the mall
+- Roleplay as a firefighter and respond to fires across Brookhaven
+- Work together with others to put out fires and save the town!
+
+👀 MORE NEXT WEEK 👀
+This is just the beginning… 🌊 Stay tuned for what’s next!</p></details></li><li><details><summary><span class="cnum">46</span><span class="ctitle">🐰 EASTER EVENT WEEK 2 🐣</span><span class="ptag">Festival</span><span class="cdate">Fri 3 Apr &middot; 8 months ago <span class="nb">&middot; announced 11 days before</span></span></summary><p class="csub">BUNNY INVASION!</p><p>🐰 EASTER EVENT - WEEK 2 🐰
+- Week 2 of the Easter Event is here!
+
+💥 WACK-A-BUNNY NIMIGAME 💥
+- Bunnies are popping up in the Easter Event area!
+- Earn Bunny Tokens by whacking as many bunnies as you can before time runs out!
+
+🥕 NEW PRIZES 🥕
+New prizes have been added! Unlock prizes using Bunny Tokens:
+- String Lights (PROP)
+- Easter Hedges (PROP)
+- Carrot Pogo Stick
+- Easter House
+- Bean Bags (Unlock with VIP Gamepass during Easter Event only!)</p></details></li><li><details><summary><span class="cnum">45</span><span class="ctitle">🐰 EASTER EVENT 🐣</span><span class="ptag">Festival</span><span class="cdate">Fri 27 Mar &middot; 8 months ago <span class="nb">&middot; announced 10 days before</span></span></summary><p class="csub">Easter week 1!</p><p>🐰 EASTER EVENT 🐰
+- The Easter Event has arrived - visit the new area across from spawn!
+
+🥚 EGG HUNT 🥚
+- Earn Bunny Tokens by completing multiple hunt difficulties: Easy, Medium, Hard, and Extreme! The harder the difficulty, the greater the reward!
+- This year, you can complete the hunt as many times as you want and there are additional Egg locations!
+
+🐇 UNLOCK PRIZES 🐇
+- Trade Bunny Tokens to unlock special prizes:
+Keep Forever:
+- Themed Props
+- Easter Truck
+- Easter House
+- Carrot Pogo Stick
+Limited-Time:
+- Spring Shuffler
+
+🌼 FLOWER HOUSE BUNDLE 🌼
+- A unique and limited-time house, vehicle, and prop bundle is for sale!
+
+🎮 BETTER CONSOLE CONTROLS 🎮
+- New &amp; improved controls have been added for all our players who are on console devices!
+
+📅 NEXT WEEK 📅
+- More prizes will be added on April 3rd!</p></details></li><li><details><summary><span class="cnum">44</span><span class="ctitle">🛻 TRUCKS &amp; TRAILERS 🛻</span><span class="ptag">New content</span><span class="cdate">Fri 20 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New trucks &amp; trailers!</p><p>🛻 NEW VEHICLES WITH TRAILERS🛻
+- 3 new vehicles added which come with 4 trailer types!
+
+Vehicles
+- Pick-Up Truck
+- SUV
+- Delivery Van
+
+Trailers
+- Car Trailer
+- Item Trailer
+- Cargo Box Trailer
+- Cargo Box with Window
+
+🥚🐰 Coming Soon... Easter Event begins on March 27!</p></details></li><li><details><summary><span class="cnum">43</span><span class="ctitle">🌸 CHERRY BLOSSOM 🌸</span><span class="ptag">New content</span><span class="cdate">Fri 13 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">House, Estate, and more!</p><p>🌸 Cherry Blossom 🌸
+- New free house
+- New estate
+- 2 new tools
+- 12 themed props
+
+🏫 School Update 🏫
+- New decorations added to the school!
+
+💬 More Quick Chat 💬
+- New chat options
+- Added chat categories
+
+🎨 Avatar Codes 🎨
+- Share outfits in the avatar editor!</p></details></li><li><details><summary><span class="cnum">42</span><span class="ctitle">NEW BOATS! 🛥️🌊</span><span class="ptag">New content</span><span class="cdate">Fri 6 Mar &middot; 9 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Boats &amp; Beach Plot Update</p><p>Boats &amp; Beach Plot Update
+
+🚣 2 FREE BOATS 🚣
+- 2 new, free boats can now be spawned in the ocean - a Raft &amp; a Fishing Boat!
+- Go to the beach to check them out!
+
+🚤  NEW VIP HOVERBOAT 🚤
+- New Hoverboat vehicle which can go on BOTH land and ocean has been added to VIP Gamepass!
+
+🏖️  NEW BEACH PLOT 🏖️
+- New house plot on the beach added to the Land Unlocked Gamepass!
+
+📺 Coming soon...
+A new news show is coming to town soon!
+- Sneak into the News Room inside the mall to see what’s happening behind the scenes before it goes live on social media!
+There’s always something happening in Brookhaven…</p></details></li><li><details><summary><span class="cnum">41</span><span class="ctitle">New Houses &amp; props!</span><span class="ptag">New content</span><span class="cdate">Fri 27 Feb &middot; 9 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">90s Nostalgia ✨</p><p>🪟 2 NEW HOUSES 🪟
+- New Suburban Free House
+- New Suburban Premium House
+
+🚲 NEW PROPS 🚲
+- Retro Game Console
+- CRT TV
+- Lava Lamp</p></details></li><li><details><summary><span class="cnum">40</span><span class="ctitle">UTILITY VEHICLES! 🚧⚡</span><span class="ptag">New content</span><span class="cdate">Fri 20 Feb &middot; 9 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">It’s time to get to work!</p><p>🚛 3 UTILITY VEHICLES 🚛
+- Cherrypicker Truck
+- Scissor Lift
+- Sewage Truck
+
+⚡ 17 UTILITIES PROPS ⚡
+- Breaker Panel
+- High Voltage Boxes (x3)
+- Electrical Poles (x2)
+- Transmission Tower
+- Transformers (x7)
+
+📦 PRIVATE SERVERS UPDATE 📦
+- Prop Saves
+- Server-wide Music
+- Server-wide Announcements
+- Faster Prop Spawning
+
+⚡ NEW QUICK CHAT FEATURE ⚡
+- A new Quick Chat feature has been added to make chatting in Brookhaven easier!
+- Press the new button in the **top left** of your screen to chat!
+
+🎈 PARTY IMPROVEMENTS 🎈
+- We&#x27;ve heard your feedback and made some improvements to the FREE Party Option!
+- Free parties now include some party decorations in the houses and will cost only R$9</p></details></li><li><details><summary><span class="cnum">39</span><span class="ctitle">OLYMPICS EVENT: WEEK 2!</span><span class="ptag">New content</span><span class="cdate">Fri 13 Feb &middot; 9 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Bobsled &amp; Track!</p><p>🏔️ The Olympic Winter Games Milano Cortina 2026 event is here for a second week!
+
+Get your hands on the exclusive bobsled vehicle and race down the NEW bobsled track!</p></details></li><li><details><summary><span class="cnum">38</span><span class="ctitle">🏂 WINTER OLYMPICS EVENT!</span><span class="ptag">New place</span><span class="cdate">Fri 6 Feb &middot; 10 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">🥇 Go for gold!</p><p>❄️ OLYMPIC WINTER GAMES MILANO CORTINA 2026 EVENT ❄️
+The Olympic Winter Games event is now live in Brookhaven!
+Explore the Olympic event area, ski, snowbard, and sled your way down the slopes, and dive into a limited-time winter competition experience!
+
+🏠 NEW HOUSE 🏠
+A brand-new house has arrived alongside the event! Customize it with your chosen flag and make it your home base!
+Jump in and check it out now! ⛷️🏂❄️</p></details></li><li><details><summary><span class="cnum">37</span><span class="ctitle">👮 NEW RP OUTFITS! 🧑‍🚒</span><span class="ptag">New content</span><span class="cdate">Fri 30 Jan &middot; 10 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Making RP outfits easier!</p><p>🧑‍🚒 ROLEPLAY OUTFITS 🧑‍🚒
+- Many new outfit givers added to various locations in Brookhaven for easier roleplay:
+Grocery Worker
+Hair &amp; Nails Worker
+Ice Cream Shop Worker
+Pastry Shop Worker
+Arcade Worker
+Police
+Swat
+Firefighter
+Doctor
+Nurse
+Patient
+Post Office Worker
+Daycare Worker
+Babies
+Coffee Shop Worker
+Club Brooks Server
+Bank Worker
+Airport Security
+Pilot
+Criminal
+
+🎈 HOT AIR BALLOON 🎈
+- New Hot Air Balloon flying vehicle added to VIP Gamepass
+- Balloon has 5 color and pattern variations to choose from!
+
+⛰️ NEW VEHICLE SPAWN ⛰️
+- New VIP flying vehicle spawn has been added to the top of the mountain!</p></details></li><li><details><summary><span class="cnum">36</span><span class="ctitle">🎉START A PARTY!🎉</span><span class="ptag">New feature</span><span class="cdate">Fri 23 Jan &middot; 10 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">A new feature! 🥳</p><p>🥳 START A PARTY 🥳
+- There&#x27;s a brand new way to host parties at your house in Brookhaven!
+
+✉️ INVITE FRIENDS ✉️
+- After picking a house, you&#x27;ll notice a new button at the top of your screen...
+- Click the &quot;🎉&quot; button to invite friends - both in your server and offline - to your party!
+- If someone accepts your invite, they&#x27;ll teleport right to your house when the party starts!
+
+🌮 4 PARTY TYPES 🌮
+- House Parties (FREE) - A casual get-together - perfect for hanging out with friends!
+- Birthday Party (R$25) - Celebrate your birthday in Brookhaven! Includes: birthday cake you can slice and serve to friends, confetti blasters, party blower, party hats and birthday music.
+- Dance Party (R$25) - Turn up the music and dance! Includes: disco ball with colorful lights, glow sticks, fun party sunglasses and upbeat dance music.
+- Taco Party (R$25) - Host the ultimate taco party! Includes: piñata you…</p></details></li><li><details><summary><span class="cnum">35</span><span class="ctitle">Farm House 👩‍🌾🐔</span><span class="ptag">New content</span><span class="cdate">Fri 16 Jan &middot; 10 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">New houses &amp; more!</p><p>🌾 NEW FARM HOUSES 🌾
+- New Premium House
+- New Free House
+
+🧑‍🌾 FARM TOOLS 🧑‍🌾
+- New Wheelbarrow Tool!
+- Better Shovel &amp; Bucket Tools!
+
+🐓 NEW FARM PROPS 🐓
+- Weathervane
+- Feed Trough
+- Scarecrow Boy &amp; Girl
+- Garden Gnome Boy &amp; Girl</p></details></li><li><details><summary><span class="cnum">34</span><span class="ctitle">New Cars + Vehicle Wraps!</span><span class="ptag">New content</span><span class="cdate">Fri 9 Jan &middot; 10 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New cars update!</p><p>🌾 NEW FARM HOUSES 🌾
+- New Premium House
+- New Free House
+
+🧑‍🌾 FARM TOOLS 🧑‍🌾
+- New Wheelbarrow Tool!
+- Better Shovel &amp; Bucket Tools!
+
+🐓 NEW FARM PROPS 🐓
+- Weathervane
+- Feed Trough
+- Scarecrow Boy &amp; Girl
+- Garden Gnome Boy &amp; Girl</p></details></li><li><details><summary><span class="cnum">33</span><span class="ctitle">🐺 The Wolf Den 🐺</span><span class="ptag">New content</span><span class="cdate">Fri 2 Jan &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Estate &amp; House!</p><p>Enter the Wolf Den 🐺
+
+Discover a brand-new Estate &amp; free house! Will you run solo, or rule the pack?</p></details></li><li><details><summary><span class="cnum">32</span><span class="ctitle">Winter Festival Week 2!</span><span class="ptag">Festival</span><span class="cdate">Fri 26 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New rewards!</p><p>Join us for the second week of the Winter Festival!</p></details></li><li><details><summary><span class="cnum">31</span><span class="ctitle">☃️WINTER FESTIVAL☃️</span><span class="ptag">Festival</span><span class="cdate">Fri 19 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 14 days before</span></span></summary><p class="csub">Festive fun for everyone!</p><p>🎄 BROOKHAVEN WINTER FESTIVAL 🎄
+- The Winter Festival has arrived - visit the new festival area across from spawn!
+- Santa&#x27;s Sleigh is back for Premium Gamepass owners by the Motel!
+
+❄️ EARN SNOWFLAKES ❄️
+- Earn Snowflakes by completing Winter activities:
+Ice Skating: Earn more Snowflakes the more you skate!
+Sledding: Earn Snowflakes each time you go down the sledding hill!
+Christmas Tree Obby: Completing the obby gives a big drop of Snowflakes!
+- VIP Gamepass Owners earn 2X Snowflakes!
+
+🎁 UNLOCK PRIZES 🎁
+- Trade Snowflakes to unlock special prizes which you keep forever:
+Snowman Prop
+Present Table Prop
+Gingerbread House Prop
+Snowy Bungalow House
+- VIP Owners also unlock the Sled Vehicle automatically!
+
+🏡 FROSTY MANOR BUNDLE 🏡
+- A special, limited-time house and vehicle bundle is for sale!
+- The bundle also comes with a brand new Off-Road SUV Vehicle!
+
+📅 NEXT WEEK 📅
+- More prizes will be…</p></details></li><li><details><summary><span class="cnum">30</span><span class="ctitle">LEGO® Event!</span><span class="ptag">New content</span><span class="cdate">Fri 5 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">Start your engines!</p><p>Start your engines, we&#x27;ve got four LEGO® Rides racing into Brookhaven this Friday!
+
+Available for a limited time only - don&#x27;t miss out!</p></details></li><li><details><summary><span class="cnum">29</span><span class="ctitle">💰RAGS TO RICHES! 💰</span><span class="ptag">New content</span><span class="cdate">Fri 28 Nov 2025 &middot; 11 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p>💰 2 NEW HOUSES 💰
+- 1 New Contemporary Premium House!
+- 1 New Contemporary Free House!
+
+💸 2 NEW TOOLS 💸
+- Tin Cup
+- Money Gun
+
+🪙 8 NEW PROPS 🪙
+- Cardboard Sign
+- Cardboard Box Home
+- Tin Can
+- Newspaper Carpet
+- Framed Portrait
+- Bar Table
+- Lounge Chair
+- Golden Toilet (VIP)
+
+🥶 4 NEW EMOTES 🥶
+- Shiver
+- Curled Up
+- Disgust
+- Rich (VIP)</p></details></li><li><details><summary><span class="cnum">28</span><span class="ctitle">🦃 Turkey Hunt! 🦃</span><span class="ptag">New content</span><span class="cdate">Fri 21 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Gobble gobble!</p><p>A bunch of mischievous turkeys have escaped across Brookhaven, and we’ll need everyone’s help tracking them down!
+
+Find a new turkey everyday to unlock them as a prop! PLUS we&#x27;re releasing a bunch of new fall-themed items for everyone to enjoy!</p></details></li><li><details><summary><span class="cnum">27</span><span class="ctitle">🩷Wicked Week 2💚</span><span class="ptag">New content</span><span class="cdate">Fri 14 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Wicked items!</p><p>🎞️ WICKED: FOR GOOD WEEK 2 🎞️
+- Wicked: For Good WEEK 2 is here in Brookhaven!
+
+💚 🩷 NEW WICKED HOUSES 🩷 💚
+- New Pink Glinda House!
+- New Green Elphaba House!
+
+✨ NEW WICKED PROPS ✨
+- Glinda’s Couch
+- Elphaba’s Couch
+- Glinda’s Mirror
+- Elphaba’s Mirror
+- Broom Swing</p></details></li><li><details><summary><span class="cnum">26</span><span class="ctitle">🩷Wicked: For Good💚</span><span class="ptag">New place</span><span class="cdate">Fri 7 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 8 days before</span></span></summary><p>🎞️ WICKED: FOR GOOD 🎞️
+- The Wicked: For Good Event WEEK 1 is now in Brookhaven!
+
+🏙️ EMERALD CITY 🏙️
+- Visit the Great Wizard of Oz!
+- Explore Glinda&#x27;s Apartment and fly in her Bubble!
+- Climb to the top Elphaba&#x27;s Attic to fly on her Broom!
+- Board your own Emerald City Train in the train station!
+- Explore the shops and try official Wicked UGC Items!
+
+🏡 NEW WICKED HOUSE 🏡
+- A new Glinda &amp; Elphaba Wicked house is available!
+
+🚲 NEW WICKED VEHICLE 🚲
+- New Ozian Cargo Bike with 6 variations!
+
+✨ NEW WICKED TOOLS ✨
+- Glinda&#x27;s Wand
+- Elphaba&#x27;s Broom
+- Guard Torch
+
+💚🩷 NEW WICKED PROPS 🩷💚
+- Green Bottle
+- Writing Tablet
+- Vintage Camera
+- Grimmerie
+- Glinda Banner
+- Elphaba Banner
+- Emerald City Light
+- Emerald City Booth
+- Ozian Beam Light
+- Ozian Podium
+- Ozian Gramophone
+
+💃 NEW EMOTES 💃
+- Toss Toss
+- Goodbye
+- Ozdust Dance
+
+🎵 WICKED MUSIC 🎵
+- 4 Wicked songs are available!
+
+📅 WICKED WEEK 2…</p></details></li><li><details><summary><span class="cnum">25</span><span class="ctitle">🎃 Halloween Week 2! 🎃</span><span class="ptag">New content</span><span class="cdate">Fri 31 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Week 2! 🎃👻🍬</p><p>🦇 HALLOWEEN EVENT - WEEK 2 🦇
+- Five NEW Candy Corn Hunts with five new prizes!
+
+🎃 NEW HALLOWEEN ITEMS 🎃
+Unlock the following items by completing Candy Corn hunts!
+- Halloween Sign Prop
+- Skeleton Jumpscare Prop
+- Chainsaw Tool
+- Skeleton Motorcycle
+- Golden Skeleton Motorcycle
+You keep these items forever! They won&#x27;t go away after Halloween!</p></details></li><li><details><summary><span class="cnum">24</span><span class="ctitle">🎃 Halloween! 🎃</span><span class="ptag">New content</span><span class="cdate">Fri 24 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 8 days before</span></span></summary><p>🎃 HALLOWEEN EVENT 🎃
+- Check out the new Halloween Event zone and hunt for Candy Corn to unlock Halloween Items!
+
+🦇 NEW HALLOWEEN ITEMS 🦇
+Unlock the following items by finding Candy Corns:
+- Candy Basket Tool
+- Skeleton Jump-scare Prop
+- Black Coffin Car
+- Orange Coffin Car
+- New Haunted House
+You keep these items forever!** They won&#x27;t be going away from your inventory after Halloween!
+
+🌜 MIDNIGHT MANOR 🌜
+- A new, special Halloween house--Midnight Manor--is now for sale for $199 Robux!
+- This house is only for sale during the Halloween Event!
+- Midnight Manor features Ghost Mode - where you can become ivisible and scare other players inside the house, plus other surprises!
+You keep Midnight Manor forever! It won&#x27;t be going away from your inventory after Halloween!
+
+👻 __NEXT WEEK...__ 👻
+- Five more Candy Corn Hunts and special Halloween Prizes will unlock!
+- Sign up for the event in…</p></details></li><li><details><summary><span class="cnum">23</span><span class="ctitle">Baby Update! 🍼</span><span class="ptag">New content</span><span class="cdate">Fri 17 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New baby-themed items!</p><p>🍼 BABY UPDATE 🍼
+- New Baby Rattle Tool
+- 10 New Baby Toys Props
+- New Baby Walker Vehicle
+
+🎵 NEW ED SHEERAN MUSIC 🎵
+- 4 New Songs from Ed Sheeran&#x27;s newest album &quot;Play&quot; are FREE to play in Brookhaven for a limited time
+- Play songs in Vehicles, Houses and the Boombox - you do not need the Music Unlocked Gamepass to play these songs!
+- 3 New Ed Sheeran Musical Dance Emotes which play music
+- A new concert roleplay area has been set up near the motel
+
+🕺 EMOTE SYNC 🕺
+- You can now sync your emotes with other players!
+- Click on a player who is actively using an Emote and press &quot;Sync Emotes&quot;!
+
+🎃 HALLOWEEN COUNTDOWN 🎃
+- The 2025 Brookhaven Halloween begins on October 24th!</p></details></li><li><details><summary><span class="cnum">22</span><span class="ctitle">Woodland House! 🌳</span><span class="ptag">New content</span><span class="cdate">Fri 10 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New house!</p><p>🌳 NEW WOODLAND HOUSE 🌳
+- New, free Woodland house!
+
+👨‍👩‍👦‍👧 NEW FAMILY FEATURE 👨‍👩‍👦‍👧
+- Click the new &quot;Family&quot;  button to add other players to your family!
+- Choose one of 8 family roles
+- Track your family members through the Brookhaven map (or hide the tracker!)</p></details></li><li><details><summary><span class="cnum">21</span><span class="ctitle">Military Update! 🪖</span><span class="ptag">New content</span><span class="cdate">Fri 3 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New props &amp; more!</p><p>🚁 HELICOPTER UPDATE 🚁
+- Better helicopter controls!
+- New VIP Military Helicopter with 3 Skins: Camo, Medical &amp; Agency
+
+🔦 6 NEW TOOLS 🔦
+- 5 New Guns
+- Glowing Batons
+
+📦 4 NEW PROPS 📦
+- Helipad
+- Beacon Light
+- Military Cargo Box
+- Military Cargo Bundle
+
+🏘️ TESTING: NEW HOUSE CONTROLS 🏘️
+- Improved House Controls Menus &amp; Buttons!
+- This is currently in testing and not fully available to all players!</p></details></li><li><details><summary><span class="cnum">20</span><span class="ctitle">Big City!</span><span class="ptag">New content</span><span class="cdate">Fri 26 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Play now!</p><p>🏙️ BIG CITY UPDATE 🏙️
+- Premium Brownstone House
+- Free Brownstone House
+- Newspaper Tool
+- Desk Fan Prop
+- Radiator Heater Prop
+- Coat Rack Prop
+- Shoe Rack Prop
+- Newspaper Stand Prop
+- Doormat Prop
+
+💡 MORE UNDERGLOW VEHICLES 💡
+We have added Underglow to the following vehicles:
+- Party Bike
+- 3 Semi Trucks
+- Snowplow
+- Tractor
+- Fork Lift
+- Excavator
+- Bull Dozer</p></details></li><li><details><summary><span class="cnum">19</span><span class="ctitle">Soccer Stadium!</span><span class="ptag">New content</span><span class="cdate">Fri 19 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New soccer update!</p><p>⚽ SOCCER UPDATE ⚽
+- Soccer Stadium Estate
+- Soccer Field House
+- Whistle + Referee Cards Tool
+- Foam Finger Tool
+- Snack Vendor Tool
+- Scoreboard Prop
+- Stadium Lights Prop
+- Soccer Ball Tool has brand new kicking interactions!
+
+⚙️ NEW PRIVATE SERVER CONTROLS SETTINGS ⚙️
+- Set Day of the Week
+- Set Time by the Hour
+- Speed up Time
+- Remove or Lock Props
+- Check Prop Owners
+- Set Players as Admins
+- New Kick / Ban Controls
+- New Server Theme Controls</p></details></li><li><details><summary><span class="cnum">18</span><span class="ctitle">THREE NEW VEHICLES!</span><span class="ptag">New content</span><span class="cdate">Fri 12 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">+ new customizations!</p><p>🚗 3 NEW FREE VEHICLES 🚗
+- Hot Hatch
+- Pink Compact
+- Widebody
+
+🎨 8 NEW UNDERGLOW EFFECTS 🎨
+- 8 New Vehicle Underglow Effects have been added to the game under the new &quot;Vehicle Customization Gamepass&quot;
+
+💨 NEW  GAMEPASS + OTHER GAMEPASS CHANGES) 💨
+- A New Vehicle Customization Gamepass has been added to Brookhaven - GAMEPASS CONTAINS: Underglow, Vehicle Options (Fire / Smoke / Wheel Loss, etc), Vehicle Color
+- Speed Unlocked Gamepass: Small Vehicle top speed increased (45 ➡️ 50).
+- Premium Gamepass: Vehicle Options (Fire / Smoke / Wheel Loss, etc), Vehicle Color, and  Speed Increase removed moving forward
+- Vehicle Upgrade: Vehicle Color removed moving forward. Small Vehicle top speed increased (35 ➡️ 40). Street Vehicle top speed increased (70 ➡️ 100).
+- If you already owned Premium or Vehicle Upgrade before today&#x27;s update, you keep everything you already had access to!</p></details></li><li><details><summary><span class="cnum">17</span><span class="ctitle">🏛️🪴 New Houses + Props!</span><span class="ptag">New content</span><span class="cdate">Fri 5 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">2 Houses! 8 Props!</p><p>🏛️ 2 NEW HOUSES 🏛️
+- 1 Free House
+- 1 Premium Gamepass House
+
+🪴 8 NEW PROPS 🪴
+- Artisan Carpet (Red)
+- Artisan Carpet (Blue)
+- Ceramic Vase Flower
+- Ceramic Vase Leaf
+- Ceramic Vase Shrub
+- Hanging Shrub
+- Woven Chair
+- Woven Table</p></details></li><li><details><summary><span class="cnum">16</span><span class="ctitle">☢️POWER PLANT☢️</span><span class="ptag">New content</span><span class="cdate">Fri 29 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">A brand new building!</p><p>⚠️ Everything’s under control… (probably)
+
+Construction is almost complete on Brookhaven’s next permanent build - the Power Plant!</p></details></li><li><details><summary><span class="cnum">15</span><span class="ctitle">POWER PLANT UPDATE EVENT!</span><span class="ptag">New content</span><span class="cdate">Fri 29 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 14 days before</span></span></summary><p class="csub">Don&#x27;t miss it!</p><p>Be there when the countdown ends for a limited-time event!</p></details></li><li><details><summary><span class="cnum">14</span><span class="ctitle">🏠NEW HOUSES + MORE!🏠</span><span class="ptag">New content</span><span class="cdate">Fri 15 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New houses &amp; props!</p><p>🏘️ 2 NEW HOUSES 🏘️
+- 1 Free House!
+- 1 Premium Gamepass House!
+
+🪑 7 NEW FURNITURE PROPS 🪑
+- Round Rug
+- Basic Stool
+- Rocking Chair
+- Standing Jointed Lamp
+- Small Bookshelf
+- Wooden Coffee Stand
+- Lanky Plant
+
+🐴 1 NEW FREE HORSE 🐴
+- A new free horse has been added!</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">🚗 NEW VEHICLES! 🚗</span><span class="ptag">New content</span><span class="cdate">Fri 8 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New vehicles are here!</p><p>🏎️ NEW VEHICLES 🏎️
+- New Vehicle Pack Gamepass Car - 3 Wheel Racer!
+- 2 New Free Cars - Japanese Drift &amp; Electric Convertible!
+
+🎨 PRIVATE SERVER THEMES 🎨
+- Everyone in a Private Server can now see the theme set by the Server Owner!
+- You can overwrite the theme by setting your own, but if the Server Owner changes it again - it will update to the new one they chose!</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">🏕️SUMMER CAMP!🏕️</span><span class="ptag">New content</span><span class="cdate">Fri 1 Aug 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New house, and more!</p><p>🏕️ SUMMER CAMP HOUSE 🏕️
+- New Summer Camp House with 6 variations!
+
+🏹 IMPROVED TOOL 🏹
+- Improved Bow &amp; Arrow Tool!
+
+🍳 NEW PROPS 🍳
+- Hammock Prop
+- Cooking Set Prop
+- Water Balloons Prop
+
+🐞 BUG FIX 🐞
+- Tow Truck - Fixed issue where players were unable to raise or lower the bed with the side buttons
+
+🧪 TESTING: GLOBAL GIFTING 🧪
+- Some players will now have the ability to give gifts to any player on Roblox (whether they are in your server or not)
+- This is currently in TESTING and is not yet available for everyone</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">🪁 BACKYARD FUN 🪁</span><span class="ptag">New content</span><span class="cdate">Fri 25 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">New props &amp; vehicles!</p><p>🪁 BACKYARD FUN 🪁
+- 2 New Tire Swing Props
+- Power Truck Vehicle
+- VIP Pogo Stick Vehicle</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">🐎 HORSE UPDATE</span><span class="ptag">New content</span><span class="cdate">Fri 18 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New horse update!</p><p>🐎 HORSE UPDATE 🐎
+- New sounds &amp; speeds on all horses (including the original)!
+- New Horse Brush tool!
+- 3 new Horse Jump props!
+
+🐴 BETTER HORSE GAMEPASS 🐴
+- NEW Horse Upgrade Gamepass!
+- 6 new unique horse breeds have been added to the gamepass, and 6 new horse props!
+
+🌊 OTHER UPDATES 🌊
+- Lake Madison Water Slide is back for the summer!
+- Basketball machine added to arcade!
+- You may see some new ads on the bus stops this week - keep an eye out! 👀🎞️
+
+🐞 BUG FIXES 🐞
+- Fix for some non-motored vehicles which will help issues like sinking into the ground. Fixed on: Bike, Girly Bike, Cargo Bike, Tandem Bike, Unicycle
+- Fix for issues with entering and exiting Freecam while in First Person where the mouse cursor became locked to the center of the screen</p></details></li><li><div class="cflat"><span class="cnum">9</span><span class="ctitle">🎪 SUMMER CARNIVAL!</span><span class="ptag">New content</span><span class="cdate">Thu 3 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 20 days before</span></span></div></li><li><details><summary><span class="cnum">8</span><span class="ctitle">✨ Summer House &amp; Sparkler</span><span class="ptag">New content</span><span class="cdate">Fri 20 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p>💚 NEW FREE HOUSE 💚
+- New green, summer house is now available!
+
+✨ NEW TOOL ✨
+- New Sparkler Tool!
+
+🐞 BUGFIXES 🐞
+- Fixed police helicopter not working
+- Fixed disaster button not working in one of the mansion houses
+- Fixed Premium Button surfacing VIP purchase instead of Premium
+- Fixed bug related to Music Unlocked in vehicles from Free Ad Option
+- Fixed bug which did not clear house cooldown after using Free Ad Option
+- Fixed room-change buttons not lighting up on rooftop of Firing Range House
+- Fixed order of security camera views in Firing Range House (front door first)
+- Party Bike (Premium Gamepass)</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">Firing Range Update!</span><span class="ptag">New content</span><span class="cdate">Fri 6 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p>🎯 NEW FIRING RANGE RP SET 🎯
+- Combat Training (Roof)
+- Shooting Range (Basement)
+
+🔫 5 NEW GUN SKINS 🔫
+- 2 New Revolver
+- 1 New Shotgun
+- 1 New Rifle
+- 1 New Sniper
+
+💥 5 NEW FIREARMS PROPS 💥
+- 4 New Targets
+- 1 New Gun Rack (VIP)
+
+👉 MOBILE GUN CONTROLS 👉
+Tapping anywhere on your screen now shoots guns on mobile!
+
+🐞 CHANGES🐞
+We&#x27;ve made it so that players must be physically be on your home plot to ban players from entering it</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">NEW HOUSE!</span><span class="ptag">New content</span><span class="cdate">Fri 23 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New summer house + props!</p><p>💛 NEW HOUSE 💛
+- A new summery, yellow house is now available!
+
+☀️ 5 NEW SUMMER PROPS ☀️
+- Hop-Scotch
+- Bunting Banner
+- Patio Daybed
+- Chair Swing
+- Bench Swing (VIP)</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">🎵 Boombox &amp; Arcade!</span><span class="ptag">New content</span><span class="cdate">Fri 9 May 2025 &middot; 2 years ago</span></summary><p class="csub">New Boombox &amp; Arcade!</p><p>🎵 NEW BOOMBOX TOOL 🎵
+- New Boombox Tool
+- Music Unlocked Gamepass gives ability to play music everywhere using new tool
+- 100 New Songs added to all music players (Vehicles / Houses / Boombox)
+
+🕹️ NEW COMPANION VEHICLES 🕹️
+- The Brookhaven Arcade has a new design
+- 4 new Arcade Props have also been added!
+
+✨ NEW ITEM FILTER (TESTING) ✨
+- Some players can now filter game menus to show newly added items only!
+- This feature is currently in *testing,* so it may be a little different for different players</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">Fashion Show Roleplay 👠</span><span class="ptag">New content</span><span class="cdate">Fri 25 Apr 2025 &middot; 2 years ago</span></summary><p class="csub">New Fashion Estate!</p><p>👠 FASHION SHOW ROLEPLAY 👠
+- New Fashion Show Estate
+- 4 New Tools: Camera, Scorecard, Lipstick, Makeup
+- 2 New Props: Ring Light, Umbrella Light
+- 24 New Casual &amp; Fashion Emotes... including a collaboration with Dress to Impress to bring Pose 28 to Brookhaven!
+
+🐞 BUG FIXES 🐞
+- Bugs fixed for the search bar results in the Avatar Editor!
+- Bug fixes for Muffin, Cake, Clapperboard &amp; Megaphone tools</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">🥚 Easter Event</span><span class="ptag">New content</span><span class="cdate">Fri 11 Apr 2025 &middot; 2 years ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Find all the eggs!</p><p>🥚EASTER EVENT 🥚
+- 5 difficulties of Egg Hunts: Baby, Easy, Medium, Hard, Extreme
+- 5 new rewards (1 for each difficulty): Egg Motorcycle, Easter Egg Motorcycle, Egg Monster Truck, Easter Egg Monster Truck, Egg Shooter Tool
+-  Easter Event Rewards are permanent! You keep them after the event ends!
+- 4 new props: Light Arch, Flashing Light Arch (VIP), Tube Lamp, Egg Lamp
+- Helicopter above Police Station has been updated with Egg version
+- Event ends on April 25th
+
+🎁 GIFTING 🎁
+- You can now give Gamepasses to other players as gifts!
+- Select the Gamepass you want to give from shop menu &amp; select &quot;Send Gift!&quot;</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">🎬 Movie Studio Update!</span><span class="ptag">New content</span><span class="cdate">Fri 28 Mar 2025 &middot; 2 years ago</span></summary><p class="csub">New Movie Studio RP Set</p><p>🎥 NEW MOVIE STUDIO RP SET 🎥
+- 6 Swappable Stage Sets
+- Make-Up Rooms
+- Director&#x27;s Office
+- And more...
+
+🎬 NEW MOVIE STUDIO TOOLS 🎬
+- Megaphone
+- Clapperboard
+
+👽 NEW MOVIE STUDIO PROPS 👽
+- Director Chair
+- Sandbags (x3)
+- Sci-Fi Incubator
+- Treasure Chest
+- Gold Piles (x3)
+- Mannequin</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">🧁 Cupcakes &amp; Companions!</span><span class="ptag">New place</span><span class="cdate">Fri 14 Mar 2025 &middot; 2 years ago</span></summary><p class="csub">New Pastry Shop, Vehicles</p><p>🧁 NEW PASTRY SHOP 🧁
+- New Pastry Shop! (swappable with the Ice Cream Shop)
+- New Cupcake Tool
+- New Dessert Tray Tool
+- Muffin, Donut &amp; Cake Tools are now color customizable
+- New Pastry Chef Job
+
+🚲 NEW COMPANION VEHICLES 🚲
+- Tandem Bike
+- Cargo Bike
+- Party Bike (Premium Gamepass)</p></details></li></ol><h3>Days the player count jumped</h3><p class="mut small">We flag any day that was at least 1.5 times busier than the week before it.</p><div class="wrap"><table class="tbl"><tr><th>Day</th><th>What we can tell you</th></tr><tr><td>Sat 21 Nov</td><td>1.5&times; busier &ndash; lines up with &ldquo;BUILD A LEGO® HOUSE!&rdquo;</td></tr><tr><td>Sat 14 Nov</td><td>1.6&times; busier &ndash; lines up with &ldquo;LEGO® Construction Site&rdquo;</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795806006" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>BUILD A LEGO® HOUSE!</b><span class="d esub">Time to BUILD!</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Fri 27 Nov <span class="nb">&middot; announced 24 days before</span></span><p>You&#x27;ve laid the foundations... now it&#x27;s time to BUILD! Week 2 of the LEGO® Construction Event is HERE!
 
 It&#x27;s time to grab that hard hat again, gather your tools, and get ready to build the ultimate LEGO® house!</p></li><li class="soon"><b>🪩 CLUB BROOKS! 🪩</b><span class="d esub">Get the party started!</span><span class="ptag">New place</span><span class="d">Starts Fri 27 Nov <span class="nb">&middot; announced 8 days before</span></span><p>Club Brooks is getting a MAJOR upgrade! More opening hours, a fresh new look… and WAY MORE LASERS!!!
 
@@ -1380,7 +2223,7 @@ We&#x27;re also dropping FOUR new remixes alongside all the Club Brooks bangers 
 
 PLUS, anyone can be the DJ for FREE! Just jump behind the booth, pick your music, light up the dance floor, play sound effects, and don&#x27;t forget to hit the confetti when the beat drops!
 
-Can&#x27;t wait? Join our community server for sneak peeks!</p></li></ul></div><p><a href="/game/brookhaven-rp">&larr; Back to Brookhaven RP</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+Can&#x27;t wait? Join our community server for sneak peeks!</p></li></ul></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other roleplay &amp; avatar sim games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:41" data-n="adopt me" data-s="adopt-me"><a class="tile" href="/updates/adopt-me"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-0d49b813837768f23340dce01e129d9d/256/256/Image/Webp/noFilter" alt="Adopt Me Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Adopt Me</span><span class="tmeta"><span>2 days ago</span></span></a></li><li style="--i:1;--glow:253" data-n="dress to impress dti" data-s="dress-to-impress"><a class="tile" href="/updates/dress-to-impress"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-929ff39bc1d926f3de0298cdf3470b41/256/256/Image/Webp/noFilter" alt="Dress To Impress Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Dress To Impress</span><span class="tmeta"><span>30 days ago</span></span></a></li><li style="--i:2;--glow:18" data-n="berry avenue rp" data-s="berry-avenue-rp"><a class="tile" href="/updates/berry-avenue-rp"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-dd92f1c61f8fdba589897f85adba50d1/256/256/Image/Webp/noFilter" alt="Berry Avenue RP Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Berry Avenue RP</span><span class="tmeta"><span>15 days ago</span></span></a></li><li style="--i:3;--glow:30" data-n="lifetogether rp" data-s="lifetogether-rp"><a class="tile" href="/updates/lifetogether-rp"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-833c9789861b200c45ac270fc538e656/256/256/Image/Webp/noFilter" alt="LifeTogether RP Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">LifeTogether RP</span><span class="tmeta"><span>1 month ago</span></span></a></li><li style="--i:4;--glow:345" data-n="creatures of sonaria survive kaiju animals cos" data-s="creatures-of-sonaria-survive-kaiju-animals"><a class="tile" href="/updates/creatures-of-sonaria-survive-kaiju-animals"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-e10bffb756df68f2865d487d1c9d3591/256/256/Image/Webp/noFilter" alt="Creatures of Sonaria Survive Kaiju Animals Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Creatures of Sonaria Survive Kaiju Animals</span><span class="tmeta"><span>3 days ago</span></span></a></li><li style="--i:5;--glow:88" data-n="feral animal survival" data-s="feral-animal-survival"><a class="tile" href="/updates/feral-animal-survival"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-ba1ee878687512457ecf27edd0179187/256/256/Image/Webp/noFilter" alt="FERAL Animal Survival Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">FERAL Animal Survival</span><span class="tmeta"><span>3 days ago</span></span></a></li></ul><p><a href="/game/brookhaven-rp">&larr; Back to Brookhaven RP</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -2040,7 +2883,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>

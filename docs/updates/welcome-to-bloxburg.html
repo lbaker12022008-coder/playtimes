@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Welcome to Bloxburg Updates in Order &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Welcome to Bloxburg update in order: 48 since Sat 28 Jun 2025. Latest: 🫧 Frutiger Aero 🌿 (Thu 5 Nov). Next update likely Thu 26 Nov. Changelog, update..."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Welcome to Bloxburg update in order. Next update likely Thu 26 Nov. 48 of them since Sat 28 Jun 2025. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/welcome-to-bloxburg">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Welcome to Bloxburg Updates in Order &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Welcome to Bloxburg update in order: 48 since Sat 28 Jun 2025. Latest: 🫧 Frutiger Aero 🌿 (Thu 5 Nov). Next update likely Thu 26 Nov. Changelog, update...">
+<meta property="og:description" content="Every Welcome to Bloxburg update in order. Next update likely Thu 26 Nov. 48 of them since Sat 28 Jun 2025. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/welcome-to-bloxburg"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-3362ce1a6d08bb6eb94d67d69e065178/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-3362ce1a6d08bb6eb94d67d69e065178/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,22 +1384,290 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/roleplay-avatar-sim">Roleplay &amp; Avatar Sim games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/welcome-to-bloxburg">Welcome to Bloxburg player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-975ef139ad526667e977addf45793a71/256/256/Image/Webp/noFilter" alt="Welcome to Bloxburg Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Welcome to Bloxburg updates in order</h1><p class="mut">The Welcome to Bloxburg changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Welcome to Bloxburg&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/185655149">Play Welcome to Bloxburg</a><span data-bell="all"></span><button class="fav" id="fav" data-s="welcome-to-bloxburg" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/welcome-to-bloxburg">Overview</a><a class="gtab on" href="/updates/welcome-to-bloxburg" aria-current="page">Updates</a><a class="gtab" href="/events/welcome-to-bloxburg">Events</a><a class="gtab" href="/questions/welcome-to-bloxburg">Questions</a><a class="gtab" href="/passes/welcome-to-bloxburg">Costs</a></nav></div></div><div class="card"><h2>Welcome to Bloxburg changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Welcome to Bloxburg update?</h3><p>Most likely <b>Thu 26 Nov around 12 PM UTC</b>. Its updates usually land on a Thursday, roughly every 7 days, going by the last 49 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>4 days ago</b> (Thu 19 Nov).</p><h3>Latest Welcome to Bloxburg updates</h3><ul class="evt"><li class=""><b>🫧 Frutiger Aero 🌿</b><span class="d esub">Frutiger Aero Items</span><span class="ptag">New items</span><span class="d">Thu 5 Nov &middot; 18 days ago <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers!
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/roleplay-avatar-sim">Roleplay &amp; Avatar Sim games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/welcome-to-bloxburg">Welcome to Bloxburg player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-975ef139ad526667e977addf45793a71/256/256/Image/Webp/noFilter" alt="Welcome to Bloxburg Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Welcome to Bloxburg updates in order</h1><p class="mut">The Welcome to Bloxburg changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Welcome to Bloxburg&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/185655149">Play Welcome to Bloxburg</a><span data-bell="all"></span><button class="fav" id="fav" data-s="welcome-to-bloxburg" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/welcome-to-bloxburg">Overview</a><a class="gtab on" href="/updates/welcome-to-bloxburg" aria-current="page">Updates</a><a class="gtab" href="/events/welcome-to-bloxburg">Events</a><a class="gtab" href="/questions/welcome-to-bloxburg">Questions</a><a class="gtab" href="/passes/welcome-to-bloxburg">Costs</a></nav></div></div><div class="card"><h2>Welcome to Bloxburg changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Welcome to Bloxburg update?</h3><p>Most likely <b>Thu 26 Nov around 12 PM UTC</b>. Its updates usually land on a Thursday, roughly every 7 days, going by the last 49 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>4 days ago</b> (Thu 19 Nov).</p><h3>Every Welcome to Bloxburg update in order</h3><p class="mut small">All 48 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 28 Jun 2025. Roblox sorts them into 7 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 45 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">48</span><span class="ctitle">🫧 Frutiger Aero 🌿</span><span class="ptag">New items</span><span class="cdate">Thu 5 Nov &middot; 18 days ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Frutiger Aero Items</p><p>Hej Bloxburgers!
 This is no ordinary furniture from the deep blue underworld, these are the new and futuristic Frutiger Aero items!
-Coming next Thursday, November 5.</p></li><li class=""><b>🛁 Victorian Items! 🚗</b><span class="d esub">Items + prebuilt</span><span class="ptag">New items</span><span class="d">Thu 29 Oct &middot; 25 days ago <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers!! 👋
+Coming next Thursday, November 5.</p></details></li><li><details open><summary><span class="cnum">47</span><span class="ctitle">🛁 Victorian Items! 🚗</span><span class="ptag">New items</span><span class="cdate">Thu 29 Oct &middot; 25 days ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Items + prebuilt</p><p>Hej Bloxburgers!! 👋
 
-Even more of Victor Von Vlox’s furniture has been discovered around Bloxburg! Explore a new collection of Victorian-themed items 🛁, take a ride in Victor and Helen’s very own Victorian vehicle 🚗, and step inside a beautiful new Victorian-themed prebuilt! 🏡</p></li><li class=""><b>🏚️ New Prebuilt 🧙</b><span class="d esub">&#x27;Mourning Manor&#x27; Prebuilt</span><span class="ptag">New content</span><span class="d">Thu 22 Oct &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span><p>With its potion room, creaky floors and old tale mysteries, this Mourning Manor prebuilt is not for the faint of heart. Do you dare to set foot inside? 🫣</p></li><li class=""><b>🦇 Gothic Items 🪞</b><span class="d esub">Gothic Inspired Items</span><span class="ptag">New items</span><span class="d">Thu 15 Oct &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers! 👋
-Things are about to get even spookier with this upcoming Gothic Items update! 🍄</p></li><li class=""><b>Halloween Event</b><span class="d esub">Minigames &amp; Items</span><span class="ptag">New season</span><span class="d">Thu 8 Oct &middot; 1 month ago <span class="nb">&middot; announced 5 days before</span></span><p>Hej Bloxburgers! 👋
+Even more of Victor Von Vlox’s furniture has been discovered around Bloxburg! Explore a new collection of Victorian-themed items 🛁, take a ride in Victor and Helen’s very own Victorian vehicle 🚗, and step inside a beautiful new Victorian-themed prebuilt! 🏡</p></details></li><li><details open><summary><span class="cnum">46</span><span class="ctitle">🏚️ New Prebuilt 🧙</span><span class="ptag">New content</span><span class="cdate">Thu 22 Oct &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">&#x27;Mourning Manor&#x27; Prebuilt</p><p>With its potion room, creaky floors and old tale mysteries, this Mourning Manor prebuilt is not for the faint of heart. Do you dare to set foot inside? 🫣</p></details></li><li><details><summary><span class="cnum">45</span><span class="ctitle">🦇 Gothic Items 🪞</span><span class="ptag">New items</span><span class="cdate">Thu 15 Oct &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Gothic Inspired Items</p><p>Hej Bloxburgers! 👋
+Things are about to get even spookier with this upcoming Gothic Items update! 🍄</p></details></li><li><details><summary><span class="cnum">44</span><span class="ctitle">Halloween Event</span><span class="ptag">New season</span><span class="cdate">Thu 8 Oct &middot; 2 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Minigames &amp; Items</p><p>Hej Bloxburgers! 👋
 Spooky season is back in Bloxburg! 🎃
-Play different Halloween activities and earn money 💵 explore spooky Halloween locations 👻 decorate your house with a variety of Halloween items 🦇 &amp; MORE!!</p></li><li class=""><b>🍂 Fall Items 🚜</b><span class="d esub">New Fall Items + Season!</span><span class="ptag">New season</span><span class="d">Thu 24 Sep &middot; 1 month ago <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers!
+Play different Halloween activities and earn money 💵 explore spooky Halloween locations 👻 decorate your house with a variety of Halloween items 🦇 &amp; MORE!!</p></details></li><li><details><summary><span class="cnum">43</span><span class="ctitle">🍂 Fall Items 🚜</span><span class="ptag">New season</span><span class="cdate">Thu 24 Sep &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New Fall Items + Season!</p><p>Hej Bloxburgers!
 The grass has dried and the trees are showing their beautiful colors.
-This can only mean one thing, fall is coming to Bloxburg!</p></li></ul><h3>Every Welcome to Bloxburg update in order</h3><p class="mut small">All 48 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 28 Jun 2025.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>48</td><td>🫧 Frutiger Aero 🌿</td><td>Thu 5 Nov</td></tr><tr><td>47</td><td>🛁 Victorian Items! 🚗</td><td>Thu 29 Oct</td></tr><tr><td>46</td><td>🏚️ New Prebuilt 🧙</td><td>Thu 22 Oct</td></tr><tr><td>45</td><td>🦇 Gothic Items 🪞</td><td>Thu 15 Oct</td></tr><tr><td>44</td><td>Halloween Event</td><td>Thu 8 Oct</td></tr><tr><td>43</td><td>🍂 Fall Items 🚜</td><td>Thu 24 Sep</td></tr><tr><td>42</td><td>🔨 Hollow Gable Roofs 🏠</td><td>Thu 17 Sep</td></tr><tr><td>41</td><td>🍽️ Kitchen Clutter 🍝</td><td>Thu 10 Sep</td></tr><tr><td>40</td><td>🚗 Vehicle Spawning 📱</td><td>Thu 3 Sep</td></tr><tr><td>39</td><td>🪑 Boho Items 🪴</td><td>Thu 27 Aug</td></tr><tr><td>38</td><td>🏫 Back to School 🎒</td><td>Thu 20 Aug</td></tr><tr><td>37</td><td>🏡 New Prebuilt ☀️</td><td>Thu 13 Aug</td></tr><tr><td>36</td><td>🛋️ Scandi Furniture 🛏️</td><td>Thu 6 Aug</td></tr><tr><td>35</td><td>🎂10 Year Anniversary🥳</td><td>Fri 31 Jul</td></tr><tr><td>34</td><td>❄️ Utility Items 🌡️</td><td>Tue 28 Jul</td></tr><tr><td>33</td><td>🌳 Backyard Hangout 🐦</td><td>Thu 23 Jul</td></tr><tr><td>32</td><td>🌴 Beach Items 🏖️</td><td>Thu 16 Jul</td></tr><tr><td>31</td><td>🌞 Summer Festival 🔍</td><td>Thu 9 Jul</td></tr><tr><td>30</td><td>🏖️ Pier Revamp 🎡</td><td>Thu 2 Jul</td></tr><tr><td>29</td><td>🏛️Town Hall Revamp 📍</td><td>Wed 17 Jun</td></tr><tr><td>28</td><td>🛋️ Rustic Items 🚪</td><td>Thu 11 Jun</td></tr><tr><td>27</td><td>👵 Elder Age 🧶</td><td>Thu 4 Jun</td></tr><tr><td>26</td><td>🔨 Building Improvements</td><td>Thu 28 May</td></tr><tr><td>25</td><td>🥐 Café Items 🥖</td><td>Wed 13 May</td></tr><tr><td>24</td><td>🌼 Spring Items 🌷</td><td>Thu 7 May</td></tr><tr><td>23</td><td>🏡 New Prebuilt 🌳</td><td>Wed 29 Apr</td></tr><tr><td>22</td><td>🍼 Baby Store + Items 👶</td><td>Thu 23 Apr</td></tr><tr><td>21</td><td>⚡Faster Progression 📈</td><td>Thu 16 Apr</td></tr><tr><td>20</td><td>🗺️ Minimap 📍</td><td>Thu 9 Apr</td></tr><tr><td>19</td><td>🏡 New Prebuilt ❕</td><td>Thu 2 Apr</td></tr><tr><td>18</td><td>🥚 Easter Event 🐰</td><td>Thu 26 Mar</td></tr><tr><td>17</td><td>🚪 Doors + Windows 🪟</td><td>Thu 19 Mar</td></tr><tr><td>16</td><td>🩰 Dance Studio 👯</td><td>Thu 12 Mar</td></tr><tr><td>15</td><td>🏯 Eastern Asian Items 🍵</td><td>Thu 26 Feb</td></tr><tr><td>14</td><td>🧧 Lunar New Year ✨</td><td>Tue 17 Feb</td></tr><tr><td>13</td><td>✨ Fancy Kitchen Set 💗</td><td>Thu 12 Feb</td></tr><tr><td>12</td><td>💖 Valentine&#x27;s 💕</td><td>Thu 5 Feb</td></tr><tr><td>11</td><td>🛋️ New Furniture Set</td><td>Thu 22 Jan</td></tr><tr><td>10</td><td>🚕 New Job + New Year&#x27;s🎆</td><td>Mon 29 Dec 2025</td></tr><tr><td>9</td><td>Holiday Movies + Prebuilt</td><td>Thu 18 Dec 2025</td></tr><tr><td>8</td><td>🧝 Elf Hunt 🔎</td><td>Tue 9 Dec 2025</td></tr><tr><td>7</td><td>❄️ Winter Modern House 🏠</td><td>Mon 8 Dec 2025</td></tr><tr><td>6</td><td>❄️ Winter Update ⛄</td><td>Thu 27 Nov 2025</td></tr><tr><td>5</td><td>🛋️ New Furniture Drop</td><td>Thu 20 Nov 2025</td></tr><tr><td>4</td><td>🛋️Furniture Store Revamp</td><td>Thu 13 Nov 2025</td></tr><tr><td>3</td><td>🎃 Halloween 🎃</td><td>Thu 9 Oct 2025</td></tr><tr><td>2</td><td>🎓 High School 🎓</td><td>Sat 27 Sep 2025</td></tr><tr><td>1</td><td>🗺️ NEW MAP! [METEOR 🌠]</td><td>Sat 28 Jun 2025</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795698015" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>📱 Electronics 🖥️</b><span class="d esub">New Electronic Items</span><span class="ptag">New items</span><span class="d">Happening now &middot; ends Thu 26 Nov <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers!! 👋
+This can only mean one thing, fall is coming to Bloxburg!</p></details></li><li><details><summary><span class="cnum">42</span><span class="ctitle">🔨 Hollow Gable Roofs 🏠</span><span class="ptag">New feature</span><span class="cdate">Thu 17 Sep &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">The long awaited feature!</p><p>It&#x27;s timeeeee!! Mariah Carey may not be defrosting just yet, but you’re definitely getting a gift…
+Because the Hollow Gable Roofs update is coming next week, September 17th!!
+What are you going to be building first?</p></details></li><li><details><summary><span class="cnum">41</span><span class="ctitle">🍽️ Kitchen Clutter 🍝</span><span class="ptag">New items</span><span class="cdate">Thu 10 Sep &middot; 2 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New clutter items!</p><p>Time to spice up your kitchen with the upcoming Kitchen Clutter update! 🍽️</p></details></li><li><details><summary><span class="cnum">40</span><span class="ctitle">🚗 Vehicle Spawning 📱</span><span class="ptag">New feature</span><span class="cdate">Thu 3 Sep &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Spawn your vehicles!</p><p>Hej Bloxburgers!! 👋
+Are you ready for a brand new way of going around Bloxburg?
+With the Vehicle Spawning Update, you can spawn your vehicles anywhere on the map and buy or sell cars straight from the new app! 🚗📱</p></details></li><li><details><summary><span class="cnum">39</span><span class="ctitle">🪑 Boho Items 🪴</span><span class="ptag">New items</span><span class="cdate">Thu 27 Aug &middot; 3 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">New furniture + decor!</p><p>Add a touch of personality to your home, with these new Boho furniture items!</p></details></li><li><details><summary><span class="cnum">38</span><span class="ctitle">🏫 Back to School 🎒</span><span class="ptag">New content</span><span class="cdate">Thu 20 Aug &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New items + features!</p><p>It&#x27;s time to head back to school!! Get ready for brand new school items and features to make your next school year in Bloxburg even more exciting!! 📒🎒</p></details></li><li><details><summary><span class="cnum">37</span><span class="ctitle">🏡 New Prebuilt ☀️</span><span class="ptag">New content</span><span class="cdate">Thu 13 Aug &middot; 3 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">A Tuscan mansion!</p><p>A new Tuscan inspired summer home is coming soon! ☀️ Designed by our content creator capdo, this prebuilt brings Mediterranean charm, warm tones, and the perfect summer getaway to Bloxburg!</p></details></li><li><details><summary><span class="cnum">36</span><span class="ctitle">🛋️ Scandi Furniture 🛏️</span><span class="ptag">New items</span><span class="cdate">Thu 6 Aug &middot; 4 months ago <span class="nb">&middot; announced 26 days before</span></span></summary><p class="csub">New furniture + decor!</p><p>Hej Bloxburgers!
+
+We see how much you are liking the Scandi items we&#x27;ve added a while back, and are thrilled to announce that we are expanding on this set!
+
+This update comes with a Scandi chair, dining table, couch and more. Everything you need to make your interior Scandi themed! 🛋️
+
+And don&#x27;t forget to check out the new prebuilt called &quot;Simply Scandi&quot;. 🪑
+
+Changes:
+- Added More Items To Scandi Furniture Set
+- Added New Prebuilt &quot;Simply Scandi&quot;</p></details></li><li><details><summary><span class="cnum">35</span><span class="ctitle">🎂10 Year Anniversary🥳</span><span class="ptag">New content</span><span class="cdate">Fri 31 Jul &middot; 4 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Celebration + rewards</p><p>Hej Bloxburgers!! 👋
+
+Can you believe it&#x27;s been this long?? This week, we&#x27;re celebrating 10 years of Bloxburg!🎉
+
+Play Bloxburg between now and August 7th to enjoy boosted job earnings 💵 , explore past events and iconic items on the giant cake in town 🎂 and claim an exclusive anniversary trophy you&#x27;ll cherish forever! 🏆</p></details></li><li><details><summary><span class="cnum">34</span><span class="ctitle">❄️ Utility Items 🌡️</span><span class="ptag">New items</span><span class="cdate">Tue 28 Jul &middot; 4 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Utility Items</p><p>Hej Bloxburgers!!
+You&#x27;ve been asking for more functional home essentials and we&#x27;re excited to finally bring them to Bloxburg! From AC units and fans to water heaters and more, your homes are about to become a whole lot more practical! 🌡️🥵❄️
+
+Changes:
+- Added Utility items</p></details></li><li><details><summary><span class="cnum">33</span><span class="ctitle">🌳 Backyard Hangout 🐦</span><span class="ptag">New items</span><span class="cdate">Thu 23 Jul &middot; 4 months ago <span class="nb">&middot; announced 13 days before</span></span></summary><p class="csub">Backyard themed items!</p><p>Hej Bloxburgers!!
+Summer means spending more time outside, and these new backyard hangout items will be the perfect addition to your garden! From a plastic chair and table, a new bamboo set, to a kids&#x27; playhouse. We made sure there&#x27;s plenty for all ages!
+
+Changes:
+Added Bamboo Furniture Set
+Added New Backyard Hangout Furniture</p></details></li><li><details><summary><span class="cnum">32</span><span class="ctitle">🌴 Beach Items 🏖️</span><span class="ptag">New items</span><span class="cdate">Thu 16 Jul &middot; 4 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New furniture + foods!</p><p>Beach days are calling... With our new beach inspired furniture, decor, and foods! Coming July 16th! ☀️🌴</p></details></li><li><details><summary><span class="cnum">31</span><span class="ctitle">🌞 Summer Festival 🔍</span><span class="ptag">Festival</span><span class="cdate">Thu 9 Jul &middot; 5 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Festival Location + Items</p><p>Hej Bloxburgers!!
+
+Summer has officially arrived, and we’re celebrating with the newly added Summer Festival! We’ve added new food options such as churros and Bahn Mi, included some Summer themed items into the mix, and more!
+
+Don’t forget to take out your new longboard and head into the city to explore the Summer Festival location. 🏖️
+
+See you there!
+
+Changes:
+- Added Summer Festival Location
+- Added Summer Inspired Items
+- Added New Foods
+- Added New Vehicle</p></details></li><li><details><summary><span class="cnum">30</span><span class="ctitle">🏖️ Pier Revamp 🎡</span><span class="ptag">New place</span><span class="cdate">Thu 2 Jul &middot; 5 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Revamped pier + items!</p><p>The Bloxburg Pier is getting a revamp just in time for summer!! ☀️ Get ready to enjoy sunny days by the water as new activities and attractions make their way to the Pier! 🏖️🎡</p></details></li><li><details><summary><span class="cnum">29</span><span class="ctitle">🏛️Town Hall Revamp 📍</span><span class="ptag">New place</span><span class="cdate">Wed 17 Jun &middot; 5 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Revamped location + items</p><p>Hej Bloxburgers!!
+
+Tom can&#x27;t wait to welcome you to the town’s most important building (according to him) featuring new roleplay opportunities and secrets, a new town seal and soundtrack! 🎵
+
+Changes:
+- Revamped Town Hall building 🏛️
+- Added New Furniture
+- Added New Game Soundtrack🎵</p></details></li><li><details><summary><span class="cnum">28</span><span class="ctitle">🛋️ Rustic Items 🚪</span><span class="ptag">New items</span><span class="cdate">Thu 11 Jun &middot; 5 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Rustic furniture + items!</p><p>Hej Bloxburgers!!
+There’s nothing quite like the warmth of rustic living! Whether you’re building a cozy countryside cabin or a charming farmhouse, this update brings a collection of rustic inspired furniture to help make your builds feel even more warm and welcoming! 🛏️🪟
+
+Changes:
+- Added rustic furniture,
+- Added rustic build mode items</p></details></li><li><details><summary><span class="cnum">27</span><span class="ctitle">👵 Elder Age 🧶</span><span class="ptag">New feature</span><span class="cdate">Thu 4 Jun &middot; 6 months ago <span class="nb">&middot; announced 9 days before</span></span></summary><p class="csub">New age morph + items!</p><p>Hej Bloxburgers!
+
+I may be called granny, but I&#x27;m still young at heart! 👵
+That&#x27;s because I use tools such as a safety rail in my toilet, a walker, or my cane, when I&#x27;m feeling fancy.
+Now.. I&#x27;m off cruising on my mobility scooter, because I need yarn for my knitting basket!
+
+Changes:
+- Added Elder Morph
+- Added Movement Speed Toggle (PC = Shift Key)
+- Removed Sprint Stamina
+- Added Mobility Aids &amp; Other Build Mode Items
+- Added New Vehicles 🛵
+- Added New Prebuilt Called &quot;Granny&#x27;s Garden&quot;</p></details></li><li><details><summary><span class="cnum">26</span><span class="ctitle">🔨 Building Improvements</span><span class="ptag">New feature</span><span class="cdate">Thu 28 May &middot; 6 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Tools + improvements!</p><p>Hej Bloxburgers!!
+This update is for all of our builders out there (Skilled or Rookies)! 🔨
+We know just how many hours can go into creating the perfect build! That&#x27;s why, with this update, we wanted to make the building experience feel even smoother in Bloxburg, no matter if you have been building for years or are placing your very first walls!
+
+Changes:
+- Adjusted camera sensitivity to match Roblox settings
+- Added a new box placement option (walls, fences, floors, roofs)
+- Added a new chain placement option (walls, fences, structurals, paths)
+- Separated the transform tool into two: move and rotation
+- Added improved visuals for building tools
+- Added updated keybindings</p></details></li><li><details><summary><span class="cnum">25</span><span class="ctitle">🥐 Café Items 🥖</span><span class="ptag">New content</span><span class="cdate">Wed 13 May &middot; 6 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">New food + decorations!</p><p>Bonjour Bloxburgers!
+Time to drive your new moped through the city on a sunny day,
+enjoy a croissant for breakfast, or build your own French Café.
+And don&#x27;t forget to get a baguette!
+
+Changes:
+- Added French Café Inspired Build Mode Items
+- Added French Foods
+- Added 2 New Vehicles</p></details></li><li><details><summary><span class="cnum">24</span><span class="ctitle">🌼 Spring Items 🌷</span><span class="ptag">New content</span><span class="cdate">Thu 7 May &middot; 7 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">New plants + garden items</p><p>Hej Bloxburgers!!
+
+Flowers are blooming, the weather is getting warmer, and you know what that means… Spring is officially here! 🌷
+
+And what better way to celebrate than with a fresh seasonal update? The Spring &amp; Garden Update is here, bringing you a variety of spring-themed items perfect for decorating your gardens! 🌼
+
+Changes:
+- Added Garden Furniture
+- Added New Plants</p></details></li><li><details><summary><span class="cnum">23</span><span class="ctitle">🏡 New Prebuilt 🌳</span><span class="ptag">New content</span><span class="cdate">Wed 29 Apr &middot; 7 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">A suburban mansion!</p><p>Our new prebuilt, Magnolia Mansion by Phoeberry, is the perfect spot for your family roleplays! With plenty of space for the whole family (especially the little ones) and a spacious garden, it&#x27;s ideal for hosting guests and enjoying a beautiful sunny day! 🏡
+
+Available in the catalog now!</p></details></li><li><details><summary><span class="cnum">22</span><span class="ctitle">🍼 Baby Store + Items 👶</span><span class="ptag">New place</span><span class="cdate">Thu 23 Apr &middot; 7 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New location + items!</p><p>Hej Bloxburgers!!
+
+Are you ready to bring your family roleplays to life? With brand new baby items, animations, and a brand new kids store, this update gives you everything you need to create cozy nurseries, shop for kids essentials, and welcome little ones into your home! 👶🍼
+
+Changes:
+- Added Kid Store Location
+- Added New Baby Items
+- Added New Baby Animations
+- Added Waypoints to the Full Screen Map
+- Added Minimap Open/Close Save State
+- Fixed Players Appearing in Ocean on the Minimap</p></details></li><li><details><summary><span class="cnum">21</span><span class="ctitle">⚡Faster Progression 📈</span><span class="ptag">New feature</span><span class="cdate">Thu 16 Apr &middot; 7 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Earn rewards quicker!</p><p>Hej Bloxburgers!!
+
+Levelling up in both jobs and skills is now significantly quicker! ⚡ Making it easier to get for example the taxi from the taxi job, the free sauna unlockable while levelling up your athletic skill, more plants from gardening, foods locked behind levels and many more!
+
+Changes:
+- Rebalanced skills, classes and jobs</p></details></li><li><details><summary><span class="cnum">20</span><span class="ctitle">🗺️ Minimap 📍</span><span class="ptag">New feature</span><span class="cdate">Thu 9 Apr &middot; 8 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">Minimap feature!</p><p>Hej Bloxburgers!!
+
+Are you constantly getting lost in Bloxburg?
+Don&#x27;t worry, because getting around just got a whole lot easier! The new full map and minimap help you navigate the town like never before, whether you&#x27;re exploring, roleplaying, meeting up with friends, or heading to work! With a clear view of nearby builds, paths and other players, you&#x27;ll always know exactly where you are and where you&#x27;re going! 🗺️
+
+Changes:
+- Added a full map &amp; minimap
+- Added a player list
+- Removed Easter</p></details></li><li><details><summary><span class="cnum">19</span><span class="ctitle">🏡 New Prebuilt ❕</span><span class="ptag">New content</span><span class="cdate">Thu 2 Apr &middot; 8 months ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">New prebuilt home!</p><p>A new Tudor style home created by Stanasaur is coming soon!</p></details></li><li><details><summary><span class="cnum">18</span><span class="ctitle">🥚 Easter Event 🐰</span><span class="ptag">New content</span><span class="cdate">Thu 26 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">How egg-citing!</p><p>Hej Bloxburgers!
+
+We’re egg-cited to hop into Easter with you for the first time! 🐰
+
+Eggs-plore the newly added world decor, challenge some-bunny to collect the most eggs during the new mini-game in the town center, and take a peep at the new build mode items! 🥚
+
+Changes:
+
+- Added Egg Collecting Mini-Game In Town Center
+- Added Easter Related Build Mode Items
+- Added New Food
+- Decorated Town For Easter</p></details></li><li><details><summary><span class="cnum">17</span><span class="ctitle">🚪 Doors + Windows 🪟</span><span class="ptag">New items</span><span class="cdate">Thu 19 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New doors + windows!</p><p>Hej Bloxburgers!
+
+No more window shopping - Now you can finally buy the windows (and doors!)
+Give your house a fresh new look with stylish windows and doors that fit every vibe. Creating a modern home? We&#x27;ve got you covered! Starting a new business? New commercial doors are ready for you! Want some fresh air without stepping into the cold? Try out our new French balconies!
+
+It&#x27;s time to let the light in - one window and door at a time! 🚪
+
+Changes:
+- Added new windows
+- Added new doors
+- Bug fixes, including items turning bright blue unexpectedly</p></details></li><li><details><summary><span class="cnum">16</span><span class="ctitle">🩰 Dance Studio 👯</span><span class="ptag">New place</span><span class="cdate">Thu 12 Mar &middot; 8 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New location + items!</p><p>Hej Bloxburgers!! Time to put on your tutu&#x27;s and pirouette into the new Dance Studio in Bloxburg! 🩰
+
+Tombelina&#x27;s will for sure help you get your moves &#x27;en pointe&#x27;.
+And 5, 6, 7, 8! Positions... here&#x27;s whats new!
+
+Changes:
+- Added Tombelina&#x27;s Dance Studio Location
+- Added Dance Inspired Items</p></details></li><li><details><summary><span class="cnum">15</span><span class="ctitle">🏯 Eastern Asian Items 🍵</span><span class="ptag">New items</span><span class="cdate">Thu 26 Feb &middot; 9 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New items + prebuilt!</p><p>Hej Bloxburgers!
+
+Grab a Matcha Latte, because we just dropped East Asia-inspired items in build mode!
+
+Relax on your futon bed and enjoy your surroundings with the new Shoji furniture set, tend to your bonsai tree, and attract fortune and prosperity by placing a lucky cat in your home.
+
+Changes:
+- Added East Asian inspired furniture &amp; decor
+- Added new windows &amp; doors
+- Added new &quot;Peaceful Pavilion&quot; prebuilt house</p></details></li><li><details><summary><span class="cnum">14</span><span class="ctitle">🧧 Lunar New Year ✨</span><span class="ptag">New content</span><span class="cdate">Tue 17 Feb &middot; 9 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">Lunar New Year arrives!</p><p>Join us for Bloxburg’s first ever Lunar New Year celebration and welcome the Year of the Horse! Explore a festively decorated event area filled with new decorations, delicious foods, and traditions bringing good fortune and energy to the town!</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">✨ Fancy Kitchen Set 💗</span><span class="ptag">New items</span><span class="cdate">Thu 12 Feb &middot; 9 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">New cabinets + more!</p><p>Hej Bloxburgers!
+
+Love is still in the air, and if you&#x27;re the kind of person who prefers a cozy night in cooking your own meals, we&#x27;ve got you covered this Valentine&#x27;s!
+
+Give your home date the perfect setting with the new fancy kitchen set. Designed to pair beautifully with the fancy furniture set, these elegant and stylish pieces are sure to wow anyone who steps into your kitchen!
+
+Changes:
+- Added new fancy kitchen set</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">💖 Valentine&#x27;s 💕</span><span class="ptag">New content</span><span class="cdate">Thu 5 Feb &middot; 10 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">Love is in the air!</p><p>Hej Bloxburgers!
+
+The season of LOVE is back in Bloxburg! The birds are chirping, the snow has melted, and you can smell the daffodils all around you.
+
+It&#x27;s the perfect time to add some lovely Valentine’s items to your plot, and visit the decorated town center, whether you’re alone or with friends, there’s loads of fun to be had! 💖
+
+Changes:
+- Added new Valentine’s decorations 🌷
+- Added “Sterling Sunliner Convertible” Vehicle 🚗✨
+- Re-added existing Valentine’s items, foods, materials, etc.
+- Decorated town center with a Valentine’s themed location at City Hall
+- Added Valentine&#x27;s themed Main Menu and Logo
+- Removed snow and winter themed items and locations</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">🛋️ New Furniture Set</span><span class="ptag">New items</span><span class="cdate">Thu 22 Jan &middot; 10 months ago</span></summary><p class="csub">Affordable design items!</p><p>Hej Bloxburgers!
+
+The first update of the year is finally here! And if your home has been begging for a little glow-up after the holidays, we&#x27;ve got you covered! Check out the build mode items inspired by affordable design - available in the build mode catalog and on display at Fancy Furniture!
+
+This furniture set is only available until February 5th, so be sure to buy it while you can!</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">🚕 New Job + New Year&#x27;s🎆</span><span class="ptag">New content</span><span class="cdate">Mon 29 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">New taxi job! 🚕</p><p>Hej Bloxburgers!
+
+New year, new career! Help people get to their location with the newly added taxi job and location, or build your own garage with the new items added to build mode! Don’t forget to check out the Scandi Furniture Set &amp; New Year’s items 🚕
+
+Available in Bloxburg, NOW!
+
+Happy 2026, Bloxburgers! 🎇</p></details></li><li><details><summary><span class="cnum">9</span><span class="ctitle">Holiday Movies + Prebuilt</span><span class="ptag">New content</span><span class="cdate">Thu 18 Dec 2025 &middot; 11 months ago</span></summary><p class="csub">4x new movies + prebuilt!</p><p>Four brand new holiday themed short movies are premiering at the theater! Grab your popcorn and a comfy seat, and enjoy the show! 🍿
+
+- Her Last Christmas
+- Ice Rink
+- The Elf Hunt
+- We Saw Santa
+
+There&#x27;s also a brand new winter themed prebuilt house, Snowstone Suite, created by SoyFessy! This cozy two story home brings the holiday charm features three bedrooms and three bathrooms. 🏠</p></details></li><li><details><summary><span class="cnum">8</span><span class="ctitle">🧝 Elf Hunt 🔎</span><span class="ptag">New content</span><span class="cdate">Tue 9 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">The elves return! 🍪</p><p>Santa&#x27;s elves have gone missing across the new map and he needs your help finding them! Maybe you can lure them back with some items and foods?
+
+Visit the Elder Elf by Santa&#x27;s Photo Op to start your elf hunting adventures! 🔎
+
+Check out the Winter Event hub (❄️ button) to track your progress and access hints!</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">❄️ Winter Modern House 🏠</span><span class="ptag">New content</span><span class="cdate">Mon 8 Dec 2025 &middot; 11 months ago</span></summary><p class="csub">New prebuilt house!</p><p>We’ve just released a new prebuilt made by Capdo! 🏠
+
+&quot;Icebound Icon&quot; features three bedrooms and three bathrooms, and comes predecorated for the holidays too. This modern house is perfect for your holiday gatherings, winter festivities, and more! 🎄
+
+Available in the prebuilt catalog now!</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">❄️ Winter Update ⛄</span><span class="ptag">New content</span><span class="cdate">Thu 27 Nov 2025 &middot; 11 months ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">It&#x27;s timeeee! 🧊</p><p>Winter has finally arrived in Bloxburg, covering the map with snow and holiday fun! ❄️
+
+Whether you&#x27;re decorating your home, skating across the ice, or sipping a hot drink by the fire, this update is filled with cozy activities to enjoy and keep you warm all season long! ⛄
+
+Changes:
+- Added winter-themed decorations and foods
+- Added new kitchen appliances and clutter
+- Added new winter activity: Snowplowing
+- Added winter animatronic
+- Added an improved ice rink
+- Re-added snow and winter-themed locations, items, decorations, and activities
+- Re-added Santa&#x27;s Photo Op and Tom&#x27;s Tree Lot
+- Re-added ability to make snowmen, snow angels, and throw snowballs
+- Re-added Winter Calendar
+- Re-added Winter Activities
+- Re-added Winter Market
+- Re-added winter soundtrack
+- Minor bug fixes</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">🛋️ New Furniture Drop</span><span class="ptag">New items</span><span class="cdate">Thu 20 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">Midcentury items!</p><p>Hej Bloxburgers!!
+
+It’s time to sit back, relax and pick your favorite vinyls to play on the newly added record players! 📻
+
+Are you stanning Sailor Twift, Cordelia Lumber, or do you prefer the Rockin’ Beats of The Jones?
+
+All their vinyls and record players are ready for you, together with a new Midcentury bookcase to display them on, a Midcentury TV for when you’re not listening to music and more Midcentury additions.
+
+Changes:
+- New Midcentury furniture and decorations
+- New vinyls and record players
+- New materials
+- Furniture Store discount increased to 15% off
+- A new &quot;The Twist&quot; animation</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">🛋️Furniture Store Revamp</span><span class="ptag">New place</span><span class="cdate">Thu 13 Nov 2025 &middot; 1 year ago</span></summary><p class="csub">Fancy Furniture&#x27;s New Era</p><p>Hej Bloxburgers!! 👋
+
+A brand-new update has arrived - and while it&#x27;s not QUITE winter yet, this one comes with a special surprise! Our beloved Susan has finally seen her dreams come true with a completely renovated Fancy Furniture Store!
+
+No longer stuck in 2016, Fancy Furniture is more stylish than ever, this update is sure to inspire you to redecorate your home in true Bloxburg fashion!
+
+Changes:
+
+- Renovated the Furniture Store
+- Added a post-modern furniture set
+- Added new materials
+- Minor bug fixes</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">🎃 Halloween 🎃</span><span class="ptag">New content</span><span class="cdate">Thu 9 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">It&#x27;s spooky season! 👻</p><p>🕸️ Something spooky is creeping into the town of Bloxburg! 🕸️
+
+🎃 Explore our exclusive seasonal map locations, including the Plenty O&#x27; Pumpkins &amp; Orchard farm
+🕹️ Hunt down ghosts or hide from hunters in our thrilling Ghost Hunt, or join spooky Halloween activities to collect even more tickets!
+🍬 Go trick or treating with friends, dress up in the daily costume theme or visit the right locations around town for bonus tickets!
+👻 Help restless ghosts by brewing their daily potion requests
+🍂 Transform your house for the season with cozy autumn items, Halloween decor, or bring back the charm of the past with the new additions to the Victorian set!
+
+Are you ready to step into the spirit of Halloween once more?</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">🎓 High School 🎓</span><span class="ptag">New place</span><span class="cdate">Sat 27 Sep 2025 &middot; 1 year ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">It&#x27;s time for school!🔔</p><p>The brand-new Bloxburg High School is opening its doors!
+
+✏️ Level up your grades by completing class minigames to climb your way through the ranks of seniority! Each level in your education means a permanent raise to all job earnings! 🤑
+🧑‍🏫 Want to command the classroom instead? Take charge with the brand new teacher job
+🎒 Customize your locker and choose a backpack to make your style stand out in the halls
+🏫 Transform spaces and swap between different themes from dazzling theatrical productions to special events or even some cafeteria chaos
+📚 Explore plenty of new items to make your own builds come to life
+
+Step into campus life? Your Bloxburg school adventure begins soon!🔔</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">🗺️ NEW MAP! [METEOR 🌠]</span><span class="ptag">New map</span><span class="cdate">Sat 28 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">It&#x27;s time to rebuild!</p><p>🚨 BREAKING NEWS! 🚨
+
+A massive mysterious meteor is heading right towards the town! 🌠 As chaos unfolds, Mayor Tom and the brave citizens are racing to evacuate, save what they can, and prepare for a total transformation… 🌆💥
+
+After the destruction… comes something incredible: A BRAND NEW MAP! 🗺️
+
+Get ready for a fresh start with all-new sights, scenery, and secrets to uncover. When the meteor dust settles, you’ll step into a reimagined world filled with many possibilities!
+
+New Map Highlights:
+
+🏡 A cozy and inviting town center
+🧭 New locations to discover + some familiar favorites
+🏞️ Scenic plot locations to inspire your creations
+🛣️ A bigger and better road network for cruising around
+🔍 Hidden secrets waiting to be found...
+
+✨ The future of Bloxburg is almost here — will you be there when the skies fall? You won&#x27;t want to miss this!</p></details></li></ol></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="nextline">Next event in <span class="cd" data-at="1795698015" data-done="moments"></span></p><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>📱 Electronics 🖥️</b><span class="d esub">New Electronic Items</span><span class="ptag">New items</span><span class="d">Happening now &middot; ends Thu 26 Nov <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers!! 👋
 
 It’s not Winter just yet, but this update brings you some gift worthy goodies! 🎁
 It’s time to introduce a range of electronics to Bloxburg! Think phones, computers, headsets, and so much more! 📱
 Are you ready to upgrade your setup? 🖥️</p></li><li class="soon"><b>❄️ Winter ⛸️</b><span class="d esub">Winter is coming! ☃️</span><span class="ptag">New season</span><span class="d">Starts Thu 26 Nov <span class="nb">&middot; announced 6 days before</span></span><p>Hej Bloxburgers! 👋
 The weather for next week is.. SNOW STORM. 🌨️
-Winter is coming to Bloxburg and is bringing back activities, including the new Skating Spotlight minigame, Snow Storms which give you a money boost when Snow Plowing, the winter market will return, new and existing winter items are coming and much more! ☃️</p></li></ul></div><p><a href="/game/welcome-to-bloxburg">&larr; Back to Welcome to Bloxburg</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+Winter is coming to Bloxburg and is bringing back activities, including the new Skating Spotlight minigame, Snow Storms which give you a money boost when Snow Plowing, the winter market will return, new and existing winter items are coming and much more! ☃️</p></li></ul></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other roleplay &amp; avatar sim games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:19" data-n="dubai rp" data-s="dubai-rp"><a class="tile" href="/updates/dubai-rp"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-c1b85e5782082ff3864d30a3a6a32014/256/256/Image/Webp/noFilter" alt="Dubai RP Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Dubai RP</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:1;--glow:271" data-n="catalog avatar runway" data-s="catalog-avatar-runway"><a class="tile" href="/updates/catalog-avatar-runway"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-f31086ecbf5aa081e809ac637f3c6388/256/256/Image/Webp/noFilter" alt="Catalog Avatar Runway Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Catalog Avatar Runway</span><span class="tmeta"><span>2 months ago</span></span></a></li><li style="--i:2;--glow:332" data-n="emergency hamburg" data-s="emergency-hamburg"><a class="tile" href="/updates/emergency-hamburg"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-4fa3810643d898c1facb259f971cd1d9/256/256/Image/Webp/noFilter" alt="Emergency Hamburg Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Emergency Hamburg</span><span class="tmeta"><span>7 days ago</span></span></a></li><li style="--i:3;--glow:26" data-n="mukbang game" data-s="mukbang-game"><a class="tile" href="/updates/mukbang-game"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-239f5851e51b28061a5d2d5ad1cd2bff/256/256/Image/Webp/noFilter" alt="Mukbang Game Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Mukbang Game</span><span class="tmeta"><span>8 days ago</span></span></a></li><li style="--i:4;--glow:23" data-n="dreamville rp" data-s="dreamville-rp"><a class="tile" href="/updates/dreamville-rp"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-c73e7af47ee841b0adf1b271d4e3c112/256/256/Image/Webp/noFilter" alt="Dreamville RP Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Dreamville RP</span><span class="tmeta"><span>30 days ago</span></span></a></li><li style="--i:5;--glow:88" data-n="feral animal survival" data-s="feral-animal-survival"><a class="tile" href="/updates/feral-animal-survival"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-ba1ee878687512457ecf27edd0179187/256/256/Image/Webp/noFilter" alt="FERAL Animal Survival Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">FERAL Animal Survival</span><span class="tmeta"><span>3 days ago</span></span></a></li></ul><p><a href="/game/welcome-to-bloxburg">&larr; Back to Welcome to Bloxburg</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -1995,7 +2327,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>

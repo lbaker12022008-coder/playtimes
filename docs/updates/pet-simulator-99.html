@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Pet Simulator 99 Updates in Order &amp; Changelog | PlayTime</title>
-<meta name="description" content="Every Pet Simulator 99 update in order: 49 since Sat 7 Sep 2024. Latest: 🎃 ??? 🎃 (Sat 14 Nov). Next update likely Sat 28 Nov. Changelog, update log and..."><meta name="theme-color" content="#A855F7">
+<meta name="description" content="Every Pet Simulator 99 update in order. Next update likely Sat 28 Nov. 49 of them since Sat 7 Sep 2024. Changelog, update log and player count jumps."><meta name="theme-color" content="#A855F7">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://playtimestats.com/updates/pet-simulator-99">
 <meta property="og:type" content="website"><meta property="og:site_name" content="PlayTime">
 <meta property="og:title" content="Pet Simulator 99 Updates in Order &amp; Changelog | PlayTime">
-<meta property="og:description" content="Every Pet Simulator 99 update in order: 49 since Sat 7 Sep 2024. Latest: 🎃 ??? 🎃 (Sat 14 Nov). Next update likely Sat 28 Nov. Changelog, update log and...">
+<meta property="og:description" content="Every Pet Simulator 99 update in order. Next update likely Sat 28 Nov. 49 of them since Sat 7 Sep 2024. Changelog, update log and player count jumps.">
 <meta property="og:url" content="https://playtimestats.com/updates/pet-simulator-99"><meta property="og:image" content="https://tr.rbxcdn.com/180DAY-8eedacc4d881664ef0c017e307757e21/768/432/Image/Webp/noFilter"><meta name="twitter:card" content="summary_large_image">
 <meta property="article:modified_time" content="2026-11-23">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +122,19 @@ background:linear-gradient(to bottom,transparent 0,transparent 32%,var(--bg) 97%
    track to fit its contents, so one wide child dragged .w to 1347px inside a 390px
    phone and every page scrolled sideways. min-width:0 alone does not stop that. */
 .shell>*{min-width:0;max-width:100%}
+/* The way past the bar for somebody using a keyboard. It is the first thing in
+   the page and so the first thing Tab reaches, and it sits off-screen until it is
+   focused. Measured before adding it: a keyboard user passed 12 to 16 controls -
+   the logo, the game picker, eight section links, the search button and the menu -
+   on every page of the site before reaching a word of the page itself.
+   The header is sticky and about 65px tall, so #content carries the same
+   scroll-margin-top the bento cards do, or the jump lands with the first heading
+   hidden underneath the bar. */
+.skip{position:absolute;left:-9999px;top:0;z-index:40}
+.skip:focus{left:8px;top:8px;background:var(--acc);color:var(--btnink);padding:10px 14px;
+  border-radius:10px;font-weight:700;text-decoration:none}
+#content{scroll-margin-top:78px}
+@media(max-width:620px){#content{scroll-margin-top:68px}}
 /* ...and that max-width:100% is one class, exactly like a plain .w, so it beat
    .w's own max-width on source order and the reading pages ran the full width of
    the window: Privacy, Terms, About, Events, Compare and Plan measured 1920px
@@ -264,6 +277,20 @@ transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 button,.btn,.chip,select{font:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .ans p{margin:.35em 0;font-size:1.1rem}
+/* The twelve-hour answer on /plan is drawn by script once data.json has come
+   down, and it is about 790px tall on a phone and 770 on a computer - measured
+   at 320, 390, 620, 900, 1280 and 1920. Holding that space open from the start
+   is what keeps the cards under it still: without it the page drew short and
+   everything below jumped a screen when the data landed, which measured 0.70 of
+   layout shift against Google's limit of 0.1. It is min-height, so the answer
+   is free to be taller. */
+#out{min-height:760px}
+@media(max-width:620px){#out{min-height:800px}}
+/* The how-much-it-matters line sits under the busiest and quietest hours and is
+   a remark on them rather than a third fact of the same weight, so it is smaller
+   and muted. Two classes, because .ans p above is one and so is anything later
+   that might claim a plain .swing. */
+.ans p.swing{font-size:.95rem;color:var(--mut);margin-top:.6em}
 
 /* top bar, with the sections across the top */
 .hdr{position:sticky;top:0;z-index:9;background:var(--glass);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-bottom:6px}
@@ -978,6 +1005,42 @@ background:var(--card);color:var(--mut);cursor:pointer;text-decoration:none;min-
 .evt .esub{display:block}
 .evt .nb{white-space:nowrap}
 .evt p{margin:.3em 0;font-size:.95rem;white-space:pre-line}
+.habits{margin:10px 0 0;padding-left:20px}
+.habits li{margin:.4em 0}
+/* The changelog list on /updates/<game>. Every selector is written under .chg
+   so it is two classes deep: a bare .cnum or .ctitle would be one class and, in
+   this stylesheet, a later one-class rule elsewhere would quietly beat it. */
+.chg{list-style:none;padding:0;margin:10px 0}
+.chg li{border-top:1px solid var(--line)}
+.chg li:last-child{border-bottom:1px solid var(--line)}
+.chg summary,.chg .cflat{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:9px 2px}
+.chg summary{cursor:pointer;color:inherit;font-weight:400;margin:0}
+.chg summary:hover{background:var(--soft)}
+.chg summary:hover .ctitle,.chg details[open] .ctitle{color:var(--acc)}
+/* The little triangle, drawn as two rotated borders the way .gdesc and .howto
+   draw theirs - no character and no escape, because this CSS lives inside an
+   ordinary Python string and a backslash would be eaten before the browser saw
+   it. Giving a <summary> a display of flex REMOVES the browser's own marker, so
+   without this the rows look like plain text: the intro promised a triangle and
+   nothing on the page was clickable-looking. Caught in a screenshot, not in the
+   markup. It leads rather than trails, so on a phone, where the row wraps, it
+   stays next to the number instead of stranding itself on a line of its own. */
+.chg summary::-webkit-details-marker{display:none}
+.chg summary{list-style:none}
+.chg summary::before{content:"";flex:none;align-self:center;width:7px;height:7px;
+  border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);
+  transform:translateX(-1px) rotate(-45deg);transition:transform .2s}
+.chg details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+.chg .cflat{padding-left:19px}
+.chg .cnum{color:var(--mut);font-size:.85rem;min-width:2.4em;
+  font-variant-numeric:tabular-nums}
+.chg .ctitle{flex:1 1 200px;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.chg .cdate{color:var(--mut);font-size:.85rem}
+.chg p{margin:0 0 10px;padding:0 2px 0 calc(2.4em + 27px);font-size:.95rem;
+  color:var(--mut);white-space:pre-line;overflow-wrap:anywhere}
+.chg .csub{font-weight:600;color:var(--ink)}
+@media(max-width:620px){.chg p{padding-left:2px}}
 .cd{font-size:1.4rem;font-weight:800;display:block;margin:.1em 0}
 .sel{padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
 .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
@@ -1307,6 +1370,7 @@ document.addEventListener('click',function(e){
 var a=e.target.closest&&e.target.closest('[data-back]');if(!a)return;
 if(history.length>1&&document.referrer.indexOf(location.origin+'/')===0){
 e.preventDefault();history.back()}});</script></head><body>
+<a class="skip" href="#content">Skip to the page</a>
 <div class="banner" aria-hidden="true"><img src="https://tr.rbxcdn.com/180DAY-8eedacc4d881664ef0c017e307757e21/768/432/Image/Webp/noFilter" alt="" decoding="async" fetchpriority="low"></div><header class="hdr"><div class="in"><div class="hrow">
 <a class="logo" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D8B4FE"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#lg)"/><circle cx="16" cy="16" r="11" fill="none" stroke="#0A0A0F" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" stroke-dasharray="52 69" transform="rotate(-90 16 16)"/><path d="M13.4 11.2 21.6 16l-8.2 4.8z" fill="#0A0A0F"/></svg><span class="wordmark">Play<b>Time</b></span></a>
 <div class="gpick" id="gpick"></div>
@@ -1320,13 +1384,13 @@ e.preventDefault();history.back()}});</script></head><body>
 <a class="more" href="/plan" data-hn="plan">Plan</a></nav><div class="gap"></div>
 <div class="acctbar"></div><div class="nots"></div><button class="iconb deskonly" data-search type="button" aria-label="Search for a game"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></button><button class="iconb" id="menubtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg></button></div></div></header><div class="drawer" id="drawer" hidden><div class="dtop"><div class="acct"></div><div class="notsrow"></div><button class="drow" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search for a game</span></button><a class="drow" href="/install"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.4h2v5.2l1.9-1.9 1.4 1.4L8 10.4 3.7 6.1l1.4-1.4L7 6.6z"/><path d="M2.6 12h10.8a1 1 0 0 1 0 2H2.6a1 1 0 0 1 0-2z"/></svg><span>Get the app</span></a></div><nav aria-label="Sections"><a href="/" data-sec="home">All games</a><a href="/growing" data-sec="growing">Growing</a><a href="/shrinking" data-sec="shrinking">Shrinking</a><a href="/events" data-sec="events">Event calendar</a><a href="/compare" data-sec="compare">Compare games</a><a href="/plan" data-sec="plan">Plan a session</a><a href="/busiest-hours">When is Roblox busiest?</a><a href="/about">About</a></nav><div class="dbot"><button class="drow themeic" data-themebtn type="button"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v3.1m0 14.6v3.1M4.6 4.6l2.2 2.2m10.4 10.4 2.2 2.2M1.6 12h3.1m14.6 0h3.1M4.6 19.4l2.2-2.2M17.2 6.8l2.2-2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A9.2 9.2 0 1 1 9.8 3 7.4 7.4 0 0 0 21 14.2z"/></svg><span class="tlab">Dark mode</span></button></div></div><div class="amenu" id="amenu" hidden></div><div class="sheet" id="sheet" hidden><div class="sheetbox"><input id="q" type="search" placeholder="Search for a game" aria-label="Search for a game"><div id="qout" class="qout"></div></div></div><nav class="tabbar" aria-label="Quick links"><button class="tbb" data-search type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1.5a5.5 5.5 0 1 0 3.37 9.85l3.14 3.14a1 1 0 0 0 1.42-1.42l-3.14-3.14A5.5 5.5 0 0 0 7 1.5zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg><span>Search</span></button><a class="tbb" href="/#favs" data-tb="favs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.4l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Saved</span></a><a class="tbb" href="/events" data-tb="events"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.3" y="2.8" width="13.4" height="11.9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.3 6.4h13.4M5 1.3v2.8M11 1.3v2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Events</span></a><a class="tbb" href="/plan" data-tb="plan"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.3v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a></nav>
 <div class="shell">
-<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/pet-simulator-99">Pet Simulator 99 player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-63becb4804c7165e6bbe3c21017590ec/256/256/Image/Webp/noFilter" alt="Pet Simulator 99 Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Pet Simulator 99 updates in order</h1><p class="mut">The Pet Simulator 99 changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Pet Simulator 99&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/8737899170">Play Pet Simulator 99</a><span data-bell="all"></span><button class="fav" id="fav" data-s="pet-simulator-99" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/pet-simulator-99">Overview</a><a class="gtab on" href="/updates/pet-simulator-99" aria-current="page">Updates</a><a class="gtab" href="/events/pet-simulator-99">Events</a><a class="gtab" href="/questions/pet-simulator-99">Questions</a><a class="gtab" href="/passes/pet-simulator-99">Costs</a></nav></div></div><div class="card"><h2>Pet Simulator 99 changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Pet Simulator 99 update?</h3><p>Most likely <b>Sat 28 Nov around 4 PM UTC</b>. Its updates usually land on a Saturday, roughly every 14 days, going by the last 50 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Latest Pet Simulator 99 updates</h3><ul class="evt"><li class=""><b>🎃 ??? 🎃</b><span class="d esub">🌈 Something BIG grows..</span><span class="ptag">New content</span><span class="d">Sat 14 Nov &middot; 9 days ago <span class="nb">&middot; announced 4 days before</span></span><p>🎃 Something BIG is growing.. 🍂
+<div class="w wide"><div class="topnav"><a class="back" href="/" data-back aria-label="Back to all games" title="Back to all games">&larr; Back</a><nav class="crumbs" aria-label="Breadcrumb"><a href="/">All games</a><span aria-hidden="true">&rsaquo;</span><a href="/category/simulation">Simulation games</a><span aria-hidden="true">&rsaquo;</span><a href="/game/pet-simulator-99">Pet Simulator 99 player count</a><span aria-hidden="true">&rsaquo;</span><span aria-current="page">Updates in order</span></nav></div><main id="content"><div class="ghead rise"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-63becb4804c7165e6bbe3c21017590ec/256/256/Image/Webp/noFilter" alt="Pet Simulator 99 Roblox game icon" width="256" height="256" loading="eager" fetchpriority="high" decoding="async"><div><h1>Pet Simulator 99 updates in order</h1><p class="mut">The Pet Simulator 99 changelog: every update and event the creators have announced, when it landed, when the next one is likely, and the days Pet Simulator 99&rsquo;s player count jumped.</p><div class="actions"><a class="btn" href="https://www.roblox.com/games/8737899170">Play Pet Simulator 99</a><span data-bell="all"></span><button class="fav" id="fav" data-s="pet-simulator-99" aria-pressed="false">&#9734; Save</button></div><nav class="gtabs" aria-label="This game"><a class="gtab" href="/game/pet-simulator-99">Overview</a><a class="gtab on" href="/updates/pet-simulator-99" aria-current="page">Updates</a><a class="gtab" href="/events/pet-simulator-99">Events</a><a class="gtab" href="/questions/pet-simulator-99">Questions</a><a class="gtab" href="/passes/pet-simulator-99">Costs</a></nav></div></div><div class="card"><h2>Pet Simulator 99 changelog</h2><span data-bell="updates"></span><p class="nextline" id="nextupd"></p><p id="pattern" class="mut small"></p><h3>When is the next Pet Simulator 99 update?</h3><p>Most likely <b>Sat 28 Nov around 4 PM UTC</b>. Its updates usually land on a Saturday, roughly every 14 days, going by the last 50 updates and busy days. That is a pattern, not an announcement: the creators can always change it.</p><p>The creators last changed something in the game <b>today</b> (Mon 23 Nov).</p><h3>Every Pet Simulator 99 update in order</h3><p class="mut small">All 49 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 7 Sep 2024. Roblox sorts them into 7 kinds, shown beside each one. The newest are open already; press the triangle on any of the other 46 to read what the creators said.</p><ol class="chg"><li><details open><summary><span class="cnum">49</span><span class="ctitle">🎃 ??? 🎃</span><span class="ptag">New content</span><span class="cdate">Sat 14 Nov &middot; 9 days ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">🌈 Something BIG grows..</p><p>🎃 Something BIG is growing.. 🍂
 
 🏡 Your very own ISLAND!
 🌈 The rarer it is.. the BIGGER it gets!
 👀 And that&#x27;s not even all!
 
-🔔 Follow event for more news! 📰</p></li><li class=""><b>🧡 FREE HUGE! 🖤</b><span class="d esub">🎁 SEASON PASS WEEK 4! 💎</span><span class="ptag">New items</span><span class="d">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 2 days before</span></span><p>🎟️ NEW SEASON PASS: Week 4! 👻
+🔔 Follow event for more news! 📰</p></details></li><li><details open><summary><span class="cnum">48</span><span class="ctitle">🧡 FREE HUGE! 🖤</span><span class="ptag">New items</span><span class="cdate">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">🎁 SEASON PASS WEEK 4! 💎</p><p>🎟️ NEW SEASON PASS: Week 4! 👻
 
 🎃 Earn a FREE mystery HUGE PET!
 🍬 + NEW BOOTH &amp; HOVERBOARD!
@@ -1335,7 +1399,7 @@ e.preventDefault();history.back()}});</script></head><body>
 
 ✨ Quest to earn new exclusive items ✨
 
-⚠️ Rewards available only this week! ⚠️</p></li><li class=""><b>🎃 HALLOWEEN GAMES! 👻</b><span class="d esub">🕛 Are you BRAVE enough?</span><span class="ptag">New content</span><span class="d">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 6 days before</span></span><p>🎃 UPDATE 100 lands on HALLOWEEN! 👻
+⚠️ Rewards available only this week! ⚠️</p></details></li><li><details open><summary><span class="cnum">47</span><span class="ctitle">🎃 HALLOWEEN GAMES! 👻</span><span class="ptag">New content</span><span class="cdate">Sat 31 Oct &middot; 23 days ago <span class="nb">&middot; announced 6 days before</span></span></summary><p class="csub">🕛 Are you BRAVE enough?</p><p>🎃 UPDATE 100 lands on HALLOWEEN! 👻
 
 🕛 Let the HALLOWEEN GAMES begin..
 🧟 Only the bravest make it to the end!
@@ -1344,7 +1408,7 @@ e.preventDefault();history.back()}});</script></head><body>
 
 ❓ Can you survive the NIGHT? ❓
 
-🔔 Follow event for more news! 📰</p></li><li class=""><b>🎁 FREE HUGE! 🐣</b><span class="d esub">💎 SEASON PASS - WEEK 3!</span><span class="ptag">New items</span><span class="d">Sat 24 Oct &middot; 30 days ago <span class="nb">&middot; announced 3 days before</span></span><p>🎟️ NEW SEASON PASS: Week 3!
+🔔 Follow event for more news! 📰</p></details></li><li><details><summary><span class="cnum">46</span><span class="ctitle">🎁 FREE HUGE! 🐣</span><span class="ptag">New items</span><span class="cdate">Sat 24 Oct &middot; 30 days ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">💎 SEASON PASS - WEEK 3!</p><p>🎟️ NEW SEASON PASS: Week 3!
 
 🎁 Earn a FREE HUGE PET!
 🐣 + NEW BOOTH &amp; HOVERBOARD!
@@ -1353,7 +1417,7 @@ e.preventDefault();history.back()}});</script></head><body>
 
 ✨ Quest to earn new exclusive items ✨
 
-⚠️ Rewards available only this week! ⚠️</p></li><li class=""><b>⭐ Update 99 ⭐</b><span class="d esub">🐾 PLAY PSX Classic! 🎉</span><span class="ptag">New content</span><span class="d">Sat 24 Oct &middot; 30 days ago <span class="nb">&middot; announced 5 days before</span></span><p>🎉 PLAY Pet Simulator X CLASSIC! 🎉
+⚠️ Rewards available only this week! ⚠️</p></details></li><li><details><summary><span class="cnum">45</span><span class="ctitle">⭐ Update 99 ⭐</span><span class="ptag">New content</span><span class="cdate">Sat 24 Oct &middot; 30 days ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">🐾 PLAY PSX Classic! 🎉</p><p>🎉 PLAY Pet Simulator X CLASSIC! 🎉
 
 💥 PSX is now on PS99!
 🌍 The Update 99 gate is OPEN!
@@ -1365,7 +1429,7 @@ e.preventDefault();history.back()}});</script></head><body>
 
 ⛺ Diamond Mountain REFRESH!
 💎 More diamonds, eggs, and pets!
-✨ HUGE, TITANIC, &amp; GARG chance!</p></li><li class=""><b>🎁 FREE HUGE! 🍂</b><span class="d esub">💎 SEASON PASS - WEEK 2!</span><span class="ptag">New items</span><span class="d">Sun 18 Oct &middot; 1 month ago</span><p>🎟️ NEW SEASON PASS: Week 2! ⛺
+✨ HUGE, TITANIC, &amp; GARG chance!</p></details></li><li><details><summary><span class="cnum">44</span><span class="ctitle">🎁 FREE HUGE! 🍂</span><span class="ptag">New items</span><span class="cdate">Sun 18 Oct &middot; 1 month ago</span></summary><p class="csub">💎 SEASON PASS - WEEK 2!</p><p>🎟️ NEW SEASON PASS: Week 2! ⛺
 
 🎁 Earn a FREE HUGE Hiker Raccoon!
 🍁 + NEW BOOTH &amp; HOVERBOARD!
@@ -1374,7 +1438,254 @@ e.preventDefault();history.back()}});</script></head><body>
 
 ✨ Quest to earn new exclusive items ✨
 
-⚠️ Rewards available only this week! ⚠️</p></li></ul><h3>Every Pet Simulator 99 update in order</h3><p class="mut small">All 49 updates and events the creators have put on Roblox, newest first. Number 1 is the first we know of, from Sat 7 Sep 2024.</p><div class="wrap"><table class="tbl"><tr><th>#</th><th>Update or event</th><th>Date</th></tr><tr><td>49</td><td>🎃 ??? 🎃</td><td>Sat 14 Nov</td></tr><tr><td>48</td><td>🧡 FREE HUGE! 🖤</td><td>Sat 31 Oct</td></tr><tr><td>47</td><td>🎃 HALLOWEEN GAMES! 👻</td><td>Sat 31 Oct</td></tr><tr><td>46</td><td>🎁 FREE HUGE! 🐣</td><td>Sat 24 Oct</td></tr><tr><td>45</td><td>⭐ Update 99 ⭐</td><td>Sat 24 Oct</td></tr><tr><td>44</td><td>🎁 FREE HUGE! 🍂</td><td>Sun 18 Oct</td></tr><tr><td>43</td><td>💎 DIAMOND MOUNTAIN! 🏔️</td><td>Sat 17 Oct</td></tr><tr><td>42</td><td>🎟️ NEW SEASON PASS! 👻</td><td>Sat 10 Oct</td></tr><tr><td>41</td><td>⚔️ HATCH WARS! 🎃</td><td>Sat 3 Oct</td></tr><tr><td>40</td><td>⛏️ SPACE MINE! 🚀</td><td>Sat 26 Sep</td></tr><tr><td>39</td><td>🕹️ COIN ARCADE! 👾</td><td>Sat 12 Sep</td></tr><tr><td>38</td><td>⚡ LUCKY BLOCK BLITZ!</td><td>Sat 29 Aug</td></tr><tr><td>37</td><td>🍀 LUCKY BLOCK BREAKOUT!</td><td>Sat 22 Aug</td></tr><tr><td>36</td><td>🎉 ??? 🎉</td><td>Sat 15 Aug</td></tr><tr><td>35</td><td>🌻 PETS vs COINS! 🪙</td><td>Sat 1 Aug</td></tr><tr><td>34</td><td>👆 TAP HEROES! ⚔️</td><td>Sat 11 Jul</td></tr><tr><td>33</td><td>⚽ WORLD CUP! 🥅</td><td>Sat 27 Jun</td></tr><tr><td>32</td><td>👁️ BACKROOMS League! 👁️</td><td>Sat 20 Jun</td></tr><tr><td>31</td><td>🎈 The BACKROOMS 🖍️</td><td>Sat 13 Jun</td></tr><tr><td>30</td><td>🎲 RNG PART 2! ✨</td><td>Sat 16 May</td></tr><tr><td>29</td><td>🐱 RNG EVENT! 🎲</td><td>Sat 9 May</td></tr><tr><td>28</td><td>⚙️ Combine-o-Matic!</td><td>Sat 2 May</td></tr><tr><td>27</td><td>⚔️ Time Trials League</td><td>Sat 2 May</td></tr><tr><td>26</td><td>🎉 Free HUGE Pet! 🐶</td><td>Wed 22 Apr</td></tr><tr><td>25</td><td>🐣 SPRING Event! 🌸</td><td>Sat 18 Apr</td></tr><tr><td>24</td><td>🏆 RACE UPDATE! 🏆</td><td>Sat 21 Mar</td></tr><tr><td>23</td><td>🍀 GARGANTUAN RAID! 🍀</td><td>Sat 14 Mar</td></tr><tr><td>22</td><td>🎉 NEW YEARS EVENT! 🎉</td><td>Thu 1 Jan</td></tr><tr><td>21</td><td>🎅 CHRISTMAS UPDATE! 🎄</td><td>Sat 20 Dec 2025</td></tr><tr><td>20</td><td>🍂 Autumn Event! 🌽</td><td>Sat 22 Nov 2025</td></tr><tr><td>19</td><td>🎁 ADMIN ABUSE! 💎</td><td>Sat 18 Oct 2025</td></tr><tr><td>18</td><td>🎃 SpoOky EVENT! 👻</td><td>Sat 18 Oct 2025</td></tr><tr><td>17</td><td>😎 LIVE EVENT! ☀️</td><td>Sat 12 Jul 2025</td></tr><tr><td>16</td><td>🌞 BLOCK PARTY! 🌴</td><td>Sat 12 Jul 2025</td></tr><tr><td>15</td><td>💪 Hit the GYM! 😎</td><td>Sat 28 Jun 2025</td></tr><tr><td>14</td><td>⚔️ Tower Defense! 🏹</td><td>Sat 14 Jun 2025</td></tr><tr><td>13</td><td>🏀 SLAM DUNK your PET! 🏀</td><td>Sat 31 May 2025</td></tr><tr><td>12</td><td>🌈 Grow RAINBOW Pets! 🌱</td><td>Sat 24 May 2025</td></tr><tr><td>11</td><td>⭐ Grow an Egg! 🥚</td><td>Sat 17 May 2025</td></tr><tr><td>10</td><td>🌟 WORLD 4 IS HERE! 🌟</td><td>Sat 10 May 2025</td></tr><tr><td>9</td><td>🐰 EGG HUNT! 🐣</td><td>Sat 26 Apr 2025</td></tr><tr><td>8</td><td>⚠️ Login for FREE HUGE!</td><td>Sat 19 Apr 2025</td></tr><tr><td>7</td><td>🍀 Lucky Raid Event! 🍀</td><td>Sat 8 Mar 2025</td></tr><tr><td>6</td><td>💖 Valentine’s Tower! 💖</td><td>Sat 8 Feb 2025</td></tr><tr><td>5</td><td>⭐ PET GAMES! ⭐</td><td>Sat 11 Jan 2025</td></tr><tr><td>4</td><td>GARGANTUAN PETS</td><td>Sat 21 Dec 2024</td></tr><tr><td>3</td><td>Mega Present Event!</td><td>Sat 14 Dec 2024</td></tr><tr><td>2</td><td>Halloween Event! 🎃</td><td>Sat 19 Oct 2024</td></tr><tr><td>1</td><td>Saturday Update! 🔥</td><td>Sat 7 Sep 2024</td></tr></table></div></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>🦃 TURKEY HUNT! 🍁</b><span class="d esub">🍁 Catch the #1 PET!</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 28 Nov <span class="nb">&middot; announced 2 days before</span></span><p>🦃 TURKEY HUNT is coming! 🍁
+⚠️ Rewards available only this week! ⚠️</p></details></li><li><details><summary><span class="cnum">43</span><span class="ctitle">💎 DIAMOND MOUNTAIN! 🏔️</span><span class="ptag">New content</span><span class="cdate">Sat 17 Oct &middot; 1 month ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">⭐ Be first to the top!</p><p>🔔 This SATURDAY! 📆
+
+💎💎💎
+
+🍂 Reach the summit! ❄️</p></details></li><li><details><summary><span class="cnum">42</span><span class="ctitle">🎟️ NEW SEASON PASS! 👻</span><span class="ptag">New items</span><span class="cdate">Sat 10 Oct &middot; 1 month ago</span></summary><p class="csub">🎁 FREE HUGE! 🎃</p><p>🎟️ The NEW SEASON PASS is here! 🎃
+
+🎁 Earn a FREE HUGE Hippokin!
+🦇 + BOOTH &amp; HOVERBOARD!
+💎 Many DIAMONDS to claim!
+🍀 Tier III BURSTS, gifts &amp; more!
+
+⚠️ This week ONLY!! ⚠️</p></details></li><li><details><summary><span class="cnum">41</span><span class="ctitle">⚔️ HATCH WARS! 🎃</span><span class="ptag">New content</span><span class="cdate">Sat 3 Oct &middot; 2 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🍀 Luck gets SPoOKY! 👻</p><p>🎃 The SpOoKy HATCH WARS! 👻
+
+⚔️ Try to out-hatch spooky BOSSES!
+🍀 Grab LUCKY ORBS, more luck &amp; speed!
+🎃 Feed a GIANT PUMPKIN to climb it!
+🔥 Light all 3 LUCK FLAMES in a row!
+🧡 Win ORANGE vs BLUE for SERVER BUFFS! 💙
+🏷️ Flex your 1 IN A MILLION hatches!
+💀 Hatch the rarest GARGANTUAN!
+
+🔔 Follow event for more news! 📰</p></details></li><li><details><summary><span class="cnum">40</span><span class="ctitle">⛏️ SPACE MINE! 🚀</span><span class="ptag">New content</span><span class="cdate">Sat 26 Sep &middot; 2 months ago <span class="nb">&middot; announced 11 days before</span></span></summary><p class="csub">💎 Mine &amp; Combine! ✨</p><p>Headed to space! 🚀
+
+???
+
+🔔 Follow event for more news! 📰</p></details></li><li><details><summary><span class="cnum">39</span><span class="ctitle">🕹️ COIN ARCADE! 👾</span><span class="ptag">New content</span><span class="cdate">Sat 12 Sep &middot; 2 months ago <span class="nb">&middot; announced 10 days before</span></span></summary><p class="csub">💰 Grind coins &amp; XP! ✨</p><p>🎉 Step inside the COIN ARCADE! 🏆
+
+🐾 Your pets WORK the arcade for you!
+💰 They earn Arcade Coins.. even OFFLINE!
+🎰 Eggs AUTO-HATCH right at your feet!
+📈 Level pets to 50 for DOUBLE earnings!
+🎁 Crack your own PRIVATE boss chest!
+
+🔔 Follow event for more news! 📰</p></details></li><li><details><summary><span class="cnum">38</span><span class="ctitle">⚡ LUCKY BLOCK BLITZ!</span><span class="ptag">New content</span><span class="cdate">Sat 29 Aug &middot; 3 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🎯 Launch your pets!</p><p>🎯 Point and BLAST your pets now!
+✨ Every pet gains a SPECIAL ABILITY!
+🛡️ Place BUMPERS to ricochet pets!
+⏰ Race the LUCKY TIME TRIAL!
+💪 The GARGANTUAN is BACK!</p></details></li><li><details><summary><span class="cnum">37</span><span class="ctitle">🍀 LUCKY BLOCK BREAKOUT!</span><span class="ptag">New content</span><span class="cdate">Sat 22 Aug &middot; 3 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">🧱 Send pets bouncing! ⚡</p><p>[Featuring]
+🧱 Breakout Board
+🎱 Bouncing Pets
+👑 Boss Lucky Blocks
+♻️ Rebirth
+
+[Limited Pets]
+💪 Limited Gargantuan Pet
+🔥 Limited Titanic Pets
+⭐ Limited Huge Pets
+🐾 New Pets
+🐣 Lucky Eggs
+
+[Event]
+❔ Lucky Blocks
+🧰 Lucky Chests
+🎁 Lucky Bag
+⚡ Lucky Boosts
+⬆️ Breakout Upgrades
+👥 Visit Islands
+🤖 Free Autos
+
+[Contests]
+🏆 Breakout Leaderboard
+⚔️ Royal Clan Battle
+
+[Exclusive]
+🔮 Mega Lucky Gamepass
+💥 Lucky Block Breaker
+🙂 Lucky Noob Egg
+❓ Mystery Pack
+🌈 The Forever Pack
+📦 Exclusive Cardboard Egg</p></details></li><li><details><summary><span class="cnum">36</span><span class="ctitle">🎉 ??? 🎉</span><span class="ptag">New content</span><span class="cdate">Sat 15 Aug &middot; 3 months ago <span class="nb">&middot; announced 12 days before</span></span></summary><p class="csub">READY TO PARTY???</p><p>FIESTA!! 😸</p></details></li><li><details><summary><span class="cnum">35</span><span class="ctitle">🌻 PETS vs COINS! 🪙</span><span class="ptag">New content</span><span class="cdate">Sat 1 Aug &middot; 4 months ago <span class="nb">&middot; announced 11 days before</span></span></summary><p class="csub">🌱 Protect your GARDEN 👀</p><p>🪙 ANGRY COINS!
+🌻 DEFENSIVE PETS!
+🌱 HARVEST CROPS!
+🧪 GARDEN POTIONS!
+
+...and that&#x27;s all we&#x27;re saying. 🤫</p></details></li><li><details><summary><span class="cnum">34</span><span class="ctitle">👆 TAP HEROES! ⚔️</span><span class="ptag">New content</span><span class="cdate">Sat 11 Jul &middot; 4 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">TAP through HISTORY! ✨</p><p>Journey through 6 AGES of history!
+
+👆 TAP to defeat enemies.. 120 LEVELS!
+📦 CHEST BOSSES every 5 levels!
+♻️ REBIRTH for permanent LUCK!
+🐾 Unlock 12 EVENT PETS as you climb!
+🏆 The GARGANTUAN goes to the top tapper!
+
+⚔️ Rally your clan NOW! ⚔️</p></details></li><li><details><summary><span class="cnum">33</span><span class="ctitle">⚽ WORLD CUP! 🥅</span><span class="ptag">New content</span><span class="cdate">Sat 27 Jun &middot; 5 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">💥 KICK the PET! 😱</p><p>⚽ SOCCER WORLD &amp; SOCCER PETS! 🥅
+
+➡️ Stand in line to meet MESSI! (jk)
+
+👟 Charge your kick!
+🌍 Tour World Cup stadiums!
+🔥 Kick pets into the Hall of Champs!
+🥇 Win the GARGANTUAN!
+
+✅ CLAN BATTLE ✅ LEADERBOARD CONTEST ✅
+
+💎 NO ADMIN ABUSE! We&#x27;re mailing out 5x GARGS! 📩
+🔔 Follow event and visit our socials to enter! 🔔</p></details></li><li><details><summary><span class="cnum">32</span><span class="ctitle">👁️ BACKROOMS League! 👁️</span><span class="ptag">New content</span><span class="cdate">Sat 20 Jun &middot; 5 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🎭 GAME OVER! 👾</p><p>🎭 Beat the GAME MASTER before it&#x27;s GAME OVER! 👾
+
+🏆 Climb the LEAGUE for rewards!
+🧩 More PUZZLE rooms!
+🥚 NEW pets &amp; NEW eggs!
+🗺️ Explore with MINI-MAP!
+🕹️ Room TELEPORT!
+
+And much more! 👻
+
+See you there!... I hope 💀</p></details></li><li><details><summary><span class="cnum">31</span><span class="ctitle">🎈 The BACKROOMS 🖍️</span><span class="ptag">New content</span><span class="cdate">Sat 13 Jun &middot; 5 months ago <span class="nb">&middot; announced 7 days before</span></span></summary><p class="csub">hi 🙃</p><p>🫠 welcome back...
+
+👻 Party-warped Backrooms: Level Fun!
+🎈 Hatch new pets + chase the Partygoer Cat!
+😈 Team up versus the Toy Chest Mimic!
+🖍️ Way more new surprises! 🎉</p></details></li><li><details><summary><span class="cnum">30</span><span class="ctitle">🎲 RNG PART 2! ✨</span><span class="ptag">New content</span><span class="cdate">Sat 16 May &middot; 6 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🔥 NEW Titanic &amp; Huges!</p><p>🌀 The RNG EVENT continues with MORE!
+
+🎲 Roll for NEW pets, auras, and titles!
+🎁 New rarest roll - TITANIC Arcane Halo Cat!
+✨ +4 HUGES with NEW auras!
+🔥 More dice, upgrades, and more!
+
+💰 Stack up Void Coins before the update!
+
+💎 ADMIN ABUSE when update is LIVE! 🎉
+🚨 FOLLOW THE EVENT FOR ALERTS! ⚠️</p></details></li><li><details><summary><span class="cnum">29</span><span class="ctitle">🐱 RNG EVENT! 🎲</span><span class="ptag">New content</span><span class="cdate">Sat 9 May &middot; 7 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">⚡ Combos &amp; WEATHER!</p><p>🌌 The RNG EVENT is BACK!
+
+🎲 Roll for new PETS and PLAYER AURAS!
+🎁 Feeling lucky? New TITANIC Arcane Void Cat!
+🏆 New clan battle - see if you can rank!
+🔥 Stack COMBO STREAKS for crazy luck!
+❄️ WEATHER adds a whole new element!
+
+🎲 Get ready to ROLL the dice!
+
+💎 ADMIN ABUSE when update is LIVE! 🎉
+🚨 FOLLOW THE EVENT FOR ALERTS! ⚠️</p></details></li><li><details><summary><span class="cnum">28</span><span class="ctitle">⚙️ Combine-o-Matic!</span><span class="ptag">New items</span><span class="cdate">Sat 2 May &middot; 7 months ago</span></summary><p class="csub">🎁 Craft TITANIC Presents</p><p>🛠️ Craft Fantasy Presents into something TITANIC!
+
+✨ Upgrade through 5 tiers: Small → Titanic
+
+🔓 Each tier unlocks rarer Huges, ending with Titanic Ruinous Angelus
+
+💎 Earn presents from Zone 279 &amp; Time Trials
+
+⏰ Only available for 2 weeks!</p></details></li><li><details><summary><span class="cnum">27</span><span class="ctitle">⚔️ Time Trials League</span><span class="ptag">Challenge</span><span class="cdate">Sat 2 May &middot; 7 months ago</span></summary><p class="csub">Team up for 48 HOURS! 🏆</p><p>⏰ Race the clock in the TIME TRIALS!
+
+⚔️ The fastest team of 4 players wins!
+💎 Battle for the Rainbow Shiny GARGANTUAN Wicked Kirin.
+🏆 Given to the #1 player on the #1 league!
+
+#15 teams earn the Gargantuan Wicked Kirin.
+#765 earn the Titanic Veil Horse.
+#10,765 earn the Huge Knight Golem.
+#25,765 earn a 50× Time Trial Gift bundle.
+
+✨ Every team member gets a prize!</p></details></li><li><details><summary><span class="cnum">26</span><span class="ctitle">🎉 Free HUGE Pet! 🐶</span><span class="ptag">New items</span><span class="cdate">Wed 22 Apr &middot; 7 months ago <span class="nb">&middot; announced 5 days before</span></span></summary><p class="csub">Literally just login! 🚨</p><p>🎉 Log in to claim your FREE Bandana Shiba! 🐶
+
+🌷 It’s that simple - just login when the event is LIVE! 🌻
+
+The countdown will also be live in-game! Don’t miss it! 🚨
+
+🪻 HAPPY SPRING 2026! 🌸</p></details></li><li><details><summary><span class="cnum">25</span><span class="ctitle">🐣 SPRING Event! 🌸</span><span class="ptag">New content</span><span class="cdate">Sat 18 Apr &middot; 7 months ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">🌹 New DAWN PHOENIX! 🌼</p><p>🌷 You ARE the EGG machine! 🐣
+Start with one egg.. end as a MINIGUN!💥
+
+🌍 4 Zones.. Pick ONE!
+The rest? LOCKED! 🔒
+
+🌈 Your eggs HATCH FASTER as you upgrade...
+Reach max upgrade to SPRAY eggs! ✨
+
+🏆 1 Gargantuan. 3 Titanics. 12+ Huges.
+Spring 2026 is STACKED! 🤯
+
+🤝 Trade to make progress WAY faster! 👀
+
+🐣 You ready to SPRING into the event?
+💎 ADMIN ABUSE when update is LIVE! 🎉
+
+🚨 FOLLOW THE EVENT FOR ALERTS! ⚠️</p></details></li><li><details><summary><span class="cnum">24</span><span class="ctitle">🏆 RACE UPDATE! 🏆</span><span class="ptag">New content</span><span class="cdate">Sat 21 Mar &middot; 8 months ago</span></summary><p class="csub">🎉 Lucky Race Prizes! 💎</p><p>🏆 New Lucky Race Prizes! 🍀
+
+🎉 NEW GARGANTUAN!
+👑 NEW TITANICS!
+💎 NEW HUGES!</p></details></li><li><details><summary><span class="cnum">23</span><span class="ctitle">🍀 GARGANTUAN RAID! 🍀</span><span class="ptag">New content</span><span class="cdate">Sat 14 Mar &middot; 8 months ago <span class="nb">&middot; announced 11 days before</span></span></summary><p class="csub">🏆 Race to the end! 🌈</p><p>🍀 CHEST RAID!
+⚔️ CLAN BATTLE!
+🥚 2x LUCK EVENT!
+💎 ADMIN ABUSE!
+
+🍀 St. Patrick&#x27;s UPDATE! 🍀</p></details></li><li><details><summary><span class="cnum">22</span><span class="ctitle">🎉 NEW YEARS EVENT! 🎉</span><span class="ptag">New items</span><span class="cdate">Thu 1 Jan &middot; 11 months ago</span></summary><p class="csub">🎁 FREE TITANIC GIFT!</p><p>🎉 The New Year&#x27;s egg is dropping!
+🎁 FREE TITANIC GIFTS are given out each drop!
+⭐ Check the countdown in the TRADING PLAZA for the next drop!</p></details></li><li><details><summary><span class="cnum">21</span><span class="ctitle">🎅 CHRISTMAS UPDATE! 🎄</span><span class="ptag">New content</span><span class="cdate">Sat 20 Dec 2025 &middot; 11 months ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🎁 Santa has FREE gifts!</p><p>☃️ Christmas update drops December 20th! ❄️</p></details></li><li><details><summary><span class="cnum">20</span><span class="ctitle">🍂 Autumn Event! 🌽</span><span class="ptag">New content</span><span class="cdate">Sat 22 Nov 2025 &middot; 1 year ago <span class="nb">&middot; announced 1 day before</span></span></summary><p>🍂 lil autumn update! 🌽
+
+💎 bring your diamonds! 💎
+
+⚠️ admin abuse after the update! ⚠️</p></details></li><li><details><summary><span class="cnum">19</span><span class="ctitle">🎁 ADMIN ABUSE! 💎</span><span class="ptag">New items</span><span class="cdate">Sat 18 Oct 2025 &middot; 1 year ago</span></summary><p class="csub">🚨 Join us for free pets!</p><p>🎃 Join us for an hour of ADMIN ABUSE! 🎁
+We&#x27;ll be giving out lots of treats... and tricks 😈
+Gargantuans, Titanics, Huges, Exclusive Eggs, Diamonds.. 😱
+And even some admin commands ⚔️👻💀</p></details></li><li><details><summary><span class="cnum">18</span><span class="ctitle">🎃 SpoOky EVENT! 👻</span><span class="ptag">New content</span><span class="cdate">Sat 18 Oct 2025 &middot; 1 year ago <span class="nb">&middot; announced 8 days before</span></span></summary><p class="csub">😱 Trick.. or treat??? 🍬</p><p>FOLLOW FOR THE EVENT!</p></details></li><li><details><summary><span class="cnum">17</span><span class="ctitle">😎 LIVE EVENT! ☀️</span><span class="ptag">Festival</span><span class="cdate">Sat 12 Jul 2025 &middot; 1 year ago</span></summary><p class="csub">🍀 Join for BIG BOOSTS!</p><p>🎉 Join for an HOUR of BOOSTS! 💎
+
+The party starts when the event goes live!
+
+Boosts go from 2x -&gt; 10x (MAXED OUT)!
+🍀 10x Server Luck
+💰 10x Coins
+💎 10x Diamonds
+
+🚨 Only lasts one hour! Don&#x27;t miss it! 🚨</p></details></li><li><details><summary><span class="cnum">16</span><span class="ctitle">🌞 BLOCK PARTY! 🌴</span><span class="ptag">New content</span><span class="cdate">Sat 12 Jul 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">2025 SUMMER Event! 🎉</p><p>🌞 The SUMMER BLOCK PARTY 🌴
+
+🌍 Start on one block...
+The rest? LOCKED! 🔒
+
+💎 It&#x27;s one BIG mystery! 😎
+🎉 You ready for the BLOCK PARTY?</p></details></li><li><details><summary><span class="cnum">15</span><span class="ctitle">💪 Hit the GYM! 😎</span><span class="ptag">New content</span><span class="cdate">Sat 28 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">🚨 Only for giga chads ⚠️</p><p>💪 Get BUFF this Saturday!
+Lift pets, grow bigger, and dominate! 💥
+🤫 And a little secret surprise!
+Don&#x27;t skip it... nerd! 🤓</p></details></li><li><details><summary><span class="cnum">14</span><span class="ctitle">⚔️ Tower Defense! 🏹</span><span class="ptag">New content</span><span class="cdate">Sat 14 Jun 2025 &middot; 1 year ago <span class="nb">&middot; announced 3 days before</span></span></summary><p class="csub">📢 This Saturday!</p><p>💥 Prepare your pets!
+
+⚠️ The countdown starts now!
+
+😥 Are you ready?</p></details></li><li><details><summary><span class="cnum">13</span><span class="ctitle">🏀 SLAM DUNK your PET! 🏀</span><span class="ptag">New content</span><span class="cdate">Sat 31 May 2025 &middot; 1 year ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">💪 Score the TITANIC!</p><p>🏀 Dunk your pets into the hoop!
+💨 See how far away you can score!
+🌈 YEET them as far as you can!</p></details></li><li><details><summary><span class="cnum">12</span><span class="ctitle">🌈 Grow RAINBOW Pets! 🌱</span><span class="ptag">New content</span><span class="cdate">Sat 24 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">⏰ New update is out!</p><p>🌈 Grow RAINBOW and GOLD pets!
+🏰 Fantasy World expansion!
+⚔️ Time Trials refreshed!
+✨ And more!</p></details></li><li><details><summary><span class="cnum">11</span><span class="ctitle">⭐ Grow an Egg! 🥚</span><span class="ptag">New content</span><span class="cdate">Sat 17 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">🔔 Event is LIVE!</p><p>🥚 GROW an egg!
+💥 Let it HATCH!
+💰 Sell for STACKS!
+👑 Flex to the MAX!</p></details></li><li><details><summary><span class="cnum">10</span><span class="ctitle">🌟 WORLD 4 IS HERE! 🌟</span><span class="ptag">New map</span><span class="cdate">Sat 10 May 2025 &middot; 2 years ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">🌍 New world is OUT!</p><p>🌟 WORLD 4 IS OUT! 🌟
+
+🌍 Travel to the new Fantasy World!
+💫 Unlock &amp; explore enchanted zones!
+⏳ TIME TRIALS await – master the art of SPEED!
+
+🔥 Get ready to run!</p></details></li><li><details><summary><span class="cnum">9</span><span class="ctitle">🐰 EGG HUNT! 🐣</span><span class="ptag">New content</span><span class="cdate">Sat 26 Apr 2025 &middot; 2 years ago <span class="nb">&middot; announced 3 days before</span></span></summary><p>The Easter event isn&#x27;t over yet! 🐰
+
+New Egg Hunt and something to grind... 🤔
+
+See you Saturday!</p></details></li><li><details><summary><span class="cnum">8</span><span class="ctitle">⚠️ Login for FREE HUGE!</span><span class="ptag">New items</span><span class="cdate">Sat 19 Apr 2025 &middot; 2 years ago <span class="nb">&middot; announced 4 days before</span></span></summary><p class="csub">Literally! No catch!</p><p>🚨 Login to get a FREE HUGE Easter Lamb!
+Literally as simple as that - no catch!
+
+🔔 Don’t miss it! The countdown is in-game!
+⏰ Make sure to press &quot;Join Event&quot; for alerts!</p></details></li><li><details><summary><span class="cnum">7</span><span class="ctitle">🍀 Lucky Raid Event! 🍀</span><span class="ptag">New content</span><span class="cdate">Sat 8 Mar 2025 &middot; 2 years ago</span></summary><p class="csub">Race to the Titanic!</p><p>🔥 Limited-time Saint Patrick&#x27;s Day event! 🔥
+
+⚔️ Max out your raid level!
+💪 Strength is everything!
+🍀 Will you reach the TITANIC pet?</p></details></li><li><details><summary><span class="cnum">6</span><span class="ctitle">💖 Valentine’s Tower! 💖</span><span class="ptag">New content</span><span class="cdate">Sat 8 Feb 2025 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Stack your tower high!</p><p>✨ Limited-time event for Valentine&#x27;s! ✨
+
+💗 Stack your tower tall!
+🍀 The higher, the luckier!
+🪽 Fly with your Cupid Wings!
+☁️ Reach islands in the sky!</p></details></li><li><details><summary><span class="cnum">5</span><span class="ctitle">⭐ PET GAMES! ⭐</span><span class="ptag">Challenge</span><span class="cdate">Sat 11 Jan 2025 &middot; 2 years ago</span></summary><p class="csub">Compete for the TITANIC!</p></details></li><li><details><summary><span class="cnum">4</span><span class="ctitle">GARGANTUAN PETS</span><span class="ptag">New feature</span><span class="cdate">Sat 21 Dec 2024 &middot; 2 years ago <span class="nb">&middot; announced 1 day before</span></span></summary><p class="csub">It&#x27;s time... join us!</p><p>🎁 Combine presents into a GARGANTUAN!
+🎅 Santa is dropping over 1.2 MILLION HUGE PETS!
+✨ Find Santa&#x27;s secret key for his secret room!</p></details></li><li><details><summary><span class="cnum">3</span><span class="ctitle">Mega Present Event!</span><span class="ptag">New content</span><span class="cdate">Sat 14 Dec 2024 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p class="csub">Hop on the HUGE train!</p><p>🚂 Huge train delivers gifts every few seconds!
+🎁 Grow your Mega Present and open at any time!
+✨ Chance for HUGE pets and even a TITANIC!</p></details></li><li><details><summary><span class="cnum">2</span><span class="ctitle">Halloween Event! 🎃</span><span class="ptag">Content update</span><span class="cdate">Sat 19 Oct 2024 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p>Things are getting spooky! 👻</p></details></li><li><details><summary><span class="cnum">1</span><span class="ctitle">Saturday Update! 🔥</span><span class="ptag">Content update</span><span class="cdate">Sat 7 Sep 2024 &middot; 2 years ago <span class="nb">&middot; announced 2 days before</span></span></summary><p>Join on Saturday for FREE Hype Eggs! 🥚✨</p></details></li></ol></div><div class="card"><h2>Event calendar</h2><span data-bell="events"></span><p class="mut small">Events the creators have put on the Roblox calendar. Expect these hours to be busy.</p><ul class="evt"><li class="live"><b>🦃 TURKEY HUNT! 🍁</b><span class="d esub">🍁 Catch the #1 PET!</span><span class="ptag">New content</span><span class="d">Happening now &middot; ends Sat 28 Nov <span class="nb">&middot; announced 2 days before</span></span><p>🦃 TURKEY HUNT is coming! 🍁
 
 🐾 WILD PETS roam your island!
 🥅 CATCH them with PET NETS!
@@ -1382,7 +1693,7 @@ e.preventDefault();history.back()}});</script></head><body>
 🌲 3 NEW areas + REBIRTH!
 👀 And MORE..
 
-🔔 Follow event for more news! 📰</p></li></ul></div><p><a href="/game/pet-simulator-99">&larr; Back to Pet Simulator 99</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+🔔 Follow event for more news! 📰</p></li></ul></div><div class="rowhead"><h2>Updates for similar games</h2><div class="actions" style="margin:0"><div class="vtog" role="group" aria-label="How to show the games"><button type="button" data-v="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.6"/><rect x="9" y="1" width="6" height="6" rx="1.6"/><rect x="1" y="9" width="6" height="6" rx="1.6"/><rect x="9" y="9" width="6" height="6" rx="1.6"/></svg><span class="sr">Grid</span></button><button type="button" data-v="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="14" height="3" rx="1.4"/><rect x="1" y="6.5" width="14" height="3" rx="1.4"/><rect x="1" y="11" width="14" height="3" rx="1.4"/></svg><span class="sr">List</span></button></div></div></div><p class="mut small" style="margin-top:-4px">Other simulation games of about the same size, and when their creators last announced something.</p><ul class="grid"><li style="--i:0;--glow:215" data-n="bloxng" data-s="bloxng"><a class="tile" href="/updates/bloxng"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-089fb29e7c68e08460e25009ec50228b/256/256/Image/Webp/noFilter" alt="BloxNG Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">BloxNG</span><span class="tmeta"><span>10 days ago</span></span></a></li><li style="--i:1;--glow:187" data-n="tap simulator reborn" data-s="tap-simulator-reborn"><a class="tile" href="/updates/tap-simulator-reborn"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-1a3bafc493f9debd26a118403155b18e/256/256/Image/Webp/noFilter" alt="Tap Simulator REBORN Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Tap Simulator REBORN</span><span class="tmeta"><span>16 days ago</span></span></a></li><li style="--i:2;--glow:0" data-n="sols rng" data-s="sol-s-rng"><a class="tile" href="/updates/sol-s-rng"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-0dcb671035a6f9cec76eb00607e3c23d/256/256/Image/Webp/noFilter" alt="Sol&#x27;s RNG Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Sol&#x27;s RNG</span><span class="tmeta"><span>23 days ago</span></span></a></li><li style="--i:3;--glow:319" data-n="steal a brainrot sab" data-s="steal-a-brainrot"><a class="tile" href="/updates/steal-a-brainrot"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-28e6ab0b77c56d60e9f0dc9327ef3cc0/256/256/Image/Webp/noFilter" alt="Steal a Brainrot Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Steal a Brainrot</span><span class="tmeta"><span>16 days ago</span></span></a></li><li style="--i:4;--glow:48" data-n="fisch" data-s="fisch"><a class="tile" href="/updates/fisch"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-03bbba85eed57df4038370765e44cd33/256/256/Image/Webp/noFilter" alt="Fisch Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Fisch</span><span class="tmeta"><span>9 days ago</span></span></a></li><li style="--i:5;--glow:200" data-n="fish it" data-s="fish-it"><a class="tile" href="/updates/fish-it"><img class="thumb" src="https://tr.rbxcdn.com/180DAY-ecdc7db5927db86c0961dacf7661507a/256/256/Image/Webp/noFilter" alt="Fish It Roblox game icon" width="256" height="256" loading="lazy" fetchpriority="low" decoding="async"><span class="tname">Fish It</span><span class="tmeta"><span>22 days ago</span></span></a></li></ul><p><a href="/game/pet-simulator-99">&larr; Back to Pet Simulator 99</a></p><script>var DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 /* A live countdown on anything carrying data-at, a moment in unix seconds. Used by
    the next-event and next-update lines; the quiet-window countdown on a game page
    predates it and keeps its own ticker, because that one also has to work out WHICH
@@ -2042,7 +2353,7 @@ names={};all.forEach(function(g){names[g.s]=g});draw()}).catch(function(){})}
    it needs a way to ask for a redraw. Nothing else uses it. */
 PT.bells=drawBells;
 PT.ready(function(){refresh()});
-})();</script>
+})();</script></main>
 <footer class="foot"><nav class="small"><a href="/">All games</a>
 <a href="/popular">Most played</a><a href="/trending">Trending</a>
 <a href="/growing">Growing</a><a href="/shrinking">Shrinking</a>
