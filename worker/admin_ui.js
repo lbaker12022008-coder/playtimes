@@ -327,6 +327,25 @@ var ago = function (unix) {
   return plural(Math.round(m / 1440), 'day') + ' ago';
 };
 var agoIso = function (iso) { return iso ? ago(Date.parse(iso) / 1000) : 'never'; };
+
+/* Every date the dashboard PRINTS is month/day/year, at the owner's request.
+   Only the printing changes: the values themselves stay ISO everywhere they are
+   stored, compared, put in a date input or sent to the server, because those
+   have to sort and round-trip. Pass a date through usDate at the moment it is
+   written into the page and nowhere earlier. */
+var usDate = function (iso) {
+  if (!iso) return '';
+  var p = String(iso).slice(0, 10).split('-');
+  return p.length === 3 ? p[1] + '/' + p[2] + '/' + p[0] : String(iso);
+};
+/* The same, with the clock, for the rows that list when something ran. UTC, as
+   their column headings already say. */
+var usWhen = function (ms, withYear) {
+  var d = new Date(ms), z = function (n) { return (n < 10 ? '0' : '') + n; };
+  return z(d.getUTCMonth() + 1) + '/' + z(d.getUTCDate()) +
+    (withYear === false ? '' : '/' + d.getUTCFullYear()) +
+    ' ' + z(d.getUTCHours()) + ':' + z(d.getUTCMinutes());
+};
 var day10 = function (back) {
   return new Date(Date.now() - back * 864e5).toISOString().slice(0, 10);
 };
@@ -378,7 +397,7 @@ try { TAB = localStorage.getItem('pt_admin_tab') || 'overview'; } catch (e) {}
    translucent wash under it, and a gap in the data BREAKS the line rather than being
    drawn as a zero we never recorded. */
 var W = 720, H = 240, PAD = 26;
-function lineChart(id, pts, hue) {
+function lineChart(id, pts, hue, dots) {
   if (!pts.length) return '<p class="empty">Nothing recorded in this period.</p>';
   var vals = pts.map(function (p) { return p.n; });
   var max = Math.max.apply(null, vals.concat([1]));
@@ -402,7 +421,10 @@ function lineChart(id, pts, hue) {
      width and has room; this chart can be asked for 90 days, where dots 8px
      apart stop being dots and become a bar. So they shrink, and below 11px of
      spacing they are left off and the line speaks for itself. */
-  var dotr = step >= 20 ? 4 : step >= 11 ? 3 : 0;
+  /* dots === false turns them off outright. The clicks chart asks for that: its
+     numbers are small whole counts and most days are zero, so a dot per day came
+     out as a scatter of specks along the bottom rather than as points on a line. */
+  var dotr = dots === false ? 0 : (step >= 20 ? 4 : step >= 11 ? 3 : 0);
   var d = '', wash = '', dots = '';
   runs.forEach(function (r) {
     var seg = r.map(function (i, n) {
@@ -428,7 +450,7 @@ function lineChart(id, pts, hue) {
       '<text x="' + (PAD - 5) + '" y="' + (yy + 4).toFixed(1) + '" text-anchor="end" ' +
       'fill="var(--mut)" font-size="11">' + kfmt(v) + '</text>';
   });
-  var first = pts[0].day, last = pts[pts.length - 1].day;
+  var first = usDate(pts[0].day), last = usDate(pts[pts.length - 1].day);
   return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H +
     '" tabindex="0" role="img" aria-label="Page views over time">' +
     '<defs><linearGradient id="' + gid + '" x1="0" x2="0" y1="0" y2="1">' +
@@ -465,7 +487,7 @@ function chartCursor(svg, out, pts) {
     dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('opacity', '1');
     var dt = new Date(p.day + 'T00:00:00Z');
     var nm = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dt.getUTCDay()];
-    out.textContent = nm + ' ' + p.day + ' (UTC): ' + plural(p.n, 'page view');
+    out.textContent = nm + ', ' + usDate(p.day) + ' (UTC): ' + plural(p.n, 'page view');
   }
   function fromEvent(e) {
     var r = svg.getBoundingClientRect();
@@ -527,8 +549,8 @@ function stackBars(days) {
   var max = Math.max.apply(null, days.map(function (d) { return d.ok + d.failed; }).concat([1]));
   return '<div class="stk">' + days.map(function (d) {
     var t = d.ok + d.failed;
-    if (!t) return '<div class="s" data-why="' + d.day + ': no runs"><div class="e"></div></div>';
-    return '<div class="s" data-why="' + d.day + ': ' + d.ok + ' ok, ' + d.failed + ' failed">' +
+    if (!t) return '<div class="s" data-why="' + usDate(d.day) + ': no runs"><div class="e"></div></div>';
+    return '<div class="s" data-why="' + usDate(d.day) + ': ' + d.ok + ' ok, ' + d.failed + ' failed">' +
       (d.failed ? '<div class="b" style="height:' + ((d.failed / max) * 100).toFixed(1) + '%"></div>' : '') +
       '<div class="g" style="height:' + ((d.ok / max) * 100).toFixed(1) + '%"></div></div>';
   }).join('') + '</div>';
@@ -628,7 +650,8 @@ function wireRange() {
 }
 function windowWords() {
   var w = D.range.window;
-  return w.days === 1 ? w.from : (w.from + ' to ' + w.to + ', ' + w.days + ' days');
+  return w.days === 1 ? usDate(w.from)
+    : (usDate(w.from) + ' to ' + usDate(w.to) + ', ' + w.days + ' days');
 }
 </script>`;
 
@@ -690,7 +713,7 @@ function pOverview() {
       label: 'Google clicks', value: num(g.totals.clicks),
       change: null,
       sub: num(g.totals.impressions) + ' times shown in results',
-      why: 'From Google Search Console, for ' + esc(g.from) + ' to ' + esc(g.to) +
+      why: 'From Google Search Console, for ' + esc(usDate(g.from)) + ' to ' + esc(usDate(g.to)) +
         '. Google finalises these two to three days late, so the window ends three days ago.'
     }));
   }
@@ -1019,7 +1042,7 @@ function openGame(slug) {
     '<dt>Readings taken</dt><dd>' + num(g.samples) + '</dd>' +
     '<dt>Days of history</dt><dd>' + (g.days ? g.days.toFixed(1) : '-') + '</dd>' +
     '<dt>Last reading</dt><dd>' + (l && l.last ? ago(l.last) : 'unknown') + '</dd>' +
-    '<dt>First reading</dt><dd>' + (l && l.first ? new Date(l.first * 1000).toISOString().slice(0, 10) : 'unknown') + '</dd>' +
+    '<dt>First reading</dt><dd>' + (l && l.first ? usDate(new Date(l.first * 1000).toISOString()) : 'unknown') + '</dd>' +
     '<dt>Events published</dt><dd>' + num(g.events) + '</dd>' +
     '<dt>Still to come</dt><dd>' + num(g.upcoming) + '</dd>' +
     '<dt>Slug</dt><dd>' + esc(g.slug) + '</dd></dl>' +
@@ -1107,7 +1130,7 @@ function pSystem() {
     '<thead><tr><th>Job</th><th>When (UTC)</th><th>Result</th><th class="n">Took</th></tr></thead><tbody>' +
     (recent.length ? recent.map(function (r) {
       return '<tr><td>' + esc(r.wf) + '</td><td>' +
-        new Date(r.at * 1000).toISOString().slice(0, 16).replace('T', ' ') + '</td><td>' +
+        usWhen(r.at * 1000) + '</td><td>' +
         (r.ok === 1 ? '<span class="pill g">ok</span>'
           : (r.ok === 0 ? '<span class="pill r">failed</span>' : '<span class="pill">running</span>')) +
         '</td><td class="n">' + (r.secs ? secs(r.secs) : '-') + '</td></tr>';
@@ -1126,7 +1149,7 @@ function feedHtml() {
   return '<div class="sec"><h2>Recent activity</h2><div class="card pad0"><div class="tw">' +
     '<table><thead><tr><th>When (UTC)</th><th>Ago</th><th>What</th></tr></thead><tbody>' +
     (ev.length ? ev.map(function (e) {
-      return '<tr><td>' + new Date(e.at * 1000).toISOString().slice(5, 16).replace('T', ' ') +
+      return '<tr><td>' + usWhen(e.at * 1000, false) +
         '</td><td>' + ago(e.at) + '</td><td><span class="pill ' + (mark[e.kind] || '') + '">' +
         esc(e.kind) + '</span> ' + esc(e.text) + '</td></tr>';
     }).join('') : '<tr><td colspan="3" class="empty">Nothing in the last seven days.</td></tr>') +
@@ -1188,7 +1211,7 @@ function pSearch() {
   var withClicks = (g.daily || []).length;
   return head +
     '<div class="tools"><button class="btn ghost" id="gscgo" type="button">Fetch again</button>' +
-    '<span class="mut small" id="gscmsg">' + esc(g.from) + ' to ' + esc(g.to) +
+    '<span class="mut small" id="gscmsg">' + esc(usDate(g.from)) + ' to ' + esc(usDate(g.to)) +
     ', read ' + ago(g.fetched) + '.</span></div>' +
     '<div class="cards">' +
     kpi({ label: 'Clicks', value: num(t.clicks), change: null,
@@ -1206,7 +1229,7 @@ function pSearch() {
         'better: 1 is the top result.' }) +
     '</div>' +
     '<div class="sec"><h2>Clicks over time</h2><div class="card">' +
-    lineChart('gschart', daily, 'alt') +
+    lineChart('gschart', daily, 'alt', false) +
     '<p class="readout" id="gsread">Drag across the chart to read a day.</p>' +
     '<p class="flag">' + plural(withClicks, 'day') + ' of the ' + daily.length +
     ' had at least one click. The rest are drawn as zero, which is what they were.</p>' +
@@ -1271,7 +1294,7 @@ function pPeople() {
     '<table><thead><tr><th>Added</th><th class="n">Offset</th><th class="n">Fails</th>' +
     '<th class="n">Last status</th><th>Last try</th></tr></thead><tbody>' +
     ((p.devList || []).length ? (p.devList || []).map(function (d) {
-      return '<tr><td>' + (d.created ? new Date(d.created).toISOString().slice(0, 10) : '-') +
+      return '<tr><td>' + (d.created ? usDate(new Date(d.created).toISOString()) : '-') +
         '</td><td class="n">' + (d.tz > 0 ? '+' : '') + (d.tz || 0) + '</td>' +
         '<td class="n">' + (d.fails || 0) + '</td><td class="n">' +
         (d.last_status === null || d.last_status === undefined ? '<span class="mut">not tried</span>'
