@@ -759,7 +759,8 @@ function pOverview() {
       change: null,
       sub: num(g.totals.impressions) + ' times shown in results',
       why: 'From Google Search Console, for ' + esc(usDate(g.from)) + ' to ' + esc(usDate(g.to)) +
-        '. Google finalises these two to three days late, so the window ends three days ago.'
+        '. Google finalises these two to three days late, so the window ends on the ' +
+        'last day it has settled.'
     }));
   }
 
@@ -781,7 +782,30 @@ function pOverview() {
     '<div class="sec"><h2>Page views over time</h2><div class="card">' +
     lineChart('ovchart', v.series, 'acc') +
     '<p class="readout" id="ovread">Drag across the chart, or use the arrow keys, to read a day.</p>' +
-    '</div></div>' + lightsHtml();
+    startedNote(v) +
+    '</div></div>' +
+    /* Clicks from Google beside our own views, because the two answer different
+       halves of "is anybody finding this site". Only when there is something to
+       draw: an empty box would read as a fault rather than as a tab not set up. */
+    (gscSeries().length
+      ? '<div class="sec"><h2>Clicks from Google over time</h2><div class="card">' +
+        lineChart('ovgsc', gscSeries(), 'alt', false) +
+        '<p class="readout" id="ovgsread">Drag across the chart, or use the arrow ' +
+        'keys, to read a day.</p>' +
+        '<p class="flag">Google finalises its figures two to three days late, so this ' +
+        'ends on ' + esc(usDate((D.gsc || {}).to)) + '.</p>' +
+        '</div></div>'
+      : '') +
+    lightsHtml();
+}
+
+/* A 30-day window on a site that has been counting for two would otherwise draw
+   two days with no explanation, which reads as a chart that has broken. */
+function startedNote(v) {
+  if (!v.starts_early || !v.first_day) return '';
+  return '<p class="flag">The chart starts on ' + esc(usDate(v.first_day)) +
+    ', which is the first day anything was recorded. Days before that are left out ' +
+    'rather than drawn as zero, because nobody was counting then.</p>';
 }
 
 function insightsHtml() {
@@ -1235,30 +1259,7 @@ function pSearch() {
   }
 
   var t = g.totals || {};
-  /* Google returns only the days that had something, so a 29-day window can come back
-     as 10 rows. Drawn straight that way the chart would join them up as if they were
-     consecutive. Filling the gaps with zero is honest here, unlike with our own page
-     views: a day Google reports nothing for is a day with no clicks, which really is
-     zero, rather than a day we failed to record. */
-  var daily = (function () {
-    var got = {}, out = [];
-    (g.daily || []).forEach(function (r) { got[r.date] = r.clicks; });
-    var from = Date.parse(g.from + 'T00:00:00Z'), to = Date.parse(g.to + 'T00:00:00Z');
-    if (!from || !to || to < from) {
-      return (g.daily || []).map(function (r) { return { day: r.date, n: r.clicks }; });
-    }
-    for (var d = from; d <= to; d += 864e5) {
-      var k = new Date(d).toISOString().slice(0, 10);
-      out.push({ day: k, n: got[k] || 0 });
-    }
-    return out;
-  })();
-  /* Kept for wirePanel, so the crosshair reads the SAME array the line was drawn
-     from. It used to be handed g.daily, which is only the days Google reported
-     something for - 10 rows where the chart drew 29 - so the cursor worked out
-     its spacing from a different number of points and pointed at the wrong day
-     everywhere but the left edge. */
-  GSCSERIES = daily;
+  var daily = gscSeries();
   var withClicks = (g.daily || []).length;
   return head +
     '<div class="tools"><button class="btn ghost" id="gscgo" type="button">Fetch again</button>' +
@@ -1394,9 +1395,34 @@ function dl(list) {
     'its name.</p></div>';
 }
 
-/* The gap-filled clicks series, set when the Search tab draws and read when its
-   cursor is wired a moment later. */
-var GSCSERIES = [];
+/* The clicks series, gap-filled, built in ONE place because two tabs draw it now
+   and the crosshair has to read the very array the line came from. It used to be
+   built inside the Search tab and the cursor was handed g.daily instead - only the
+   days Google reported something for, 10 rows where the chart drew 29 - so the
+   cursor worked its spacing out from a different number of points and pointed at
+   the wrong day everywhere but the left edge.
+
+   Google returns only the days that had something, so a 29-day window can come
+   back as 10 rows; drawn straight they would be joined up as if consecutive.
+   Filling with zero is honest HERE, unlike for our own page views: a day Google
+   has finalised and reported nothing for is a day with no clicks, which really is
+   zero. The window itself already stops at the last day Google answered for, so
+   this never fills past the end either - see gsc.js. */
+function gscSeries() {
+  var g = D.gsc || {};
+  if (g.state !== 'ok') return [];
+  var got = {}, out = [];
+  (g.daily || []).forEach(function (r) { got[r.date] = r.clicks; });
+  var from = Date.parse(g.from + 'T00:00:00Z'), to = Date.parse(g.to + 'T00:00:00Z');
+  if (!from || !to || to < from) {
+    return (g.daily || []).map(function (r) { return { day: r.date, n: r.clicks }; });
+  }
+  for (var d = from; d <= to; d += 864e5) {
+    var k = new Date(d).toISOString().slice(0, 10);
+    out.push({ day: k, n: got[k] || 0 });
+  }
+  return out;
+}
 
 var RENDER = {
   overview: pOverview, traffic: pTraffic, games: pGames,
@@ -1436,7 +1462,8 @@ function wirePanel() {
   /* Charts. Each needs its cursor bound after the markup exists. */
   [['ovchart', 'ovread', D.range.views.series],
    ['trchart', 'trread', D.range.views.series],
-   ['gschart', 'gsread', GSCSERIES, 'click']
+   ['gschart', 'gsread', gscSeries(), 'click'],
+   ['ovgsc', 'ovgsread', gscSeries(), 'click']
   ].forEach(function (x) {
     var svg = document.getElementById(x[0]), out = document.getElementById(x[1]);
     if (svg && out && x[2] && x[2].length) chartCursor(svg, out, x[2], x[3]);

@@ -88,8 +88,19 @@ export function change(current, previous) {
 }
 
 /* A window with no rows must come back as a run of zeroes rather than a short array,
-   or a chart silently redraws a 30-day line as a 3-day one and reads as a cliff. */
-function fillDays(rows, from, to) {
+   or a chart silently redraws a 30-day line as a 3-day one and reads as a cliff.
+   That holds INSIDE the period we were recording: a day with nobody on the site
+   really did have no views.
+
+   It does not hold before it. Asking for 30 days on a site that has been counting
+   for two drew 28 days of zero and then a line, which says "nobody came" when the
+   truth is "we were not looking" - the same invented-zero the clicks chart is
+   careful about at the other end. `first` is the earliest day in the table, and
+   the series starts at whichever of the two is later. The panel says so, because a
+   30-day window quietly drawing two days is the very cliff the paragraph above
+   warns about. */
+function fillDays(rows, from, to, first) {
+  if (first && first > from) from = first;
   const got = new Map((rows || []).map((r) => [r.day, Number(r.n) || 0]));
   const out = [];
   for (let t = dayMs(from); t <= dayMs(to); t += DAY) {
@@ -121,7 +132,10 @@ export async function readAnalytics(env, win) {
       "SUM(CASE WHEN day >= ?3 AND day <= ?4 THEN n ELSE 0 END) AS prev, " +
       "SUM(n) AS all_time, " +
       "COUNT(DISTINCT CASE WHEN day >= ?1 AND day <= ?2 THEN day END) AS days_seen, " +
-      "COUNT(DISTINCT CASE WHEN day >= ?1 AND day <= ?2 THEN path END) AS paths_seen " +
+      "COUNT(DISTINCT CASE WHEN day >= ?1 AND day <= ?2 THEN path END) AS paths_seen, " +
+      /* The first day anything was ever recorded. The chart must not run back
+         past it - see fillDays. */
+      "MIN(day) AS first_day " +
       "FROM views", [win.from, win.to, win.prev_from, win.prev_to]),
 
     /* Reading time. `hits` is how many visits made up the total, so seconds/hits is a
@@ -178,7 +192,8 @@ export async function readAnalytics(env, win) {
   const avgNow = readsNow ? secsNow / readsNow : null;
   const avgPrev = readsPrev ? secsPrev / readsPrev : null;
 
-  const series = fillDays(daily.results, win.from, win.to);
+  const firstDay = t.first_day || null;
+  const series = fillDays(daily.results, win.from, win.to, firstDay);
 
   return {
     window: win,
@@ -190,6 +205,10 @@ export async function readAnalytics(env, win) {
       per_day: win.days ? nowViews / win.days : null,
       days_with_data: Number(t.days_seen) || 0,
       pages_touched: Number(t.paths_seen) || 0,
+      /* The first day in the table, and whether this window reaches back past it,
+         so the panel can say why the chart is shorter than the window asked for. */
+      first_day: firstDay,
+      starts_early: !!(firstDay && firstDay > win.from),
       series
     },
     reading: {
