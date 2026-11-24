@@ -182,8 +182,14 @@ export async function syncGsc(env) {
     }
   }
 
+  /* Ask right up to yesterday and let Google decide how much of it is settled.
+     dataState "final" means it returns nothing at all for a day it has not
+     finalised, so a too-recent endDate costs nothing and never yields a partial
+     figure - the worry that originally fixed this at three days ago. Asking for
+     three meant the dashboard was always a day behind what Search Console's own
+     screen shows, for no gain: Google usually finalises in two. */
   const startDate = day(31);
-  const endDate = day(3);
+  const endDate = day(1);
   const base = { startDate, endDate, dataState: "final" };
 
   const [daily, queries, pages, devices] = await Promise.all([
@@ -203,9 +209,22 @@ export async function syncGsc(env) {
     position: r.position || 0
   }));
 
+  /* `to` is the last day Google actually ANSWERED for, not the last day asked
+     about. Everything downstream reads it: the panel prints "from to to", and
+     the clicks chart fills every day in that span with zero where Google
+     reported nothing. That gap-fill is right in the middle of the window - a day
+     Google has finalised and left out really did have no clicks - and wrong at
+     the end, where a day it simply has not finalised yet would be drawn as a
+     zero the site had invented. Ending at the real last row means the chart is
+     as fresh as Google's settled data allows and never one day further. */
+  const rows = tidy(daily, "date");
+  const lastDay = rows.length
+    ? rows.map((r) => r.date).sort().slice(-1)[0]
+    : endDate;
+
   const payload = {
-    site, from: startDate, to: endDate, fetched: now(),
-    daily: tidy(daily, "date"),
+    site, from: startDate, to: lastDay, fetched: now(),
+    daily: rows,
     queries: tidy(queries, "query"),
     pages: tidy(pages, "page"),
     devices: tidy(devices, "device")
@@ -249,7 +268,7 @@ export async function readGsc(env) {
         "Open that file in a text editor and copy the client_email value. It ends in gserviceaccount.com.",
         "At search.google.com/search-console, open Settings, then Users and permissions, then Add user. Paste that email and choose Full.",
         "Set the two secrets from a terminal in the project folder (see the note below - do not paste the private key into a chat).",
-        "Come back here and press Fetch now. Google reports two to three days behind, so the newest figures are from three days ago."
+        "Come back here and press Fetch now. Google finalises its figures two to three days late, so the newest day shown is usually the day before yesterday."
       ],
       /* Named here rather than in the UI so the wording and the code that needs it
          cannot drift. Piping beats pasting: the key never reaches the clipboard, the
@@ -315,12 +334,17 @@ function weightedPosition(rows) {
 }
 
 /**
- * Called from the ten-minute cron, but only actually fetches once a day.
+ * Called from the ten-minute cron, but only actually fetches every six hours.
  *
  * Search Console finalises its figures two to three days late and has a daily request
  * quota, so asking every ten minutes would spend the quota to receive the same numbers
- * 144 times. Twenty hours rather than twenty-four so the daily fetch does not drift
- * later and later and eventually skip a day.
+ * 144 times.
+ *
+ * It was twenty hours, which meant a new day of figures could sit at Google for the
+ * best part of a day before this copy noticed. Six is still four syncs a day against
+ * a quota measured in tens of thousands - one sync is four queries - and it cuts the
+ * worst case from twenty hours to six. Not less than that: the numbers only change
+ * when Google finalises another day, which happens once.
  */
 export async function maybeSyncGsc(env) {
   if (!gscConfigured(env)) return { skipped: "not configured" };
@@ -330,7 +354,7 @@ export async function maybeSyncGsc(env) {
       .bind("gsc_data").first();
     if (row && row.at) age = now() - Number(row.at);
   } catch (e) { /* no table yet: treated as never fetched, so it syncs */ }
-  if (age < 20 * 3600) return { skipped: "fetched " + Math.round(age / 3600) + "h ago" };
+  if (age < 6 * 3600) return { skipped: "fetched " + Math.round(age / 3600) + "h ago" };
   return await refreshGsc(env);
 }
 
