@@ -385,18 +385,40 @@ function lineChart(id, pts, hue) {
   var step = pts.length > 1 ? (W - PAD * 2) / (pts.length - 1) : 0;
   var x = function (i) { return PAD + i * step; };
   var y = function (v) { return H - PAD - (v / max) * (H - PAD * 2); };
-  var d = '', wash = '', open = false;
+  /* Built run by run, exactly as dayGraph does it on the public site. A day we
+     recorded nothing for ends the run, so the line AND the wash under it both
+     break there. The wash used to be drawn in one sweep across every point,
+     nulls included, which put solid colour under days we never recorded - the
+     one thing the broken line was there to avoid. */
+  var runs = [], cur = [];
   for (var i = 0; i < pts.length; i++) {
-    var p = pts[i];
-    if (p.n === null || p.n === undefined) { open = false; continue; }
-    d += (open ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p.n).toFixed(1) + ' ';
-    open = true;
+    if (pts[i].n === null || pts[i].n === undefined) {
+      if (cur.length) runs.push(cur);
+      cur = [];
+    } else cur.push(i);
   }
-  if (pts.length > 1) {
-    wash = 'M' + x(0).toFixed(1) + ' ' + (H - PAD) + ' ';
-    for (var j = 0; j < pts.length; j++) wash += 'L' + x(j).toFixed(1) + ' ' + y(pts[j].n).toFixed(1) + ' ';
-    wash += 'L' + x(pts.length - 1).toFixed(1) + ' ' + (H - PAD) + ' Z';
-  }
+  if (cur.length) runs.push(cur);
+  /* A dot per reading, like the site. The site draws 24 of them across this
+     width and has room; this chart can be asked for 90 days, where dots 8px
+     apart stop being dots and become a bar. So they shrink, and below 11px of
+     spacing they are left off and the line speaks for itself. */
+  var dotr = step >= 20 ? 4 : step >= 11 ? 3 : 0;
+  var d = '', wash = '', dots = '';
+  runs.forEach(function (r) {
+    var seg = r.map(function (i, n) {
+      return (n ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(pts[i].n).toFixed(1);
+    }).join(' ');
+    d += seg + ' ';
+    if (r.length > 1) {
+      wash += seg + ' L' + x(r[r.length - 1]).toFixed(1) + ' ' + (H - PAD) +
+        ' L' + x(r[0]).toFixed(1) + ' ' + (H - PAD) + ' Z ';
+    }
+    if (dotr) r.forEach(function (i) {
+      dots += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(pts[i].n).toFixed(1) +
+        '" r="' + dotr + '" fill="var(--' + hue + ')" stroke="var(--ink)" ' +
+        'stroke-width="1.5" vector-effect="non-scaling-stroke"/>';
+    });
+  });
   var gid = 'g-' + id;
   var ticks = '';
   [0, 0.5, 1].forEach(function (f) {
@@ -410,18 +432,19 @@ function lineChart(id, pts, hue) {
   return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H +
     '" tabindex="0" role="img" aria-label="Page views over time">' +
     '<defs><linearGradient id="' + gid + '" x1="0" x2="0" y1="0" y2="1">' +
-    '<stop offset="0" stop-color="hsl(' + hue + ' 80% 60% / .42)"/>' +
-    '<stop offset="1" stop-color="hsl(' + hue + ' 80% 60% / 0)"/></linearGradient></defs>' +
+    '<stop offset="0" stop-color="var(--' + hue + ')" stop-opacity=".42"/>' +
+    '<stop offset="1" stop-color="var(--' + hue + ')" stop-opacity=".02"/></linearGradient></defs>' +
     ticks +
     (wash ? '<path d="' + wash + '" fill="url(#' + gid + ')"/>' : '') +
-    '<path d="' + d + '" fill="none" stroke="hsl(' + hue + ' 80% 62%)" stroke-width="2.5" ' +
-    'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+    '<path d="' + d + '" fill="none" stroke="var(--' + hue + ')" stroke-width="2.5" ' +
+    'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' + dots +
     '<text x="' + PAD + '" y="' + (H - 6) + '" fill="var(--mut)" font-size="11">' + first + '</text>' +
     '<text x="' + (W - PAD) + '" y="' + (H - 6) + '" text-anchor="end" fill="var(--mut)" ' +
     'font-size="11">' + last + '</text>' +
     '<line class="cz" x1="0" y1="' + PAD + '" x2="0" y2="' + (H - PAD) +
-    '" stroke="var(--acc)" stroke-width="1" opacity="0"/>' +
-    '<circle class="cd" r="4.5" fill="hsl(' + hue + ' 80% 62%)" opacity="0"/></svg>';
+    '" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 4" opacity="0"/>' +
+    '<circle class="cd" r="6.5" fill="var(--ink)" stroke="var(--' + hue + ')" ' +
+    'stroke-width="2.5" vector-effect="non-scaling-stroke" opacity="0"/></svg>';
 }
 
 /* Drag, click, hover, touch-drag or arrow keys. The readout names the day and the
@@ -471,7 +494,7 @@ function spark(vals, hue) {
     d += (i ? 'L' : 'M') + (i * st).toFixed(1) + ' ' + (h - 2 - (v / max) * (h - 5)).toFixed(1) + ' ';
   });
   return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
-    '<path d="' + d + '" fill="none" stroke="hsl(' + hue + ' 80% 62%)" stroke-width="2" ' +
+    '<path d="' + d + '" fill="none" stroke="var(--' + hue + ')" stroke-width="2" ' +
     'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
 }
 
@@ -626,7 +649,7 @@ function pOverview() {
     label: 'Page views', value: num(v.value),
     change: v.change, prevLabel: 'vs ' + num(v.prev) + ' before',
     sub: num(Math.round(v.per_day || 0)) + ' a day on average',
-    spark: spark(v.series.map(function (s) { return s.n; }), 275),
+    spark: spark(v.series.map(function (s) { return s.n; }), 'acc'),
     why: 'Every page opened in this period, counted once per load. There is no visitor ' +
       'identifier anywhere on this site, so this counts VIEWS and never people. ' +
       'Compared against the ' + r.window.days + ' days immediately before.'
@@ -688,7 +711,7 @@ function pOverview() {
     '<div class="sec"><h2>' + esc(windowWords()) + '</h2>' +
     '<div class="cards">' + cards.join('') + '</div></div>' +
     '<div class="sec"><h2>Page views over time</h2><div class="card">' +
-    lineChart('ovchart', v.series, 275) +
+    lineChart('ovchart', v.series, 'acc') +
     '<p class="readout" id="ovread">Drag across the chart, or use the arrow keys, to read a day.</p>' +
     '</div></div>' + lightsHtml();
 }
@@ -781,7 +804,7 @@ function pTraffic() {
       why: 'Total reading seconds divided by completed reads.' }) +
     '</div>' +
     '<div class="sec"><h2>Page views over time</h2><div class="card">' +
-    lineChart('trchart', v.series, 275) +
+    lineChart('trchart', v.series, 'acc') +
     '<p class="readout" id="trread">Drag across the chart to read a day.</p></div></div>' +
     '<div class="row2">' +
     '<div class="card"><h2>By day of the week</h2>' + colBars(wk) +
@@ -1183,7 +1206,7 @@ function pSearch() {
         'better: 1 is the top result.' }) +
     '</div>' +
     '<div class="sec"><h2>Clicks over time</h2><div class="card">' +
-    lineChart('gschart', daily, 190) +
+    lineChart('gschart', daily, 'alt') +
     '<p class="readout" id="gsread">Drag across the chart to read a day.</p>' +
     '<p class="flag">' + plural(withClicks, 'day') + ' of the ' + daily.length +
     ' had at least one click. The rest are drawn as zero, which is what they were.</p>' +
