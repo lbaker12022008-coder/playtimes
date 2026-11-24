@@ -99,6 +99,24 @@ keeps up without anyone remembering to check.
     been cleaned.** An "all time" figure on the dashboard is therefore mostly us;
     only 22 Nov 2026 onwards means anything.
 - `build_site.py` writes `worker/stats.js` on every `docs` build; the dashboard reads it. Preview builds skip it.
+- **The charts are drawn the way the site draws its own** (23 Nov 2026, owner's
+  request: "make them the same as the ones on the live site, with the dots and
+  everything"). `lineChart` now puts a dot on every reading like `dayGraph`, takes
+  its colour from `var(--acc)` and `var(--alt)` rather than hand-mixed
+  `hsl(275)`/`hsl(190)`, and draws the crosshair at the site's size. This widens
+  the rule below: the colours still travel, and now the graph language does too.
+  The layout around them is still the dashboard's own.
+  - **The dots shrink and then stop.** The site plots 24 points across this width;
+    this chart can be asked for 90 days, where dots 8px apart stop being dots and
+    become a bar. Radius 4 above 20px of spacing, 3 above 11px, none below.
+  - **It also fixed a real bug.** The wash under the line was drawn in one sweep
+    across every point, nulls included, so a day we recorded nothing for still had
+    solid colour under it - the line broke there and the fill did not, which undid
+    the only thing the broken line is for. It is built run by run now.
+  - **Checking it does not need `wrangler dev` or the real database.** The
+    scratchpad harness imports `dashboardBody()`, pulls the inline script out,
+    evaluates it in a page carrying `theme.js`'s own palette, and screenshots
+    `lineChart` in both themes with a deliberate gap in the data.
 - **It looks like the public site, and the colours are not copied by hand.** `build_site.py` also writes `worker/theme.js` on every `docs` build, holding the `LIGHT` and `DARK` palettes as strings, and `worker/index.js` imports them into its `:root` rules. So a colour changed in `build_site.py` reaches the dashboard on the next build and the two cannot drift apart. **Only the colours travel**: the layout is the dashboard's own, because the site is for a visitor reading about one game and the dashboard is for one person reading numbers. The theme button saves to the same `pt_theme` key the site uses, so a choice made on either carries to the other. Preview builds skip `theme.js` as well, and the build workflow commits it alongside `stats.js`.
 - **Four tabs, not one long page** (`Overview`, `Visitors`, `Games & data`, `Launch checklist`). Which one is open is kept in `pt_admin_tab`. The panels are four `<div>`s filled by `render()`, and only the visible one is not `hidden`, so everything is built once from a single `/admin/data` call.
 - **The Overview opens with "Needs doing"**, built from real conditions only: an overdue build, a stalled collector, IDs Roblox did not return, `NOINDEX` still on, `MIN_SAMPLES` below 200, no domain, no page views yet. When the list is empty it says so rather than showing nothing. **Do not pad it with advice that is always true**: the point is that anything on it is something to go and do.
