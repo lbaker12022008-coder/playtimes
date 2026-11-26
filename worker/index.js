@@ -101,6 +101,11 @@ export default {
       console.error("request failed", path, err && err.stack || err);
       return text("Something went wrong. Please try again.", 500);
     }
+    // A game the creators renamed moved its address, and prune() deleted the old
+    // page. Before answering 404, see whether this is one of those.
+    const moved = await renamedTo(request, env, path);
+    if (moved) return moved;
+
     return await notFound(request, env);
   },
 
@@ -157,6 +162,54 @@ export default {
  * in wrangler.jsonc; if it is ever missing we fall back to plain text rather than
  * failing the request.
  */
+/* Sections whose address carries a game's slug. A renamed game moves all five. */
+const SLUG_SECTIONS = ["game", "updates", "events", "passes", "questions"];
+
+/* The published rename map, kept in memory between requests on the same isolate.
+   It changes only when the site is rebuilt, four times a day. */
+let RENAMES = null;
+let RENAMES_AT = 0;
+
+/**
+ * 301 to the address a renamed game lives at now, or null if this is not one.
+ *
+ * clean_name() in build_site.py keeps a holiday tag out of a game's address, so
+ * "[HALLOWEEN PT 3] Grand Piece Online" does not move. It cannot help when the
+ * creators change the name itself: "Car Crushers 2 - Physics Simulation" became
+ * "Car Crushers 2 - Destruction", the address moved with it, and Search Console
+ * listed the old one as Not found - a page Google had indexed, pointing nowhere.
+ *
+ * Every build writes /history.json, which remembers the address each universe id
+ * was published at and therefore which addresses are old. This turns that into a
+ * permanent redirect, so the standing an old address earned carries over to the
+ * new one instead of being thrown away.
+ *
+ * 301 and not 302: the move is permanent, and a temporary one leaves Google
+ * re-checking the dead address for ever - the same mistake the .html addresses
+ * made before they were given Redirect Rules.
+ */
+async function renamedTo(request, env, path) {
+  const bits = path.split("/").filter(Boolean);
+  if (bits.length !== 2 || SLUG_SECTIONS.indexOf(bits[0]) < 0) return null;
+  const url = new URL(request.url);
+  try {
+    if (!RENAMES || Date.now() - RENAMES_AT > 3600e3) {
+      const res = await env.ASSETS.fetch(new URL("/history.json", url.origin));
+      RENAMES = res.ok ? ((await res.json()).old || {}) : {};
+      RENAMES_AT = Date.now();
+    }
+  } catch (err) {
+    /* No history file yet, or it would not parse. A 404 is the right answer then,
+       and it is certainly better than a 500. */
+    console.error("history.json unreadable", err && err.message);
+    RENAMES = RENAMES || {};
+    RENAMES_AT = Date.now();
+  }
+  const to = RENAMES[bits[1]];
+  if (!to) return null;
+  return Response.redirect(url.origin + "/" + bits[0] + "/" + to, 301);
+}
+
 async function notFound(request, env) {
   try {
     const url = new URL(request.url);

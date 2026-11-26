@@ -5840,6 +5840,61 @@ def write(path, text):
     WRITTEN.add(path.replace("\\", "/"))
 
 
+# Addresses this site has published before, so a renamed game does not leave a dead
+# one behind.
+#
+# clean_name() keeps a holiday tag out of the address, which is why
+# /game/grand-piece-online survives "[HALLOWEEN PT 3] Grand Piece Online". It cannot
+# help when the creators change the NAME: "Car Crushers 2 - Physics Simulation"
+# became "Car Crushers 2 - Destruction" and "Vanguards: Trail of the Saint" became
+# "Vanguards: Embers of Justice", so both addresses moved, prune() deleted the old
+# pages, and Search Console listed them as Not found on 23 and 24 Nov 2026 - pages
+# Google had indexed, gone, with nothing pointing anywhere.
+#
+# A universe id never changes, so the id is the thread. Each build writes down which
+# address each id is published at; the next build compares, and any address an id
+# used to have is remembered as pointing at the one it has now. The worker turns that
+# into a 301, so every old address keeps its place in Google instead of dying.
+#
+# Chains are collapsed on the way in: if a game moves a to b and later b to c, both a
+# and b point at c, and nothing has to follow a trail of hops.
+#
+# It lives in docs/ because that is the folder the build job commits, and it is read
+# from docs/ even on a preview build - the published history is the real one, and a
+# preview must not be able to rewrite it.
+HISTORY = "history.json"
+
+
+def read_history():
+    try:
+        with open(f"docs/{HISTORY}", encoding="utf-8") as f:
+            was = json.load(f)
+    except Exception:
+        was = {}
+    return {"slugs": was.get("slugs") or {}, "old": was.get("old") or {},
+            "had_events": was.get("had_events") or []}
+
+
+def update_history(was, cards, had_events):
+    """The new history, given what this build is publishing."""
+    now_slugs = {str(c["uid"]): c["slug"] for c in cards}
+    old = dict(was["old"])
+    for uid, before in was["slugs"].items():
+        after = now_slugs.get(uid)
+        if after and before and before != after:
+            old[before] = after
+            # Anything that already pointed at the old address now points at the new
+            # one, so a game renamed twice never needs two hops.
+            for k, v in list(old.items()):
+                if v == before:
+                    old[k] = after
+    # An address that is live again is not an old address. A game can be renamed back.
+    for live in now_slugs.values():
+        old.pop(live, None)
+    ever = sorted(set(was["had_events"]) | {str(u) for u in had_events})
+    return {"slugs": now_slugs, "old": old, "had_events": ever}
+
+
 def write_bytes(path, data):
     """Same as write(), for a file that is not text (the PNG app icons)."""
     os.makedirs(os.path.dirname(f"{OUT}/{path}") or OUT, exist_ok=True)
@@ -6422,6 +6477,11 @@ def main():
             f"The best-covered game has {most} player counts so far.\n"
             f"Lower MIN_SAMPLES in build_site.py, or wait until the games catch up.\n")
 
+    # What this site has published before: which address each game had, and which
+    # games have ever had an events page. See HISTORY.
+    hist = read_history()
+    had_events_now = []
+
     # When each game's creators last announced an update, worked out before the
     # loop because a game's updates page offers other games' updates pages and so
     # has to know about games it has not reached yet - the same reason "Similar
@@ -6549,8 +6609,17 @@ def main():
         #
         # A game that has never had an event still gets no page: there is no
         # address to protect and nothing to say on it.
-        has = {"updates": bool(upd), "events": bool(events), "passes": bool(par_b),
-               "questions": bool(faq)}
+        # bool(events) is whether Roblox is listing any today, which is not the same
+        # question as whether this game has ever had an events page. Roblox's
+        # virtual-events endpoint only reaches back so far, so a game whose events
+        # have all aged out answers with an empty list and the page would vanish
+        # again - which is exactly what /events/durian-garden did, on an address
+        # Google had indexed. The history remembers, so the page stays.
+        if events:
+            had_events_now.append(uid)
+        has = {"updates": bool(upd),
+               "events": bool(events) or str(uid) in hist["had_events"],
+               "passes": bool(par_b), "questions": bool(faq)}
         # The sitemap only asks Google to look at a page that has something on it.
         for folder, yes in has.items():
             c["has_" + folder] = yes
@@ -7179,6 +7248,13 @@ def main():
 
     write_stats(db, games, cards, waiting)
     write_theme()
+    # Written before prune() so a build that stops short leaves the old history in
+    # place rather than a half-made one.
+    nowhist = update_history(hist, cards, had_events_now)
+    write(HISTORY, json.dumps(nowhist, separators=(",", ":"), sort_keys=True))
+    if nowhist["old"]:
+        print(f"{len(nowhist['old'])} old address(es) redirect to a renamed game.")
+
     prune()                        # last, so a build that fails never deletes anything
     db.close()
     print(f"Wrote {len(pages)} addresses into {OUT}/sitemap.xml in "
